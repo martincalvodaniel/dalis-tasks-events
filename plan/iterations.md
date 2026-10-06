@@ -121,17 +121,31 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ## 05 — Crear y editar tareas
 
-### 05a — Botón `+` y formulario
+### 05a — Botón `+` y formulario (dividida para el lote)
 
 - `target_paths`: `src/features/tasks/components/**`, `src/features/workspace/components/**`, primitivas realmente reutilizables en `src/components/ui/**`.
 - Dependencias: `04c`.
 - Aceptación: botón principal accesible; tarea con título, fecha, descripción y checklist se guarda offline; errores en español; fecha seleccionada precargada; edición y borrado lógico funcionan tras recarga.
 - Alcance: mostrar solo opciones de creación ya operativas; añadir evento/cumpleaños en `08/10`, sin botones que simulen guardar.
 
+
+#### 05a1 — Crear y listar tareas offline
+
+- Estado: completada; formulario y guardado offline probados en producción, incluidas recarga y outbox.
+
+- Objetivo: activar `+`, crear tarea simple validada con fecha/descripcion/checklist inicial y listar datos locales, con modal accesible y guardado dato+outbox.
+- `target_paths`: `src/features/tasks/{local-tasks.ts,hooks/**,components/**}`, integración en workspace/resumen y ambas barras; revalidación de foco en `local-db/account-control.ts`; fixture y plan. Dependencias: `04c`, contratos/IndexedDB de `02–03`; sin nuevas dependencias.
+- Aceptación/validación: hoy de la zona de la cuenta precargado; errores españoles; no afirmar guardado antes de commit transaccional; tarea creada sin servidor se conserva tras recarga; outbox verificable; móvil/teclado; tipos, lint, pruebas, build. Estado/checklist existentes solo lectura en esta entrega.
+
+#### 05a2 — Editar y borrar tareas offline
+
+- Objetivo y `target_paths`: ampliar formulario/listado y `local-tasks.ts` para actualizar y borrar lógicamente mediante outbox; plan y fixture pertinente. Dependencia: `05a1`.
+- Aceptación: editar título/fecha/descripción/checklist conserva identidad/estado; borrar pide confirmación explícita y crea tombstone, sin borrar cola; recarga sin servidor conserva ambos resultados; comprobación de dependencias de intenciones.
+
 ### 05b — Categorías y estados
 
 - `target_paths`: `src/features/tags/**`, estado/checklist en `src/features/tasks/**`, repositorios locales afectados.
-- Dependencias: `05a`.
+- Dependencias: `05a2`.
 - Aceptación: crear/elegir categoría; “Sin categoría”; empezar/completar/reabrir; marcar checklist no completa tarea implícitamente; borrar categoría conserva tareas; todos los cambios escriben outbox y sobreviven offline.
 
 ## 06 — Calendario mensual y apertura del día

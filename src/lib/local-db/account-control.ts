@@ -91,7 +91,7 @@ function notifyAccountChange() {
     channel.postMessage({ type: "ACCOUNT_CHANGED" })
     channel.close()
   } catch {
-    /* Storage events and focus checks cover browsers without BroadcastChannel. */
+    /* Storage events and SWR focus checks cover browsers without BroadcastChannel. */
   }
   try {
     localStorage.setItem(eventName, crypto.randomUUID())
@@ -156,11 +156,9 @@ export function subscribeAccountChanges(invalidate: () => void): () => void {
   }
   window.addEventListener(eventName, invalidate)
   window.addEventListener("storage", onStorage)
-  window.addEventListener("focus", invalidate)
   return () => {
     channel?.close()
     window.removeEventListener(eventName, invalidate)
     window.removeEventListener("storage", onStorage)
-    window.removeEventListener("focus", invalidate)
   }
 }

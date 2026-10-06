@@ -45,6 +45,46 @@ async function check(label: string, work: () => Promise<void>) {
   }
 }
 async function run() {
+  if (query.get("mode") === "task-create") {
+    await check(
+      "Tarea del formulario y su intención conservadas tras recarga",
+      async () => {
+        const repository = await LocalRepository.open(userId)
+        const outbox = await LocalOutbox.open(userId)
+        try {
+          const task = (await repository.list("items")).find(
+            (item) => item.title === "Comprar fruta"
+          )
+          assert(task?.kind === "task")
+          assert(
+            task.scheduledDate === "2026-10-09" &&
+              task.description === "Para la semana"
+          )
+          assert(
+            task.checklist.length === 2 &&
+              task.checklist[0].text === "Manzanas" &&
+              task.checklist[1].text === "Peras"
+          )
+          assert(task.checklist.every((entry) => !entry.completed))
+          const entries = await outbox.listEntries()
+          assert(entries.length === 2)
+          assert(
+            entries.some(
+              (entry) =>
+                entry.operation.command.type === "item.create" &&
+                entry.operation.command.itemId === task.id &&
+                entry.state === "pending"
+            )
+          )
+        } finally {
+          repository.close()
+          outbox.close()
+        }
+      }
+    )
+    statusElement.textContent = "Creación offline comprobada."
+    return
+  }
   if (query.get("mode") === "magnify") {
     const frame = document.createElement("iframe")
     frame.title = "Vista con texto ampliado"

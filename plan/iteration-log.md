@@ -144,6 +144,17 @@
 - Commit: `feat(navigation): add responsive offline workspace destinations`.
 - Siguiente candidata: `05a`, secuencial y acotada a tareas simples; consultar uso tras commit y conservar reserva del lote.
 
+## 05a1 — Creación y listado de tareas offline
+
+- Rama `main`, secuencial; entrada **5h 27%; 7d 33% restantes**, consulta tras `04c`. Se divide `05a` antes de empezar para cerrar creación y edición/borrado por separado, con reserva del lote.
+- Objetivo y `target_paths`: servicio local, hook SWR y componentes de tareas; workspace/resumen, acción `+` en ambas barras; `local-db/account-control.ts` para recuperación de foco sin desmontar formulario; fixture PWA y plan. Dependencias: `04c`, `02–03`.
+- Resultado: `+` abre un dialog accesible, hoy según zona de cuenta, título/fecha/descripcion y checklist inicial validados. Dato+intención se confirman atómicamente y el listado procede de IndexedDB. Errores y estados españoles; cierre no permite descartar mientras guarda. La generación de cuenta aísla caché/formulario, y revalidar al recuperar foco no oculta una cuenta inalterada.
+- Evidencia: con servidor detenido se rechazan título y checklist vacíos, se crea una tarea con fecha elegida, descripción y dos pasos. Tras recargar sin servidor conserva todos los campos. Fixture comprueba item+operación pendiente asociados y solo dos intenciones incluyendo la preparación ficticia. Modal a 320px, botón operativo en desktop, texto al 200% con navegación y acción sin scroll horizontal; espacio inferior reservado y [captura móvil revisada](evidence/05a1-mobile.png). El formulario al 200% tampoco desborda horizontalmente. Última actualización del worker conserva las tareas.
+- Validación: lint global sin ruido, tipos, build y 36 tests unitarios aprobados, cero fallos; suite auth DB opt-in sin cambios. `git diff --check` y referencias locales aprobados. Sin dependencias nuevas, secretos, push o despliegue; fixtures/datos y procesos de prueba retirados.
+- Alcance: tareas simples y listado; edición/borrado `05a2`, clasificación/estado/checklist interactivo `05b`, eventos y cumpleaños en `08/10`. No se muestra guardado remoto ni opciones de creación ficticias.
+- Commit: `feat(tasks): create and list tasks fully offline`.
+- Cierre del lote: lectura durante cierre **5h 19%; 7d 31% restantes**; se termina lo abierto y no se inicia `05a2` por reserva insuficiente en 5h. Lectura final tras commit comunicada al usuario. Siguiente candidata `05a2`, con presupuestos nuevos al reanudar.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

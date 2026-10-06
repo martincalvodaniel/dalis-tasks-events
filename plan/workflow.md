@@ -76,3 +76,7 @@ Antes de delegar, registrar `target_paths` de cada agente y responsable de integ
 ### Continuación autorizada tras el cierre de `03b`
 
 El usuario aclara que el presupuesto restante (60%/38%) todavía permite continuar y autoriza seguir mientras duerme. Nueva lectura al reanudar: 59%/38% restantes. Se retoma `04a` en secuencial; el cierre anticipado anterior no es un límite de alcance. Se mantiene la reserva reforzada del 20% y se parte una entrega amplia antes de detener por tamaño. Parar exige margen insuficiente para completar la siguiente entrega con pruebas y commit, una aprobación necesaria o un bloqueo de validación; no basta alcanzar un hito cómodo.
+
+### Cierre tras `05a1`, 7 de octubre
+
+El lote reanudado entrega `04a`, `04b`, `04c` y `05a1`, con commits individuales. Lectura durante el cierre de `05a1`: **5h 19%; 7d 31% restantes**. Se termina validación/documentación/commit de lo abierto y no se inicia `05a2`: la ventana corta ya está por debajo de la reserva del 20%. Las iteraciones de UI/offline consumieron más que los helpers iniciales, por lo que no se extrapola una media optimista a otra entrega con pruebas de navegador. El cierre final comunica la lectura posterior al commit; al reanudar se recupera el protocolo de ambos porcentajes nuevos. No hay una tarea de implementación dejada a medias: creación/listado se separó de edición/borrado antes de comenzar.

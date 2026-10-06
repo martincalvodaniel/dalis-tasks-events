@@ -1,12 +1,12 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas y navegación responsive comprobados (`01a–04c`); siguiente candidata `05a`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación y creación de tareas comprobados (`01a–05a1`); siguiente candidata `05a2`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
 Una webapp para crear y organizar tareas, eventos, citas y cumpleaños en un calendario. El trabajo diario debe poder realizarse completamente sin conexión después de preparar el dispositivo una primera vez. Cuando vuelva la conexión, los cambios se sincronizarán con MongoDB y con los demás dispositivos autorizados. Google identifica a cada usuario; determinados elementos se pueden compartir con otra cuenta de Google mediante su dirección Gmail.
 
-La experiencia será responsive y mobile-first: barra inferior de navegación con iconos SVG en móvil y barra superior en escritorio. Ambas se alimentan del mismo registro y se actualizan al crear cada pantalla importante. Implementada en `04c` con resumen y ajustes reales, accesibilidad, safe areas y navegación offline. El botón `+` se activa con el formulario de `05a`.
+La experiencia será responsive y mobile-first: barra inferior de navegación con iconos SVG en móvil y barra superior en escritorio. Ambas se alimentan del mismo registro y se actualizan al crear cada pantalla importante. Implementada en `04c` con resumen y ajustes reales, accesibilidad, safe areas y navegación offline. El botón `+` está operativo para tareas en ambas barras desde `05a1`.
 
 Este documento es la entrada al plan. La iteración `00` entregó la planificación; la implementación avanza con una lectura nueva de presupuesto entre entregas. El plan es modificable: los cambios de alcance o decisiones se registran antes de implementar y se incluyen en el commit de la iteración correspondiente.
 
@@ -86,7 +86,7 @@ Al final de **cada** iteración se preguntarán ambos porcentajes y se elegirá 
 
 Excepción autorizada posteriormente: lote desatendido del 6 de octubre, iniciado con **5h 82%; 7d 41% restantes**. Entre commits se consulta el uso real sin esperar feedback, con reserva reforzada del 20%. La autorización y sus condiciones figuran en `workflow.md`; el protocolo interactivo se recupera al terminar el lote.
 
-Lote cerrado tras `03b`: lectura automática **5h 61%; 7d 38% restantes** antes del commit documental de cierre. Se entregaron sesiones vigentes, contratos, corrección de lint solicitada, fechas, repositorios IndexedDB y outbox atómica, con commits separados y validaciones. El usuario ha solicitado continuar este lote sin feedback mientras haya margen para completar otra entrega. Se reanudó `04a` con lectura 59%/38%. `04a–04b` ya verifican el shell offline y el cierre persistido; calendario, creación y sincronización remota siguen pendientes.
+Lote cerrado tras `03b`: lectura automática **5h 61%; 7d 38% restantes** antes del commit documental de cierre. Se entregaron sesiones vigentes, contratos, corrección de lint solicitada, fechas, repositorios IndexedDB y outbox atómica, con commits separados y validaciones. El usuario ha solicitado continuar este lote sin feedback mientras haya margen para completar otra entrega. Se reanudó `04a` con lectura 59%/38%. `04a–04b` ya verifican el shell offline y el cierre persistido; creación de tareas y navegación responsive ya se han incorporado; calendario y sincronización remota siguen pendientes.
 
 ## Prerrequisitos por confirmar en su iteración
 
@@ -106,3 +106,7 @@ La arquitectura y las reglas funcionales son decisiones de este proyecto. Las li
 - [Background Synchronization — MDN](https://developer.mozilla.org/en-US/docs/Web/API/Background_Synchronization_API): disponibilidad limitada; no será un requisito del funcionamiento normal.
 - [Transacciones — MongoDB](https://www.mongodb.com/docs/manual/core/transactions/): atomicidad entre documentos y despliegues compatibles.
 - [Límites de uso — OpenAI](https://learn.chatgpt.com/docs/pricing#what-are-the-usage-limits-for-my-plan): consumo variable según tarea y configuración. Las ventanas 5h/7d aquí son las comunicadas para esta cuenta; comprobar los valores vigentes después de cada entrega.
+
+### Último corte de implementación
+
+Lote reanudado cerrado al completar `05a1`: shell offline, cierre/cuentas, barras responsive y creación/listado de tareas. Lectura durante cierre: 19%/31%; consulta final tras commit comunicada al usuario. No se abre `05a2` por reserva insuficiente de 5h. Próxima entrega: editar y borrar tareas offline, seguida de categorías/estado, calendario y agenda. El MVP remoto/recurrencia/compartición sigue pendiente; no se presenta como completado.
