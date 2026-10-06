@@ -1,12 +1,12 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: reapertura offline, cierre y aislamiento de cuenta comprobados (`01a–04b`); siguiente candidata `04c`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas y navegación responsive comprobados (`01a–04c`); siguiente candidata `05a`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
 Una webapp para crear y organizar tareas, eventos, citas y cumpleaños en un calendario. El trabajo diario debe poder realizarse completamente sin conexión después de preparar el dispositivo una primera vez. Cuando vuelva la conexión, los cambios se sincronizarán con MongoDB y con los demás dispositivos autorizados. Google identifica a cada usuario; determinados elementos se pueden compartir con otra cuenta de Google mediante su dirección Gmail.
 
-La experiencia será responsive y mobile-first: barra inferior de navegación con iconos SVG en móvil y barra superior en escritorio. Ambas se alimentan del mismo registro y se actualizan al crear cada pantalla importante. Su implementación está programada en `04c`, con criterios de accesibilidad, safe areas y navegación offline.
+La experiencia será responsive y mobile-first: barra inferior de navegación con iconos SVG en móvil y barra superior en escritorio. Ambas se alimentan del mismo registro y se actualizan al crear cada pantalla importante. Implementada en `04c` con resumen y ajustes reales, accesibilidad, safe areas y navegación offline. El botón `+` se activa con el formulario de `05a`.
 
 Este documento es la entrada al plan. La iteración `00` entregó la planificación; la implementación avanza con una lectura nueva de presupuesto entre entregas. El plan es modificable: los cambios de alcance o decisiones se registran antes de implementar y se incluyen en el commit de la iteración correspondiente.
 

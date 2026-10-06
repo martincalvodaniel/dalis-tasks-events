@@ -110,6 +110,10 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 04c — Navegación responsive mobile-first
 
+- Estado: completada para barras, resumen/ajustes, navegación offline y texto al 200%; creación operativa se conecta en `05a`.
+
+- Corte de implementación: resumen y ajustes reales de dispositivo; el botón `+` se activa con el formulario operativo de `05a`, inmediatamente después, sin destino ficticio en esta entrega.
+
 - `target_paths`: componentes extraídos en `src/components/shared/**` para barra inferior/superior, SVG en `src/components/ui/**`, registro tipado en `src/config/navigation.ts` y shell de workspace.
 - Dependencias: `04b`; solo incluir pantallas que existan. Un registro de destinos, dos presentaciones responsive; sin nuevo kit de UI.
 - Aceptación: móvil con barra inferior de iconos SVG y labels en español; escritorio con navbar superior; estado activo y navegación por teclado; botón `+` accesible; safe areas y padding impiden tapar contenido. Verificar a 320/390/768/1280px y con texto ampliado; navegación entre destinos locales disponible offline.

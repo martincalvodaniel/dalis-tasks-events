@@ -135,6 +135,15 @@
 - Commit: `feat(workspace): preserve account isolation across offline sessions`.
 - Siguiente candidata: `04c` en secuencial; consultar ambas ventanas y continuar mientras la entrega completa cabe con reserva.
 
+## 04c — Barras responsive y destinos locales
+
+- Rama `main`, secuencial; entrada **5h 33%; 7d 33% restantes**, consulta tras `04b`. Objetivo y `target_paths`: registro tipado en `config/navigation.ts`, barras/links en `components/shared/**`, SVG local en `components/ui/navigation-icon.tsx`, resumen/ajustes y selección de vista en `features/workspace/**`; fixture de texto ampliado y plan. Dependencia: `04b`.
+- Resultado: un registro alimenta barra inferior móvil y navbar superior desktop, SVG locales, destino activo, labels españoles y salto al contenido. Resumen y ajustes de cuenta son destinos operativos; enlaces HTML a `/workspace` con query restauran la vista desde el shell neutro cacheado. No necesitan RSC o servidor. El `+` se incorpora con la creación real en `05a`.
+- Evidencia: build de producción, servidor detenido y navegación entre resumen y ajustes; 320/390/768/1280px sin scroll horizontal, barra fija abajo en móvil y superior desde 768px. Teclado desde navegación llega a los controles de cuenta. Fixture iframe al 200% sobre 320px: labels y contenido ajustados para evitar desbordamiento; padding inferior mayor que la altura real de la barra. Captura móvil revisada; safe areas reservadas por CSS, dispositivo físico pendiente del piloto.
+- Validación: lint sin errores, `tsc --noEmit`, build y 36 tests aprobados, cero fallos; suite auth DB opt-in sin cambios. Referencias locales y `git diff --check` aprobados. Fixtures y datos ficticios retirados; sin dependencias nuevas.
+- Commit: `feat(navigation): add responsive offline workspace destinations`.
+- Siguiente candidata: `05a`, secuencial y acotada a tareas simples; consultar uso tras commit y conservar reserva del lote.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

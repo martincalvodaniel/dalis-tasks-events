@@ -45,6 +45,22 @@ async function check(label: string, work: () => Promise<void>) {
   }
 }
 async function run() {
+  if (query.get("mode") === "magnify") {
+    const frame = document.createElement("iframe")
+    frame.title = "Vista con texto ampliado"
+    frame.src = "/workspace?view=settings"
+    frame.style.width = "100%"
+    frame.style.height = "800px"
+    frame.style.border = "0"
+    frame.addEventListener("load", () => {
+      if (!frame.contentDocument) throw new Error("Test frame missing")
+      frame.contentDocument.documentElement.style.fontSize = "32px"
+      statusElement.textContent =
+        "Texto al 200%; comprobar navegación y controles."
+    })
+    actionContainer.append(frame)
+    return
+  }
   if (query.get("mode") === "cleanup") {
     const current = await readAccountControl()
     assert(
