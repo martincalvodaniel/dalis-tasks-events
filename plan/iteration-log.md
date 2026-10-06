@@ -53,6 +53,16 @@
 - Commit: `fix(auth): require authoritative persisted sessions`.
 - Siguiente candidata: `02a`, después de consultar las dos ventanas.
 
+## 02a — Contratos del dominio
+
+- Rama `main`, secuencial; presupuesto de entrada: **5h 77%; 7d 40% restantes**, consulta de cuenta tras `01b`.
+- Ámbito: `src/schemas/**`, tipos inferidos en `src/types/**` y documentación. Sin rutas, UI, driver ni dependencias nuevas.
+- Resultado: tipos discriminados tarea/evento/cumpleaños, checklist con IDs, categorías/preferencias personales, ocurrencias con slot estable, reglas de recurrencia y permisos/invitaciones. Intenciones estrictas sin actor/propietario recibido del cliente; límite de lote por cantidad y bytes UTF-8.
+- Validación: 24 tests unitarios aprobados (incluidos 7 nuevos escenarios de dominio); DB integration opt-in no repetida al no cambiar auth. Tipos, Biome de nuevos archivos y build de producción aprobados. Lint global conserva únicamente los cinco SVG de plantilla documentados.
+- Representación explicitada: horarios en unión `schedule`, conversión UTC/DST pendiente de `08`; inferir tipos desde schemas evita validación duplicada. Fixtures usan datos ficticios y no se incorpora estado de prueba al producto.
+- Commit: `feat(domain): define validated calendar and sync contracts`.
+- Siguiente candidata: `02b`, previa consulta del presupuesto.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

@@ -37,6 +37,10 @@ Una familia `CalendarItem` validada por `kind`: `task`, `event` o `birthday`. Ba
 
 Tipos de dominio sin `ObjectId`, driver MongoDB ni imports Next.js en `src/types/**`. Zod compartido en `src/schemas/**`. Tipos de persistencia y mapeos de MongoDB en `src/lib/db/**`.
 
+Implementación inicial de contratos (`02a`): tipos derivados de los esquemas Zod para no duplicar shapes. Eventos usan `schedule.mode = all_day | timed`, con campos civiles o de hora separados; la conversión a instantes UTC y la elección de horas DST se implementan en `08`, no se aceptan instantes del cliente como autoridad. Recurrencias de una serie anclan en su fecha inicial; las excepciones mantienen `id = seriesId:slotKey` aunque se reprograme la fecha visible.
+
+Límites iniciales: título 160 caracteres, descripción 10.000, checklist 100 puntos con texto de hasta 500, categoría 60; lotes de sincronización hasta 50 operaciones y 512 KiB de JSON UTF-8, sin IDs de operación repetidos. Son límites de producto/protocolo revisables, no límites impuestos por MongoDB. Las formas estrictas rechazan campos de otro tipo e identidad/roles inyectados en intenciones.
+
 Los campos de transporte (`operationId`, `baseRevision`, etc.) no forman parte del formulario del usuario. El servidor no confía en `ownerId`, `userId`, roles, revisiones o timestamps recibidos como prueba de autorización.
 
 ## Tareas

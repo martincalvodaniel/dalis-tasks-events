@@ -52,7 +52,8 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 02a — Entidades y comandos
 
-- `target_paths`: `src/types/{calendar-item,tag,sharing,sync}.ts`, `src/schemas/**` relevantes.
+- Estado: contratos iniciales implementados y comprobados; generación de recurrencia y mutaciones remotas siguen en sus entregas.
+- `target_paths`: `src/types/{calendar-item,preferences,sharing,sync}.ts`, `src/schemas/**` relevantes.
 - Dependencias: `01b` para confirmar tipo de identidad; reglas de [product-and-model.md](product-and-model.md).
 - Aceptación: unión discriminada tarea/evento/cumpleaños, checklist por ID, preferencias personales, esquemas de intenciones/versiones; rechazar datos incompatibles por tipo, títulos vacíos, fechas imposibles y payloads desmesurados. Tipos/esquemas sin imports de framework/driver.
 - Alcance: contratos iniciales, sin implementar aún auth, transporte, UI ni recurrencia completa.
