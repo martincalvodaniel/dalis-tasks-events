@@ -2,7 +2,9 @@ import { z } from "zod"
 
 export const entityIdSchema = z.uuid()
 export const userIdSchema = z.string().trim().min(1).max(128)
-export const civilDateSchema = z.iso.date()
+export const civilDateSchema = z.iso
+  .date()
+  .refine((value) => !value.startsWith("0000-"), "Civil year must be positive")
 export const timestampSchema = z.iso.datetime({ precision: 3 })
 export const revisionSchema = z
   .number()

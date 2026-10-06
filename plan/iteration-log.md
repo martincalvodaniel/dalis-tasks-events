@@ -72,6 +72,15 @@
 - Commit: `fix(a11y): add accessible titles to template SVG assets`.
 - Siguiente candidata: `02b`, secuencial, tras consulta automática de las dos ventanas.
 
+## 02b — Fechas civiles y atrasadas
+
+- Rama `main`, secuencial; presupuesto de entrada: **5h 71%; 7d 39% restantes**, lectura de cuenta después de `00c`.
+- Objetivo y `target_paths`: fechas civiles, rangos mensuales/semanales y atrasadas en `src/lib/calendar/**`; validación de año positivo en `src/schemas/primitives.ts`; plan actualizado. Dependencia: contratos de `02a`.
+- Resultado: hoy según la zona de la cuenta y reloj inyectable; aritmética sin offset local, rangos limitados con final exclusivo y semanas desde lunes. Atrasadas conserva referencias, fecha, estado y checklist; excluye completadas, borradas, canceladas, eventos/cumpleaños y padres de series. Motor de ocurrencias pendiente de `09`.
+- Validación: **31 pruebas unitarias aprobadas, cero fallos**, incluidos siete escenarios de calendario; suite remota opt-in no repetida. Casos de medianoche, año nuevo, bisiestos, DST, años inferiores a 100, límites e invariancia de datos. Lint global, `tsc --noEmit`, build de producción y `git diff --check` aprobados.
+- Commit: `feat(calendar): implement civil dates and overdue task selection`.
+- Siguiente candidata: `03a`, secuencial y con verificación IndexedDB en navegador real; comprobar las dos ventanas antes de comenzar.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

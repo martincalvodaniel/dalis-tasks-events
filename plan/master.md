@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: identidad, sesiones y contratos del dominio comprobados (`01a–02a`); siguiente candidata `02b`. Fecha: 6 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: identidad y reglas iniciales del dominio comprobadas (`01a–02b`); siguiente candidata `03a`. Fecha: 6 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 

@@ -67,6 +67,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 02b — Fechas civiles y atrasadas
 
+- Estado: completada; aritmética civil y selección probadas, conexión con UI prevista en `06–07`.
 - `target_paths`: `src/lib/calendar/{civil-date,date-range,overdue}.ts`, pruebas asociadas.
 - Dependencias: `02a`.
 - Aceptación: fecha local no cambia por offset UTC; atraso conserva estado y fecha; completadas/eventos/cumpleaños excluidos; pruebas de cambio de día, mes/año y zona, con reloj inyectable.

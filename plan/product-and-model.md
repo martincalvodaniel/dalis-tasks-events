@@ -109,3 +109,7 @@ Alcance MVP: diaria, semanal con días seleccionados, mensual y anual; intervalo
 Google Calendar, importar contactos/cumpleaños de Google, email transaccional, recordatorios push, adjuntos, subtareas jerárquicas, semana/kanban, múltiples etiquetas por elemento, búsqueda avanzada, edición colaborativa en tiempo real y CRDT, cuentas invitadas sin Google, y cifrado local con contraseña independiente. El backup local básico sí está incluido para recuperar trabajo offline.
 
 Estas extensiones no forman parte de “completamente offline” y no deben introducirse mientras se construye la base.
+
+### Reglas iniciales implementadas en `02b`
+
+Fechas civiles admitidas: años `0001–9999`, sin conversión implícita a la zona del dispositivo. La zona de la cuenta determina hoy mediante un reloj inyectable. Los rangos usan final exclusivo, semanas de lunes a domingo y un límite de expansión. Atrasadas conserva la fecha y el estado; excluye completadas, tombstones y ocurrencias canceladas. Una serie se evalúa por ocurrencias, nunca por su registro padre; su generación llega en `09`.
