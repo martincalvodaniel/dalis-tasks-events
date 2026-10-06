@@ -19,6 +19,9 @@
 
 # production
 /build
+/public/dalis-sw.js
+/public/pwa-check.html
+/public/pwa-check.js
 
 # misc
 .DS_Store

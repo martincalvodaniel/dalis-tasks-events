@@ -14,7 +14,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Dalis Tasks & Events",
-  description: "Task and event management for the Dalis family",
+  description: "Tus tareas y fechas importantes, también sin conexión",
+  appleWebApp: { capable: true, title: "Dalis" },
+  icons: { apple: "/apple-touch-icon.png" },
 }
 
 export default function RootLayout({

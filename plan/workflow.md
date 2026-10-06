@@ -5,7 +5,7 @@
 - Cada iteración o subiteración es una entrega pequeña, comprobable y cerrada mediante **commit en la rama actual**. No crear o cambiar rama por iniciativa propia. No hacer push, merge o despliegue sin que formen parte de una solicitud autorizada.
 - Todo código y comentarios en inglés. Labels, textos de ayuda, errores visibles, estados vacíos y nombres accesibles de la UI en español. La documentación del plan puede estar en español.
 - Se puede editar `AGENTS.md` y añadir versiones anidadas cuando aporten reglas específicas. No duplicar todo el documento raíz ni contradecir sus límites.
-- Mantener el stack; no añadir dependencias base, servicios o cambios materiales de seguridad sin aprobación humana. Las excepciones offline propuestas en el plan no están todavía implementadas.
+- Mantener el stack; no añadir dependencias base, servicios o cambios materiales de seguridad sin aprobación humana. Las excepciones offline se incorporan en sus iteraciones y se documentan; nunca sustituyen autorización remota.
 
 ## Antes de editar
 
@@ -56,7 +56,7 @@ El usuario ha autorizado continuar varias iteraciones sin feedback mientras duer
 - Si no se puede consultar el uso, una decisión requiere aprobación, una validación crítica no está disponible, o el siguiente corte es demasiado amplio, detener el lote con código comprobado y commit. Una herramienta de aprobación bloqueada no autoriza a dejar archivos incoherentes ni a rebajar la aceptación.
 - Al terminar, registrar la lectura más reciente, commits, pruebas y siguiente candidata; volver al protocolo normal para la siguiente sesión del usuario.
 
-El lote se cerró después de `03b`, con base local y cola verificadas y sin tareas de implementación abiertas. Lectura previa al cierre documental: **61% / 38% restantes**. La autorización desatendida de este lote queda consumida; la siguiente sesión vuelve a preguntar ambos valores antes de elegir `04a`. La navegación responsive sigue prevista en `04c`.
+El lote se cerró después de `03b`, con base local y cola verificadas y sin tareas de implementación abiertas. Lectura previa al cierre documental: **61% / 38% restantes**. Ese cierre se revocó por instrucción posterior del usuario: continuar sin feedback mientras la siguiente entrega y su cierre quepan en el presupuesto. La autorización desatendida sigue vigente para esta continuación; consultar ambas ventanas tras cada commit y detener únicamente por falta de margen o un bloqueo real. La navegación responsive sigue prevista en `04c`.
 
 ## Secuencial y paralelo
 
@@ -72,3 +72,7 @@ Antes de delegar, registrar `target_paths` de cada agente y responsable de integ
 - Si surge una incertidumbre material sobre dependencias o seguridad, completar antes el análisis independiente y presentar una opción concreta para decidir.
 - Si hay una interrupción inesperada, dejar un punto de reanudación con archivos y verificaciones pendientes. No afirmar que la iteración se completó ni crear un commit de código que se sabe roto para cumplir formalmente la regla.
 - Detenerse en un límite de entrega cerrado es correcto; el objetivo es evitar abandonar a mitad de una mutación, migración o integración.
+
+### Continuación autorizada tras el cierre de `03b`
+
+El usuario aclara que el presupuesto restante (60%/38%) todavía permite continuar y autoriza seguir mientras duerme. Nueva lectura al reanudar: 59%/38% restantes. Se retoma `04a` en secuencial; el cierre anticipado anterior no es un límite de alcance. Se mantiene la reserva reforzada del 20% y se parte una entrega amplia antes de detener por tamaño. Parar exige margen insuficiente para completar la siguiente entrega con pruebas y commit, una aprobación necesaria o un bloqueo de validación; no basta alcanzar un hito cómodo.

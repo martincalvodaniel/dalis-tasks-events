@@ -94,6 +94,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 04a — Shell neutro y preparación PWA
 
+- Estado: completada, incluyendo recarga de producción con servidor detenido. Navegador de Codex comprobado; Safari/iPhone/Android físicos pendientes del piloto.
 - `target_paths`: `src/app/(offline)/workspace/page.tsx`, `src/app/manifest.ts`, `src/features/workspace/**`, `src/lib/pwa/**`, `src/proxy.ts`, assets `public/**`, configuración/build del worker si hace falta.
 - Dependencias: `03b`; leer guía PWA instalada y precisar navegadores del piloto. Un único responsable de configuración compartida.
 - Aceptación: entrada neutra sin datos privados, cliente con partición preparada, worker TypeScript compilado y assets necesarios cacheados; `/workspace` y manifest no bloqueados por auth; API sigue protegida; “Disponible sin conexión” solo tras preparar recursos y datos.

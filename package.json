@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "bun run scripts/build.ts",
     "db:ensure-indexes": "bun run scripts/ensure-indexes.ts",
     "dev": "next dev",
     "format": "biome format --write",

@@ -113,6 +113,17 @@
 - Commit: `docs(plan): record completed unattended batch and next milestone`.
 - Siguiente candidata: `04a`, luego `04b` y navegación responsive `04c`. Retomar con presupuesto nuevo en ambas ventanas y el protocolo interactivo habitual. El shell offline, calendario, UI de creación, sync remoto y compartición aún no se declaran terminados.
 
+## 04a — Shell neutro y preparación offline
+
+- Rama `main`, secuencial. Presupuesto de entrada: **5h 59%; 7d 38% restantes**. El usuario revoca el cierre anticipado y solicita continuar mientras la siguiente entrega y cierre quepan; autorización desatendida vigente.
+- Objetivo y `target_paths`: ruta neutra y manifest, `features/workspace/**`, worker/cache en `lib/pwa/**`, identidad GET autenticada, proxy, build script, iconos y fixtures. Dependencia: `03b`. Guías PWA/use-client/headers instaladas y skill React consultadas.
+- Resultado: `/workspace` prerenderizado sin datos personales; preparado tras identidad autorizada, DB local válida y caché completa. Worker TypeScript compilado con build ID, manifest/iconos/fuentes/chunks locales. Solo navegación neutra y recursos listados; APIs/RSC/POST/HTML privado fuera de caché. Servidor auth sigue protegiendo identidad; desarrollo no anuncia offline preparado.
+- Evidencia: tres checks en navegador de producción (recursos completos, identidad 401/no-store fuera de caché, cuenta ficticia con operación persistida) y **recarga con servidor detenido**, verificada sin acceso HTTP al origen. Shell e item local restaurados. Fixture no autentica remoto ni consulta datos reales; recursos ficticios limpiados y servidor detenido.
+- Validación: 36 pruebas unitarias aprobadas, incluida política de caché; lint global, tipos, build de producción y `git diff --check` aprobados. El build confirma `/workspace` y manifest estáticos. Enlaces locales revisados. No se añaden dependencias.
+- Límites explícitos: navegador de Codex comprobado; móviles físicos/Google interactivo pendientes. La caché de shell no implementa tareas UI, sync remoto ni bootstrap. Logout/cuenta/versiones endurecidos en `04b`; barras responsive llegan en `04c` antes de pantallas de dominio.
+- Commit: `feat(pwa): prepare a neutral offline workspace shell`.
+- Siguiente candidata: `04b`, tras consulta de ambas ventanas; no cerrar el lote por haber alcanzado este hito si todavía hay margen.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

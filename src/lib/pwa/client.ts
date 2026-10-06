@@ -1,0 +1,58 @@
+"use client"
+
+import { canPrepareOfflineShell, OFFLINE_WORKER_URL } from "@/config/pwa"
+import { offlineWorkerStatusSchema } from "@/schemas/workspace"
+
+function readWorkerStatus(worker: ServiceWorker): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const channel = new MessageChannel()
+    const timeout = setTimeout(() => {
+      channel.port1.close()
+      reject(new Error("Offline worker did not respond"))
+    }, 10000)
+    channel.port1.onmessage = (event) => {
+      clearTimeout(timeout)
+      channel.port1.close()
+      const result = offlineWorkerStatusSchema.safeParse(event.data)
+      if (result.success) resolve(result.data.ready)
+      else reject(new Error("Invalid offline worker response"))
+    }
+    worker.postMessage({ type: "OFFLINE_STATUS" }, [channel.port2])
+  })
+}
+
+export async function isOfflineShellReady(): Promise<boolean> {
+  if (!("serviceWorker" in navigator)) return false
+  const registration =
+    await navigator.serviceWorker.getRegistration("/workspace")
+  return registration?.active ? readWorkerStatus(registration.active) : false
+}
+
+export async function prepareOfflineShell(): Promise<void> {
+  if (!canPrepareOfflineShell || !("serviceWorker" in navigator))
+    throw new Error("Offline shell preparation is unavailable")
+  await navigator.serviceWorker.register(OFFLINE_WORKER_URL, {
+    scope: "/",
+    updateViaCache: "none",
+  })
+  const registration = await new Promise<ServiceWorkerRegistration>(
+    (resolve, reject) => {
+      const timeout = setTimeout(
+        () => reject(new Error("Offline worker installation timed out")),
+        30000
+      )
+      navigator.serviceWorker.ready.then(
+        (value) => {
+          clearTimeout(timeout)
+          resolve(value)
+        },
+        (error) => {
+          clearTimeout(timeout)
+          reject(error)
+        }
+      )
+    }
+  )
+  if (!registration.active || !(await readWorkerStatus(registration.active)))
+    throw new Error("Offline shell is incomplete")
+}
