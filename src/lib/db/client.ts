@@ -8,16 +8,16 @@ interface MongoGlobal {
   dalisMongoClientPromise?: Promise<MongoClient>
 }
 
-const databaseEnv = getDatabaseEnv()
 const mongoGlobal = globalThis as typeof globalThis & MongoGlobal
 
 let clientPromise: Promise<MongoClient> | undefined
 
 function createClientPromise(): Promise<MongoClient> {
-  return new MongoClient(databaseEnv.uri).connect()
+  return new MongoClient(getDatabaseEnv().uri).connect()
 }
 
 function getClientPromise(): Promise<MongoClient> {
+  const databaseEnv = getDatabaseEnv()
   if (databaseEnv.isDevelopment) {
     if (!mongoGlobal.dalisMongoClientPromise) {
       const connection = createClientPromise()
@@ -60,7 +60,7 @@ async function ensureIndexesOnce(database: Db): Promise<void> {
 
 export async function getDatabase(): Promise<Db> {
   const client = await getClientPromise()
-  const database = client.db(databaseEnv.databaseName)
+  const database = client.db(getDatabaseEnv().databaseName)
 
   await ensureIndexesOnce(database)
 
@@ -68,9 +68,8 @@ export async function getDatabase(): Promise<Db> {
 }
 
 export async function closeDatabaseConnection(): Promise<void> {
-  const activeClientPromise = databaseEnv.isDevelopment
-    ? mongoGlobal.dalisMongoClientPromise
-    : clientPromise
+  const activeClientPromise =
+    mongoGlobal.dalisMongoClientPromise ?? clientPromise
 
   if (!activeClientPromise) {
     return
@@ -83,8 +82,6 @@ export async function closeDatabaseConnection(): Promise<void> {
     indexesPromise = undefined
     clientPromise = undefined
 
-    if (databaseEnv.isDevelopment) {
-      mongoGlobal.dalisMongoClientPromise = undefined
-    }
+    mongoGlobal.dalisMongoClientPromise = undefined
   }
 }

@@ -65,3 +65,22 @@ export function getDatabaseEnv() {
     uri: getRequiredEnv("MONGODB_URI"),
   }
 }
+
+export function getAuthDatabaseTestConfig() {
+  if (process.env.RUN_AUTH_DB_TESTS !== "1") {
+    return null
+  }
+
+  const databaseEnv = getDatabaseEnv()
+  const host = new URL(databaseEnv.uri).hostname
+  if (
+    !databaseEnv.databaseName.startsWith("dalis-auth-test-") ||
+    !["127.0.0.1", "localhost"].includes(host)
+  ) {
+    throw new Error(
+      "Auth database tests require an isolated local test database"
+    )
+  }
+
+  return { databaseName: databaseEnv.databaseName }
+}

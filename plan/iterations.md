@@ -9,7 +9,7 @@ Los `target_paths` describen el ámbito permitido; antes de editar, concretar ar
 | Hito | Entregas | Estado |
 | --- | --- | --- |
 | Plan y reglas | `00` | Completada; validación documental registrada en el log. |
-| Identidad y base offline | `01a–04b` | Pendiente. |
+| Identidad y base offline | `01a–04b` | `01a` implementada y validada automáticamente; `01b–04b` pendientes. |
 | Calendario personal y creación de tareas | `05a–07b` | Pendiente. |
 | Eventos, repetición y cumpleaños | `08–10` | Pendiente. |
 | Remoto, convergencia y recuperación | `11a–13c` | Pendiente. |
@@ -29,10 +29,12 @@ Para toda entrega con código: tipos, lint, pruebas pertinentes y build según [
 
 ### 01a — Adaptador de identidad
 
+- Estado: completada la integración y sus comprobaciones automatizadas; verificación interactiva con Google real en `15a`.
 - Objetivo: persistir usuarios y cuentas de Google con ID estable, reutilizando singleton y adaptador Better Auth existente.
-- `target_paths`: `src/lib/auth/auth.ts`, `src/lib/db/{client,collections,ensure-indexes}.ts`, `src/lib/db/auth-adapter.ts`, pruebas de DB/auth.
+- `target_paths`: `src/lib/auth/auth.ts`, `src/lib/db/{client,collections,ensure-indexes}.ts`, `src/lib/db/{auth-adapter,auth-models}.ts`, pruebas de DB/auth, configuración de seguridad de la DB de test en `src/config/env.ts` e instrucciones de la capa DB.
 - Dependencias: `00`; revisar tipos/documentación instalada del adaptador; acceso a base de pruebas. No abrir otro cliente ni crear índices fuera del registro central.
-- Aceptación: misma cuenta obtiene el mismo ID tras cerrar sesión/reiniciar y desde dos navegadores; cuentas distintas tienen IDs distintos; índices de auth registrados; configuración de Google sigue funcionando.
+- Aceptación automatizada: misma cuenta obtiene el mismo ID tras cerrar sesión/reconectar y desde dos clientes HTTP con cookies independientes; cuentas distintas tienen IDs distintos; índices de auth registrados; URL de autorización Google conserva proveedor, client ID y callback. Firmas/emisor/audiencia se verifican con clave de prueba y MongoDB real. El recorrido interactivo completo en dos navegadores y Google real se verifica en `15a`, sin atribuir esa evidencia a esta entrega.
+- Ajuste de validación: clientes HTTP independientes hacen la comprobación reproducible de persistencia sin cuentas personales ni intervención OAuth; el test usa el handler real y solo sustituye el origen de claves públicas. Los detalles de ejecución están en [el registro](iteration-log.md).
 - Riesgo/corte: si el arranque async del adaptador afecta a la API actual, documentar y resolver en esta entrega; no avanzar a datos de producto con identidad transitoria.
 
 ### 01b — Sesiones anteriores, autorización y cuenta activa
@@ -236,6 +238,7 @@ Para toda entrega con código: tipos, lint, pruebas pertinentes y build según [
 - `target_paths`: solo los componentes/módulos que fallen en el recorrido, evidencia de aceptación, documentación de operación.
 - Dependencias: `14c`.
 - Aceptación: ejecutar matriz siguiente en navegador/DB reales y build de producción; comprobar UI móvil, teclado, foco, nombres accesibles, formularios y contraste. Corregir fallos por entregas acotadas sin ampliar producto.
+- Incluir login Google interactivo en dos navegadores y tras cerrar sesión, complementando la evidencia automatizada de `01a`. Revisar también los cinco avisos iniciales de accesibilidad de SVG de plantilla si esos assets siguen en el proyecto.
 
 ### 15b — Cierre del MVP y guía de uso
 

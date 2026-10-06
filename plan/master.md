@@ -1,12 +1,12 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: planificación inicial, iteración `00`. Fecha: 6 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: identidad persistente implementada en `01a`; siguiente candidata `01b`. Fecha: 6 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
 Una webapp para crear y organizar tareas, eventos, citas y cumpleaños en un calendario. El trabajo diario debe poder realizarse completamente sin conexión después de preparar el dispositivo una primera vez. Cuando vuelva la conexión, los cambios se sincronizarán con MongoDB y con los demás dispositivos autorizados. Google identifica a cada usuario; determinados elementos se pueden compartir con otra cuenta de Google mediante su dirección Gmail.
 
-Este documento es la entrada al plan. La solicitud actual termina al entregar y hacer commit de la planificación; las siguientes iteraciones implementan la aplicación cuando se continúe el trabajo. El plan es modificable: los cambios de alcance o decisiones se registran antes de implementar y se incluyen en el commit de la iteración correspondiente.
+Este documento es la entrada al plan. La iteración `00` entregó la planificación; la implementación avanza con una lectura nueva de presupuesto entre entregas. El plan es modificable: los cambios de alcance o decisiones se registran antes de implementar y se incluyen en el commit de la iteración correspondiente.
 
 ## Documentos
 
@@ -25,9 +25,9 @@ Observaciones de archivos versionados; no se ha probado el login de producción 
 - Next.js `16.3.8`, React `19.3.0`, Better Auth `1.7.7`, MongoDB driver `7.7.0`, SWR `2.5.1`, Zod `4.6.5`, TypeScript. Versiones de [package.json](../package.json).
 - Google social login configurado en [auth.ts](../src/lib/auth/auth.ts), cliente de autenticación existente y UI de acceso en español.
 - El layout de dashboard verifica sesión mediante [session.ts](../src/lib/auth/session.ts); [proxy.ts](../src/proxy.ts) realiza un filtro inicial por cookie.
-- La configuración de Better Auth no tiene adaptador de base de datos. No dar por garantizado que el ID actual sea una identidad persistente adecuada para sincronización multidispositivo. La primera iteración de implementación comprobará esto y añadirá persistencia con el adaptador MongoDB de Better Auth ya disponible en la dependencia.
+- `01a` conecta Better Auth al adaptador MongoDB ya instalado: usuarios, cuentas, sesiones y verificaciones persistentes. Pruebas con MongoDB local real y dos clientes HTTP independientes comprueban estabilidad de ID tras logout y reconexión. El login interactivo contra Google real se comprobará en el piloto; los tests usan firmas válidas con una clave de prueba y conservan las verificaciones de token.
 - El acceso depende de `ALLOWED_EMAILS`. Una lista vacía no admite usuarios; una invitación no debe ampliar esa lista automáticamente. Compartir en el piloto exige que ambos usuarios estén autorizados.
-- Existen singleton MongoDB, registro de colecciones y registro central de índices. Las colecciones de producto e índices concretos están todavía vacíos. Se respetará [src/lib/db/AGENTS.md](../src/lib/db/AGENTS.md).
+- Existen singleton MongoDB, cuatro colecciones de autenticación y seis índices centrales. El adaptador solo reconoce solicitudes automáticas de índices previamente registrados y provisionados. Las colecciones de producto aún están pendientes. Se respeta [src/lib/db/AGENTS.md](../src/lib/db/AGENTS.md).
 - El dashboard es una pantalla inicial. No hay calendario, IndexedDB, service worker ni protocolo de sincronización.
 - Hay pruebas con Bun, comprobación de tipos y Biome. El README sigue siendo el de arranque y se actualizará cuando haya un flujo ejecutable.
 
@@ -77,13 +77,13 @@ Las iteraciones complejas están partidas en subentregas en [iterations.md](iter
 
 ## Presupuesto actual y siguiente paso
 
-Lectura inicial facilitada por el usuario: **5h: 99% restante; 7d: 44% restante**. Son porcentajes restantes, no consumidos, y no equivalen a un número fijo de tareas. El presupuesto semanal es el condicionante inicial. Recomendación: empezar por `01a` en secuencial cuando se confirme la lectura después de cerrar `00`.
+Lectura inicial: **5h: 99%; 7d: 44%**. Lectura posterior a `00`, usada para `01a`: **5h: 92% restante; 7d: 43% restante**. Son porcentajes restantes, no consumidos, y no equivalen a un número fijo de tareas. El presupuesto semanal sigue siendo el condicionante. Siguiente candidata: `01b` en secuencial, pendiente de la lectura después de cerrar `01a`.
 
 Al final de **cada** iteración se preguntarán ambos porcentajes y se elegirá continuar, dividir o detener según [workflow.md](workflow.md). No se encadenan varias iteraciones a partir de esta lectura inicial.
 
 ## Prerrequisitos por confirmar en su iteración
 
-- `01a`: persistencia estable de identidad y política del piloto con correos permitidos; reautenticación segura de las sesiones anteriores.
+- `01b`: reautenticación segura de sesiones anteriores y verificación vigente de sesión; `01a` ya incorpora persistencia estable. La allowlist del piloto se mantiene.
 - `04a`: dispositivos/navegadores del piloto. Base de prueba propuesta: Chrome de escritorio/Android y Safari/iPhone instalado; ajustar al entorno real, sin prometer soporte no probado.
 - `11a`: MongoDB con replica set o clúster compatible con transacciones. Si no lo hay, la sincronización definida necesita otro diseño aprobado antes de implementarla.
 - `14a`: ambos participantes autorizados en el piloto. Apertura de registro general o envío de correos exige una decisión específica; no se introduce un servicio de email en este MVP.

@@ -7,6 +7,7 @@
 - Register every collection name in `COLLECTION_NAMES` in `collections.ts` and access it through `getCollection()`.
 - Keep MongoDB persistence types inside `src/lib/db/**`; do not expose `ObjectId`, `Db`, `Collection`, or MongoDB filters to feature or UI code.
 - All modules in this directory must begin with `import "server-only"`.
+- The third-party Better Auth adapter may execute its own queries through the guarded database view in `auth-adapter.ts`. This integration is limited to registered auth collections; automatic index requests must match indexes already provisioned by `ensure-indexes.ts` and must never create indexes themselves.
 
 ## Connection Lifecycle
 

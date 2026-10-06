@@ -1,6 +1,9 @@
 import "server-only"
 
 import { describe, expect, test } from "bun:test"
+import { getAuthTables } from "better-auth/db"
+import { AUTH_MODEL_NAMES } from "@/lib/db/auth-models"
+import { COLLECTION_NAMES } from "@/lib/db/collections"
 import type { IndexSpec } from "./ensure-indexes"
 import {
   ensureIndexes,
@@ -12,6 +15,39 @@ import {
 describe("MongoDB index specifications", () => {
   test("the application index registry is valid", () => {
     expect(() => validateIndexSpecs(INDEX_SPECS)).not.toThrow()
+  })
+
+  test("covers the installed auth schema's automatic index requests", () => {
+    const tables = getAuthTables({
+      user: { modelName: AUTH_MODEL_NAMES.user },
+      session: { modelName: AUTH_MODEL_NAMES.session },
+      account: { modelName: AUTH_MODEL_NAMES.account },
+      verification: { modelName: AUTH_MODEL_NAMES.verification },
+    })
+
+    for (const table of Object.values(tables)) {
+      expect(
+        Object.values(COLLECTION_NAMES).some((name) => name === table.modelName)
+      ).toBe(true)
+      for (const [field, attributes] of Object.entries(table.fields)) {
+        if (!attributes.unique && !attributes.index) continue
+        expect(INDEX_SPECS).toContainEqual({
+          collection: table.modelName,
+          keys: { [attributes.fieldName ?? field]: 1 },
+          options: attributes.unique
+            ? { name: `${table.modelName}_${field}_uidx`, unique: true }
+            : { name: `${table.modelName}_${field}_idx` },
+        })
+      }
+    }
+  })
+
+  test("a Google account can belong to only one persisted user", () => {
+    expect(INDEX_SPECS).toContainEqual({
+      collection: COLLECTION_NAMES.authAccount,
+      keys: { providerId: 1, accountId: 1 },
+      options: { name: "accounts_providerId_accountId_uidx", unique: true },
+    })
   })
 
   test("rejects duplicate names within a collection", () => {
