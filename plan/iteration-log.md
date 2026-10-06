@@ -81,6 +81,17 @@
 - Commit: `feat(calendar): implement civil dates and overdue task selection`.
 - Siguiente candidata: `03a`, secuencial y con verificación IndexedDB en navegador real; comprobar las dos ventanas antes de comenzar.
 
+## 03a — Repositorios IndexedDB
+
+- Rama `main`, secuencial; presupuesto de entrada: **5h 70%; 7d 39% restantes**, consulta de cuenta tras `02b`.
+- Objetivo y `target_paths`: cliente, migración inicial, registro de stores, repositorio y helper transaccional en `src/lib/local-db/**`; fixture `test/browser/local-db.ts` y runner `scripts/browser-test-server.ts`; plan e instrucciones locales. Dependencia: `02b`.
+- Resultado: base versionada por ID estable de usuario; ocho stores de dominio e índices por tipo/fecha/serie/categoría. Lecturas/escrituras validadas; preferencias personales no aceptan otra cuenta. CRUD y tombstones; conexiones cierran ante cambio de versión. Solo se devuelve éxito después de `complete`; abortos/constraints/versiones futuras rechazan sin borrar datos.
+- Evidencia: **ocho comprobaciones aprobadas en el navegador de Codex**, incluida navegación a documento nuevo y recarga explícita. Tarea editada/borrada conservada; dos cuentas con el mismo ID aisladas; índice consultado; aborto explícito y violación de clave revierten; payload inválido rechazado; base futura mantiene sentinel tras rechazar apertura antigua. Bases ficticias limpiadas y servidor temporal detenido.
+- Validación: lint global, `tsc --noEmit`, build de producción y 31 pruebas unitarias aprobados; suite auth DB opt-in sin cambios. `git diff --check` y referencias locales aprobados.
+- Límites: capa de infraestructura, todavía sin shell/PWA ni outbox; no se declara uso completo offline. No se provocó agotamiento de cuota real; sí fallos transaccionales reales. Métodos low-level reservados para caché; mutaciones de producto pasan por `03b`.
+- Commit: `feat(storage): add account-isolated IndexedDB repositories`.
+- Siguiente candidata: `03b`, secuencial, previa lectura de ambas ventanas y manteniendo reserva del lote.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

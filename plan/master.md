@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: identidad y reglas iniciales del dominio comprobadas (`01a–02b`); siguiente candidata `03a`. Fecha: 6 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: identidad, reglas iniciales y repositorios locales comprobados (`01a–03a`); siguiente candidata `03b`. Fecha: 6 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -31,7 +31,7 @@ Observaciones de archivos versionados; no se ha probado el login de producción 
 - `01a` conecta Better Auth al adaptador MongoDB ya instalado: usuarios, cuentas, sesiones y verificaciones persistentes. Pruebas con MongoDB local real y dos clientes HTTP independientes comprueban estabilidad de ID tras logout y reconexión. El login interactivo contra Google real se comprobará en el piloto; los tests usan firmas válidas con una clave de prueba y conservan las verificaciones de token.
 - El acceso depende de `ALLOWED_EMAILS`. Una lista vacía no admite usuarios; una invitación no debe ampliar esa lista automáticamente. Compartir en el piloto exige que ambos usuarios estén autorizados.
 - Existen singleton MongoDB, cuatro colecciones de autenticación y seis índices centrales. El adaptador solo reconoce solicitudes automáticas de índices previamente registrados y provisionados. Las colecciones de producto aún están pendientes. Se respeta [src/lib/db/AGENTS.md](../src/lib/db/AGENTS.md).
-- El dashboard es una pantalla inicial. No hay calendario, IndexedDB, service worker ni protocolo de sincronización.
+- El dashboard es una pantalla inicial. No hay calendario ni service worker. `03a` incorpora repositorios IndexedDB comprobados en navegador; las intenciones tienen contratos, pero todavía no hay cola atómica ni transporte de sincronización.
 - Hay pruebas con Bun, comprobación de tipos y Biome. El README sigue siendo el de arranque y se actualizará cuando haya un flujo ejecutable.
 
 ## Decisiones de producto
@@ -80,7 +80,7 @@ Las iteraciones complejas están partidas en subentregas en [iterations.md](iter
 
 ## Presupuesto actual y siguiente paso
 
-Lectura inicial: **5h: 99%; 7d: 44%**. Lectura posterior a `00`, usada para `01a`: **5h: 92% restante; 7d: 43% restante**. Son porcentajes restantes, no consumidos, y no equivalen a un número fijo de tareas. El presupuesto semanal sigue siendo el condicionante. Siguiente candidata: `01b` en secuencial, pendiente de la lectura después de cerrar `01a`.
+Lectura inicial: **5h: 99%; 7d: 44%**. Lectura posterior a `00`, usada para `01a`: **5h: 92% restante; 7d: 43% restante**. Son porcentajes restantes, no consumidos, y no equivalen a un número fijo de tareas. El presupuesto semanal sigue siendo el condicionante. Es un registro histórico; la candidata vigente figura al principio de este documento y en el registro de iteraciones.
 
 Al final de **cada** iteración se preguntarán ambos porcentajes y se elegirá continuar, dividir o detener según [workflow.md](workflow.md). No se encadenan varias iteraciones a partir de esta lectura inicial.
 

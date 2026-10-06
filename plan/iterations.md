@@ -76,6 +76,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 03a — Repositorios IndexedDB
 
+- Estado: completada; ocho comprobaciones en navegador real, incluida recarga; escritura con outbox se incorpora en `03b`.
 - `target_paths`: `src/lib/local-db/**`, tipos/esquemas locales específicos.
 - Dependencias: `02b`.
 - Aceptación: crear/leer/editar/borrar lógico persiste tras recarga; datos de dos cuentas aislados; stores e índices locales definidos; migración inicial versionada; error de almacenamiento no devuelve guardado exitoso.

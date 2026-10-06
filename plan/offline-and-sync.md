@@ -55,7 +55,7 @@ Auth conserva las escrituras atómicas por documento y los índices únicos, sin
 
 ## IndexedDB
 
-Stores propuestos: `items`, `occurrences`, `tags`, `itemViews`, `taskPlacements`, `settings`, `memberships`, `invitations`, `outbox`, `remoteShadows`, `syncMetadata`, `conflicts`. Todas las claves incluyen partición de usuario o se alojan en una base por usuario; decidir la representación exacta en `03a` y probar separación.
+Stores propuestos: `items`, `occurrences`, `tags`, `itemViews`, `taskPlacements`, `settings`, `memberships`, `invitations`, `outbox`, `remoteShadows`, `syncMetadata`, `conflicts`. Representación elegida en `03a`: una base `dalis-account:<userId codificado>` por usuario estable. Versión inicial 1 con los ocho stores de dominio; outbox/shadows/metadata/conflictos se añaden por migraciones posteriores, sin borrar la base. Repositorios cliente validados por Zod y preferencias personales comprobadas contra la partición.
 
 - Índices locales por tipo/fecha, serie, usuario, categoría y operaciones pendientes según consultas reales.
 - Outbox guarda intención tipada: ID UUID de operación, ID entidad, tipo, `baseRevision`, payload validado, orden local, dependencias y versión de protocolo. No guardar un POST de Next.js ni su action ID.
@@ -144,3 +144,9 @@ Cada índice nuevo entra en `src/lib/db/ensure-indexes.ts` con nombre estable y 
 Pruebas de reglas puras con Bun; contratos/schema y repositorios con pruebas de autorización; navegador real para IndexedDB, worker, múltiples pestañas y recarga offline; MongoDB de prueba compatible para transacciones, journal e idempotencia. Si no hay entorno de integración, prepararlo en su entrega sin tocar datos reales; los mocks no bastan para declarar probada la convergencia.
 
 Ningún cliente importa auth servidor, MongoDB o PDF. Revisar esto con tipos, lint y build en cada iteración de código, además de la [definición de terminado](../AGENTS.md).
+
+### Evidencia local de `03a`
+
+`bun run scripts/browser-test-server.ts` sirve una fixture aislada en `http://127.0.0.1:4179`. Abrir, comprobar siete casos y pulsar “Verificar tras recarga”; tras recargar de nuevo, la tarea editada y borrada lógicamente debe permanecer, y la otra cuenta conserva su versión distinta. El botón de limpieza solo elimina las particiones ficticias de esa ejecución. Este servidor no usa sesiones reales, no forma parte del producto y no demuestra aún reapertura sin red: esa garantía necesita el shell de `04`. Los errores de aborto/unicidad y la versión futura se rechazan sin falso éxito ni borrado automático. No se ha forzado una cuota real del dispositivo.
+
+Fuentes primarias consultadas: [ciclo de vida y abortos de transacciones IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IDBTransaction) y [actualización bloqueada por otra conexión](https://developer.mozilla.org/en-US/docs/Web/API/IDBOpenDBRequest/blocked_event).
