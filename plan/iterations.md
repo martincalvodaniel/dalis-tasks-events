@@ -9,13 +9,16 @@ Los `target_paths` describen el ámbito permitido; antes de editar, concretar ar
 | Hito | Entregas | Estado |
 | --- | --- | --- |
 | Plan y reglas | `00` | Completada; validación documental registrada en el log. |
-| Identidad y base offline | `01a–04b` | `01a` implementada y validada automáticamente; `01b–04b` pendientes. |
+| Responsive y lote desatendido | `00b` | Requisitos y protocolo incorporados. |
+| Identidad y base offline | `01a–04c` | `01a` implementada y validada automáticamente; `01b–04c` pendientes. |
 | Calendario personal y creación de tareas | `05a–07b` | Pendiente. |
 | Eventos, repetición y cumpleaños | `08–10` | Pendiente. |
 | Remoto, convergencia y recuperación | `11a–13c` | Pendiente. |
 | Compartición y piloto | `14a–15b` | Pendiente. |
 
 Para toda entrega con código: tipos, lint, pruebas pertinentes y build según [workflow.md](workflow.md). Los criterios siguientes añaden evidencia específica, no reemplazan esas comprobaciones. No marcar un hito terminado si falta una subentrega.
+
+Toda nueva pantalla importante debe actualizar en la misma entrega el registro único que alimenta navegación inferior móvil y superior escritorio, después de construirlas en `04c`. Las entregas de UI incluyen comprobación responsive, interacción táctil/teclado y contenido no tapado por barras fijas.
 
 ## 00 — Plan inicial
 
@@ -90,12 +93,19 @@ Para toda entrega con código: tipos, lint, pruebas pertinentes y build según [
 - Dependencias: `04a`.
 - Aceptación: cerrar navegador, desconectar y abrir shell; partición persistida disponible sin sesión remota vigente; logout oculta datos en todas las pestañas; cambio de cuenta no arrastra cola. Actualizar shell conserva IndexedDB y no interrumpe una escritura.
 
+### 04c — Navegación responsive mobile-first
+
+- `target_paths`: componentes extraídos en `src/components/shared/**` para barra inferior/superior, SVG en `src/components/ui/**`, registro tipado en `src/config/navigation.ts` y shell de workspace.
+- Dependencias: `04b`; solo incluir pantallas que existan. Un registro de destinos, dos presentaciones responsive; sin nuevo kit de UI.
+- Aceptación: móvil con barra inferior de iconos SVG y labels en español; escritorio con navbar superior; estado activo y navegación por teclado; botón `+` accesible; safe areas y padding impiden tapar contenido. Verificar a 320/390/768/1280px y con texto ampliado; navegación entre destinos locales disponible offline.
+- Mantenimiento: actualizar ambas variantes al introducir calendario/agenda, compartidos o ajustes; no añadir botones sin implementación ni duplicar registros.
+
 ## 05 — Crear y editar tareas
 
 ### 05a — Botón `+` y formulario
 
 - `target_paths`: `src/features/tasks/components/**`, `src/features/workspace/components/**`, primitivas realmente reutilizables en `src/components/ui/**`.
-- Dependencias: `04b`.
+- Dependencias: `04c`.
 - Aceptación: botón principal accesible; tarea con título, fecha, descripción y checklist se guarda offline; errores en español; fecha seleccionada precargada; edición y borrado lógico funcionan tras recarga.
 - Alcance: mostrar solo opciones de creación ya operativas; añadir evento/cumpleaños en `08/10`, sin botones que simulen guardar.
 

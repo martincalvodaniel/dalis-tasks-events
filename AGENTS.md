@@ -14,10 +14,16 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Before editing, define the iteration goal, `target_paths`, dependencies, acceptance criteria, and validation scope. Keep each iteration independently reviewable.
 - Every completed iteration, including planning-only iterations, must end with a Conventional Commit on the current branch. Do not switch branches, include unrelated user changes, or push unless requested.
 - Update the plan and iteration log in the same commit. For documentation-only iterations, validate references, consistency, and `git diff --check`; code changes must satisfy the full Definition of Done below.
-- After every completed iteration, ask the user for the remaining percentages of BOTH Codex usage windows: 5 hours and 7 days. Wait for updated values before selecting and starting the next iteration. Never treat an old reading or an unanswered question as an updated budget.
+- After every completed iteration, ask the user for the remaining percentages of BOTH Codex usage windows: 5 hours and 7 days, unless the user has explicitly authorized an unattended batch. During such a batch, query current account usage after each commit and follow the batch closing reserve in `plan/workflow.md`; if usage cannot be read, stop at the completed iteration. Resume the normal question protocol when the batch ends.
 - Use the lower remaining window, recent observed consumption, and the closing reserve in `plan/workflow.md` to choose whether to continue, split the next task, or stop. Do not promise exact consumption estimates.
 - Default to sequential work. Parallel agent work is allowed only when explicitly selected for the iteration, budget permits it, and each agent has disjoint `target_paths`. Shared integration files remain owned by one agent.
 - Nested `AGENTS.md` files may add narrowly scoped instructions, but must preserve the root boundaries, language rules, and iteration closing protocol.
+
+## Responsive Navigation
+- Build mobile-first responsive screens, usable on both phones and desktop.
+- Use a bottom navigation bar with local SVG icons on mobile and a top navigation bar on desktop, driven by a single shared destination registry.
+- Whenever an important screen is added, update both navigation variants in the same iteration. Show only working destinations, active state and Spanish accessible labels.
+- Keep the primary create button accessible, account for device safe areas, and ensure fixed navigation never covers content, focus targets or form controls.
 
 ## Tech Stack (Authoritative)
 - `next@16`, `react@19`, `react-dom@19` — App Router, Server Components, Server Actions

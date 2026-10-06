@@ -2,12 +2,19 @@
 
 ## Experiencia principal
 
+- Aplicación responsive **mobile-first**: uso principal en teléfono, y experiencia completa en escritorio. Diseñar desde 320px, sin scroll horizontal accidental, y comprobar escritorio y ampliación de texto.
+- Móvil: barra inferior fija de navegación con iconos SVG locales, labels breves y nombre accesible en español. Escritorio: barra superior con las mismas pantallas principales, estado activo y acceso a creación/cuenta.
+- Un registro único de destinos alimenta ambas variantes. Actualizarlo al añadir cada pantalla importante, mostrar solo destinos operativos y usar `aria-current` para la selección. Calendario/agenda comparten destino; futuras pantallas de compartidos y ajustes aparecen al estar implementadas.
+- Navegación inferior respeta `env(safe-area-inset-bottom)`, área táctil de al menos 44px y espacio reservado al pie; no tapa listas, diálogos, teclado o campos. A partir del breakpoint de escritorio se muestra exclusivamente la barra superior.
+- El botón `+` sigue siendo la acción más accesible en ambas variantes. Iconos son SVG de componentes propios, sin dependencias nuevas ni recursos externos; los iconos decorativos se ocultan a lectores de pantalla y sus enlaces tienen texto/nombre accesible.
 - Calendario mensual como vista de entrada; semana de lunes a domingo, formato español y botón “Hoy”.
 - Cada celda muestra indicadores y contadores por tipo; no depender únicamente del color. Al tocar un día, abrir su agenda en panel de escritorio o vista adaptada a móvil.
 - Botón `+` accesible desde calendario y agenda, con nombre accesible “Crear”. Opciones: “Tarea”, “Evento o cita” y “Cumpleaños”. La fecha seleccionada rellena el formulario.
 - Separar en la agenda “Cumpleaños”, “Eventos y citas”, “Tareas” y “Atrasadas”. Eventos ordenados por hora; tareas por categoría y orden manual.
 - La sección de atrasadas reúne pendientes de fechas anteriores a **hoy**, independientemente del día seleccionado. Mostrar su fecha original. En una fecha histórica, conservar además el historial de lo previsto ese día, sin cambiar la fecha para simular un traslado.
 - Estados de sincronización comprensibles: “Sin conexión”, “Guardado en este dispositivo”, “Sincronizando”, “Todo sincronizado”, “Necesitas iniciar sesión” y “Hay cambios que revisar”. Un guardado local no se presenta como confirmación remota.
+
+Navegación se construye en `04c`, sobre el shell offline ya operativo. Cada iteración de nuevas pantallas incluye desde entonces la actualización de móvil y escritorio, y validación del destino sin red si usa datos locales. Formularios se adaptan a pantalla completa en móvil y panel/diálogo en escritorio sin perder foco ni contenido.
 
 ## Modelo elegido
 

@@ -6,6 +6,8 @@ Estado: identidad persistente implementada en `01a`; siguiente candidata `01b`. 
 
 Una webapp para crear y organizar tareas, eventos, citas y cumpleaños en un calendario. El trabajo diario debe poder realizarse completamente sin conexión después de preparar el dispositivo una primera vez. Cuando vuelva la conexión, los cambios se sincronizarán con MongoDB y con los demás dispositivos autorizados. Google identifica a cada usuario; determinados elementos se pueden compartir con otra cuenta de Google mediante su dirección Gmail.
 
+La experiencia será responsive y mobile-first: barra inferior de navegación con iconos SVG en móvil y barra superior en escritorio. Ambas se alimentan del mismo registro y se actualizan al crear cada pantalla importante. Su implementación está programada en `04c`, con criterios de accesibilidad, safe areas y navegación offline.
+
 Este documento es la entrada al plan. La iteración `00` entregó la planificación; la implementación avanza con una lectura nueva de presupuesto entre entregas. El plan es modificable: los cambios de alcance o decisiones se registran antes de implementar y se incluyen en el commit de la iteración correspondiente.
 
 ## Documentos
@@ -80,6 +82,8 @@ Las iteraciones complejas están partidas en subentregas en [iterations.md](iter
 Lectura inicial: **5h: 99%; 7d: 44%**. Lectura posterior a `00`, usada para `01a`: **5h: 92% restante; 7d: 43% restante**. Son porcentajes restantes, no consumidos, y no equivalen a un número fijo de tareas. El presupuesto semanal sigue siendo el condicionante. Siguiente candidata: `01b` en secuencial, pendiente de la lectura después de cerrar `01a`.
 
 Al final de **cada** iteración se preguntarán ambos porcentajes y se elegirá continuar, dividir o detener según [workflow.md](workflow.md). No se encadenan varias iteraciones a partir de esta lectura inicial.
+
+Excepción autorizada posteriormente: lote desatendido del 6 de octubre, iniciado con **5h 82%; 7d 41% restantes**. Entre commits se consulta el uso real sin esperar feedback, con reserva reforzada del 20%. La autorización y sus condiciones figuran en `workflow.md`; el protocolo interactivo se recupera al terminar el lote.
 
 ## Prerrequisitos por confirmar en su iteración
 

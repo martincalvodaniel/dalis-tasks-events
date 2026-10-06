@@ -32,6 +32,17 @@
 - Commit de cierre: `feat(auth): persist Google identities with MongoDB`. Hash real comunicado tras crear el commit.
 - Siguiente candidata: `01b`, secuencial, tras lectura nueva de ambas ventanas. No se empieza automáticamente con los valores anteriores.
 
+## 00b — Responsive y continuación desatendida
+
+- Fecha: 6 de octubre de 2026. Rama `main`; árbol limpio al inicio.
+- Presupuesto: **5h 82%; 7d 41% restantes**, confirmado por consulta de uso (18%/59% consumidos).
+- Autorización: el usuario solicita varias iteraciones con commit mientras duerme; se sustituye temporalmente la pregunta de presupuesto por consulta de cuenta entre entregas, en secuencial y con reserva mínima del 20%.
+- Resultado: requisito mobile-first, navegación inferior SVG en móvil y superior en escritorio desde un registro común; mantenimiento obligatorio con cada pantalla importante. Programada implementación `04c`, antes de UI de tareas.
+- Ámbito: instrucciones raíz y documentos de plan; sin código de aplicación ni dependencias.
+- Validación: revisión de consistencia, enlaces locales y `git diff --check` antes del commit.
+- Commit: `docs(plan): add mobile-first navigation and unattended workflow`.
+- Siguiente candidata: `01b`, previa lectura automática de ambas ventanas.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

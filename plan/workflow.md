@@ -41,10 +41,20 @@ Registrar consumos observados solo si hay lecturas comparables antes/después y 
 3. Para documentación exclusivamente: comprobar enlaces locales, consistencia del plan y `git diff --check`. No añadir pruebas que solo repliquen Markdown ni exigir ejecución de la aplicación para editar texto.
 4. Revisar el diff y los archivos a incluir, sin secretos, `.env*` ni cambios ajenos. Actualizar `iterations.md` e `iteration-log.md` con resultado y evidencias.
 5. Hacer un Conventional Commit en la rama actual. Ejemplo de estilo: `docs(plan): define offline task and event roadmap`. Comprobar que se creó y revisar el estado final. No referenciar un hash futuro dentro del mismo commit; registrar su hash en el cierre al usuario o en una iteración posterior.
-6. Comunicar entrega, validaciones y commit. **Preguntar: “¿Cuánto queda ahora en las ventanas de 5h y 7d, en porcentaje restante?”**
-7. Esperar esos valores antes de iniciar la siguiente entrega. Con la respuesta, elegir tarea concreta y ejecución secuencial o paralela. Si falta uno de los valores, pedirlo; no sustituirlo por el anterior. Una recomendación provisional no autoriza encadenar trabajo sin el control de presupuesto.
+6. Comunicar entrega, validaciones y commit. **Preguntar: “¿Cuánto queda ahora en las ventanas de 5h y 7d, en porcentaje restante?”**, salvo un lote desatendido autorizado expresamente, que sigue el protocolo de abajo.
+7. En trabajo interactivo, esperar esos valores antes de iniciar la siguiente entrega. Con la respuesta, elegir tarea concreta y ejecución secuencial o paralela. Si falta uno de los valores, pedirlo; no sustituirlo por el anterior. Una recomendación provisional no autoriza encadenar trabajo sin el control de presupuesto.
 
-La consulta automática de uso, si está disponible, puede complementar la lectura, pero no sustituye la pregunta solicitada por el usuario. No modificar el registro después de un commit solo para incorporar una lectura: hacerlo al abrir la siguiente iteración o en una entrega documental explícita.
+La consulta automática complementa la lectura en trabajo interactivo y sustituye la pregunta únicamente durante un lote desatendido autorizado. No modificar el registro después de un commit solo para incorporar una lectura: hacerlo al abrir la siguiente iteración o en una entrega documental explícita.
+
+## Lote desatendido autorizado el 6 de octubre de 2026
+
+El usuario ha autorizado continuar varias iteraciones sin feedback mientras duerme, con commit individual y evitando quedar a mitad de una tarea. Lectura inicial: **5h 82%; 7d 41% restantes**, contrastada con la consulta de uso de la cuenta. Esta excepción solo aplica al lote actual; no cambia permanentemente el protocolo interactivo.
+
+- Ejecutar secuencialmente y consultar las dos ventanas después de cada commit. Calcular restante como `100 - usedPercent`; no confundir consumido con disponible. Las cuotas son compartidas por toda la cuenta.
+- Reserva reforzada: no comenzar una entrega si alguna ventana tiene **20% o menos** restante, ni si el coste alto observado de entregas similares más margen de cierre haría cruzar esa reserva. No consumir reinicios gratuitos o créditos por iniciativa propia.
+- Primera candidata `01b`; después `02a`, `02b` y base IndexedDB si el margen lo permite. Cerrar cada subentrega antes de elegir otra; no prometer llegar a un hito que dependa de decisiones pendientes.
+- Si no se puede consultar el uso, una decisión requiere aprobación, una validación crítica no está disponible, o el siguiente corte es demasiado amplio, detener el lote con código comprobado y commit. Una herramienta de aprobación bloqueada no autoriza a dejar archivos incoherentes ni a rebajar la aceptación.
+- Al terminar, registrar la lectura más reciente, commits, pruebas y siguiente candidata; volver al protocolo normal para la siguiente sesión del usuario.
 
 ## Secuencial y paralelo
 
