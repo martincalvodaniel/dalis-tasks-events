@@ -63,6 +63,15 @@
 - Commit: `feat(domain): define validated calendar and sync contracts`.
 - Siguiente candidata: `02b`, previa consulta del presupuesto.
 
+## 00c — Lint global sin ruido
+
+- Rama `main`; presupuesto de entrada más reciente: **5h 73%; 7d 40% restantes**. Petición expresa de corregir los errores existentes antes de retomar `02b`.
+- Objetivo y ámbito: títulos accesibles en español en los cinco SVG de plantilla de `public/**`, más registro en el plan. Sin modificaciones de rutas, dependencias ni reglas de lint.
+- Resultado: desaparecen los cinco errores `noSvgWithoutTitle`; dibujos y tamaños conservados.
+- Validación: `bun run lint` global aprobado (51 archivos, cero errores); `bun run type-check` y `bun run build` aprobados; `git diff --check` aprobado. No se añaden tests que dupliquen el contenido de los títulos.
+- Commit: `fix(a11y): add accessible titles to template SVG assets`.
+- Siguiente candidata: `02b`, secuencial, tras consulta automática de las dos ventanas.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

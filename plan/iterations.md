@@ -48,6 +48,13 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 - Dependencias: `01a`; mantener `ALLOWED_EMAILS` como restricción del piloto.
 - Aceptación: sesión vieja sin identidad persistida exige login; sesión revocada/caducada no autoriza remoto; usuario no autorizado no entra; no registrar tokens/PII. Prueba con dos cuentas autorizadas de prueba, sin escribir sus emails en el plan.
 
+### 00c — Eliminar ruido de lint
+
+- Estado: completada por petición expresa del usuario durante el lote desatendido.
+- Objetivo y `target_paths`: añadir títulos accesibles en español a `public/{file,globe,next,vercel,window}.svg`; registrar el cierre en `plan/**`.
+- Dependencias: ninguna funcional; se intercala antes de `02b`.
+- Aceptación y validación: lint global sin errores, tipos y build aprobados; sin desactivar reglas ni cambiar el dibujo de los assets.
+
 ## 02 — Contratos y reglas básicas del dominio
 
 ### 02a — Entidades y comandos
@@ -250,7 +257,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 - `target_paths`: solo los componentes/módulos que fallen en el recorrido, evidencia de aceptación, documentación de operación.
 - Dependencias: `14c`.
 - Aceptación: ejecutar matriz siguiente en navegador/DB reales y build de producción; comprobar UI móvil, teclado, foco, nombres accesibles, formularios y contraste. Corregir fallos por entregas acotadas sin ampliar producto.
-- Incluir login Google interactivo en dos navegadores y tras cerrar sesión, complementando la evidencia automatizada de `01a`. Revisar también los cinco avisos iniciales de accesibilidad de SVG de plantilla si esos assets siguen en el proyecto.
+- Incluir login Google interactivo en dos navegadores y tras cerrar sesión, complementando la evidencia automatizada de `01a`. Los cinco avisos iniciales de accesibilidad de SVG de plantilla se corrigieron en `00c`; revisar los assets usados en la UI durante el recorrido.
 
 ### 15b — Cierre del MVP y guía de uso
 
