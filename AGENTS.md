@@ -4,6 +4,21 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+## Project Language
+- All generated or edited source code, identifiers, code comments, technical error messages, and commit messages must be in English.
+- All user-facing graphical UI copy, including labels, validation messages, accessibility text, and empty states, must be in Spanish. Product names may remain unchanged.
+- Planning and product documentation under `plan/**` may be in Spanish.
+
+## Iteration Delivery
+- Read `plan/master.md` and `plan/workflow.md` before starting a product iteration. Follow the current dependency order in `plan/iterations.md`.
+- Before editing, define the iteration goal, `target_paths`, dependencies, acceptance criteria, and validation scope. Keep each iteration independently reviewable.
+- Every completed iteration, including planning-only iterations, must end with a Conventional Commit on the current branch. Do not switch branches, include unrelated user changes, or push unless requested.
+- Update the plan and iteration log in the same commit. For documentation-only iterations, validate references, consistency, and `git diff --check`; code changes must satisfy the full Definition of Done below.
+- After every completed iteration, ask the user for the remaining percentages of BOTH Codex usage windows: 5 hours and 7 days. Wait for updated values before selecting and starting the next iteration. Never treat an old reading or an unanswered question as an updated budget.
+- Use the lower remaining window, recent observed consumption, and the closing reserve in `plan/workflow.md` to choose whether to continue, split the next task, or stop. Do not promise exact consumption estimates.
+- Default to sequential work. Parallel agent work is allowed only when explicitly selected for the iteration, budget permits it, and each agent has disjoint `target_paths`. Shared integration files remain owned by one agent.
+- Nested `AGENTS.md` files may add narrowly scoped instructions, but must preserve the root boundaries, language rules, and iteration closing protocol.
+
 ## Tech Stack (Authoritative)
 - `next@16`, `react@19`, `react-dom@19` — App Router, Server Components, Server Actions
 - `better-auth` — authentication (server config + browser client)
