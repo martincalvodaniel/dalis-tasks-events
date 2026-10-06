@@ -103,6 +103,16 @@
 - Commit: `feat(sync): persist atomic local mutations and recoverable outbox`.
 - Siguiente candidata: `04a`; verificar ambas ventanas y acotar shell/cache de producción antes de comenzar.
 
+## 00d — Cierre del lote desatendido
+
+- Rama `main`; objetivo y `target_paths`: registrar cierre y siguiente paso en `plan/{master,workflow,iteration-log}.md`. Documentación únicamente, sin cambios de código.
+- Lectura de entrada automática tras `03b`: **5h 61%; 7d 38% restantes**. No se agota el margen para iniciar un bloque PWA más amplio; se deja la persistencia local completa y comprobada como corte de reanudación.
+- Commits del lote verificados: `8f4dd26` (responsive y flujo desatendido), `38a50e9` (sesiones), `0e11b2e` (contratos), `0f01d73` (lint), `cbedd85` (fechas), `0160785` (repositorios) y `6c96a4f` (outbox).
+- Evidencia final de implementación: lint global y tipos sin errores; build aprobado; 35 tests unitarios aprobados. Nueve casos de outbox y ocho de repositorios aprobados en navegador real. La suite de auth DB se comprobó en `01b`; no se repitió con cambios exclusivamente locales. Bases y procesos ficticios retirados; sin push ni despliegue.
+- Validación del cierre: referencias locales, consistencia del estado y `git diff --check` aprobados. Todos los cambios de implementación están ya comprometidos en la rama actual.
+- Commit: `docs(plan): record completed unattended batch and next milestone`.
+- Siguiente candidata: `04a`, luego `04b` y navegación responsive `04c`. Retomar con presupuesto nuevo en ambas ventanas y el protocolo interactivo habitual. El shell offline, calendario, UI de creación, sync remoto y compartición aún no se declaran terminados.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

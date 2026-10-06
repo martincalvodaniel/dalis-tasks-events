@@ -56,6 +56,8 @@ El usuario ha autorizado continuar varias iteraciones sin feedback mientras duer
 - Si no se puede consultar el uso, una decisión requiere aprobación, una validación crítica no está disponible, o el siguiente corte es demasiado amplio, detener el lote con código comprobado y commit. Una herramienta de aprobación bloqueada no autoriza a dejar archivos incoherentes ni a rebajar la aceptación.
 - Al terminar, registrar la lectura más reciente, commits, pruebas y siguiente candidata; volver al protocolo normal para la siguiente sesión del usuario.
 
+El lote se cerró después de `03b`, con base local y cola verificadas y sin tareas de implementación abiertas. Lectura previa al cierre documental: **61% / 38% restantes**. La autorización desatendida de este lote queda consumida; la siguiente sesión vuelve a preguntar ambos valores antes de elegir `04a`. La navegación responsive sigue prevista en `04c`.
+
 ## Secuencial y paralelo
 
 Por defecto, secuencial. Las primeras entregas de identidad, dominio, IndexedDB, service worker y sincronización comparten contratos y tendrán un único responsable.

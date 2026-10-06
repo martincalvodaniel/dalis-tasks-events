@@ -86,6 +86,8 @@ Al final de **cada** iteración se preguntarán ambos porcentajes y se elegirá 
 
 Excepción autorizada posteriormente: lote desatendido del 6 de octubre, iniciado con **5h 82%; 7d 41% restantes**. Entre commits se consulta el uso real sin esperar feedback, con reserva reforzada del 20%. La autorización y sus condiciones figuran en `workflow.md`; el protocolo interactivo se recupera al terminar el lote.
 
+Lote cerrado tras `03b`: lectura automática **5h 61%; 7d 38% restantes** antes del commit documental de cierre. Se entregaron sesiones vigentes, contratos, corrección de lint solicitada, fechas, repositorios IndexedDB y outbox atómica, con commits separados y validaciones. La siguiente sesión retoma `04a` con una lectura nueva de ambas ventanas; todavía no existe una UI de calendario ni reapertura offline preparada.
+
 ## Prerrequisitos por confirmar en su iteración
 
 - `01b` completada: sesiones antiguas sin fila persistida exigen login y autorización consulta DB vigente. La allowlist del piloto se mantiene; el recorrido Google real está pendiente de `15a`.
