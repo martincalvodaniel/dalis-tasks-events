@@ -49,7 +49,7 @@ Las sesiones actuales sin adaptador requieren migración: en `01b` comprobar com
 
 El adaptador MongoDB de Better Auth está conectado mediante inicialización diferida en `src/lib/db/auth-adapter.ts`. La importación no exige `MONGODB_URI` ni abre red; el primer acceso obtiene la conexión del singleton y provisiona índices desde el registro central. La vista de DB del adaptador solo admite las cuatro colecciones de auth y reconoce peticiones automáticas de índices sin crearlos por su cuenta. Esta excepción limitada a las consultas internas de una dependencia está recogida en `src/lib/db/AGENTS.md`.
 
-Se han desactivado la cookie de datos de cuenta y `refreshCache`, pensado por Better Auth para sesiones sin DB. La cookie de caché de sesión existente permanece hasta la entrega `01b`; no se da por resuelta todavía la transición desde sesiones antiguas ni la comprobación inmediata de revocación.
+Se han desactivado la cookie de datos de cuenta y `refreshCache`, pensado por Better Auth para sesiones sin DB. `01b` también desactiva caché de sesión y obliga a leer DB vigente en autorización; las cookies antiguas sin sesión persistida se rechazan. Transición, revocación y expiración se comprueban con tokens firmados y MongoDB local real.
 
 Auth conserva las escrituras atómicas por documento y los índices únicos, sin habilitar transacciones de varios documentos del adaptador: no se le proporciona un segundo `MongoClient` ni se asume un replica set. El protocolo de sincronización de `11` sí exige las transacciones y la comprobación de infraestructura descritas abajo.
 

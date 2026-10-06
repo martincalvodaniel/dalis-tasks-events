@@ -10,7 +10,7 @@ Los `target_paths` describen el ámbito permitido; antes de editar, concretar ar
 | --- | --- | --- |
 | Plan y reglas | `00` | Completada; validación documental registrada en el log. |
 | Responsive y lote desatendido | `00b` | Requisitos y protocolo incorporados. |
-| Identidad y base offline | `01a–04c` | `01a` implementada y validada automáticamente; `01b–04c` pendientes. |
+| Identidad y base offline | `01a–04c` | `01a–01b` implementadas y validadas automáticamente; `02–04c` pendientes. |
 | Calendario personal y creación de tareas | `05a–07b` | Pendiente. |
 | Eventos, repetición y cumpleaños | `08–10` | Pendiente. |
 | Remoto, convergencia y recuperación | `11a–13c` | Pendiente. |
@@ -42,8 +42,9 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 01b — Sesiones anteriores, autorización y cuenta activa
 
+- Estado: completada; política y operación en [auth-operations.md](auth-operations.md).
 - Objetivo: endurecer verificación vigente para sync y definir transición desde auth sin DB.
-- `target_paths`: `src/lib/auth/session.ts`, `src/features/auth/**`, pruebas de auth, documentación de setup.
+- `target_paths`: `src/lib/auth/{session,authorized-session,auth}.ts`, pruebas de auth y suite DB de identidad, documentación de setup.
 - Dependencias: `01a`; mantener `ALLOWED_EMAILS` como restricción del piloto.
 - Aceptación: sesión vieja sin identidad persistida exige login; sesión revocada/caducada no autoriza remoto; usuario no autorizado no entra; no registrar tokens/PII. Prueba con dos cuentas autorizadas de prueba, sin escribir sus emails en el plan.
 

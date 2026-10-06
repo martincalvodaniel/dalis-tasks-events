@@ -41,9 +41,34 @@ async function createIdentityToken(
   return `${message}.${encodeBase64Url(new Uint8Array(signature))}`
 }
 
-async function createTestAuth(publicKey: CryptoKey) {
+async function createTestAuth(
+  publicKey: CryptoKey,
+  options: { stateless?: boolean; cookieCache?: boolean } = {}
+) {
   const { auth } = await import("@/lib/auth/auth")
-  const instance = betterAuth({ ...auth.options, logger: { disabled: true } })
+  const instance = betterAuth({
+    ...auth.options,
+    database: options.stateless ? undefined : auth.options.database,
+    user: {
+      modelName: options.stateless ? "user" : auth.options.user.modelName,
+    },
+    account: {
+      ...auth.options.account,
+      modelName: options.stateless ? "account" : auth.options.account.modelName,
+      storeAccountCookie: options.stateless,
+    },
+    verification: {
+      modelName: options.stateless
+        ? "verification"
+        : auth.options.verification.modelName,
+    },
+    session: {
+      ...auth.options.session,
+      modelName: options.stateless ? "session" : auth.options.session.modelName,
+      cookieCache: { enabled: options.cookieCache ?? false, strategy: "jwt" },
+    },
+    logger: { disabled: true },
+  })
   const context = await instance.$context
   const google = context.socialProviders.find(
     (provider) => provider.id === "google"
@@ -196,5 +221,76 @@ describe.skipIf(!testConfig)("persisted Google identity", () => {
     expect(authorizeUrl.searchParams.get("redirect_uri")).toBe(
       `${baseUrl}/api/auth/callback/google`
     )
+  })
+
+  test("rejects revoked and expired sessions despite a valid cookie cache", async () => {
+    const { getAuthorizedSessionFromHeaders } = await import(
+      "@/lib/auth/session"
+    )
+    const instance = await createTestAuth(keyPair.publicKey, {
+      cookieCache: true,
+    })
+    const token = await createIdentityToken(
+      keyPair.privateKey,
+      "test-google-alpha",
+      "alpha@example.test"
+    )
+    const signedIn = await signIn(instance, token)
+    const headers = new Headers({ cookie: signedIn.cookie })
+    const session = await getAuthorizedSessionFromHeaders(
+      headers,
+      instance.api.getSession
+    )
+    expect(session?.user.id).toBe(signedIn.userId)
+    if (!session) throw new Error("Test session was not persisted")
+    const sessions = await getCollection(COLLECTION_NAMES.authSession)
+    await sessions.deleteOne({ token: session.session.token })
+    expect((await instance.api.getSession({ headers }))?.user.id).toBe(
+      signedIn.userId
+    )
+    expect(
+      await getAuthorizedSessionFromHeaders(headers, instance.api.getSession)
+    ).toBeNull()
+
+    const next = await signIn(instance, token)
+    const nextHeaders = new Headers({ cookie: next.cookie })
+    const persisted = await getAuthorizedSessionFromHeaders(
+      nextHeaders,
+      instance.api.getSession
+    )
+    if (!persisted) throw new Error("Test session was not persisted")
+    await sessions.updateOne(
+      { token: persisted.session.token },
+      { $set: { expiresAt: new Date(0) } }
+    )
+    expect(
+      await getAuthorizedSessionFromHeaders(
+        nextHeaders,
+        instance.api.getSession
+      )
+    ).toBeNull()
+  })
+
+  test("requires login for a signed session from the former stateless setup", async () => {
+    const { getAuthorizedSessionFromHeaders } = await import(
+      "@/lib/auth/session"
+    )
+    const stateless = await createTestAuth(keyPair.publicKey, {
+      stateless: true,
+      cookieCache: true,
+    })
+    const signedIn = await signIn(
+      stateless,
+      await createIdentityToken(
+        keyPair.privateKey,
+        "test-google-alpha",
+        "alpha@example.test"
+      )
+    )
+    expect(
+      await getAuthorizedSessionFromHeaders(
+        new Headers({ cookie: signedIn.cookie })
+      )
+    ).toBeNull()
   })
 })

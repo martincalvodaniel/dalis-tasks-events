@@ -43,6 +43,16 @@
 - Commit: `docs(plan): add mobile-first navigation and unattended workflow`.
 - Siguiente candidata: `01b`, previa lectura automática de ambas ventanas.
 
+## 01b — Sesión vigente y transición
+
+- Rama `main`; ejecución secuencial en lote desatendido autorizado. Presupuesto de entrada automático: **5h 80%; 7d 41% restantes**.
+- Ámbito: auth/session, política de autorización extraída, configuración de caché, pruebas unitarias e integración DB; guía operativa y plan.
+- Resultado: autorización lee DB sin caché ni renovación durante render; rechaza sesión caducada/revocada, identidad inconsistente, correo no permitido/no verificado y cookies históricas sin sesión persistida. Layout protegido conservado.
+- Validación: `tsc --noEmit`, build de producción y Biome de archivos afectados aprobados; **22 tests aprobados** con MongoDB real y firmas de prueba. Incluye caché válida cuyo registro remoto se elimina/expira y configuración histórica stateless. Lint global sigue limitado por los cinco SVG anteriores, sin errores nuevos.
+- Recursos: DB temporal aislada y contenedor retirados al cerrar. Sin cambios a producción, dependencias ni credenciales.
+- Commit: `fix(auth): require authoritative persisted sessions`.
+- Siguiente candidata: `02a`, después de consultar las dos ventanas.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

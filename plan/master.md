@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: identidad persistente implementada en `01a`; siguiente candidata `01b`. Fecha: 6 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: identidad y sesiones persistentes comprobadas (`01a–01b`); siguiente candidata `02a`. Fecha: 6 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -19,6 +19,7 @@ Este documento es la entrada al plan. La iteración `00` entregó la planificaci
 | [Iteraciones](iterations.md) | Entregas pequeñas, dependencias, rutas y aceptación. |
 | [Flujo de trabajo](workflow.md) | Ventanas de Codex, cierre, commits, pruebas y paralelismo. |
 | [Registro de iteraciones](iteration-log.md) | Trabajo completado, evidencias y siguiente candidata. |
+| [Operación de auth](auth-operations.md) | Transición de sesiones antiguas y verificación vigente. |
 
 ## Estado real del repositorio
 
@@ -87,7 +88,7 @@ Excepción autorizada posteriormente: lote desatendido del 6 de octubre, iniciad
 
 ## Prerrequisitos por confirmar en su iteración
 
-- `01b`: reautenticación segura de sesiones anteriores y verificación vigente de sesión; `01a` ya incorpora persistencia estable. La allowlist del piloto se mantiene.
+- `01b` completada: sesiones antiguas sin fila persistida exigen login y autorización consulta DB vigente. La allowlist del piloto se mantiene; el recorrido Google real está pendiente de `15a`.
 - `04a`: dispositivos/navegadores del piloto. Base de prueba propuesta: Chrome de escritorio/Android y Safari/iPhone instalado; ajustar al entorno real, sin prometer soporte no probado.
 - `11a`: MongoDB con replica set o clúster compatible con transacciones. Si no lo hay, la sincronización definida necesita otro diseño aprobado antes de implementarla.
 - `14a`: ambos participantes autorizados en el piloto. Apertura de registro general o envío de correos exige una decisión específica; no se introduce un servicio de email en este MVP.
