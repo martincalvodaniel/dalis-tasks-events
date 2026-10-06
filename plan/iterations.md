@@ -84,6 +84,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 03b — Escritura atómica e intenciones
 
+- Estado: completada para infraestructura y mutaciones básicas de elementos; comandos de categorías/preferencias/orden se conectan en `05b/07b`, ocurrencias en `09b` y ACK/reconciliación en `12b`.
 - `target_paths`: outbox y transacciones en `src/lib/local-db/**`, `src/features/sync/**` local, contratos afectados en `src/schemas/**`.
 - Dependencias: `03a`.
 - Aceptación: dato+operación en una transacción; UUID estable en reintentos; orden/dependencias de crear-editar-borrar; recuperar envío interrumpido; shadow remoto separado. Ninguna llamada a red necesaria para guardar.

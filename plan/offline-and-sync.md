@@ -55,7 +55,7 @@ Auth conserva las escrituras atómicas por documento y los índices únicos, sin
 
 ## IndexedDB
 
-Stores propuestos: `items`, `occurrences`, `tags`, `itemViews`, `taskPlacements`, `settings`, `memberships`, `invitations`, `outbox`, `remoteShadows`, `syncMetadata`, `conflicts`. Representación elegida en `03a`: una base `dalis-account:<userId codificado>` por usuario estable. Versión inicial 1 con los ocho stores de dominio; outbox/shadows/metadata/conflictos se añaden por migraciones posteriores, sin borrar la base. Repositorios cliente validados por Zod y preferencias personales comprobadas contra la partición.
+Stores propuestos: `items`, `occurrences`, `tags`, `itemViews`, `taskPlacements`, `settings`, `memberships`, `invitations`, `outbox`, `remoteShadows`, `syncMetadata`, `conflicts`. Representación elegida en `03a`: una base `dalis-account:<userId codificado>` por usuario estable. Versión inicial 1 con ocho stores de dominio; `03b` migra a versión 2 añadiendo `outbox`, `remoteShadows` y `syncMetadata`, sin borrar registros. `conflicts` se incorpora al implementar su gestión en `13`. Repositorios cliente validados por Zod y preferencias personales comprobadas contra la partición.
 
 - Índices locales por tipo/fecha, serie, usuario, categoría y operaciones pendientes según consultas reales.
 - Outbox guarda intención tipada: ID UUID de operación, ID entidad, tipo, `baseRevision`, payload validado, orden local, dependencias y versión de protocolo. No guardar un POST de Next.js ni su action ID.
@@ -150,3 +150,11 @@ Ningún cliente importa auth servidor, MongoDB o PDF. Revisar esto con tipos, li
 `bun run scripts/browser-test-server.ts` sirve una fixture aislada en `http://127.0.0.1:4179`. Abrir, comprobar siete casos y pulsar “Verificar tras recarga”; tras recargar de nuevo, la tarea editada y borrada lógicamente debe permanecer, y la otra cuenta conserva su versión distinta. El botón de limpieza solo elimina las particiones ficticias de esa ejecución. Este servidor no usa sesiones reales, no forma parte del producto y no demuestra aún reapertura sin red: esa garantía necesita el shell de `04`. Los errores de aborto/unicidad y la versión futura se rechazan sin falso éxito ni borrado automático. No se ha forzado una cuota real del dispositivo.
 
 Fuentes primarias consultadas: [ciclo de vida y abortos de transacciones IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IDBTransaction) y [actualización bloqueada por otra conexión](https://developer.mozilla.org/en-US/docs/Web/API/IDBOpenDBRequest/blocked_event).
+
+### Escritura local atómica de `03b`
+
+`LocalOutbox.commitItemCommand` valida intenciones y aplica crear/editar/borrar/estado simple en una transacción de `items`, `outbox` y contador de `syncMetadata`. La revisión del registro permanece remota; las operaciones se encadenan por entidad y no se envía una dependiente antes del ACK de la anterior. El mismo ID con el mismo comando devuelve la intención persistida sin repetir el cambio; otro payload con ese ID se rechaza. Los lectores de shadow permanecen separados de la vista local.
+
+`claim` concede un lease exclusivo; al reabrir se recuperan únicamente leases caducados, preservando IDs y dependencias. No se reactivan leases vivos de otra pestaña. El coordinador de `12b` conectará ACK, revisión base, transporte y lease global; la cola actual no declara sincronización remota. La autorización local de edición permite solo propietario por ahora; membresías/editors se integran en `14`. Las ocurrencias tienen su capa propia en `09`.
+
+Prueba reproducible: `bun run scripts/browser-test-server.ts outbox`, abrir la misma URL loopback, comprobar ocho casos y verificar recarga. Incluye migración 1→2, fallo real por índice único que revierte dato+operación, idempotencia local, dependencias, shadow, dos claims concurrentes y recuperación tras cerrar/reabrir la conexión.

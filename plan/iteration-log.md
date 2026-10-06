@@ -92,6 +92,17 @@
 - Commit: `feat(storage): add account-isolated IndexedDB repositories`.
 - Siguiente candidata: `03b`, secuencial, previa lectura de ambas ventanas y manteniendo reserva del lote.
 
+## 03b — Outbox atómica y recuperación
+
+- Rama `main`, secuencial; presupuesto de entrada: **5h 66%; 7d 38% restantes**, consulta automática tras `03a`.
+- Objetivo y `target_paths`: mutaciones de elementos, outbox, leases y migración en `src/lib/local-db/**`; contratos `src/schemas/local-sync.ts` y `src/types/local-sync.ts`; fixtures/browser runner y plan. Dependencia: `03a`.
+- Resultado: dato+intención+secuencia en una transacción, IDs persistentes, reintento idempotente local, cadena de dependencias por entidad y shadows separados. Claim exclusivo por operación, bloqueo de dependientes y recuperación de leases caducados con el mismo ID tras reinicio. Migración 1→2 conserva el dominio y añade tres stores.
+- Alcance decidido: crear/editar/borrar y estado de tarea no recurrente; conectar categorías/preferencias/orden en `05b/07b`, ocurrencias en `09b`, permisos de editor en `14` y ACK/reconciliación/transporte en `12b`. Los comandos sin capa de aplicación local no se aceptan silenciosamente.
+- Evidencia: **35 tests unitarios aprobados**, incluidos cuatro nuevos escenarios de mutaciones/contratos; **nueve comprobaciones de outbox en navegador**, incluida recarga explícita. Se fuerza una violación de secuencia única después de encolar la escritura del item: todo revierte y no aparece intención adicional. Dos claims concurrentes solo producen un ganador. Se repiten las ocho comprobaciones de repositorios contra versión 2, sin regresiones.
+- Validación: lint global, `tsc --noEmit`, build de producción, referencias locales y `git diff --check` aprobados. Sin red necesaria para escribir, sin dependencias nuevas ni cambios de producción. Fixtures limpiadas, pestaña cerrada y servidor temporal detenido.
+- Commit: `feat(sync): persist atomic local mutations and recoverable outbox`.
+- Siguiente candidata: `04a`; verificar ambas ventanas y acotar shell/cache de producción antes de comenzar.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

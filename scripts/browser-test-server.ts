@@ -1,6 +1,9 @@
 import { resolve } from "node:path"
 
-const entrypoint = resolve("test/browser/local-db.ts")
+const suite = process.argv[2] ?? "local-db"
+if (suite !== "local-db" && suite !== "outbox")
+  throw new Error("Unknown browser test suite")
+const entrypoint = resolve(`test/browser/${suite}.ts`)
 const build = await Bun.build({ entrypoints: [entrypoint], target: "browser" })
 if (!build.success) throw new Error("Browser test bundle failed to build")
 const javascript = await build.outputs[0].text()

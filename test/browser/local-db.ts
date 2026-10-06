@@ -1,6 +1,8 @@
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { LOCAL_DATABASE_VERSION } from "@/lib/local-db/migrations"
+import { outboxStoreDefinitions } from "@/lib/local-db/outbox-stores"
 import { LocalRepository } from "@/lib/local-db/repository"
+import { localStoreDefinitions } from "@/lib/local-db/store-config"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { taskSchema } from "@/schemas/calendar-item"
 import { entityIdSchema } from "@/schemas/primitives"
@@ -140,7 +142,11 @@ async function runChecks() {
     await check("Migración inicial e índices de consulta", async () => {
       const database = await openLocalDatabase(userA)
       assert(database.version === LOCAL_DATABASE_VERSION)
-      assert(database.objectStoreNames.length === 8)
+      assert(
+        database.objectStoreNames.length ===
+          Object.keys(localStoreDefinitions).length +
+            Object.keys(outboxStoreDefinitions).length
+      )
       database.close()
       const indexed = await a.list("items", {
         index: "byTaskDate",

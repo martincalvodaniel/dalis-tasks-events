@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: identidad, reglas iniciales y repositorios locales comprobados (`01a–03a`); siguiente candidata `03b`. Fecha: 6 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: identidad, reglas iniciales y persistencia local atómica comprobadas (`01a–03b`); siguiente candidata `04a`. Fecha: 6 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -31,7 +31,7 @@ Observaciones de archivos versionados; no se ha probado el login de producción 
 - `01a` conecta Better Auth al adaptador MongoDB ya instalado: usuarios, cuentas, sesiones y verificaciones persistentes. Pruebas con MongoDB local real y dos clientes HTTP independientes comprueban estabilidad de ID tras logout y reconexión. El login interactivo contra Google real se comprobará en el piloto; los tests usan firmas válidas con una clave de prueba y conservan las verificaciones de token.
 - El acceso depende de `ALLOWED_EMAILS`. Una lista vacía no admite usuarios; una invitación no debe ampliar esa lista automáticamente. Compartir en el piloto exige que ambos usuarios estén autorizados.
 - Existen singleton MongoDB, cuatro colecciones de autenticación y seis índices centrales. El adaptador solo reconoce solicitudes automáticas de índices previamente registrados y provisionados. Las colecciones de producto aún están pendientes. Se respeta [src/lib/db/AGENTS.md](../src/lib/db/AGENTS.md).
-- El dashboard es una pantalla inicial. No hay calendario ni service worker. `03a` incorpora repositorios IndexedDB comprobados en navegador; las intenciones tienen contratos, pero todavía no hay cola atómica ni transporte de sincronización.
+- El dashboard es una pantalla inicial. No hay calendario ni service worker. `03a–03b` incorporan repositorios IndexedDB y una outbox atómica comprobados en navegador. El transporte remoto todavía no está implementado.
 - Hay pruebas con Bun, comprobación de tipos y Biome. El README sigue siendo el de arranque y se actualizará cuando haya un flujo ejecutable.
 
 ## Decisiones de producto
