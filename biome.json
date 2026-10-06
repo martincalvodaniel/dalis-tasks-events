@@ -1,0 +1,74 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "linter": {
+    "domains": {
+      "test": "all",
+      "react": "all",
+      "next": "all",
+      "project": "none",
+      "solid": "none"
+    },
+    "enabled": true,
+    "rules": {
+      "performance": {
+        "noJsxPropsBind": "off"
+      }
+    }
+  },
+  "css": {
+    "linter": {
+      "enabled": true
+    },
+    "formatter": {
+      "enabled": true
+    },
+    "parser": {
+      "cssModules": true,
+      "tailwindDirectives": true
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "useEditorconfig": false,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 80,
+    "attributePosition": "auto",
+    "bracketSpacing": true
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "jsxQuoteStyle": "double",
+      "semicolons": "asNeeded",
+      "trailingCommas": "es5"
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["src/app/**/*.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useComponentExportOnlyModules": "off"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "name": "nextjs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "db:ensure-indexes": "bun run scripts/ensure-indexes.ts",
+    "dev": "next dev",
+    "format": "biome format --write",
+    "knip": "knip",
+    "lint": "biome check",
+    "lint:fix": "biome check --fix",
+    "start": "next start",
+    "test": "bun test --preload ./test/setup.ts",
+    "test:watch": "bun test --watch --preload ./test/setup.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "better-auth": "1.7.7",
+    "mongodb": "7.7.0",
+    "next": "16.3.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "0.0.1",
+    "swr": "2.5.1",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/bun": "1.4.2",
+    "@types/node": "26.6.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "knip": "6.39.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "7.0.2"
+  }
+}
