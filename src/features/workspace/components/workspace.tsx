@@ -1,40 +1,61 @@
 "use client"
 
-import { useEffect, useId, useState } from "react"
+import { useId, useState } from "react"
+import { UpdateNotice } from "@/features/workspace/components/update-notice"
+import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import {
-  type LocalAccount,
+  closeLocalAccount,
   prepareLocalAccount,
-  restoreLocalAccount,
 } from "@/features/workspace/local-account"
 
 export function Workspace() {
   const statusHeadingId = useId()
-  const [account, setAccount] = useState<LocalAccount | null>(null)
-  const [state, setState] = useState<
-    "loading" | "unprepared" | "preparing" | "ready" | "error"
-  >("loading")
-  useEffect(() => {
-    let active = true
-    restoreLocalAccount()
-      .then((restored) => {
-        if (!active) return
-        setAccount(restored)
-        setState(restored ? "ready" : "unprepared")
-      })
-      .catch(() => {
-        if (active) setState("error")
-      })
-    return () => {
-      active = false
-    }
-  }, [])
+  const { account, error, isLoading, logoutPending, refresh } =
+    useLocalAccount()
+  const [preparing, setPreparing] = useState(false)
+  const [failed, setFailed] = useState(false)
+  const [notice, setNotice] = useState("")
+  const displayedNotice = account
+    ? ""
+    : notice ||
+      (logoutPending
+        ? "Espacio oculto en este dispositivo. Falta cerrar la sesión remota cuando vuelva la conexión; tus cambios locales se conservan."
+        : "")
+  const state = preparing
+    ? "preparing"
+    : account
+      ? "ready"
+      : isLoading
+        ? "loading"
+        : failed || error
+          ? "error"
+          : "unprepared"
   async function prepare() {
-    setState("preparing")
+    setPreparing(true)
+    setFailed(false)
     try {
-      setAccount(await prepareLocalAccount())
-      setState("ready")
+      await prepareLocalAccount()
+      await refresh()
     } catch {
-      setState("error")
+      setFailed(true)
+    } finally {
+      setPreparing(false)
+    }
+  }
+  async function close(switchAccount = false) {
+    setFailed(false)
+    try {
+      const completed = await closeLocalAccount()
+      await refresh()
+      setNotice(
+        completed
+          ? "Sesión cerrada. Tus cambios locales se conservan para cuando vuelvas con la misma cuenta."
+          : "Espacio oculto en este dispositivo. Falta cerrar la sesión remota cuando vuelva la conexión; tus cambios locales se conservan."
+      )
+      if (switchAccount && completed)
+        window.location.assign("/auth/signin?callbackUrl=%2Fworkspace")
+    } catch {
+      setFailed(true)
     }
   }
   return (
@@ -111,6 +132,33 @@ export function Workspace() {
           </div>
         ) : null}
       </section>
+      {state === "ready" ? (
+        <div className="mt-5 flex flex-wrap gap-4">
+          <button
+            type="button"
+            onClick={() => close()}
+            className="min-h-12 rounded-xl border border-zinc-300 px-4 py-3 text-sm font-medium dark:border-zinc-700"
+          >
+            Cerrar sesión
+          </button>
+          <button
+            type="button"
+            onClick={() => close(true)}
+            className="min-h-12 rounded-xl border border-zinc-300 px-4 py-3 text-sm font-medium dark:border-zinc-700"
+          >
+            Cambiar cuenta
+          </button>
+        </div>
+      ) : null}
+      {displayedNotice ? (
+        <p
+          role="status"
+          className="mt-5 text-sm text-zinc-600 dark:text-zinc-400"
+        >
+          {displayedNotice}
+        </p>
+      ) : null}
+      <UpdateNotice />
       <p className="mt-6 text-sm text-zinc-500 dark:text-zinc-400">
         La sincronización con otros dispositivos todavía no está disponible.
       </p>

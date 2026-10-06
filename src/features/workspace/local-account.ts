@@ -1,22 +1,26 @@
 "use client"
 
-import { OFFLINE_ACCOUNT_KEY } from "@/config/pwa"
+import { completePendingRemoteLogout } from "@/features/auth/pending-logout"
+import { authClient } from "@/lib/auth/auth-client"
+import {
+  activatePreparedAccount,
+  completeRemoteLogout,
+  hideLocalAccount,
+  readAccountControl,
+} from "@/lib/local-db/account-control"
 import { LocalRepository } from "@/lib/local-db/repository"
 import { isOfflineShellReady, prepareOfflineShell } from "@/lib/pwa/client"
-import {
-  preparedAccountSchema,
-  workspaceIdentitySchema,
-} from "@/schemas/workspace"
+import { workspaceIdentitySchema } from "@/schemas/workspace"
 
 export interface LocalAccount {
   userId: string
   itemCount: number
+  epoch: string
 }
 
 export async function restoreLocalAccount(): Promise<LocalAccount | null> {
-  const stored = localStorage.getItem(OFFLINE_ACCOUNT_KEY)
-  if (!stored) return null
-  const account = preparedAccountSchema.parse(JSON.parse(stored))
+  const account = await readAccountControl()
+  if (!account.userId || account.logoutPending) return null
   if (!(await isOfflineShellReady()))
     throw new Error("Offline shell is not ready")
   const repository = await LocalRepository.open(account.userId)
@@ -24,13 +28,21 @@ export async function restoreLocalAccount(): Promise<LocalAccount | null> {
     if (!(await repository.get("settings", account.userId)))
       throw new Error("Local account is incomplete")
     const items = await repository.list("items")
-    return { userId: account.userId, itemCount: items.length }
+    const current = await readAccountControl()
+    return current.epoch === account.epoch
+      ? {
+          userId: account.userId,
+          itemCount: items.length,
+          epoch: account.epoch,
+        }
+      : null
   } finally {
     repository.close()
   }
 }
 
 export async function prepareLocalAccount(): Promise<LocalAccount> {
+  const control = await completePendingRemoteLogout()
   const response = await fetch("/api/sync/identity", {
     credentials: "same-origin",
     cache: "no-store",
@@ -54,14 +66,29 @@ export async function prepareLocalAccount(): Promise<LocalAccount> {
     }
     const items = await repository.list("items")
     await prepareOfflineShell()
-    const prepared = preparedAccountSchema.parse({
-      version: 1,
+    const prepared = await activatePreparedAccount(
+      identity.userId,
+      timestamp,
+      control.epoch
+    )
+    return {
       userId: identity.userId,
-      preparedAt: timestamp,
-    })
-    localStorage.setItem(OFFLINE_ACCOUNT_KEY, JSON.stringify(prepared))
-    return { userId: identity.userId, itemCount: items.length }
+      itemCount: items.length,
+      epoch: prepared.epoch,
+    }
   } finally {
     repository.close()
+  }
+}
+
+export async function closeLocalAccount(): Promise<boolean> {
+  const control = await hideLocalAccount()
+  try {
+    const result = await authClient.signOut({ fetchOptions: { timeout: 5000 } })
+    if (result.error) return false
+    await completeRemoteLogout(control.epoch)
+    return true
+  } catch {
+    return false
   }
 }

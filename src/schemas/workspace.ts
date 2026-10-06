@@ -1,5 +1,9 @@
 import { z } from "zod"
-import { timestampSchema, userIdSchema } from "@/schemas/primitives"
+import {
+  entityIdSchema,
+  timestampSchema,
+  userIdSchema,
+} from "@/schemas/primitives"
 
 export const workspaceIdentitySchema = z.strictObject({ userId: userIdSchema })
 export const preparedAccountSchema = z.strictObject({
@@ -12,3 +16,20 @@ export const offlineWorkerStatusSchema = z.strictObject({
   ready: z.boolean(),
   version: z.string().min(1).max(128),
 })
+
+export const accountControlSchema = z
+  .strictObject({
+    version: z.literal(1),
+    epoch: entityIdSchema,
+    userId: userIdSchema.nullable(),
+    preparedAt: timestampSchema.nullable(),
+    logoutPending: z.boolean(),
+  })
+  .refine(
+    (control) => (control.userId === null) === (control.preparedAt === null),
+    "Prepared account metadata is inconsistent"
+  )
+  .refine(
+    (control) => !control.logoutPending || control.userId === null,
+    "Pending logout cannot have an active account"
+  )

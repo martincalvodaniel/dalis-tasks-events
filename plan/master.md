@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell neutro y recarga offline de producción comprobados (`01a–04a`); siguiente candidata `04b`. Fecha: 6 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: reapertura offline, cierre y aislamiento de cuenta comprobados (`01a–04b`); siguiente candidata `04c`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -31,7 +31,7 @@ Observaciones de archivos versionados; no se ha probado el login de producción 
 - `01a` conecta Better Auth al adaptador MongoDB ya instalado: usuarios, cuentas, sesiones y verificaciones persistentes. Pruebas con MongoDB local real y dos clientes HTTP independientes comprueban estabilidad de ID tras logout y reconexión. El login interactivo contra Google real se comprobará en el piloto; los tests usan firmas válidas con una clave de prueba y conservan las verificaciones de token.
 - El acceso depende de `ALLOWED_EMAILS`. Una lista vacía no admite usuarios; una invitación no debe ampliar esa lista automáticamente. Compartir en el piloto exige que ambos usuarios estén autorizados.
 - Existen singleton MongoDB, cuatro colecciones de autenticación y seis índices centrales. El adaptador solo reconoce solicitudes automáticas de índices previamente registrados y provisionados. Las colecciones de producto aún están pendientes. Se respeta [src/lib/db/AGENTS.md](../src/lib/db/AGENTS.md).
-- El dashboard es una pantalla inicial. No hay calendario todavía. `03a–03b` incorporan repositorios IndexedDB y una outbox atómica; `04a` añade shell neutro `/workspace`, worker de recursos y preparación de cuenta. Recarga sin servidor probada en producción; transporte remoto todavía no implementado.
+- El dashboard conserva su pantalla inicial. No hay calendario todavía. `03a–03b` incorporan repositorios IndexedDB y una outbox atómica; `04a–04b` añaden shell neutro `/workspace`, worker de recursos, preparación y cierre de cuenta entre pestañas. Recarga y reapertura sin servidor probadas en producción; transporte remoto todavía no implementado.
 - Hay pruebas con Bun, comprobación de tipos y Biome. El README sigue siendo el de arranque y se actualizará cuando haya un flujo ejecutable.
 
 ## Decisiones de producto
@@ -86,7 +86,7 @@ Al final de **cada** iteración se preguntarán ambos porcentajes y se elegirá 
 
 Excepción autorizada posteriormente: lote desatendido del 6 de octubre, iniciado con **5h 82%; 7d 41% restantes**. Entre commits se consulta el uso real sin esperar feedback, con reserva reforzada del 20%. La autorización y sus condiciones figuran en `workflow.md`; el protocolo interactivo se recupera al terminar el lote.
 
-Lote cerrado tras `03b`: lectura automática **5h 61%; 7d 38% restantes** antes del commit documental de cierre. Se entregaron sesiones vigentes, contratos, corrección de lint solicitada, fechas, repositorios IndexedDB y outbox atómica, con commits separados y validaciones. El usuario ha solicitado continuar este lote sin feedback mientras haya margen para completar otra entrega. Se reanuda `04a` con lectura 59%/38%; todavía no existe una UI de calendario ni reapertura offline preparada.
+Lote cerrado tras `03b`: lectura automática **5h 61%; 7d 38% restantes** antes del commit documental de cierre. Se entregaron sesiones vigentes, contratos, corrección de lint solicitada, fechas, repositorios IndexedDB y outbox atómica, con commits separados y validaciones. El usuario ha solicitado continuar este lote sin feedback mientras haya margen para completar otra entrega. Se reanudó `04a` con lectura 59%/38%. `04a–04b` ya verifican el shell offline y el cierre persistido; calendario, creación y sincronización remota siguen pendientes.
 
 ## Prerrequisitos por confirmar en su iteración
 

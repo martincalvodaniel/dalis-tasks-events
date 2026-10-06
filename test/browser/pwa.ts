@@ -1,15 +1,27 @@
 import { OFFLINE_ACCOUNT_KEY } from "@/config/pwa"
+import {
+  ACCOUNT_CONTROL_DATABASE,
+  activatePreparedAccount,
+  completeRemoteLogout,
+  hideLocalAccount,
+  readAccountControl,
+} from "@/lib/local-db/account-control"
 import { localDatabaseName } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import { LocalRepository } from "@/lib/local-db/repository"
 import { isOfflineShellReady, prepareOfflineShell } from "@/lib/pwa/client"
 import { taskDraftSchema } from "@/schemas/calendar-item"
 import { entityIdSchema } from "@/schemas/primitives"
-import { preparedAccountSchema } from "@/schemas/workspace"
 
 const query = new URLSearchParams(location.search)
+if (
+  location.hostname !== "127.0.0.1" ||
+  !["4183", "4184"].includes(location.port)
+)
+  throw new Error("PWA fixtures require an isolated loopback test origin")
 const runId = entityIdSchema.parse(query.get("run") ?? crypto.randomUUID())
 const userId = `browser-test-${runId}-pwa`
+const otherUserId = `${userId}-other`
 const resultList = document.getElementById("results")
 const status = document.getElementById("status")
 const actions = document.getElementById("actions")
@@ -34,18 +46,24 @@ async function check(label: string, work: () => Promise<void>) {
 }
 async function run() {
   if (query.get("mode") === "cleanup") {
-    const current = localStorage.getItem(OFFLINE_ACCOUNT_KEY)
+    const current = await readAccountControl()
     assert(
-      current &&
-        preparedAccountSchema.parse(JSON.parse(current)).userId === userId
+      current.userId === userId ||
+        current.userId === otherUserId ||
+        current.userId === null
     )
     localStorage.removeItem(OFFLINE_ACCOUNT_KEY)
-    await new Promise<void>((resolve, reject) => {
-      const request = indexedDB.deleteDatabase(localDatabaseName(userId))
-      request.onsuccess = () => resolve()
-      request.onerror = () => reject(request.error)
-      request.onblocked = () => reject(new Error("Test cleanup blocked"))
-    })
+    for (const name of [
+      localDatabaseName(userId),
+      localDatabaseName(otherUserId),
+      ACCOUNT_CONTROL_DATABASE,
+    ])
+      await new Promise<void>((resolve, reject) => {
+        const request = indexedDB.deleteDatabase(name)
+        request.onsuccess = () => resolve()
+        request.onerror = () => reject(request.error)
+        request.onblocked = () => reject(new Error("Test cleanup blocked"))
+      })
     const registrations = await navigator.serviceWorker.getRegistrations()
     for (const registration of registrations) {
       if (registration.active?.scriptURL === `${location.origin}/dalis-sw.js`)
@@ -56,7 +74,94 @@ async function run() {
     statusElement.textContent = "Cuenta, caché y worker ficticios limpiados."
     return
   }
+  if (query.get("mode") === "inspect") {
+    await check("Cola anterior conservada tras cierre de sesión", async () => {
+      const outbox = await LocalOutbox.open(userId)
+      try {
+        assert((await outbox.listEntries()).length === 1)
+      } finally {
+        outbox.close()
+      }
+      const control = await readAccountControl()
+      assert(control.userId === null && control.logoutPending)
+    })
+    statusElement.textContent = "Cierre local y trabajo pendiente comprobados."
+    return
+  }
+  if (query.get("mode") === "switch") {
+    await check(
+      "Otra cuenta usa otra partición y conserva la cola anterior",
+      async () => {
+        let control = await readAccountControl()
+        assert(control.userId === null)
+        control = await completeRemoteLogout(control.epoch)
+        const repository = await LocalRepository.open(otherUserId)
+        const outbox = await LocalOutbox.open(otherUserId)
+        try {
+          const timestamp = new Date().toISOString()
+          await repository.put("settings", {
+            userId: otherUserId,
+            timeZone: "Europe/Madrid",
+            weekStartsOn: 1,
+            locale: "es-ES",
+            revision: 0,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+            deletedAt: null,
+          })
+          for (let index = 0; index < 2; index++)
+            await outbox.commitItemCommand({
+              type: "item.create",
+              itemId: crypto.randomUUID(),
+              input: taskDraftSchema.parse({
+                kind: "task",
+                title: `Other account task ${index}`,
+                description: "",
+                scheduledDate: "2026-10-06",
+                status: "not_started",
+                checklist: [],
+                recurrence: null,
+              }),
+            })
+          await activatePreparedAccount(otherUserId, timestamp, control.epoch)
+        } finally {
+          repository.close()
+          outbox.close()
+        }
+        const previous = await LocalOutbox.open(userId)
+        try {
+          assert((await previous.listEntries()).length === 1)
+        } finally {
+          previous.close()
+        }
+      }
+    )
+    statusElement.textContent =
+      "Cambio de partición local comprobado con identidad ficticia."
+    return
+  }
+  if (query.get("mode") === "version") {
+    await check("Versión nueva activa con datos y cola intactos", async () => {
+      const registration =
+        await navigator.serviceWorker.getRegistration("/workspace")
+      assert(registration?.active && !registration.waiting)
+      assert(await isOfflineShellReady())
+      assert(
+        (await caches.keys()).filter((name) => name.startsWith("dalis-shell:"))
+          .length === 1
+      )
+      const outbox = await LocalOutbox.open(otherUserId)
+      try {
+        assert((await outbox.listEntries()).length === 2)
+      } finally {
+        outbox.close()
+      }
+    })
+    statusElement.textContent = "Actualización y persistencia comprobadas."
+    return
+  }
   assert(!localStorage.getItem(OFFLINE_ACCOUNT_KEY))
+  assert((await readAccountControl()).userId === null)
   await check("Recursos del build y shell neutro preparados", async () => {
     await prepareOfflineShell()
     assert(await isOfflineShellReady())
@@ -129,16 +234,17 @@ async function run() {
             recurrence: null,
           }),
         })
-        localStorage.setItem(
-          OFFLINE_ACCOUNT_KEY,
-          JSON.stringify(
-            preparedAccountSchema.parse({
-              version: 1,
-              userId,
-              preparedAt: timestamp,
-            })
-          )
-        )
+        const original = await readAccountControl()
+        const hidden = await hideLocalAccount()
+        let staleRejected = false
+        try {
+          await activatePreparedAccount(userId, timestamp, original.epoch)
+        } catch {
+          staleRejected = true
+        }
+        assert(staleRejected)
+        const current = await completeRemoteLogout(hidden.epoch)
+        await activatePreparedAccount(userId, timestamp, current.epoch)
         assert((await outbox.listEntries()).length === 1)
       } finally {
         repository.close()

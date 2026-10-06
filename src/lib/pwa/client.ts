@@ -56,3 +56,34 @@ export async function prepareOfflineShell(): Promise<void> {
   if (!registration.active || !(await readWorkerStatus(registration.active)))
     throw new Error("Offline shell is incomplete")
 }
+
+export function observeOfflineUpdates(onWaiting: () => void): () => void {
+  let disposed = false
+  let registration: ServiceWorkerRegistration | undefined
+  let installing: ServiceWorker | null = null
+  const inspect = () => {
+    if (!disposed && registration?.waiting) onWaiting()
+  }
+  const onUpdate = () => {
+    installing?.removeEventListener("statechange", inspect)
+    installing = registration?.installing ?? null
+    installing?.addEventListener("statechange", inspect)
+  }
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .getRegistration("/workspace")
+      .then((value) => {
+        if (disposed || !value) return
+        registration = value
+        inspect()
+        registration.addEventListener("updatefound", onUpdate)
+        if (navigator.onLine) void registration.update().catch(() => {})
+      })
+      .catch(() => {})
+  }
+  return () => {
+    disposed = true
+    registration?.removeEventListener("updatefound", onUpdate)
+    installing?.removeEventListener("statechange", inspect)
+  }
+}

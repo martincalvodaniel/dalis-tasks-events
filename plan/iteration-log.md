@@ -124,6 +124,17 @@
 - Commit: `feat(pwa): prepare a neutral offline workspace shell`.
 - Siguiente candidata: `04b`, tras consulta de ambas ventanas; no cerrar el lote por haber alcanzado este hito si todavía hay margen.
 
+## 04b — Cierre persistido, cuentas y actualización
+
+- Rama `main`, secuencial. Presupuesto de entrada: **5h 50%; 7d 36% restantes**, consulta automática tras `04a`; lote desatendido vigente.
+- Objetivo y `target_paths`: control IndexedDB mínimo, restauración/SWR y cierre en `features/workspace/**`, cierre pendiente en `features/auth/**`, observación de worker en `lib/pwa/client.ts`, schema y fixture PWA; plan e instrucciones locales. Dependencia: `04a`.
+- Resultado: logout oculta todas las pestañas, preserva particiones y outbox y persiste el cierre remoto pendiente. Nonce transaccional impide reactivar una preparación invalidada. Antes de iniciar otro Google se resuelve el cierre anterior. Worker nuevo espera sin interrumpir escrituras; la UI explica cómo activarlo.
+- Evidencia en navegador real de producción: dos pestañas restauran la misma cuenta; cierre con servidor detenido oculta ambas y persiste al recargar/abrir webview nueva; cola anterior intacta; segunda cuenta tiene otra partición y dos intenciones propias. Preparación con nonce antiguo rechazada. Segundo build muestra aviso de actualización, espera el cierre de clientes y activa una única caché nueva conservando las dos operaciones. Reapertura sin servidor vuelve a leer sus datos. Regresión final: tres checks iniciales, cierre offline, mensaje durable y cola conservada aprobados.
+- Validación: lint sin ruido, tipos, build de producción y 36 tests unitarios aprobados, cero fallos. Suite auth DB opt-in ya comprobada en `01b`, no repetida; Google interactivo/móviles físicos pendientes. Caché Turbopack del build previo de sandbox se regeneró y el build autorizado pasó. `git diff --check` y referencias locales aprobados.
+- Decisión: excepción acotada para metadatos de cuenta activa compartidos; nunca dominio o credenciales. Fixtures restringidas al puerto loopback de prueba y retiradas del directorio público después del recorrido; cuentas ficticias limpiadas, procesos detenidos. Sin nuevas dependencias ni push.
+- Commit: `feat(workspace): preserve account isolation across offline sessions`.
+- Siguiente candidata: `04c` en secuencial; consultar ambas ventanas y continuar mientras la entrega completa cabe con reserva.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

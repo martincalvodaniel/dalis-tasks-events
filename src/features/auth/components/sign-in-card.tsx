@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { ErrorBanner } from "@/components/ui/error-banner"
+import { completePendingRemoteLogout } from "@/features/auth/pending-logout"
 import { authClient } from "@/lib/auth/auth-client"
 
 interface SignInCardProps {
@@ -18,6 +19,7 @@ export function SignInCard({ callbackUrl, initialError }: SignInCardProps) {
     setIsPending(true)
 
     try {
+      await completePendingRemoteLogout()
       const result = await authClient.signIn.social({
         provider: "google",
         callbackURL: callbackUrl,

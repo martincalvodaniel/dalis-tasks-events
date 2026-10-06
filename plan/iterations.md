@@ -102,6 +102,8 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 04b — Cierre, cuenta y versión
 
+- Estado: completada en navegador de Codex; cierre de todas las pestañas y nueva webview sin servidor, aislamiento y actualización probados. Reinicio físico de navegadores móviles pendiente de `15a`.
+
 - `target_paths`: `src/features/workspace/**`, `src/lib/pwa/**`, arranque de `src/lib/local-db/**` y pruebas de navegador.
 - Dependencias: `04a`.
 - Aceptación: cerrar navegador, desconectar y abrir shell; partición persistida disponible sin sesión remota vigente; logout oculta datos en todas las pestañas; cambio de cuenta no arrastra cola. Actualizar shell conserva IndexedDB y no interrumpe una escritura.
