@@ -100,6 +100,10 @@ Server Actions cambian de ID entre builds. La [guía instalada](../node_modules/
 
 ## Garantías remotas
 
+Primer avance preparatorio11b0: [operation-fingerprint.ts](../src/lib/sync/operation-fingerprint.ts), módulo server-only, valida el payload con syncOperationSchema y calcula SHA256 hexadecimal de64 caracteres. Canonicalización propia v1: ordenar claves de objetos por comparación binaria en todos los niveles, conservar orden de arrays y serializar JSON tras normalización de Zod; prefijo `sync-operation-fingerprint:v1\n` antes del JSON, UTF8. Incluye operationId/protocolVersion/baseRevision/command. No es una implementación de un estándar externo de JSON canónico; futuros cambios de normalización/schema requieren revisar compatibilidad de recibos.
+
+El servidor futuro recalcula la huella y busca recibo por actor de sesión+operationId; nunca acepta una huella del cliente como prueba de ejecución/autorización. Hoy solo hay helper y [tests](../src/lib/sync/operation-fingerprint.test.ts), sin colección/recibo/endpoint ni sincronización activa. Persistencia transaccional y replay remoto deben probarse en11a/11b; la huella por sí sola no impide duplicados. Alcance inicial remoto adelantado a tareas/eventos simples, antes de09c/10; comandos todavía sin soporte conservan cola pendiente y no se confirman.
+
 - Derivar actor de la sesión persistida; comprobar dueño/membresía en cada lectura y mutación. Validar estructura con Zod no autoriza un ID ajeno.
 - Aplicar control optimista por `baseRevision` con compare-and-swap y subir `revision` en el servidor. No usar timestamps del cliente como ganador.
 - Recibo de operación único por `(actorUserId, operationId)` y hash de payload: repetir devuelve el mismo resultado; reutilizar ID con otro contenido se rechaza. Conservar recibos durante el horizonte compatible; no TTL arbitrario que permita reproducir una operación antigua.

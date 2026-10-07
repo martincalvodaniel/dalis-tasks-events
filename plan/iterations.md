@@ -338,18 +338,31 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ## 11 — Persistencia remota autorizada
 
+Prioridad revisada el7oct: adelantar sincronización del alcance local ya operativo, a petición del usuario.09b4b2a/09c/10 quedan aplazadas; no son prerrequisitos de persistencia de tareas/eventos simples. Primer corte11b0 prepara huella de recibos sin IO; después11a1 confirma transacciones en DB de prueba y desarrolla repositorios/índices, antes de activar acciones11b. No ACK ni envío de comandos sin ejecutor remoto probado; recurrencia/cumpleaños/sharing se incorporan después sin borrar intenciones pendientes.
+
 ### 11a — Repositorios, índices y transacciones
 
 - `target_paths`: `src/lib/db/**`, tests de integración, scripts de setup estrictamente necesarios.
-- Dependencias: `10`; confirmar replica set/clúster compatible sin exponer URI ni modificar datos reales.
+- Dependencias revisadas para11a1: contratos/outbox y tareas/eventos simples ya entregados; confirmar replica set/clúster compatible sin exponer URI ni modificar datos reales. Cobertura de separar serie y cumpleaños espera09c/10 y se añade después; no declararla probada en el primer corte.
 - Aceptación: repositorios de entidades personales, compare-and-swap, borrados y comando de separar serie; mapeos sin driver fuera de DB; índices exactos centralizados; operación fallida revierte transacción. Preparar DB de prueba reproducible.
 - Corte: si infraestructura no soporta transacciones, replantear garantía del journal antes de continuar.
+
+Primeros cortes revisados:11a1a configura/valida replica set de prueba aislado y comprueba commit/rollback sin acceder a datos reales;11a1b introduce repositorio de elementos simples con CAS y registro central de índices, conflictos/concurrencia/borrados comprobados contra esa DB. Revisar estado de herramientas existentes al abrir, no instalar servicios ni cambiar configuración de hosting por iniciativa propia. Después11b1 integra recibo+mutación+journal atómicos, autorización y replay, antes de exponer acción de subida. Preferencias pendientes deben viajar antes de anunciar convergencia completa del espacio.
 
 ### 11b — Acción validada e idempotencia
 
 - `target_paths`: `src/features/sync/actions.ts`, validadores de sync, recibos/transacciones en DB, pruebas de autorización.
 - Dependencias: `11a`.
 - Aceptación: actor de sesión, input Zod limitado, recibo+mutación atómicos; mismo operation ID no duplica; payload diferente con ID reutilizado falla; revisión incorrecta devuelve conflicto; datos de otra cuenta rechazados. Separar resultado por operación del lote.
+
+### 11b0 — Huella validada de operaciones (preparatoria)
+
+- Objetivo: huella SHA256 determinista del payload validado para futuros recibos idempotentes; entrada17%/60%, secuencial enint, entrega mínima pedida explícitamente. No depende de DB ni de11a; acciones/remoto aún pendientes.
+- `target_paths`: `src/lib/sync/operation-fingerprint.ts`, su test, `plan/{master,iterations,iteration-log,offline-and-sync}.md`. Dependencias: `syncOperationSchema`, Node crypto instalado; guía use-server instalada revisada. Módulo server-only sin endpoint, credenciales, auth nueva, persistencia o índices.
+- Aceptación: orden de propiedades irrelevante en cualquier nivel; array ordenado y campos significativos cambian huella; semántica normalizada por schemas existentes; todos los campos de operación incluidos, formato canonical versionado, rechazar input inválido/extra. Hash no autoriza al actor ni prueba que una operación se ejecutó. Oráculo independiente SHA256 y input intacto.
+- Validación: tests/suite, lint/tipos/build, diff/referencias, plan/registro y commit/push int; cuotas al cerrar. Siguiente11a1 replica set de prueba/repo inicial; no abrir conexión ni declarar sincronización en esta entrega.
+
+- Resultado: cuatro tests/18 aserciones, oráculo independiente WebCrypto, canonicalización/normalización, cambios significativos, input intacto y rechazo validado pasan. Suite119 pass/7auth opt-in skip/0fallos, lint215 archivos/tipos aprobados; build y cierre enregistro. No hay llamadas ni mutaciones remotas. Siguiente11a1 verifica replica set de prueba y primer repositorio/índices.
 
 ## 12 — Descarga incremental y conexión automática
 
