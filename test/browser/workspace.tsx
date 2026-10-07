@@ -1,3 +1,4 @@
+import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { canPrepareOfflineShell } from "@/config/pwa"
 import { assignLocalCategory, saveLocalTag } from "@/features/tags/local-tags"
@@ -25,7 +26,12 @@ if (
   throw new Error("Workspace fixtures require an isolated loopback origin")
 
 const host = document.getElementById("workspace")
-if (host) createRoot(host).render(<Workspace />)
+if (host)
+  createRoot(host).render(
+    <StrictMode>
+      <Workspace />
+    </StrictMode>
+  )
 else
   void run().catch((error: unknown) => {
     console.error(error)
@@ -55,6 +61,19 @@ async function requestStatus() {
 }
 async function run() {
   const mode = new URLSearchParams(location.search).get("mode")
+  if (mode === "magnify") {
+    const frame = document.createElement("iframe")
+    frame.title = "Espacio con texto ampliado"
+    frame.src = "/workspace"
+    frame.style.width = "100%"
+    frame.style.height = "1000px"
+    frame.addEventListener("load", () => {
+      const root = frame.contentDocument?.documentElement
+      if (root) root.style.fontSize = "32px"
+    })
+    document.getElementById("actions")?.append(frame)
+    return
+  }
   if (mode === "clock") {
     const frame = document.createElement("iframe")
     frame.title = "Agenda con reloj de prueba"

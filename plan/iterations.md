@@ -213,7 +213,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 - Dependencias: `07a`.
 - Aceptación: mover grupos y tareas, cambiar categoría personal, ordenar atrasadas; alternativa de teclado a drag-and-drop; recarga conserva orden; operaciones por ID/intención, sin reemplazo global de arrays.
 
-#### 07b0 — Diseño de intenciones y cierre del lote
+#### 07b0 — Diseño de intenciones
 
 - Estado: completada, exclusivamente documental. Entrada 29%/89%; `target_paths`: `plan/**`, dependencias `07a` y código de preferencias vigente.
 - Objetivo: concretar scopes, clave global de atrasadas, validaciones transaccionales y separación de persistencia/controles/arrastre. Aceptación: rutas y evidencias de cada corte, sin habilitar comandos no implementados. Validación: referencias locales, consistencia y `git diff --check`.
@@ -368,3 +368,14 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 | Cuota/backup/logout | Sin falso guardado ni descarte implícito; restauración validada. | `03a`, `04b`, `13c` |
 
 Si el alcance de una subentrega supera el presupuesto, dividirla conservando estos criterios y registrar nuevos IDs antes de empezar. No marcar “parcialmente completa” una garantía crítica de sincronización.
+
+### 07c — Corrección intercalada de home, navegación y diálogos
+
+- Estado: completada, secuencial; solicitada por el usuario tras `07b0`.
+- Objetivo: retirar resumen redundante de home, adaptar fuente móvil y corregir apertura de `+` en desarrollo.
+- `target_paths`: resumen del workspace, links de navegación, composer de tarea, confirmación compartida, fixture de workspace, evidencia y `plan/**`.
+- Dependencias: `05c`, `06`, `07a`; sin cambios de contratos/persistencia.
+- Aceptación: home muestra agenda directamente; etiquetas legibles a 320/390px; `+`, edición y confirmaciones abren y cierran correctamente con Strict Mode, incluidos Cancelar/Escape; crear persiste tras recarga; navegación desktop y ampliación al 200% sin desbordamiento de página.
+- Validación: reproducción previa en React de desarrollo, recorrido posterior, lint/tipos/tests/build y diff. Presupuesto automático 21%/88%; se prioriza esta corrección explícita y pequeña antes de cerrar el lote, aunque el margen reforzado ya no permite otra iteración de producto.
+- Resultado: bloque retirado; etiquetas completas a 320/390px, barra superior a 1280px. Diálogos operativos bajo Strict Mode; Escape/Cancelar/reapertura y creación persistida tras recarga aprobados. Texto al 200% en iframe de 310px sin desbordamiento: barra 236px, reserva 576px.
+- Cierre: lint/tipos/build aprobados; 46 tests pasan, 7 auth opt-in omitidos, cero fallos. Fixture ahora monta Strict Mode y permite ampliar texto. Datos ficticios limpiados y servidor aislado detenido.

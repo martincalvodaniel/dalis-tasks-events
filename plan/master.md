@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; siguiente candidata `07b`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; diálogos y navegación móvil corregidos en `07c`; siguiente candidata `07b1`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -87,7 +87,7 @@ Al final de **cada** iteración se preguntarán ambos porcentajes y se elegirá 
 
 Excepción autorizada posteriormente: lote desatendido del 6 de octubre, iniciado con **5h 82%; 7d 41% restantes**. Entre commits se consulta el uso real sin esperar feedback, con reserva reforzada del 20%. La autorización y sus condiciones figuran en `workflow.md`; el protocolo interactivo se recupera al terminar el lote.
 
-Lote cerrado tras `03b`: lectura automática **5h 61%; 7d 38% restantes** antes del commit documental de cierre. Se entregaron sesiones vigentes, contratos, corrección de lint solicitada, fechas, repositorios IndexedDB y outbox atómica, con commits separados y validaciones. El usuario ha solicitado continuar este lote sin feedback mientras haya margen para completar otra entrega. Se reanudó `04a` con lectura 59%/38%. `04a–04b` ya verifican el shell offline y el cierre persistido; creación de tareas y navegación responsive ya se han incorporado; calendario y sincronización remota siguen pendientes.
+Lote cerrado tras `03b`: lectura automática **5h 61%; 7d 38% restantes** antes del commit documental de cierre. Se entregaron sesiones vigentes, contratos, corrección de lint solicitada, fechas, repositorios IndexedDB y outbox atómica, con commits separados y validaciones. El usuario ha solicitado continuar este lote sin feedback mientras haya margen para completar otra entrega. Se reanudó `04a` con lectura 59%/38%. `04a–04b` ya verifican el shell offline y el cierre persistido; creación de tareas, navegación responsive y calendario ya se han incorporado; sincronización remota sigue pendiente.
 
 ## Prerrequisitos por confirmar en su iteración
 
@@ -127,3 +127,5 @@ Lote reanudado cerrado al completar `05a1`: shell offline, cierre/cuentas, barra
 `06` completa mes, selección del día por URL, contadores reales, anterior/siguiente y Hoy en la zona de la cuenta. Crear desde un día preselecciona su fecha; el listado permite editar, borrar, cambiar progreso y categoría mediante los controles existentes. Las dos barras incorporan Calendario y SVG local. Navegación/recarga/creación sin servidores, fechas extremas y reflow al 200% comprobados. Próxima entrega: agrupación y atrasadas (`07a`); eventos/cumpleaños y repetición siguen en sus iteraciones posteriores.
 
 `07a` agrupa las tareas del día por categorías personales, con “Sin categoría” cuando corresponde, y añade Atrasadas global en Mi espacio. Las pendientes anteriores a hoy mantienen fecha/estado; completarlas las retira de esa sección sin perder su historial en el calendario. Hoy y próximas contiene las fechas actuales/futuras; las completadas antiguas se consultan desde su día. El día de cuenta se revisa cada minuto con la app abierta y al recuperar foco/visibilidad; no hay cron, traslado de fecha ni nuevas intenciones por reclasificar. Un reloj simulado en iframe ficticio comprueba la transición de día con el servidor de aplicación detenido. Reordenación manual queda en `07b`.
+
+`07c` retira de Mi espacio el resumen verde redundante con Ajustes. Las etiquetas inferiores usan tamaños en rem según anchura (11px a 320px, 12px desde 360px, con fuente raíz normal); escritorio conserva 14px. Se reproduce y corrige el cierre accidental de diálogos durante el doble montaje de Strict Mode en desarrollo: eventos de cierre antiguos no desmontan un diálogo reabierto. Crear/editar/confirmar, Cancelar, Escape y persistencia tras recarga comprobados. No se desactiva Strict Mode. Lote cerrado después del commit de esta corrección; próxima candidata `07b1` con nuevas cuotas.

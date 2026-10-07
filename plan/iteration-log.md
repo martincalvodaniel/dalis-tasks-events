@@ -244,6 +244,18 @@
 - Commit: `docs(plan): split personal ordering into atomic delivery steps`.
 - Interrupción solicitada antes del cierre: se intercala `07c` para quitar el bloque redundante, ajustar etiquetas móviles y reproducir/corregir `+`. Leer ambas ventanas tras este commit; `07b1` no se inicia.
 
+## 07c — Home compacta, etiquetas móviles y diálogos en desarrollo
+
+- Rama `main`, secuencial; entrada automática **5h 21%; 7d 88%**, después de `c8e271d`. Solicitud explícita intercalada antes de cerrar el lote; no se inicia `07b1`.
+- Objetivo/`target_paths`: resumen del workspace, links de navegación, composer de tarea, confirmación compartida, fixture de workspace, evidencias y plan. Dependencias `05c`, `06`, `07a`; aceptación definida antes de cambiar componentes. Sin contratos, migraciones, índices ni dependencias nuevas.
+- Causa reproducida: fixture de React de desarrollo con Strict Mode; pulsar Crear tarea deja cero diálogos. El cleanup cierra el diálogo, el segundo montaje lo reabre y el evento de cierre antiguo desmonta el formulario. Las confirmaciones comparten el patrón.
+- Resultado: ignorar evento de cierre si el diálogo está reabierto; mantener cleanup y cierre real por Escape. Home muestra agenda directamente; preparación/cuenta permanecen en Ajustes. Etiquetas móviles 11/12px según anchura, sin padding lateral que parta palabras a 320px; escritorio conserva tamaño y navegación superior.
+- Evidencia: crear «Crear desde desarrollo», recargar y ver tarea guardada; abrir edición y cancelar, abrir confirmación y salir con Escape, crear→Escape→reabrir→Cancelar. [Formulario móvil operativo](evidence/07c-composer.png) y [home compacta](evidence/07c-mobile.png). Pruebas con identidad ficticia en loopback, sin tocar Google ni sesión del usuario.
+- Medidas con cuenta activa y `+`: 320px con etiquetas completas de una línea a 11px; 390px a 12px; 1280px muestra barra superior. Texto al 200% en iframe de 310px: página 310px, barra inferior 236px y reserva 576px. No se limita el crecimiento por accesibilidad.
+- Validación: lint limpio, tipos y build final aprobados; 46 tests pasan, 7 auth opt-in no repetidos, cero fallos. Diff/referencias revisados. Fixture de desarrollo ahora incluye Strict Mode para reproducir este caso en futuros recorridos.
+- Limpieza: partición/control ficticios retirados, pestañas cerradas, viewport restablecido y servidor aislado detenido; servidor del usuario conservado.
+- Commit: `fix(ui): keep development dialogs open and compact mobile navigation`. Cierre definitivo del lote; lectura posterior al commit comunicada al usuario. Próxima candidata `07b1` con ambos presupuestos nuevos.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

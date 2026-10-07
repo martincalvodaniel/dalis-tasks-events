@@ -68,7 +68,10 @@ export function TaskComposer({
     <dialog
       ref={dialog}
       aria-labelledby={headingId}
-      onClose={onClose}
+      onClose={() => {
+        // Ignore a queued cleanup event if Strict Mode has reopened the dialog.
+        if (!dialog.current?.open) onClose()
+      }}
       onCancel={(event) => {
         if (saving.current) event.preventDefault()
       }}
