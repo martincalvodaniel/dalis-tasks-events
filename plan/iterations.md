@@ -494,3 +494,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Corte: editar/borrar evento después en08c2; recurrencia/cumpleaños siguen09–10. No activar esas opciones anticipadamente, sin cambios de core/deps/auth/remoto.
 
 - Resultado08c1b1: selector conserva borradores, eventos simples guardados y leídos sin red, categoría personal reutilizada, contadores5/1 y fin a medianoche exclusivo comprobados. Filas52px a320px, iframe280px/texto200% sin overflow horizontal del diálogo, navegación superior1280px. 79tests pasan/7auth opt-in omitidos; lint/tipos/build aprobados. Edición/borrado siguen08c2.
+
+### 08c2 — Editar/borrar y reparar eventos
+
+- Estado: completada; int secuencial, entrada84%/70% tras08705cc publicado y Vercel success. Dependencias08b,08c1b1. Scope antes de editar: EventForm/Card/List, EventComposer/acciones/borrado, fixture de conflicto/legado y plan/evidencias/tests pertinentes.
+- Objetivo: editar programa/descripcion/título con snapshot esperado; borrar solo tras confirmación; reparar o borrar legado ambiguo/inexistente desde lista explícita. Reutilizar confirmación compartida y formulario compacto, sin controles nuevos en filas plegadas.
+- Aceptación: editar todo el día/timed/fin opcional/zona conserva valores y final inclusivo; cambio a all-day conserva descripción; calendario/agenda revalidan al guardar, borrar usa tombstone/intención única y no pierde categoría ni tarea. Cancelar/Escape no escribe. Edición/borrado con expected antiguo falla sin sobrescribir otra pestaña y mantiene datos; reparación legado no requiere reinterpretarlo para abrir formulario. Offline/recarga,320px/200%/desktop, lint/tipos/tests/build/diff/ref, commit+pushint y cuotas al cerrar.
+- Límites: simples, no recurrencia ni birthday; mutaciones atómicas08b se reutilizan sin cambios de schema/DB/deps/auth/remoto. Lector conserva legado; no migración automática destructiva.
+
+- Resultado08c2: formulario edición/confirmación operativos, reparación/borrado de legado y CAS en dos pestañas; caché revalidada tras rechazo conservando borrador. Inspector16intenciones/7updates/2tombstones, tarea y categoría intactas; recarga sin servidores y contadores2/1; desarrolloStrictMode,320px y200% sin overflow. Lint/tipos/build/79tests+7skip aprobados; próxima09a.

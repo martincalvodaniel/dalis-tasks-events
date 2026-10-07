@@ -1,6 +1,7 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { canPrepareOfflineShell } from "@/config/pwa"
+import { createLocalEvent } from "@/features/events/local-events"
 import { assignLocalCategory, saveLocalTag } from "@/features/tags/local-tags"
 import { createLocalTask } from "@/features/tasks/local-tasks"
 import { Workspace } from "@/features/workspace/components/workspace"
@@ -241,6 +242,150 @@ async function run() {
     }
     return
   }
+  if (mode === "event-edit-seed" || mode === "event-edit-inspect") {
+    await session("authorized")
+    const state = await loadLocalAccount()
+    assert(state.account?.userId === userId)
+    const repository = await LocalRepository.open(userId)
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      const settings = await repository.get("settings", userId)
+      assert(settings)
+      const today = todayInTimeZone(settings.timeZone)
+      if (mode === "event-edit-seed") {
+        assert((await repository.list("items")).length === 1)
+        const ids: string[] = []
+        for (const title of [
+          "Reunión",
+          "Viaje",
+          "Legado",
+          "Legado descartable",
+        ]) {
+          const itemId = crypto.randomUUID()
+          ids.push(itemId)
+          await createLocalEvent(
+            state.account,
+            {
+              kind: "event",
+              title,
+              description: "Descripción original",
+              recurrence: null,
+              schedule:
+                title === "Viaje"
+                  ? {
+                      mode: "all_day",
+                      startDate: today,
+                      endDateExclusive: addCivilDays(today, 2),
+                    }
+                  : {
+                      mode: "timed",
+                      localStart: `${today}T18:00`,
+                      localEnd: `${today}T19:00`,
+                      timeZone: settings.timeZone,
+                    },
+            },
+            itemId,
+            crypto.randomUUID()
+          )
+        }
+        // Simulate compatible historical cache records, never product mutations.
+        for (const [index, localStart] of [
+          [2, "2026-10-25T02:30"],
+          [3, "2026-03-29T02:30"],
+        ] as const) {
+          const item = await repository.get("items", ids[index])
+          assert(item?.kind === "event")
+          await repository.put("items", {
+            ...item,
+            schedule: {
+              mode: "timed",
+              localStart,
+              localEnd: null,
+              timeZone: "Europe/Madrid",
+            },
+          })
+        }
+        const tagId = crypto.randomUUID()
+        await saveLocalTag(
+          state.account,
+          tagId,
+          { name: "Trabajo", color: "#059669", position: 0 },
+          crypto.randomUUID()
+        )
+        await assignLocalCategory(
+          state.account,
+          ids[0],
+          tagId,
+          crypto.randomUUID()
+        )
+      } else {
+        const entries = await outbox.listEntries()
+        const active = await repository.list("items")
+        const all = await repository.list("items", { includeDeleted: true })
+        const final = active.find((item) => item.title === "Reunión final")
+        const repaired = active.find((item) => item.title === "Legado reparado")
+        assert(
+          entries.length === 16 &&
+            entries.every((entry, index) => entry.sequence === index + 1)
+        )
+        assert(active.length === 3 && all.length === 5)
+        assert(
+          final?.kind === "event" &&
+            final.description === "Cambio otra pestaña" &&
+            final.schedule.mode === "timed" &&
+            final.schedule.localEnd === null &&
+            final.schedule.localStart === `${addCivilDays(today, 1)}T18:00`
+        )
+        assert(
+          repaired?.kind === "event" &&
+            repaired.schedule.mode === "all_day" &&
+            repaired.description === "Descripción original"
+        )
+        assert(
+          all.some((item) => item.title === "Viaje externo" && item.deletedAt)
+        )
+        assert(
+          all.some(
+            (item) => item.title === "Legado descartable" && item.deletedAt
+          )
+        )
+        const views = await repository.list("itemViews")
+        const tags = await repository.list("tags")
+        assert(
+          views.some(
+            (view) =>
+              view.itemId === final.id && view.primaryTagId === tags[0].id
+          )
+        )
+        assert(
+          entries.filter(
+            (entry) => entry.operation.command.type === "item.update"
+          ).length === 7
+        )
+        assert(
+          entries.filter(
+            (entry) => entry.operation.command.type === "item.delete"
+          ).length === 2
+        )
+      }
+      const status = document.getElementById("status")
+      if (status)
+        status.textContent =
+          mode === "event-edit-seed"
+            ? "Eventos de edición y legado ficticio preparados."
+            : "Edición comprobada: dieciséis intenciones, siete cambios, dos tombstones; editores y borrados obsoletos no escriben, categoría/tarea intactas."
+      if (mode === "event-edit-seed") {
+        const link = document.createElement("a")
+        link.href = "/workspace"
+        link.textContent = "Abrir eventos ficticios"
+        document.getElementById("actions")?.append(link)
+      }
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+    return
+  }
   if (mode === "event-ui-inspect") {
     const repository = await LocalRepository.open(userId)
     const outbox = await LocalOutbox.open(userId)
@@ -369,7 +514,7 @@ async function run() {
         )
         assert(
           items.length === 7 &&
-            items.filter((item) => !item.deletedAt).length === 6
+            items.filter((item) => !item.deletedAt).length === 7
         )
         const sent = items.find((item) => item.title === "Enviar informe")
         const notes = items.find((item) => item.title === "Revisar notas")

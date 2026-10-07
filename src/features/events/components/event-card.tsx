@@ -1,5 +1,6 @@
 "use client"
 
+import { EventActions } from "@/features/events/components/event-actions"
 import { ItemCategorySelect } from "@/features/tags/components/item-category-select"
 import type { CalendarEvent } from "@/types/calendar-item"
 import type { Tag } from "@/types/preferences"
@@ -12,6 +13,8 @@ export function EventCard({
   selectedTagId,
   busy,
   onCategoryChange,
+  onEdit,
+  onDelete,
 }: {
   event: CalendarEvent
   summary: string
@@ -20,6 +23,8 @@ export function EventCard({
   selectedTagId: string | null
   busy: boolean
   onCategoryChange: (tagId: string | null) => void
+  onEdit: () => void
+  onDelete: () => void
 }) {
   const tag = tags?.find((entry) => entry.id === selectedTagId)
   return (
@@ -77,6 +82,12 @@ export function EventCard({
             Las categorías no están disponibles.
           </p>
         )}
+        <EventActions
+          title={event.title}
+          busy={busy}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       </div>
     </details>
   )

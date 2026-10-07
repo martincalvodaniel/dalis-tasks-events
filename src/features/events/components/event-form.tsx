@@ -4,6 +4,8 @@ import { type FormEvent, useId, useState } from "react"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { parseEventForm } from "@/features/events/event-form-input"
 import type { EventDraft } from "@/features/events/local-events"
+import { addCivilDays } from "@/lib/calendar/civil-date"
+import type { CalendarEvent } from "@/types/calendar-item"
 
 const inputClass =
   "mt-1 min-h-11 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
@@ -11,17 +13,25 @@ const inputClass =
 export function EventForm({
   scheduledDate,
   timeZone,
+  initialEvent,
   onSave,
   onCancel,
 }: {
   scheduledDate: string
   timeZone: string
+  initialEvent?: CalendarEvent
   onSave: (draft: EventDraft) => Promise<void>
   onCancel: () => void
 }) {
   const id = useId()
-  const [allDay, setAllDay] = useState(false)
-  const [extrasOpen, setExtrasOpen] = useState(false)
+  const schedule = initialEvent?.schedule
+  const [allDay, setAllDay] = useState(schedule?.mode === "all_day")
+  const [extrasOpen, setExtrasOpen] = useState(
+    Boolean(
+      initialEvent?.description ||
+        (schedule?.mode === "timed" && schedule.timeZone !== timeZone)
+    )
+  )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -78,7 +88,7 @@ export function EventForm({
       await onSave(parsed.data)
     } catch {
       setError(
-        "No se pudo guardar el evento. Tus datos siguen en el formulario; vuelve a intentarlo."
+        "No se pudo guardar el evento. Tus datos siguen en el formulario. Si cambió en otra pestaña, cancela y ábrelo de nuevo."
       )
     } finally {
       setSaving(false)
@@ -94,6 +104,7 @@ export function EventForm({
         <input
           id={`${id}-title`}
           name="title"
+          defaultValue={initialEvent?.title ?? ""}
           required
           maxLength={160}
           disabled={saving}
@@ -120,7 +131,11 @@ export function EventForm({
             id={`${id}-start`}
             name="localStart"
             type="datetime-local"
-            defaultValue={`${scheduledDate}T09:00`}
+            defaultValue={
+              schedule?.mode === "timed"
+                ? schedule.localStart
+                : `${scheduledDate}T09:00`
+            }
             min="0001-01-01T00:00"
             max="9999-12-31T23:59"
             disabled={saving}
@@ -134,6 +149,9 @@ export function EventForm({
           <input
             id={`${id}-end`}
             name="localEnd"
+            defaultValue={
+              schedule?.mode === "timed" ? (schedule.localEnd ?? "") : ""
+            }
             type="datetime-local"
             min="0001-01-01T00:00"
             max="9999-12-31T23:59"
@@ -151,7 +169,9 @@ export function EventForm({
             id={`${id}-date`}
             name="startDate"
             type="date"
-            defaultValue={scheduledDate}
+            defaultValue={
+              schedule?.mode === "all_day" ? schedule.startDate : scheduledDate
+            }
             min="0001-01-01"
             max="9999-12-30"
             disabled={saving}
@@ -166,7 +186,11 @@ export function EventForm({
             id={`${id}-last`}
             name="lastDate"
             type="date"
-            defaultValue={scheduledDate}
+            defaultValue={
+              schedule?.mode === "all_day"
+                ? addCivilDays(schedule.endDateExclusive, -1)
+                : scheduledDate
+            }
             min="0001-01-01"
             max="9999-12-30"
             disabled={saving}
@@ -193,7 +217,7 @@ export function EventForm({
             <textarea
               id={`${id}-description`}
               name="description"
-              defaultValue=""
+              defaultValue={initialEvent?.description ?? ""}
               rows={2}
               maxLength={10000}
               disabled={saving}
@@ -207,7 +231,9 @@ export function EventForm({
             <input
               id={`${id}-zone`}
               name="timeZone"
-              defaultValue={timeZone}
+              defaultValue={
+                schedule?.mode === "timed" ? schedule.timeZone : timeZone
+              }
               disabled={saving}
               className={inputClass}
             />
@@ -220,7 +246,11 @@ export function EventForm({
           disabled={saving}
           className="min-h-11 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
         >
-          {saving ? "Guardando…" : "Guardar evento"}
+          {saving
+            ? "Guardando…"
+            : initialEvent
+              ? "Guardar cambios"
+              : "Guardar evento"}
         </button>
         <button
           type="button"
