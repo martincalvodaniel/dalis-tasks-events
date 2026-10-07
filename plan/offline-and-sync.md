@@ -247,3 +247,9 @@ Primer bootstrap reproduce todas las entradas desde0 hasta through y mantiene el
 ### Proyección conservadora12b1a
 
 Al recibir remoto, shadow conserva la revisión más alta; misma revisión concontenido contradictorio falla. Si hay intenciones de la entidad sinACK, la vista local existente se conserva íntegra como borrador acumulado y remoto queda separado. Esto evita reaplicar automáticamente sobre concurrentes. Cuando no quedan intenciones, la vista adopta shadow, incluido tombstone. Un journal cuyooperationId coincide no basta para confirmar intención: el siguiente corte verificará resultado del envío contra operación congelada/lease y lo persistirá atómicamente conshadow. El planner todavía no escribe IndexedDB ni avanza cursor.
+
+### ACK local12b1b
+
+LocalSyncStoreapplyOperationResult recibe operación enviada/sender delease/resultado; operación completa debe coincidir conoutbox, ID/cuenta/revisión sucesora ykind/tombstone deben concordar. Una respuesta delease antiguo se rechaza siotroenvío ya tomó posesión. Resultado durable en syncMetadata(operation-outcome:UUID) conserva intención/base/local; replay deACK solo admite mismoresultado.
+
+Applied confirma la intención, actualiza shadow monotónico/vista y prepara baseRevision de dependientes directos pendientes nunca enviados. Intentos posteriores conservan payload congelado para recibos. Pendientes posteriores mantienen contenido local; metadata de revisión/creación se actualiza, últimaACK adopta shadow. Conflict/rejected conservan borrador y evidencia ybloquean dependencias; unsupported vuelvependiente y no se presenta como confirmado. Todo se escribe en una transacción sin await externo; cursor de descarga no cambia porACK. Activación del coordinador y resolución visible aún pendientes.

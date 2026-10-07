@@ -9,6 +9,7 @@ import {
   timestampSchema,
   userIdSchema,
 } from "@/schemas/primitives"
+import { remoteOperationResultSchema } from "@/schemas/remote-sync"
 import { syncOperationSchema } from "@/schemas/sync"
 
 export const itemEntityKeySchema = z
@@ -108,3 +109,29 @@ export const preferenceTailSchema = z.strictObject({
   key: z.literal("preference-tail"),
   operationId: entityIdSchema,
 })
+
+export const localSyncResultInputSchema = z
+  .strictObject({
+    operation: syncOperationSchema,
+    senderId: entityIdSchema,
+    result: remoteOperationResultSchema,
+  })
+  .refine(
+    (input) => input.operation.operationId === input.result.operationId,
+    "Sync result must match its submitted operation"
+  )
+
+export const localOperationOutcomeSchema = z
+  .strictObject({
+    key: z.string(),
+    operation: syncOperationSchema,
+    result: remoteOperationResultSchema,
+    local: calendarItemSchema.nullable(),
+    base: calendarItemSchema.nullable(),
+  })
+  .refine(
+    (outcome) =>
+      outcome.key === `operation-outcome:${outcome.operation.operationId}` &&
+      outcome.operation.operationId === outcome.result.operationId,
+    "Stored outcome must match its operation"
+  )

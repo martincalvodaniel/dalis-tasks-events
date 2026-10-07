@@ -4,6 +4,7 @@ const suite = process.argv[2] ?? "local-db"
 if (
   suite !== "local-db" &&
   suite !== "outbox" &&
+  suite !== "sync-results" &&
   suite !== "preferences" &&
   suite !== "ordering" &&
   suite !== "task-ordering" &&

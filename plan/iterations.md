@@ -694,3 +694,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación: oráculos de ediciones/crear/borrar local, replay/viejas/misma revisión contradictoria, foreign/corrupt/no identidad, input sinmutar; suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas.
 
 - Resultado12b1a: planner puro valida cuenta/identidad/cola y conserva optimismo sinACK, shadow monotónico y replayigual; cuatro tests/26aserciones, normal137pass/30opt-in skip, lint239files/tipos/build29recursos pasan. No persistencia/cursor/ACK nuevos; siguiente12b1b confirma recibos e intenciones localmente.
+
+### 12b1b — Resultado de envío y ACK local atómicos
+
+- Objetivo previo: persistir resultado ligado a operación ylease vigentes, estadooutbox, shadow/proyección y base de dependientes juntos. Entrada73%/54%, int/secuencial/reserva10%; dependencias12b1a/11b1b/03b.
+- `target_paths`: `src/lib/local-db/sync-store.ts`, `src/schemas/local-sync.ts`, `test/browser/sync-results.ts`, whitelistserverfixture y `plan/{master,iterations,iteration-log,offline-and-sync}.md`.
+- Aceptación: verificar operación enviada completa/actor/ID/revisión/lease, respuesta obsoleta no escribe; replay deACK devuelve resultado persistido sin cambiar. Applied confirma solo suintención, conserva ediciones posteriores ypropaga revisión exclusivamente a dependientes directos nunca enviados (attempts0). No alterar payload ya enviado/reintentos congelados. Conflicto/rechazo conservan local/base/intención para recuperación; unsupported vuelvependiente, noACK. Cursor no avanza porunACK. Resultado/shadow/vista/cola/metadata commit o rollback conjuntos; sin cambioDBversion/deps.
+- Validación browserIndexedDB propio: creación+edición posterior, claims dependientes, replay/cambio de payload/stalelease/cuenta, conflicto/rechazo/unsupported, fallo tardío metadata revierte todo, recarga. Suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas. Después12b1c pull/cursoratómicos y coordinador.
+
+- Resultado12b1b: LocalSyncStore verifica operación/lease/cuenta/revisión ypersistencia conjunta de resultado/outbox/shadow/vista; dependientes nunca enviados reciben base deACK, reintentos congelados. Siete checks browser+recarga pasan, rollback tardío/cursor intacto; normal137pass/30opt-in skip, lint241files/tipos/build29recursos pasan. Próxima12b1c pull/cursor; sin coordinador todavía.
