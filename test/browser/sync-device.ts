@@ -124,6 +124,7 @@ window.addEventListener("message", (event) => {
         return runtime.run()
       case "snapshot":
         return {
+          summary: await sync.readQueueSummary(),
           items: await repository.list("items", { includeDeleted: true }),
           entries: await outbox.listEntries(),
           shadows: await readShadows(),

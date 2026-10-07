@@ -110,6 +110,10 @@ async function equalDevices() {
   const second = await snapshot(1)
   const items = await remote()
   assert(
+    first.summary.pending === 0 && second.summary.pending === 0,
+    "confirmed operations excluded from pending count"
+  )
+  assert(
     ordered(first.items) === ordered(items),
     "first projection matches MongoDB"
   )
@@ -157,6 +161,10 @@ button.onclick = async () => {
         assert(
           (await snapshot(1)).items.length === 0,
           "other origin is independent"
+        )
+        assert(
+          (await snapshot(0)).summary.ready === 1,
+          "offline operation is ready and unconfirmed"
         )
         const before = (await snapshot(0)).entries[0]
         await load(0)
@@ -313,6 +321,10 @@ button.onclick = async () => {
         await pass(0)
         await pass(1)
         const local = await snapshot(0)
+        assert(
+          local.summary.conflicts === 1 && local.summary.pending === 0,
+          "conflict visible after independent acknowledgement"
+        )
         assert(
           local.entries.filter((entry) => entry.state === "conflict").length ===
             1,

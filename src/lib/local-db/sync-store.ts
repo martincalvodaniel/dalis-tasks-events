@@ -2,6 +2,7 @@
 
 import { openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalChangesPage } from "@/lib/local-db/pull-changes"
+import { readLocalSyncQueueSummary } from "@/lib/local-db/queue-summary"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { planRemoteItemProjection } from "@/lib/sync/item-projection"
 import { calendarItemSchema } from "@/schemas/calendar-item"
@@ -55,6 +56,10 @@ export class LocalSyncStore {
 
   applyChangesPage(input: unknown) {
     return applyLocalChangesPage(this.database, this.userId, input)
+  }
+
+  readQueueSummary() {
+    return readLocalSyncQueueSummary(this.database, this.userId)
   }
 
   close() {

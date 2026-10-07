@@ -7,6 +7,7 @@ import {
 } from "@/schemas/local-sync"
 import { entityIdSchema } from "@/schemas/primitives"
 import { syncCommandSchema } from "@/schemas/sync"
+import { syncQueueSummarySchema } from "@/schemas/sync-queue"
 
 const loopbackOrigin = z.url().regex(/^http:\/\/127\.0\.0\.1:[1-9]\d{3,4}$/)
 export const syncBrowserFixtureSchema = z
@@ -34,6 +35,7 @@ export const syncBrowserCommandSchema = z.discriminatedUnion("type", [
 ])
 
 export const syncBrowserSnapshotSchema = z.strictObject({
+  summary: syncQueueSummarySchema,
   items: z.array(calendarItemSchema),
   entries: z.array(outboxEntrySchema),
   shadows: z.array(remoteShadowSchema),

@@ -277,3 +277,7 @@ Deadline30s cubre fetch/lecturaJSON yespera decallbackdeacción. Timeout no canc
 ### Prueba integrada12b2a4
 
 Dos orígenes de navegador conectados aMongo aislado ejercitan transporte/runtime/coordinador con IndexedDB real: cola sinred/recarga, bootstrap, progreso dependiente, replay después derespuesta perdida y tombstone convergen sin duplicación. Concurrentes mantienen conflicto/borrador/shadow ypermiten otra entidad; recuperación deconflicto no está implementada todavía. Véase [entorno](sync-test-environment.md). Falta consumidorUI yprueba deRPC/autenticación real; el próximo resumen decola debe evitar mensajes de sincronización total cuando existan comandos sinsoporte o conflictos.
+
+### Estado local12b2b1
+
+LocalSyncStore ofrece resumen en snapshotreadonly deitems/outbox. Distingue pendientes enviables, esperando dependencia, bloqueados y sin soporte; además enviando, conflictos yrechazos. ACK no cuentan comopendientes. Grafo iterativo evita recursión yno interpreta ciclos/dependenciasausentes comoenviables. Este resumen será fuente de UI; settled delcoordinador indica solo pasada acabada, nunca «todo sincronizado».

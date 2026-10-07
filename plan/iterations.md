@@ -754,3 +754,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación: esquemas deldescriptor/comandosfixture, pruebasbrowser dosorígenes+recarga/rollbackprevios, runnerMongo, suite/lint/tipos/build/diff/referencias; plan/registro/commit+pushint/HEADremoto/cuotas.
 
 - Resultado12b2a4: dos orígenes efímeros con IndexedDB real y MongoDB propio pasan seis escenarios: cola offline/recarga, bootstrap/convergencia, estado/checklist dependientes, respuesta perdida/replay, tombstone/recarga y conflicto con entidad independiente. Runner original15pass/105aserciones; normal154pass/30opt-in skip, lint255files/tipos/build29recursos pasan. Ambos modos limpian contenedor y recursos propios. Siguiente12b2b1 resumen de pendientes/bloqueos; aún sin UI automática ni RPCGoogle probado.
+
+### 12b2b1 — Resumen consistente de cola y bloqueos
+
+- Objetivo previo: distinguir trabajo pendiente/enviable/dependiente/bloqueado/sin soporte/conflictos/rechazos sin interpretar una pasada settled como sincronización total. Entrada42%/49%, int/secuencial/reserva10%; dependencias12b2a4.
+- `target_paths`: `src/lib/sync/{queue-summary,queue-summary.test}.ts`, `src/schemas/sync-queue.ts`, `src/lib/local-db/{queue-summary,sync-store}.ts`, `test/browser/sync-device.ts`, `test/browser/sync-devices.ts`, schemafixture y `plan/{master,iterations,iteration-log,offline-and-sync}.md`.
+- Aceptación: snapshot items/outbox en una sola transacciónreadonly, actor/identidad/duplicados validados; ACK excluidos, pendientes clasificados sin modificar ni reconstruir operación; bloqueo transitivo, dependencia ausente/ciclo no se anuncia enviable. Resumen no expone otra cuenta ni descarta comandos no soportados.
+- Validación: oráculos puros de mezcla de estados/dependencias/ciclo/aislamiento; fixture integrada usa resumen real antes/después deACK yconflicto, suite/lint/tipos/build/diff/referencias. Commit+pushint/HEADremoto/cuotas. UI/arranque queda en12b2b2.
+
+- Resultado12b2b1: snapshot readonly atómico yclasificación validada, bloqueo transitivo/ciclos/ausentes sinrecursión ni mutar cola; cinco tests nuevos yseis escenariosbrowser concontadores pasan. Normal159pass/30opt-in skip/4405aserciones, lint259files/tipos/build29recursos; recursosfixture cerrados. Siguiente12b2b2 ejecución manual enAjustes antesdeautomatismo.
