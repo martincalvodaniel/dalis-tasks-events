@@ -467,3 +467,9 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Estado: completada; secuencial, entrada 24%/75% tras `206fac6`, continuación explícita del usuario y reserva temporal en workflow.
 - Objetivo/target_paths: TagCard/TagManager/TagForm, fixture/evidencias y plan. Dependencias 07b y criterio07d. Filas compactas con nombre/color y controles secundarios desplegables, padding/formulario reducidos, sin texto redundante.
 - Aceptación: crear/editar/borrar, ordenar por botones y arrastre siguen accesibles; detalle abierto conserva foco al reordenar, 320px/200% sin overflow, pulsaciones >=44px. Prueba offline y recarga; lint/tipos/tests/build/diff/referencias. Persistencia/contratos/permisos/navegación intactos.
+
+### 08c1a — Selección de eventos por día y rango
+
+- Estado: completada, secuencial; entrada automática17%/74% tras6216981. Rama actual `int` observada al commit anterior; no se ha cambiado por el agente.
+- Objetivo/target_paths: helpers puros de selección de eventos y tests, plan. Dependencias08a–08b. Corte previo a UI: día/rango y orden cronológico sin expandir recurrencias, ni enumerar rangos infinitos.
+- Aceptación: todo el día usa fechas civiles/final exclusivo; temporizados aparecen en días de la zona de la cuenta según instantes, cruces de medianoche y DST, fin nulo, fin exacto medianoche; eventos inválidos históricos identificados sin ocultar válidos, exclusión de tombstones y series pendientes; IDs/orden deterministas, rangos/zonas validados. Consulta civil inclusiva de1–62días para incluir31/12/9999 sin inventar año10000; programas all-day mantienen fin exclusivo. Lint/tipos/tests/build/diff/referencias, sin UI/DB/contrato/dependencia nuevos.

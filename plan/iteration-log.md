@@ -359,6 +359,14 @@
 - Sin ambos servidores: crear Casa/Trabajo/Personal, Subir Personal con Enter, arrastrar Personal al inicio, Bajar con Espacio y click, renombrar Familia y borrar Trabajo con confirmación. Panel permanece abierto y foco conserva flecha/handle al ordenar. Recarga conserva Casa/Familia; inspector confirma diez intenciones consecutivas, cuatro tag.move, tres categorías con un tombstone y tarea base intacta. Cuenta/control/worker/cache ficticios y procesos propios retirados, viewport restaurado.
 - Validación: lint limpio, tipos,69 tests/7 auth opt-in omitidos/cero fallos y build final aprobados; referencias/diff revisados. Commit `feat(ui): compact category rows and creation form`. Siguiente corte08c1a selectores de días/zonas de eventos, condicionado a cuota automática antes de editar.
 
+## 08c1a — Selección temporal y civil de eventos
+
+- Rama actual int, secuencial; entrada17%/74% tras6216981. El usuario confirma integración int y autoriza commit+push de cada entrega para activar preproducción; se registra en AGENTS/workflow y master. Scope previo: helper puro, tests y plan; sin UI/DB/dependencias/contratos almacenados nuevos.
+- Resultado: consultas inclusivas1–62días para admitir años0001 y31/12/9999 sin extremo10000; eventos all-day conservan final exclusivo. Cuenta proyecta instantes, fin nulo solo día de inicio, fin a medianoche excluye siguiente día. No altera inputs; all-day primero, exact start luego ID estable; series/tombstones excluidos. Errores temporales históricos retornan separados con motivo, sin ocultar válidos.
+- Precisión: endpoints civiles no bastan si la fecha retrocede brevemente; envelope UTC conservador y sondeo de minutos cacheados dentro de consulta, mediodía primero, endpoints conocidos como camino rápido. Apia día inexistente no recibe temporizado, all-day sigue siendo civil. St Johns1987 visita un minuto de25oct entre endpoints24oct y se selecciona ambos días. Ruta rara alcanza1440sondeos/día y exige medición/reutilización antes de usar contadores por celda; helper todavía no conectado a UI.
+- Evidencia: seis nuevos casos Bun cubren exclusividad, medianoche, cambio de zona LA/Madrid, DST, punto sin fin, Apia, rollback, legado, orden porID, arrays intactos, límites/zonas/rangos. Repetidos con host TZ Pacific/Honolulu:6pass. Global75pass/7auth opt-in omitidos/cero fallos, lint limpio/tipos/build aprobados, referencias/diff revisados. No fixture nueva para este helper puro; el motor Intl base ya se contrastó en navegador08a.
+- Commit `feat(calendar): select events by account date with explicit legacy issues`. Push a int autorizado; verificar HEAD remoto después de crear commit, sin afirmar que el autodespliegue terminó antes de observarlo. Próxima candidata08c1b: formulario/listado y selección mensual preparados, según cuota automática y renovación comprobada.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

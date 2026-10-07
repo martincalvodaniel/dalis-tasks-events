@@ -110,3 +110,7 @@ No comenzar 08c1: formulario/lector/calendario de eventos, pruebas offline, repa
 ### Reanudación con ventana próxima a renovar
 
 El usuario revoca el cierre tras `206fac6`: pide aprovechar el 24% y comunica renovación de 5h en unos veinte minutos. Lectura automática al abrir: 24%/75%. Se retoma secuencial y desatendido, con consulta tras cada commit. Para esta continuación se usa la reserva base del 10% en 5h (20% semanal), atendiendo a la autorización explícita de aprovechar el margen; no depender de la renovación para cerrar lo abierto ni modificar créditos. Cortes pequeños: `07d3` categorías compactas, seguido de selectores de calendario de eventos `08c1a` si cabe. Si se confirma renovación en la herramienta, volver a reserva reforzada20% para nuevas entregas amplias. No es una reducción permanente del protocolo.
+
+### Publicación de iteraciones en integración int
+
+El usuario confirma la rama de integración `int` y autoriza commit y push tras cada iteración terminada para activar el autodespliegue preproductivo existente. Comprobar rama/diff/tests/build y cerrar el commit antes del push; verificar que HEAD remoto coincide. No crear despliegues adicionales, publicar producción ni modificar secretos/configuración de hosting. La autorización sustituye la prohibición por defecto de push para esta rama; sigue vigente la protección de otras ramas.
