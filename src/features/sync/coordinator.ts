@@ -1,5 +1,6 @@
 "use client"
 
+import { SyncTransportError } from "@/features/sync/transport-error"
 import { supportsRemoteItemCommand } from "@/lib/sync/item-command-support"
 import { entityIdSchema, userIdSchema } from "@/schemas/primitives"
 import {
@@ -40,6 +41,7 @@ export interface SyncPassResult {
     | "account_changed"
     | "retry_later"
     | "stopped"
+    | "recovery_required"
   uploaded: number
   downloaded: number
 }
@@ -187,8 +189,14 @@ export class SyncCoordinator {
         return finish(this.stopped ? "stopped" : "account_changed")
       if (uploaded && !(await download())) return finish("more_work")
       return finish(reachedOperationLimit ? "more_work" : "settled")
-    } catch {
-      return finish(this.stopped ? "stopped" : "retry_later")
+    } catch (error) {
+      return finish(
+        this.stopped
+          ? "stopped"
+          : error instanceof SyncTransportError
+            ? error.reason
+            : "retry_later"
+      )
     }
   }
 }

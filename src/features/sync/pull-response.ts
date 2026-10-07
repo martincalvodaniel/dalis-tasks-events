@@ -1,7 +1,7 @@
 import "server-only"
 
 import { RemoteCursorAheadError } from "@/lib/db/remote-changes"
-import { remotePullQuerySchema } from "@/schemas/remote-sync"
+import { remotePullRequestSchema } from "@/schemas/remote-sync"
 import type { RemoteChangesPage } from "@/types/remote-sync"
 
 interface PullDependencies {
@@ -23,14 +23,23 @@ export async function getSyncChangesResponse(
   const entries = [...new URL(request.url).searchParams.entries()]
   if (new Set(entries.map(([key]) => key)).size !== entries.length)
     return respond({ error: "Invalid pull query" }, 400)
-  const query = remotePullQuerySchema.safeParse(Object.fromEntries(entries))
+  const query = remotePullRequestSchema.safeParse(Object.fromEntries(entries))
   if (!query.success) return respond({ error: "Invalid pull query" }, 400)
+  const { expectedUserId, ...parameters } = query.data
+  if (expectedUserId !== undefined && expectedUserId !== actor)
+    return respond(
+      { error: "Authenticated account changed", code: "account_changed" },
+      409
+    )
   try {
-    return respond(await dependencies.readChanges(actor, query.data), 200)
+    return respond(await dependencies.readChanges(actor, parameters), 200)
   } catch (error) {
     if (error instanceof RemoteCursorAheadError)
       return respond(
-        { error: "Pull cursor exceeds the committed journal" },
+        {
+          error: "Pull cursor exceeds the committed journal",
+          code: "cursor_ahead",
+        },
         409
       )
     return respond({ error: "Sync download is temporarily unavailable" }, 503)

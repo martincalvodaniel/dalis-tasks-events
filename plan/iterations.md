@@ -730,3 +730,10 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación puertoscontrolados: cambio de cuenta/noenvío, dependency/orden/bases, presupuesto de páginas/ops, coalescing/stop, fallo/liberación/payload; IndexedDBfixture verifica release propietario/reclaimsinmutación. Suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas. Adaptador de transporte ydosdispositivos reales/simulados después, antesdehabilitarUI.
 
 - Resultado12b2a2: coordinador porpuertos/identidad/guardias/budgets4páginas+5envíos, rereaddependientes trasACK/coalescing/stop, release exclusivodueño ypayload congelado. Sietetests nuevos, fixtureACK+release+recarga pasan. Normal145pass/30opt-in skip, lint246files/tipos/build29recursos pasan. Próxima12b2a3 adaptador ydosdispositivos; UIaúnnoactivada.
+
+### 12b2a3 — Transporte HTTP y runtime local cerrable
+
+- Objetivo previo: conectar puertos a fetch/accióninyectada yrepositorios propios sinactivarUI, separando backend deentorno de dosdispositivos12b2a4. Entrada55%/51%, int/secuencial/reserva10%; dependencias12b2a2.
+- `target_paths`: `src/features/sync/{http-transport,http-transport.test,transport-error,local-runtime}.ts`, coordinator/pull-response ytests, `src/schemas/remote-sync.ts`, `plan/{master,iterations,iteration-log,offline-and-sync}.md`.
+- Aceptación: identidad/pull concredentials same-origin/no-store/query esperado/checkpoint ydeadline; callback deServerActioninyectado sinbundlear auth/DB enbrowser. Cambio de cuenta también protegeGET, cursorfuturo requiere recuperación, 401 pausa. Validar input/output y límites; fallos noACK. Runtime verificaepochlocal, abre/cierra recursos propios ystopespera pasada antesdecerrar conexiones; claim120s protege envíos acotados. Sinpolling/UItodavía.
+- Validación transporte conRequest/Responsecontrolados (HTTP real de dosparticiones después): identity/query/cookies/no-cache/códigos/timeout/payloadmalformado; regresióncoordinador. Suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas. Ningunadependencia/secret/hosting/cambioDB.

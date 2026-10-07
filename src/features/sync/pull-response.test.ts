@@ -7,6 +7,22 @@ import { RemoteCursorAheadError } from "@/lib/db/remote-changes"
 const empty = { changes: [], nextAfter: 0, through: 0, hasMore: false }
 
 describe("private sync download", () => {
+  test("an expected account mismatch never reads the other session's journal", async () => {
+    const response = await getSyncChangesResponse(
+      new Request(
+        "https://example.test/api/sync/changes?expectedUserId=account-a"
+      ),
+      {
+        readActor: async () => "account-b",
+        readChanges: async () => {
+          throw new Error("Reader must not run after a session switch")
+        },
+      }
+    )
+    expect(response.status).toBe(409)
+    expect(await response.json()).toMatchObject({ code: "account_changed" })
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store")
+  })
   test("requires an actor and always disables caching", async () => {
     const response = await getSyncChangesResponse(
       new Request("https://example.test/api/sync/changes"),

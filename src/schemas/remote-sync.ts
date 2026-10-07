@@ -122,3 +122,12 @@ export const remotePushInputSchema = z
           message: issue.message,
         })
   })
+
+export const remotePullRequestSchema = remotePullQuerySchema.safeExtend({
+  expectedUserId: userIdSchema.optional(),
+})
+
+export const remoteSyncErrorSchema = z.strictObject({
+  error: z.string().max(500),
+  code: z.enum(["account_changed", "cursor_ahead"]).optional(),
+})

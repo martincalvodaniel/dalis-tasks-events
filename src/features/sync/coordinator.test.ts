@@ -4,6 +4,7 @@ import {
   SyncCoordinator,
   type SyncCoordinatorPorts,
 } from "@/features/sync/coordinator"
+import { SyncTransportError } from "@/features/sync/transport-error"
 import type { Task } from "@/types/calendar-item"
 import type { LocalPullCursor, OutboxEntry } from "@/types/local-sync"
 import type { RemoteOperationResult } from "@/types/remote-sync"
@@ -151,6 +152,23 @@ function fixture() {
 }
 
 describe("bounded sync coordinator", () => {
+  test("authentication and future cursor transport errors stop before claims", async () => {
+    for (const reason of [
+      "unauthorized",
+      "account_changed",
+      "recovery_required",
+    ] as const) {
+      const value = fixture()
+      const entry = value.add(1)
+      value.ports.pull = async () => {
+        throw new SyncTransportError(reason)
+      }
+      expect((await new SyncCoordinator(owner, value.ports).run()).status).toBe(
+        reason
+      )
+      expect(entry.attempts).toBe(0)
+    }
+  })
   test("missing or changed identity never claims or uploads local data", async () => {
     for (const identity of [null, "other-actor"]) {
       const value = fixture()
