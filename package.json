@@ -12,6 +12,7 @@
     "lint:fix": "biome check --fix",
     "start": "next start",
     "test": "bun test --preload ./test/setup.ts",
+    "test:sync-db": "bun run scripts/sync-db-test-runner.ts",
     "test:watch": "bun test --watch --preload ./test/setup.ts",
     "type-check": "tsc --noEmit"
   },

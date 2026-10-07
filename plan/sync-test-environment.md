@@ -1,17 +1,21 @@
 # Entorno de pruebas de sincronización
 
-Estado: diseño de11a0; implementación y pruebas reales pendientes en11a1a. Prioridad: sincronización de tareas/eventos simples antes de continuar repetición y cumpleaños.
+Estado: runner y commit/rollback reales entregados en11a1a2. Prioridad: sincronización de tareas/eventos simples antes de continuar repetición y cumpleaños.
 
 Avance11a1a1: [schema del descriptor](../src/schemas/sync-database-test.ts) implementado y [probado](../src/schemas/sync-database-test.test.ts). Exige runId UUID, puerto entero1024–65535, DB exacta `dalis-sync-test-<runId>` y URI exacta `mongodb://127.0.0.1:<port>/?replicaSet=dalis-sync-test&directConnection=true`. Solo se admite esta forma generada por el futuro runner; rechaza localhost alternativo, SRV, multihost, credenciales y parámetros adicionales. Ninguna variable de entorno se lee ni cambia ahora. No hay consumidor/runner todavía; integrar validación antes de cualquier conexión o limpieza y verificar además ownership real del recurso.
 
 ## Evidencia y límites
 
-- Docker CLI29.8.2 disponible localmente. No se ha verificado daemon, imagen MongoDB, replica set ni transacciones. `mongod` no está enPATH; no instalar paquetes ni modificar hosting como parte de este documento.
+- Docker CLI29.8.2 y daemon28.4.0 Ubuntu/x86_64 verificados. Imagen8.2.11 fijada por digest enconfig; replica set de un nodo y transacciones comprobados por runner. `mongod` no está enPATH y no se instaló ningún paquete.
 - [Singleton](../src/lib/db/client.ts) existente, [colecciones](../src/lib/db/collections.ts) e [índices](../src/lib/db/ensure-indexes.ts) contienen actualmente autenticación. No hay repositorios de producto remoto.
 - [Fixture auth](../src/lib/db/auth-identity.integration.test.ts) ya exige opt-in/configuración local y limpia su DB; [guard](../src/config/env.ts) permite solo prefijo `dalis-auth-test-` y loopback. Reutilizar el patrón, sin reutilizar esa base para sync ni activar sus tests sobre otro nombre.
 - [Huella](../src/lib/sync/operation-fingerprint.ts) está probada como función; no equivale a recibo persistido, transacción ni replay remoto.
 
 ## 11a1a: implementación acotada
+
+Ejecución reproducible: `bun run test:sync-db`, [runner](../scripts/sync-db-test-runner.ts), [config de proceso](../src/config/sync-test-runner.ts), [guard](../src/config/env.ts) y [fixture](../src/lib/db/transactions.integration.test.ts). Docker run usa imagen local/pull=never, label+UUID, tmpfs y ningún volumen del usuario. El daemon observado expone su puerto loopback en otro host; el runner usa un proxyTCP Node en127.0.0.1 aDocker exec/bash del contenedor propio, sin publicar puertosMongoDB. No introduce dependencia ni altera transporte de producto. Cierra sockets/procesos, comprueba labels/imagen/nombre y elimina contenedor+volúmenes anónimos propios enfinally; SIGTERM probado. El hijo desactiva carga de.env con--no-env-file y recibe soloPATH/flags/conexión de prueba; no se heredan credenciales de producto.
+
+Probe reutilizaauthVerification solo en la DB de prueba; no nueva colección/index especulativo. Dos tests/seis aserciones verifican visibilidad fuera de sesión, fallo de_id duplicado que aborta la primera escritura, dato previo intacto y transacción posterior válida. Suite normal omite estos tests; runner aislado los ejecuta. CAS/repositorios/recibos/journal aún pendientes. Documentación primaria: [transacciones Node](https://www.mongodb.com/docs/drivers/node/current/crud/transactions/), [replica set](https://www.mongodb.com/docs/manual/tutorial/deploy-replica-set/).
 
 Rutas previstas: configuración tipada en `src/config/**`, soporte de test y fixture de integración en `src/lib/db/**`, scripts TypeScript de ejecución/limpieza bajo `scripts/**` y este plan. Respetar [reglas DB](../src/lib/db/AGENTS.md): driver solo en la capa DB, servidor aislado del cliente, conexión singleton y registro central de colecciones/índices.
 

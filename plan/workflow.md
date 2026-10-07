@@ -1,5 +1,11 @@
 # Flujo de trabajo con Codex
 
+## Continuación de sincronización autorizada, 8 de octubre
+
+El usuario autoriza continuar desatendidamente desde00:16 y una revisión posterior, con tareas pequeñas hasta conservar **10% en ambas ventanas**, sustituyendo la reserva20% de los lotes anteriores para esta continuación. Consultar cuotas después de cada commit; dividir antes de abrir un corte cuyo coste alto observado y cierre pueda cruzar10%. No consumir créditos/reinicios. Ramaint: commit+push por iteración comprobada. Esta autorización no crea una cadena indefinida de revisiones.
+
+Lectura al renovar:100%/58%; siguiente reset5h publicado1791429393, **8oct05:16:33 Madrid**. Revisión puntual adicional creada para05:18, con ambas cuotas y continuación desde último commit cerrado. No comparar consumo5h con la ventana anterior a través del reinicio. No preguntar porcentajes durante este lote ni deducir renovación solo del reloj.
+
 ## Reglas permanentes
 
 - Cada iteración o subiteración es una entrega pequeña, comprobable y cerrada mediante **commit en la rama actual**. No crear o cambiar rama por iniciativa propia. No hacer push, merge o despliegue sin que formen parte de una solicitud autorizada.

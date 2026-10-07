@@ -365,6 +365,17 @@ Primeros cortes revisados:11a1a configura/valida replica set de prueba aislado y
 
 - Resultado: tres tests/24 aserciones, configuración válida/extremos de puerto y conexiones/DB inválidas comprobadas. Lint217 archivos, tipos y suite122 pass/7auth opt-in skip/0fallos; build/cierre enregistro. Sin IO ni consumidor; siguiente11a1a2 conecta este guard al runner aislado y verifica ownership/commit/rollback reales.
 
+### 11a1a2 — Runner y transacciones reales aisladas
+
+- Entrada100%/58%, int/secuencial, reserva10% autorizada enworkflow. Objetivo: runner propio consumiendo descriptor/guard, MongoDB8.2.11 fijado por digest, probar commit/rollback con singleton y limpiar solo recursos propios.
+- `target_paths`: `scripts/sync-db-test-runner.ts`, `src/config/{env,sync-test-runner}.ts`, `src/lib/db/transactions.integration.test.ts`, package.json yplan. Dependencias11a1a1/Docker existente. Guía instalada de ServerActions y documentación MongoDB transacciones/replica set consultadas.
+- Aceptación: puerto loopback dinámico, runId/label/imagen verificados antes de test y limpieza, sin bind/volumen del usuario. Configdeproceso testeada antes de conexión, opt-in separado; readinessprimary con plazo, driver soloDB/singleton. Confirmar dos escrituras, aborto por fallo intermedio sin cambios parciales, recuperación y lecturas fuera de sesión. Testnormal omite integración; runner real la ejecuta y falla si nohay runtime. No nueva colección/índice: probe solo enauthVerification de DB propia, índice_id existente.
+- Validación: integración real, limpieza verificada, suite/lint/tipos/build/diff/ref; plan/registro, commit+pushint ycuotas. Siguiente11a1b repositorio/CAS; no endpoint ni sync activos todavía.
+
+- Ajuste antes de integrar: Docker es un daemon Ubuntu/x86_64 accesible por socketunix; publicar127.0.0.1 queda en el host del daemon y el puerto fue ECONNREFUSED desde macOS. El primer intento falló y limpió su contenedor propio. Runner usará proxyTCP local127.0.0.1 haciaDocker exec/bash del contenedor propio, sin publicar puertosMongoDB. Solo APIs nativas Node, no dependencias/credenciales nuevas; cerrar sockets/procesos al limpiar. La URI validada/singleton y prueba de transacción permanecen iguales.
+
+- Resultado: runner propio, guard de env y pruebas reales pasan; dos tests/seis aserciones, recuperación después de rollback y lecturas externas. SIGTERM exit1/limpieza comprobados y listado de contenedores propios vacío. Lint220 archivos/tipos/build29recursos aprobados; suite122pass/11opt-in skip/0fallos. Siguiente11a1b1 repositorio simple/CAS con índices de producto, antes de subir operaciones.
+
 ### 11b — Acción validada e idempotencia
 
 - `target_paths`: `src/features/sync/actions.ts`, validadores de sync, recibos/transacciones en DB, pruebas de autorización.

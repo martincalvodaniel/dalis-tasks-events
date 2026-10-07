@@ -1,5 +1,7 @@
 import "server-only"
 
+import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
+
 type RequiredEnvName =
   | "BETTER_AUTH_SECRET"
   | "GOOGLE_CLIENT_ID"
@@ -83,4 +85,15 @@ export function getAuthDatabaseTestConfig() {
   }
 
   return { databaseName: databaseEnv.databaseName }
+}
+
+export function getSyncDatabaseTestConfig() {
+  if (process.env.RUN_SYNC_DB_TESTS !== "1") return null
+  const database = getDatabaseEnv()
+  return syncDatabaseTestConfigSchema.parse({
+    runId: process.env.SYNC_TEST_RUN_ID,
+    port: Number(process.env.SYNC_TEST_PORT),
+    mongodbUri: database.uri,
+    mongodbDatabase: database.databaseName,
+  })
 }
