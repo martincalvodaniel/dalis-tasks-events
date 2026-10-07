@@ -65,7 +65,7 @@ export const syncCommandSchema = z.discriminatedUnion("type", [
     .strictObject({
       type: z.literal("task.move"),
       itemId: entityIdSchema,
-      occurrenceId: occurrenceIdSchema,
+      occurrenceId: occurrenceIdSchema.nullable(),
       scope: z.enum(["day", "overdue"]),
       date: civilDateSchema,
       tagId: entityIdSchema.nullable(),
@@ -74,8 +74,15 @@ export const syncCommandSchema = z.discriminatedUnion("type", [
     })
     .refine(
       (command) =>
-        command.beforeId !== command.occurrenceId &&
-        command.afterId !== command.occurrenceId,
+        command.beforeId !== (command.occurrenceId ?? command.itemId) &&
+        command.afterId !== (command.occurrenceId ?? command.itemId) &&
+        (command.occurrenceId !== null ||
+          ((command.beforeId === null ||
+            entityIdSchema.safeParse(command.beforeId).success) &&
+            (command.afterId === null ||
+              entityIdSchema.safeParse(command.afterId).success) &&
+            (command.beforeId === null ||
+              command.beforeId !== command.afterId))),
       "A task cannot be positioned relative to itself"
     ),
   z.strictObject({

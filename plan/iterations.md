@@ -208,7 +208,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 07b — Reordenación persistente (dividida)
 
-- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b1b`.
+- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b2`.
 - `target_paths`: componentes/hooks de orden en `src/features/tasks/**` y `src/features/tags/**`, preferencias en `src/lib/local-db/**`.
 - Dependencias: `07a`.
 - Aceptación: mover grupos y tareas, cambiar categoría personal, ordenar atrasadas; alternativa de teclado a drag-and-drop; recarga conserva orden; operaciones por ID/intención, sin reemplazo global de arrays.
@@ -229,6 +229,11 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 #### 07b1b — Movimiento atómico de tareas y colocaciones
 
+- Estado: completada, secuencial. Entrada automática 5h 93% / 7d 86%, después de `08aa120`.
+- Objetivo y alcance decidido: `task.move` para tareas simples, nueva clave personal de colocación, ejecutor separado de movimiento y helper de planificación, schemas/types, fixture de IndexedDB/servidor y `plan/**`. Un responsable; sin controles de UI todavía.
+- Fecha de atrasadas: el campo de comando `date` existente indica el día de evaluación y debe coincidir con hoy según ajustes de cuenta/reloj al escribir; la colocación/clave usan siempre `0001-01-01`. Mantener lectura de comandos antiguos con ocurrencia no nula/clave item; no ejecutarlos en la capa de tareas simples.
+- Legado: las tiendas existen pero no hay escritor de producto de colocaciones. Leer/validar registros existentes; un registro activo de atrasadas con fecha no canónica bloquea ese movimiento con error técnico y conserva todo, hasta migración separada. Colocaciones de otro día/categoría se conservan y no imponen rango en el destino.
+- Orden inicial: colocaciones compatibles primero por posición/ID; filas sin posición después por fecha/creación/ID. Materializar filas implícitas del destino dentro de la misma transacción, con compactación si las posiciones exceden límites. Esta política será usada por lectores de `07b2`.
 - `target_paths`: schemas/types de movimientos, preferencias/colocaciones en `lib/local-db/**`, pruebas y plan. Dependencia: `07b1a`.
 - Aceptación: tareas simples por día y atrasadas, vecinos/actor/scope validados; categoría+colocación/compactación en una transacción; replay, rollback, legado y recarga comprobados. Evaluar colocaciones existentes antes de escribir. No escribir posiciones desde componentes.
 

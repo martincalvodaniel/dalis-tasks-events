@@ -6,6 +6,7 @@ import {
   applyLocalTagMoveCommand,
 } from "@/lib/local-db/preference-mutation"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
+import { commitLocalTaskMoveCommand } from "@/lib/local-db/task-move-outbox"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import {
   outboxEntrySchema,
@@ -25,6 +26,13 @@ export function commitLocalPreferenceCommand(
   options: { operationId?: string; now?: Date; expectedTag?: Tag } = {}
 ): Promise<OutboxEntry> {
   const parsed = syncCommandSchema.parse(input)
+  if (parsed.type === "task.move") {
+    if (options.expectedTag)
+      return Promise.reject(
+        new Error("Task movement cannot use an expected category")
+      )
+    return commitLocalTaskMoveCommand(database, userId, parsed, options)
+  }
   if (
     parsed.type !== "tag.save" &&
     parsed.type !== "tag.delete" &&

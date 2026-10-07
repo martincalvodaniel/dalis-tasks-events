@@ -47,3 +47,9 @@ Cada corte requiere su commit y control de ambas ventanas. `08` comienza despué
 ## Corte al reanudar el 7 de octubre
 
 Se divide `07b1` por dominio: categorías primero, tareas después. La primera entrega añade `tag.move` y ranking reutilizable, conserva registros/colas anteriores y cambia desempates de lectores a posición/ID. La segunda evaluará colocaciones previas antes de habilitar escrituras de tareas. `07b2` depende de ambas y conecta los controles; no hay un nuevo botón en la primera entrega de infraestructura.
+
+## Contrato de tareas al abrir `07b1b`
+
+El schema de transporte anterior ya contenía `task.move` con fecha y ocurrencia. Se amplía para permitir ocurrencia nula (tarea simple), sin invalidar lectura de colas antiguas. Para atrasadas, `date` es el día de evaluación verificado frente a hoy en la zona local; la clave persistida se deriva y nunca toma esa fecha como ancla. Claves nuevas de colocación personales; claves item antiguas solo legibles para comandos de ocurrencia anteriores. Registros activos de atrasadas con ancla antigua se preservan y bloquean escrituras de ese alcance hasta una migración separada; no se transforma ni borra legado automáticamente.
+
+Para listas con colocaciones parciales, primero rangos compatibles por posición/ID y luego tareas sin rango por fecha/creación/ID. La primera escritura materializa filas implícitas del destino en el mismo commit atómico y una sola intención. Cambiar categoría conserva colocaciones de otros días/alcances; una colocación con tag distinto del efectivo no dicta el orden.

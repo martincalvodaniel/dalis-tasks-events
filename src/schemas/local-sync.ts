@@ -1,6 +1,10 @@
 import { z } from "zod"
 import { calendarItemSchema } from "@/schemas/calendar-item"
 import {
+  taskPlacementEntityKey,
+  taskPlacementEntityKeySchema,
+} from "@/schemas/ordering"
+import {
   entityIdSchema,
   timestampSchema,
   userIdSchema,
@@ -29,6 +33,7 @@ export const personalEntityKeySchema = z.string().refine((value) => {
 export const outboxEntityKeySchema = z.union([
   itemEntityKeySchema,
   personalEntityKeySchema,
+  taskPlacementEntityKeySchema,
 ])
 export const outboxEntrySchema = z
   .strictObject({
@@ -64,6 +69,17 @@ export const outboxEntrySchema = z
       return entry.entityKey === `tag:${command.tagId}`
     if (command.type === "item-view.set")
       return entry.entityKey === `item-view:${command.itemId}`
+    if (command.type === "task.move")
+      return (
+        entry.entityKey ===
+          taskPlacementEntityKey(
+            command.occurrenceId ?? command.itemId,
+            command.scope,
+            command.date
+          ) ||
+        (command.occurrenceId !== null &&
+          entry.entityKey === `item:${command.itemId}`)
+      )
     return "itemId" in command && entry.entityKey === `item:${command.itemId}`
   }, "Outbox entity does not match its command")
   .refine(

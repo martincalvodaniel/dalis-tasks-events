@@ -5,7 +5,8 @@ if (
   suite !== "local-db" &&
   suite !== "outbox" &&
   suite !== "preferences" &&
-  suite !== "ordering"
+  suite !== "ordering" &&
+  suite !== "task-ordering"
 )
   throw new Error("Unknown browser test suite")
 const entrypoint = resolve(`test/browser/${suite}.ts`)
