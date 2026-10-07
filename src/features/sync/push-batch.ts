@@ -2,8 +2,10 @@ import "server-only"
 
 import { OperationIdentityReuseError } from "@/lib/db/remote-item-commands"
 import { userIdSchema } from "@/schemas/primitives"
-import { remotePushResultSchema } from "@/schemas/remote-sync"
-import { syncBatchSchema } from "@/schemas/sync"
+import {
+  remotePushInputSchema,
+  remotePushResultSchema,
+} from "@/schemas/remote-sync"
 import type {
   RemoteOperationResult,
   RemotePushResult,
@@ -25,8 +27,9 @@ export async function pushSyncBatch(
   const actor = await dependencies.readActor()
   if (!actor) return { status: "unauthorized" }
   const userId = userIdSchema.parse(actor)
-  const batch = syncBatchSchema.safeParse(input)
+  const batch = remotePushInputSchema.safeParse(input)
   if (!batch.success) return { status: "invalid_batch" }
+  if (batch.data.expectedUserId !== userId) return { status: "account_changed" }
   const results: RemoteOperationResult[] = []
   for (const operation of batch.data.operations) {
     try {

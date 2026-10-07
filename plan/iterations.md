@@ -712,3 +712,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación IndexedDB real: páginas/checkpoint/recarga, tombstones, ACKadelantado ypendingcreate/edits, malformed/foreign/gap/futurecursor, fallo tardío metadata revierte todo, dos respuestas delmismoafter compiten seguras. Suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas; coordinador después.
 
 - Resultado12b1c: cursor CAS/checkpoint durable, páginas contiguas/pliegue porID/proyección pendiente yshadow monotónico; seis checks IndexedDB+recarga pasan, rollback tardío y dos respuestas seguras. Normal137pass/30opt-in skip, lint243files/tipos/build29recursos pasan. Próxima12b2a coordinador; sin sync automática aún.
+
+### 12b2a1 — Protección ante cambio de cuenta durante el envío
+
+- Objetivo previo: cerrar carrera entre consulta de identidad y subida cuando sesión cambia deA aB; expectedUserId es afirmación de coherencia, nunca fuente de autorización. Entrada64%/52%, int/secuencial/reserva10%; dependencias11b1b/12b1c. Corte previo al coordinador12b2a2.
+- `target_paths`: `src/schemas/remote-sync.ts`, `src/features/sync/push-batch.ts` ytest, `plan/{master,iterations,iteration-log,offline-and-sync}.md`.
+- Aceptación: actor exclusivamente de sesión vigente; inputestricto esperado ybatchvalidado, expectedUserId distinto devuelveaccount_changed sin ejecutar ni filtrar sesión actual. Inputsin expected oconactorinyectado rechazado; cuenta coincidente conservaorden/resultados. Cambio no borra ni confirma intenciones. Se cambia contrato preparado todavía sinconsumidorUI para hacerla comprobación indivisible respecto al actor usado enmutación.
+- Validación servicio: simular sesiónB ypayloadA (cero escrituras), match ycamposforjados; suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas. SinconsultaDBnueva/índices/deps/seguridadampliada.
+
+- Resultado12b2a1: expectedUserId estrictamente validado ycomparado conactor de sesión antes deejecutor; account_changed noescribe. SesiónB/payloadA ysinafirmación probados, suite138pass/30opt-in skip, lint243files/tipos/build29recursos pasan. Candidata12b2a2 coordinador; ningúnconsumidorUI antiguo.

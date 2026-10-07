@@ -257,3 +257,7 @@ Applied confirma la intención, actualiza shadow monotónico/vista y prepara bas
 ### Pull local12b1c
 
 SyncMetadata pull-cursor conserva after ythrough mientras quede página. Aplicación comparaafter/checkpoint persistidos dentro detransacción, valida secuencias/cuenta/revisiones, pliega últimas versiones de cadaID yusa proyección conservadora. Shadow/vista/cursor comparten commit; fallo tardío revierte todo. Respuesta completamentestale no escribe; futuros/solapes/checkpoint distinto requieren relectura/reintento sin saltos. ACK adelantado no regresa al consumir historia, journalUUID coincidente nunca confirma cola. Al terminar checkpoint, through vuelve null para capturar próxima pasada. Coordinador todavía no activa red/polling.
+
+### Cuenta esperada12b2a1
+
+Consultar identidad antesdepush no basta si sesión cambia entrepeticiones. Por ello subida exige expectedUserId, validado conZod ycomparado conactor derivado de sesiónantes demutar. Expected es solo afirmación decoherencia; actor ypermisos continúan exclusivos del servidor. Account_changed/unauthorized paran envíos ypreservan cola sinACK. Estecontrato se preparó antesdeactivar consumidores, sincompatibilidadUIprevia que mantener.

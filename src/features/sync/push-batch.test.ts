@@ -17,6 +17,29 @@ function operation(): SyncOperation {
 }
 
 describe("authenticated sync batch", () => {
+  test("a session switch cannot upload account A data under account B", async () => {
+    const result = await pushSyncBatch(
+      { expectedUserId: "account-a", operations: [operation()] },
+      {
+        readActor: async () => "account-b",
+        execute: async () => {
+          throw new Error("Executor must not run after a session switch")
+        },
+      }
+    )
+    expect(result).toEqual({ status: "account_changed" })
+    expect(
+      await pushSyncBatch(
+        { operations: [operation()] },
+        {
+          readActor: async () => "account-a",
+          execute: async () => {
+            throw new Error("Executor must not run without an expected account")
+          },
+        }
+      )
+    ).toEqual({ status: "invalid_batch" })
+  })
   test("a missing, expired or disallowed session never reaches the executor", async () => {
     const now = new Date("2026-10-08T00:00:00Z")
     const session = {
@@ -36,7 +59,7 @@ describe("authenticated sync batch", () => {
       { ...session, user: { ...session.user, email: "other@example.test" } },
     ]) {
       const result = await pushSyncBatch(
-        { operations: [operation()] },
+        { expectedUserId: "test-actor", operations: [operation()] },
         {
           readActor: async () =>
             authorizePersistedSession(
@@ -56,12 +79,25 @@ describe("authenticated sync batch", () => {
   test("validates the entire batch before writing and rejects actor injection", async () => {
     const first = operation()
     for (const input of [
-      { operations: [] },
-      { operations: [first, { ...operation(), baseRevision: -1 }] },
-      { operations: [first, first] },
-      { operations: Array.from({ length: 51 }, operation) },
-      { operations: [first], actorUserId: "other" },
-      { operations: [{ ...first, actorUserId: "other" }] },
+      { expectedUserId: "test-actor", operations: [] },
+      {
+        expectedUserId: "test-actor",
+        operations: [first, { ...operation(), baseRevision: -1 }],
+      },
+      { expectedUserId: "test-actor", operations: [first, first] },
+      {
+        expectedUserId: "test-actor",
+        operations: Array.from({ length: 51 }, operation),
+      },
+      {
+        expectedUserId: "test-actor",
+        operations: [first],
+        actorUserId: "other",
+      },
+      {
+        expectedUserId: "test-actor",
+        operations: [{ ...first, actorUserId: "other" }],
+      },
     ]) {
       expect(
         await pushSyncBatch(input, {
@@ -79,7 +115,7 @@ describe("authenticated sync batch", () => {
     const calls: string[] = []
     let active = 0
     const result = await pushSyncBatch(
-      { operations },
+      { expectedUserId: "test-actor", operations },
       {
         readActor: async () => "test-actor",
         execute: async (actor, item) => {
@@ -106,7 +142,7 @@ describe("authenticated sync batch", () => {
     const operations = Array.from({ length: 3 }, operation)
     const calls: string[] = []
     const result = await pushSyncBatch(
-      { operations },
+      { expectedUserId: "test-actor", operations },
       {
         readActor: async () => "test-actor",
         execute: async (_actor, item) => {
@@ -135,7 +171,7 @@ describe("authenticated sync batch", () => {
   test("identity reuse is rejected explicitly while independent operations continue", async () => {
     const operations = Array.from({ length: 2 }, operation)
     const result = await pushSyncBatch(
-      { operations },
+      { expectedUserId: "test-actor", operations },
       {
         readActor: async () => "test-actor",
         execute: async (_actor, item) => {

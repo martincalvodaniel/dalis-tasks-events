@@ -6,6 +6,7 @@ import {
   timestampSchema,
   userIdSchema,
 } from "@/schemas/primitives"
+import { syncBatchSchema } from "@/schemas/sync"
 
 export const remoteOperationResultSchema = z.discriminatedUnion("status", [
   z.strictObject({
@@ -62,6 +63,7 @@ export const remoteItemChangeSchema = z
 export const remotePushResultSchema = z.discriminatedUnion("status", [
   z.strictObject({ status: z.literal("unauthorized") }),
   z.strictObject({ status: z.literal("invalid_batch") }),
+  z.strictObject({ status: z.literal("account_changed") }),
   z.strictObject({
     status: z.literal("complete"),
     results: z.array(remoteOperationResultSchema).min(1).max(50),
@@ -104,3 +106,19 @@ export const remoteChangesPageSchema = z
         page.changes.at(-1)?.sequence === page.nextAfter),
     "Change page cursor must match its checkpoint and records"
   )
+
+export const remotePushInputSchema = z
+  .strictObject({
+    expectedUserId: userIdSchema,
+    operations: syncBatchSchema.shape.operations,
+  })
+  .superRefine((input, context) => {
+    const parsed = syncBatchSchema.safeParse({ operations: input.operations })
+    if (!parsed.success)
+      for (const issue of parsed.error.issues)
+        context.addIssue({
+          code: "custom",
+          path: issue.path,
+          message: issue.message,
+        })
+  })
