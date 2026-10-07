@@ -479,3 +479,9 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Estado: completada, secuencial; entrada13%/73% tras3667c97 y push verificado aorigin/int. Corte mínimo previo a UI, sin confiar en renovación.
 - Objetivo/target_paths: factory de resolver en zoned-time, selector de eventos, test de equivalencia y plan. Dependencias08c1a. Diagnóstico:12eventos/rango mensual24ms frente a31consultas independientes5161ms; cada minuto construye Intl.DateTimeFormat nuevo.
 - Aceptación: un formateador por consulta/zona, sin cache global ni política de offsets elegida; mismos candidatos normales/históricos/gaps/repeticiones, no mezclar zonas al reutilizar. Medir mismo fixture, lint/tipos/tests/build/diff/referencias, commit+push int. No conectar contadores aún; preparación mensual sigue siendo corte siguiente.
+
+### 08c1b0 — Snapshot mensual de eventos
+
+- Estado: completada, secuencial; int, entrada100%/73% después de renovación confirmada y071a2c4 publicado.
+- Objetivo/target_paths: selector/calendar snapshot y tests, hook local de eventos, plan. Dependencias08c1a2. Preparar programas y resolver de cuenta una sola vez, compartir cache local entre consultas de las celdas, entregar contadores/listado sin reparse por render. Sin estado global o petición por celda.
+- Aceptación: mismo resultado de consultas aisladas, rango1–62días/fechas extremas, casos DST/Apia/rollback/legado preservados, eventos simples una vez por día aunque cruce medianoche. Hook separado por account+epoch y lector validado. Medir12eventos mensual; lint/tipos/tests/build/diff/referencias, commit+push int. Sin UI aún.

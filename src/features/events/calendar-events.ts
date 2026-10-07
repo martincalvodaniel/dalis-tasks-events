@@ -85,6 +85,7 @@ function overlapsDay(
     let instants = candidates.get(local)
     if (!instants) {
       instants = resolveCandidates(local)
+      if (candidates.size >= 62 * 1440) candidates.clear()
       candidates.set(local, instants)
     }
     if (
@@ -98,12 +99,12 @@ function overlapsDay(
   return false
 }
 
-export function selectCalendarEvents(
-  events: readonly CalendarEvent[],
-  range: { startDate: string; endDate: string },
-  timeZone: string
-) {
-  const zone = timeZoneSchema.parse(timeZone)
+export interface EventCalendarRange {
+  startDate: string
+  endDate: string
+}
+
+function validateRange(range: EventCalendarRange) {
   const startDate = civilDateSchema.parse(range.startDate)
   const endDate = civilDateSchema.parse(range.endDate)
   const days =
@@ -114,15 +115,22 @@ export function selectCalendarEvents(
     throw new RangeError(
       "Event calendar queries require a range of 1 to 62 civil days"
     )
+  return { startDate, endDate }
+}
+
+export function createEventCalendarIndex(
+  events: readonly CalendarEvent[],
+  timeZone: string
+) {
+  const zone = timeZoneSchema.parse(timeZone)
   const issues: EventCalendarIssue[] = []
-  const selected: ProjectedEvent[] = []
+  const projectedEvents: ProjectedEvent[] = []
   const candidates = new Map<string, number[]>()
   const resolveCandidates = createZonedTimeResolver(zone)
   for (const event of events) {
     if (event.deletedAt || event.recurrence) continue
-    let projected: ProjectedEvent
     try {
-      projected = projectEvent(event, zone)
+      projectedEvents.push(projectEvent(event, zone))
     } catch (error) {
       if (!(error instanceof RangeError) && !(error instanceof ZodError))
         throw error
@@ -130,31 +138,10 @@ export function selectCalendarEvents(
         event,
         reason: error instanceof ZonedTimeError ? error.reason : "invalid",
       })
-      continue
-    }
-    if (projected.firstDate > endDate || projected.lastDate < startDate)
-      continue
-    // Prefer a known included endpoint for range queries; probe dates only when neither endpoint lies in the view.
-    if (
-      (projected.startDate >= startDate && projected.startDate <= endDate) ||
-      (projected.endDate >= startDate && projected.endDate <= endDate)
-    ) {
-      selected.push(projected)
-      continue
-    }
-    let date = projected.firstDate > startDate ? projected.firstDate : startDate
-    const last = projected.lastDate < endDate ? projected.lastDate : endDate
-    while (date <= last) {
-      if (overlapsDay(projected, date, resolveCandidates, candidates)) {
-        selected.push(projected)
-        break
-      }
-      if (date === last) break
-      date = addCivilDays(date, 1)
     }
   }
   const compareId = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0)
-  selected.sort((a, b) =>
+  projectedEvents.sort((a, b) =>
     a.start === null && b.start !== null
       ? -1
       : b.start === null && a.start !== null
@@ -162,5 +149,65 @@ export function selectCalendarEvents(
         : (a.start ?? 0) - (b.start ?? 0) || compareId(a.event.id, b.event.id)
   )
   issues.sort((a, b) => compareId(a.event.id, b.event.id))
-  return { events: selected.map(({ event }) => event), issues }
+  return {
+    issues,
+    select(range: EventCalendarRange) {
+      const { startDate, endDate } = validateRange(range)
+      const selected: ProjectedEvent[] = []
+      for (const projected of projectedEvents) {
+        if (projected.firstDate > endDate || projected.lastDate < startDate)
+          continue
+        // Prefer a known included endpoint for range queries; probe dates only when neither endpoint lies in the view.
+        if (
+          (projected.startDate >= startDate &&
+            projected.startDate <= endDate) ||
+          (projected.endDate >= startDate && projected.endDate <= endDate)
+        ) {
+          selected.push(projected)
+          continue
+        }
+        let date =
+          projected.firstDate > startDate ? projected.firstDate : startDate
+        const last = projected.lastDate < endDate ? projected.lastDate : endDate
+        while (date <= last) {
+          if (overlapsDay(projected, date, resolveCandidates, candidates)) {
+            selected.push(projected)
+            break
+          }
+          if (date === last) break
+          date = addCivilDays(date, 1)
+        }
+      }
+      return { events: selected.map(({ event }) => event), issues }
+    },
+  }
+}
+
+export function selectCalendarEvents(
+  events: readonly CalendarEvent[],
+  range: EventCalendarRange,
+  timeZone: string
+) {
+  validateRange(range)
+  return createEventCalendarIndex(events, timeZone).select(range)
+}
+
+export function prepareEventCalendar(
+  events: readonly CalendarEvent[],
+  range: EventCalendarRange,
+  timeZone: string
+) {
+  const { startDate, endDate } = validateRange(range)
+  const index = createEventCalendarIndex(events, timeZone)
+  const eventsByDate = new Map<string, readonly CalendarEvent[]>()
+  const counts = new Map<string, number>()
+  let date = startDate
+  while (true) {
+    const selected = index.select({ startDate: date, endDate: date }).events
+    eventsByDate.set(date, selected)
+    counts.set(date, selected.length)
+    if (date === endDate) break
+    date = addCivilDays(date, 1)
+  }
+  return { eventsByDate, counts, issues: index.issues }
 }

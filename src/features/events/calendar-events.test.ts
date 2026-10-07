@@ -1,5 +1,9 @@
 import { expect, test } from "bun:test"
-import { selectCalendarEvents } from "@/features/events/calendar-events"
+import {
+  createEventCalendarIndex,
+  prepareEventCalendar,
+  selectCalendarEvents,
+} from "@/features/events/calendar-events"
 import { eventSchema } from "@/schemas/calendar-item"
 import type { CalendarEvent } from "@/types/calendar-item"
 
@@ -142,4 +146,39 @@ test("calendar ranges are bounded, validated and preserve low civil years", () =
   ).toThrow()
   expect(() => day([], "2026-02-30")).toThrow()
   expect(() => day([], "2026-10-07", "Not/AZone")).toThrow()
+})
+
+test("a prepared calendar shares chronological results across cells and keeps range boundaries", () => {
+  const events = [
+    event("b", timed("2026-10-07T23:30", "2026-10-08T00:30")),
+    event("a", {
+      mode: "all_day",
+      startDate: "2026-10-07",
+      endDateExclusive: "2026-10-09",
+    }),
+  ]
+  const original = JSON.stringify(events)
+  const snapshot = prepareEventCalendar(
+    events,
+    { startDate: "2026-10-06", endDate: "2026-10-09" },
+    "Europe/Madrid"
+  )
+  expect([...snapshot.counts.values()]).toEqual([0, 2, 2, 0])
+  const index = createEventCalendarIndex(events, "Europe/Madrid")
+  for (const date of ["2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09"]) {
+    expect(snapshot.eventsByDate.get(date)).toEqual(day(events, date).events)
+    expect(snapshot.counts.get(date)).toBe(
+      index.select({ startDate: date, endDate: date }).events.length
+    )
+  }
+  expect(JSON.stringify(events)).toBe(original)
+  const high = prepareEventCalendar(
+    [event("a", timed("9999-12-31T12:00", null, "UTC"))],
+    { startDate: "9999-12-31", endDate: "9999-12-31" },
+    "UTC"
+  )
+  expect(high.counts.get("9999-12-31")).toBe(1)
+  expect(() =>
+    index.select({ startDate: "2026-01-01", endDate: "2027-01-01" })
+  ).toThrow()
 })

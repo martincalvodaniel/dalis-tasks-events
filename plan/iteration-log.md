@@ -374,6 +374,13 @@
 - Validación:76tests aprobados/7auth opt-in omitidos/cero fallos; nuevo caso compara factory con normales, gaps, repeats, años/histórico, zonas independientes e inválidas. Regresión de día breve/Apia pasa. Lint/tipos/build/diff/referencias aprobados. Mismo fixture: rango mensual25ms y31consultas706ms,12apariciones intactas. Medida puntual del host, no afirmación de latencia en móvil; aún exige preparación mensual compartida antes de usar celdas.
 - Commit `perf(calendar): reuse zone formatters within event queries`; push int autorizado y verificar remoto después. Próxima candidata08c1b; consultar cuota y confirmar renovación antes de una entrega UI amplia. Código de esta entrega cerrado independientemente de la renovación.
 
+## 08c1b0 — Snapshot compartido y lectura de eventos
+
+- Int, secuencial; entrada100%/73% tras renovación confirmada después de071a2c4 publicado y Vercel success. Se restaura reserva reforzada20%, sin inferir consumo atravesando reinicio. Scope/aceptación previos: índice/snapshot/tests/hook/plan, sin UI ni persistencia nuevos.
+- Resultado: resolución/programas y orden se preparan una vez por índice; contadores/eventsByDate se calculan una vez para rango validado1–62días, cache local acotada a62×1440sondeos. Ningún estado global ni petición por celda. Hook SWR separado por cuenta+epoch usa lector con guardias, no retry infinito. Pureza y API existente conservadas.
+- Evidencia: snapshot de cuatro días da[0,2,2,0], orden all-day/temporizado, equivalencia de consultas y fuente sin mutaciones, último día9999 sin overflow, rango inválido rechazado. Todos los casos anteriores DST/Apia/StJohns/legado pasan. Muestra12eventos mes31días:191ms preparación;3100lecturas1ms,12apariciones intactas. Medida puntual del host; revisar volumen/móvil en piloto.
+- Validación:77tests/7auth opt-in omitidos/cero fallos, lint limpio/tipos/build aprobados, diff/referencias revisados. Commit `feat(calendar): prepare shared event snapshots and local reader`; push int autorizado, verificación remota posterior. Próxima08c1b1 creación/listado compacto y contadores integrados, leer cuota antes de abrir.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

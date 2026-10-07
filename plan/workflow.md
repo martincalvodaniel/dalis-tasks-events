@@ -114,3 +114,5 @@ El usuario revoca el cierre tras `206fac6`: pide aprovechar el 24% y comunica re
 ### Publicación de iteraciones en integración int
 
 El usuario confirma la rama de integración `int` y autoriza commit y push tras cada iteración terminada para activar el autodespliegue preproductivo existente. Comprobar rama/diff/tests/build y cerrar el commit antes del push; verificar que HEAD remoto coincide. No crear despliegues adicionales, publicar producción ni modificar secretos/configuración de hosting. La autorización sustituye la prohibición por defecto de push para esta rama; sigue vigente la protección de otras ramas.
+
+La consulta al llegar al reinicio confirma nueva ventana **100%/73%**, 7oct19:15Madrid, después de cerrar/push071a2c4. Vercel deployment success confirmado para ese SHA. Se vuelve a reserva reforzada20% y se continúa secuencial: preparar snapshot mensual08c1b0, después UI de creación/listado08c1b1. No comparar consumo5h a través del reinicio.
