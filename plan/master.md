@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; diálogos y navegación móvil corregidos en `07c`; ranking y categorías atómicas entregados en `07b1a`; colocaciones atómicas de tareas entregadas en `07b1b`; siguiente candidata `07b2`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; diálogos y navegación móvil corregidos en `07c`; ranking y categorías atómicas entregados en `07b1a`; colocaciones atómicas de tareas entregadas en `07b1b`; controles de categorías entregados en `07b2a`; siguiente candidata `07b2b`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -133,3 +133,5 @@ Lote reanudado cerrado al completar `05a1`: shell offline, cierre/cuentas, barra
 `07b1a` entrega el motor de ranking y `tag.move` atómico: vecinos activos validados, compactación de posiciones agotadas, replay y rollback, sin tocar contenido compartido ni revisiones remotas. Lectores de categorías y grupos desempatan por ID; renombrar no reordena posiciones iguales. Los controles visibles dependen de completar también colocaciones de tareas (`07b1b`) antes de `07b2`.
 
 `07b1b` conecta `task.move` para tareas simples a una transacción de colocaciones/categoría/cola, sin cambiar el contenido compartido. Días y atrasadas tienen órdenes independientes; el ancla global de atrasadas es constante, validando hoy según zona de cuenta. Se preservan posiciones/revisiones previas y las colas antiguas de ocurrencias siguen siendo legibles. Registros activos de atrasadas con ancla antigua bloquean escrituras hasta migración separada; no se borra ni transforma legado. Próxima entrega: controles y lectura visual del orden (`07b2`).
+
+`07b2a` añade Subir/Bajar en gestión de categorías, con SVG locales y teclado. Los límites no escriben; foco y nombres accesibles se conservan al reordenar. Cuatro movimientos offline producen cuatro intenciones, renombrar mantiene orden y recarga persiste. Próxima entrega: conectar colocaciones y controles de tareas del día/atrasadas (`07b2b`).

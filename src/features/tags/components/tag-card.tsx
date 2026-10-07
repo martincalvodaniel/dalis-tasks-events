@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import type { Tag } from "@/types/preferences"
 
 export function TagCard({
@@ -5,11 +6,13 @@ export function TagCard({
   busy,
   onEdit,
   onDelete,
+  orderControl,
 }: {
   tag: Tag
   busy: boolean
   onEdit: () => void
   onDelete: () => void
+  orderControl?: ReactNode
 }) {
   return (
     <article className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
@@ -22,6 +25,7 @@ export function TagCard({
         {tag.name}
       </h3>
       <div className="mt-4 flex flex-wrap gap-3">
+        {orderControl}
         <button
           type="button"
           disabled={busy}

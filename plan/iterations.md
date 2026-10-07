@@ -208,7 +208,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 07b — Reordenación persistente (dividida)
 
-- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b2`.
+- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b2b`.
 - `target_paths`: componentes/hooks de orden en `src/features/tasks/**` y `src/features/tags/**`, preferencias en `src/lib/local-db/**`.
 - Dependencias: `07a`.
 - Aceptación: mover grupos y tareas, cambiar categoría personal, ordenar atrasadas; alternativa de teclado a drag-and-drop; recarga conserva orden; operaciones por ID/intención, sin reemplazo global de arrays.
@@ -237,14 +237,22 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 - `target_paths`: schemas/types de movimientos, preferencias/colocaciones en `lib/local-db/**`, pruebas y plan. Dependencia: `07b1a`.
 - Aceptación: tareas simples por día y atrasadas, vecinos/actor/scope validados; categoría+colocación/compactación en una transacción; replay, rollback, legado y recarga comprobados. Evaluar colocaciones existentes antes de escribir. No escribir posiciones desde componentes.
 
-#### 07b2 — Controles accesibles y orden visible
+#### 07b2a — Botones accesibles para categorías
 
-- `target_paths`: servicios/hooks/lectores y controles de tareas/categorías, fixture y plan. Dependencia: `07b1b`.
-- Aceptación: mover grupos/tareas por botones y teclado, cambiar grupo, conservar orden del día y atrasadas al recargar offline; confirmación real de guardado, foco y errores españoles.
+- Estado: completada, secuencial; entrada automática 5h 86% / 7d 85%, después de `4e6e345`.
+- Objetivo: Subir/Bajar categorías desde gestión, usar `tag.move`, conservar foco y bloquear duplicados durante guardado. Sin nueva pantalla; registro de ambas barras se conserva.
+- `target_paths`: controles/icono genéricos en `components/ui/**`, helper de vecinos, servicio/hook/card/manager de categorías, fixture workspace/evidencia y `plan/**`. Dependencias `07b1a`, `07b1b`; reutilizar SWR/intent/account guard.
+- Aceptación: orden confirmado y persistido tras recarga, inicio/final no escriben, teclado Enter/Espacio y foco conservado, reintentos no duplican, UI española legible en móvil/escritorio/200%, offline real con servidores detenidos. Una intención por movimiento; nombres/color/edición siguen operativos.
+- Validación: fixture con cuenta ficticia y build de producción, inspección de cola, lint/tipos/tests/build, referencias/diff. Sin dependencia adicional.
+
+#### 07b2b — Orden visible y controles de tareas
+
+- `target_paths`: lecturas/selectores/hooks y controles de grupos/tareas, fixture/plan. Dependencias: `07b1b`, `07b2a`.
+- Aceptación: movimientos por botones y categoría con teclado/móvil; orden real por día y global atrasadas, recarga offline, una sola intención por cambio, errores españoles y foco conservado. Usar el mismo planificador de orden inicial; no mover fechas. Añadir controles de grupos si aportan acceso directo útil. Actualizar ambas barras si se añade pantalla.
 
 #### 07b3 — Arrastre con el mismo comando
 
-- `target_paths`: filas/controles de orden y pruebas, plan. Dependencia: `07b2`.
+- `target_paths`: filas/controles de orden y pruebas, plan. Dependencia: `07b2b`.
 - Aceptación: arrastre táctil/ratón y cancelación, una intención al soltar, scroll móvil; alternativa por botones permanece operativa. Sin biblioteca nueva.
 
 ## 08 — Eventos y citas

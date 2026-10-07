@@ -84,3 +84,11 @@ export function assignLocalCategory(
     operationId
   )
 }
+
+export function changeLocalTagOrder(
+  account: LocalAccount,
+  command: Extract<LocalPreferenceCommand, { type: "tag.move" }>,
+  operationId: string
+) {
+  return commit(account, command, operationId)
+}

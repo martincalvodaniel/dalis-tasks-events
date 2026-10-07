@@ -275,6 +275,15 @@
 - Validación: lint sin ruido, tipos, 58 tests aprobados (5 nuevos), 7 auth opt-in sin repetir y cero fallos. Build final aprobado después de corregir inferencia del comando en callback anidado; referencias/diff revisados. Sin dependencias nuevas ni push.
 - Commit: `feat(ordering): move tasks and personal placements atomically`. Próxima candidata `07b2`, controles accesibles y lectura del orden, con nueva consulta de cuota antes de editar.
 
+## 07b2a — Controles accesibles de categorías
+
+- Rama `main`, secuencial; lectura automática **5h 86%; 7d 85%**, tras `4e6e345`. Objetivo/`target_paths`: controles/iconos compartidos, helper de vecinos, servicio/hook/card/manager de categorías, fixture workspace/evidencia y plan. Dependencias `07b1a–07b1b`; dividido antes de editar de controles de tareas. Sin nueva pantalla; ambas barras mantienen el destino Categorías activo y operativo.
+- Resultado: Subir/Bajar invoca `tag.move`, con vecinos del orden actual y hook de intenciones/SWR/guardia de cuenta reutilizados. Bloqueo de solicitudes simultáneas por ref; guardado/error en español. Fila estable por ID y recuperación de foco tras reordenar. Límites usan `aria-disabled`, permanecen accesibles con teclado y el handler no escribe; iconos SVG locales ocultos al lector para evitar nombre duplicado. Editar/borrar/crear bloqueados durante guardado.
+- Evidencia de producción con ambos servidores detenidos: crear Casa/Trabajo/Personal, subir con ratón y Enter, límite superior con Return no cambia, bajar con Espacio y ratón, límite inferior no cambia. Foco conserva el botón de Personal, incluso en límites. Renombrar Familia y recargar conserva Casa/Trabajo/Familia. Navegar a Mi espacio y volver funciona offline. Inspector confirma nueve operaciones consecutivas, exactamente cuatro `tag.move`, y tarea inicial intacta. [Captura móvil](evidence/07b2a-mobile.png).
+- Responsividad: 320/390px sin desbordamiento y barra inferior; escritorio usa superior. Iframe de 310px, fuente 32px (200%): página 310px, navbar 236px y reserva 576px. Controles envuelven sin limitar ampliación. Cuenta/worker/cache ficticios retirados, viewport restablecido, pestañas y procesos aislados cerrados; servidor del usuario conservado.
+- Validación: 59 tests aprobados (nuevo caso de comandos de vecinos para las cuatro direcciones), 7 auth opt-in sin repetir, cero fallos; tipos, lint limpio y build aprobados; diff/referencias revisados. Sin dependencias, migración o nuevos índices.
+- Commit: `feat(tags): reorder categories with accessible offline controls`. Próxima candidata `07b2b`, lectores y controles de tareas, tras consultar ambas cuotas.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

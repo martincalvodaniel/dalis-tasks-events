@@ -18,6 +18,7 @@ import {
 import { localDatabaseName } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import { LocalRepository } from "@/lib/local-db/repository"
+import { compareRank } from "@/lib/ordering/rank"
 
 if (
   location.hostname !== "127.0.0.1" ||
@@ -64,7 +65,10 @@ async function run() {
   if (mode === "magnify") {
     const frame = document.createElement("iframe")
     frame.title = "Espacio con texto ampliado"
-    frame.src = "/workspace"
+    frame.src =
+      new URLSearchParams(location.search).get("view") === "tags"
+        ? "/workspace?view=tags"
+        : "/workspace"
     frame.style.width = "100%"
     frame.style.height = "1000px"
     frame.addEventListener("load", () => {
@@ -115,10 +119,47 @@ async function run() {
     return
   }
   const { userId } = await session(
-    mode === "calendar" || mode === "agenda" || mode === "agenda-inspect"
+    mode === "calendar" ||
+      mode === "agenda" ||
+      mode === "agenda-inspect" ||
+      mode === "category-order-inspect"
       ? "authorized"
       : "unauthorized"
   )
+  if (mode === "category-order-inspect") {
+    const repository = await LocalRepository.open(userId)
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      const tags = (await repository.list("tags")).sort(compareRank)
+      assert(
+        JSON.stringify(tags.map((tag) => tag.name)) ===
+          JSON.stringify(["Casa", "Trabajo", "Familia"])
+      )
+      const entries = await outbox.listEntries()
+      assert(
+        entries.length === 9 &&
+          entries.every((entry, index) => entry.sequence === index + 1)
+      )
+      assert(
+        entries.filter((entry) => entry.operation.command.type === "tag.move")
+          .length === 4
+      )
+      const items = await repository.list("items")
+      assert(
+        items.length === 1 &&
+          items[0].kind === "task" &&
+          items[0].status === "not_started"
+      )
+      const status = document.getElementById("status")
+      if (status)
+        status.textContent =
+          "Orden conservado: cuatro movimientos, una intención por movimiento y tarea intacta."
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+    return
+  }
   if (mode === "agenda" || mode === "agenda-inspect") {
     const state = await loadLocalAccount()
     assert(state.account?.userId === userId)

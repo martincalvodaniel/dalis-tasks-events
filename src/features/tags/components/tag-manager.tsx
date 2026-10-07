@@ -2,25 +2,30 @@
 
 import { useState } from "react"
 import { ErrorBanner } from "@/components/ui/error-banner"
+import { OrderControls } from "@/components/ui/order-controls"
 import { DeleteTagDialog } from "@/features/tags/components/delete-tag-dialog"
 import { TagCard } from "@/features/tags/components/tag-card"
 import { TagForm } from "@/features/tags/components/tag-form"
 import { useLocalTags } from "@/features/tags/hooks/use-local-tags"
+import { useTagOrder } from "@/features/tags/hooks/use-tag-order"
 import {
   deleteLocalTag,
   saveLocalTag,
   type TagDraft,
 } from "@/features/tags/local-tags"
 import type { LocalAccount } from "@/features/workspace/local-account"
+import { adjacentMoveNeighbors } from "@/lib/ordering/move-neighbors"
 import type { Tag } from "@/types/preferences"
 
 export function TagManager({ account }: { account: LocalAccount }) {
   const { data, error, isLoading, mutate } = useLocalTags(account)
+  const ordering = useTagOrder(account)
   const [editing, setEditing] = useState<Tag | null>(null)
   const [pendingDelete, setPendingDelete] = useState<Tag | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [saving, setSaving] = useState(false)
   const [version, setVersion] = useState(0)
+  const busy = deleting || saving || ordering.busy
   async function save(tagId: string, draft: TagDraft, operationId: string) {
     setSaving(true)
     try {
@@ -57,6 +62,13 @@ export function TagManager({ account }: { account: LocalAccount }) {
       <p className="text-zinc-600 dark:text-zinc-300">
         Crea tus categorías y elígelas en cada tarea después de guardarla.
       </p>
+      {ordering.error ? (
+        <ErrorBanner>
+          No se pudo cambiar el orden. La lista se ha actualizado; vuelve a
+          intentarlo.
+        </ErrorBanner>
+      ) : null}
+      {ordering.busy ? <p role="status">Guardando orden…</p> : null}
       {pendingDelete ? (
         <DeleteTagDialog
           tag={pendingDelete}
@@ -78,7 +90,7 @@ export function TagManager({ account }: { account: LocalAccount }) {
             key={editing?.id ?? version}
             initialTag={editing ?? undefined}
             newPosition={(data.tags.at(-1)?.position ?? -1) + 1}
-            disabled={deleting || saving}
+            disabled={busy}
             onSave={save}
             onCancel={() => {
               setEditing(null)
@@ -89,13 +101,34 @@ export function TagManager({ account }: { account: LocalAccount }) {
             <h2 className="mb-4 text-xl font-semibold">Tus categorías</h2>
             {data.tags.length ? (
               <ul className="space-y-4">
-                {data.tags.map((tag) => (
+                {data.tags.map((tag, index) => (
                   <li key={tag.id}>
                     <TagCard
                       tag={tag}
-                      busy={deleting || saving}
+                      busy={busy}
                       onEdit={() => setEditing(tag)}
                       onDelete={() => setPendingDelete(tag)}
+                      orderControl={
+                        <OrderControls
+                          label={`categoría ${tag.name}`}
+                          busy={busy}
+                          canMoveUp={index > 0}
+                          canMoveDown={index < data.tags.length - 1}
+                          onMove={(direction) => {
+                            const neighbors = adjacentMoveNeighbors(
+                              data.tags.map((record) => record.id),
+                              tag.id,
+                              direction
+                            )
+                            if (neighbors)
+                              void ordering.change({
+                                type: "tag.move",
+                                tagId: tag.id,
+                                ...neighbors,
+                              })
+                          }}
+                        />
+                      }
                     />
                   </li>
                 ))}
