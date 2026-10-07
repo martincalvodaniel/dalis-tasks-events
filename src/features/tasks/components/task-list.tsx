@@ -2,6 +2,9 @@
 
 import { useState } from "react"
 import { ErrorBanner } from "@/components/ui/error-banner"
+import { ItemCategorySelect } from "@/features/tags/components/item-category-select"
+import { useItemCategory } from "@/features/tags/hooks/use-item-category"
+import { useLocalTags } from "@/features/tags/hooks/use-local-tags"
 import { DeleteTaskDialog } from "@/features/tasks/components/delete-task-dialog"
 import { TaskCard } from "@/features/tasks/components/task-card"
 import { TaskComposer } from "@/features/tasks/components/task-composer"
@@ -16,6 +19,8 @@ export function TaskList({ account }: { account: LocalAccount }) {
   const { data, error, isLoading, mutate } = useLocalTasks(account)
   const { refresh } = useLocalAccount()
   const progress = useTaskProgress(account)
+  const { data: categories, error: categoryReadError } = useLocalTags(account)
+  const category = useItemCategory(account)
   const [editing, setEditing] = useState<Task | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Task | null>(null)
@@ -40,6 +45,13 @@ export function TaskList({ account }: { account: LocalAccount }) {
         </ErrorBanner>
       ) : null}
       {progress.busy ? <p role="status">Guardando progreso…</p> : null}
+      {categoryReadError || category.error ? (
+        <ErrorBanner>
+          No se pudo leer o guardar la categoría. Vuelve a intentarlo; tus
+          tareas se conservan.
+        </ErrorBanner>
+      ) : null}
+      {category.busy ? <p role="status">Guardando categoría…</p> : null}
       {pendingDelete ? (
         <DeleteTaskDialog
           task={pendingDelete}
@@ -74,7 +86,20 @@ export function TaskList({ account }: { account: LocalAccount }) {
                 task={task}
                 onEdit={() => setEditing(task)}
                 onDelete={() => setPendingDelete(task)}
-                busy={deleting || progress.busy}
+                busy={deleting || progress.busy || category.busy}
+                categoryControl={
+                  categories && !categoryReadError ? (
+                    <ItemCategorySelect
+                      title={task.title}
+                      tags={categories.tags}
+                      selectedId={categories.views[task.id] ?? null}
+                      busy={deleting || progress.busy || category.busy}
+                      onChange={(tagId) => {
+                        void category.change({ itemId: task.id, tagId })
+                      }}
+                    />
+                  ) : undefined
+                }
                 onStatusChange={
                   task.recurrence
                     ? undefined

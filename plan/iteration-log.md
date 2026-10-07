@@ -186,6 +186,17 @@
 - Commit: `feat(tags): persist personal categories and assignments atomically`.
 - Próxima candidata `05b3`, interfaz de gestión/asignación y navegación coherente, secuencial; consultar cuotas tras commit.
 
+## 05b3 — Gestión y asignación de categorías offline
+
+- Rama `main`, secuencial; entrada automática tras `dab07f9`: **5h 77%; 7d 96%**. Lote/reserva vigentes.
+- Objetivo y `target_paths`: `features/tags/**`, selector en tareas, pantalla e integración workspace, registro/SVG de navegación, confirmación y hook de intenciones reutilizados, guardia compartida de cuenta, fixture/evidencia y plan. Dependencia `05b2`. Ambas barras se actualizan en la misma entrega.
+- Resultado: crear/editar nombre y color, listar categorías propias, asignar/retirar desde tarea y confirmar borrado conservando tarea. Duplicados muestran error español. Formulario de edición recibe foco; botones/checkbox/select respetan estados pendientes. Guardado confirmado tras transacción; separación por usuario/generación y snapshot esperado de categoría. Estado/checklist continúan operativos con hook compartido.
+- Evidencia: producción con servidor detenido, navegar a categorías, crear Casa, rechazar CASA, renombrar a Personal, asignar→retirar→asignar, cancelar borrado y confirmarlo. Tarea conservada sin categoría; completar/reabrir y recarga offline conservan sin empezar. Fixture valida nueve intenciones, tombstone, asignación previa preservada y dependencia de borrar tras asignar. Barra móvil a 320/390px y superior a 1280px, destino activo Categorías, sin scroll horizontal. Fixture a 200% sobre 304px útiles: formulario y navbar no desbordan; [captura móvil](evidence/05b3-mobile.png) revisada. Cuenta/cache/worker ficticios limpiados y servidor detenido.
+- Validación: tipos/build aprobados, lint global limpio, 40 tests pasan y cero fallos; 7 auth opt-in sin cambios. `git diff --check` aprobado. Sin nuevos paquetes ni índices: `byPosition` existente alimenta la lista y consultas por clave usan tiendas actuales.
+- Decisión de UX acotada: categoría se elige en la tarea después de crearla. No mostrar dos transacciones como un guardado único; comodidad de categoría en formulario inicial queda documentada como mejora con atomicidad propia. No bloquea clasificar, agrupar u ordenar el MVP.
+- Commit: `feat(tags): manage and assign categories offline`.
+- Próxima candidata `06`, calendario mensual y apertura del día en secuencial; leer cuotas tras commit y dividir si el alcance supera la reserva.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

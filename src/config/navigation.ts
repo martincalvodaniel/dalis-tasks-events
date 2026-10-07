@@ -1,10 +1,24 @@
 export const workspaceDestinations = [
-  { id: "overview", label: "Mi espacio", href: "/workspace", icon: "home" },
+  {
+    id: "overview",
+    label: "Mi espacio",
+    href: "/workspace",
+    icon: "home",
+    description: "Tareas, planes y fechas importantes, también sin conexión.",
+  },
+  {
+    id: "tags",
+    label: "Categorías",
+    href: "/workspace?view=tags",
+    icon: "tag",
+    description: "Organiza tus tareas con categorías personales.",
+  },
   {
     id: "settings",
     label: "Ajustes",
     href: "/workspace?view=settings",
     icon: "settings",
+    description: "Tu cuenta y la preparación de este dispositivo.",
   },
 ] as const
 

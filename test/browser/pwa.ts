@@ -45,6 +45,53 @@ async function check(label: string, work: () => Promise<void>) {
   }
 }
 async function run() {
+  if (query.get("mode") === "tags-ui") {
+    const repository = await LocalRepository.open(userId)
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      await check(
+        "Categoría borrada conserva tarea, vista personal y cola tras recarga",
+        async () => {
+          const tags = await repository.list("tags", { includeDeleted: true })
+          const items = await repository.list("items")
+          assert(
+            tags.length === 1 &&
+              tags[0].name === "Personal" &&
+              tags[0].deletedAt
+          )
+          assert((await repository.list("tags")).length === 0)
+          assert(
+            items.length === 1 &&
+              items[0].kind === "task" &&
+              items[0].status === "not_started"
+          )
+          assert(
+            (await repository.get("itemViews", items[0].id))?.primaryTagId ===
+              tags[0].id
+          )
+          const entries = await outbox.listEntries()
+          assert(entries.length === 9)
+          assert(entries[1].operation.command.type === "tag.save")
+          assert(entries[2].operation.command.type === "tag.save")
+          for (const index of [3, 4, 5])
+            assert(entries[index].operation.command.type === "item-view.set")
+          assert(
+            entries[6].operation.command.type === "tag.delete" &&
+              entries[6].dependencies.includes(entries[5].operation.operationId)
+          )
+          assert(
+            entries[7].operation.command.type === "task.set-status" &&
+              entries[8].operation.command.type === "task.set-status"
+          )
+        }
+      )
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+    statusElement.textContent = "Categorías, asignación y progreso comprobados."
+    return
+  }
   if (query.get("mode") === "task-progress") {
     const repository = await LocalRepository.open(userId)
     const outbox = await LocalOutbox.open(userId)
@@ -240,7 +287,10 @@ async function run() {
   if (query.get("mode") === "magnify") {
     const frame = document.createElement("iframe")
     frame.title = "Vista con texto ampliado"
-    frame.src = "/workspace?view=settings"
+    frame.src =
+      query.get("view") === "tags"
+        ? "/workspace?view=tags"
+        : "/workspace?view=settings"
     frame.style.width = "100%"
     frame.style.height = "800px"
     frame.style.border = "0"

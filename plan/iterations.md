@@ -146,6 +146,8 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 05b — Categorías y estados (dividida)
 
+- Estado: completada mediante `05b1–05b3`; clasificación personal desde cada tarea ya guardada.
+
 - `target_paths`: `src/features/tags/**`, estado/checklist en `src/features/tasks/**`, repositorios locales afectados.
 - Dependencias: `05a2`.
 - Aceptación: crear/elegir categoría; “Sin categoría”; empezar/completar/reabrir; marcar checklist no completa tarea implícitamente; borrar categoría conserva tareas; todos los cambios escriben outbox y sobreviven offline.
@@ -168,6 +170,8 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 - Aceptación: pertenencia a cuenta validada, nombres duplicados tratados explícitamente, borrado conserva tareas y cola; asignaciones y categoría/orden quedan listos para transporte remoto. Evaluar índices y compatibilidad de registros existentes antes de editar.
 
 #### 05b3 — Categorías en la interfaz
+
+- Estado: completada; gestión/asignación/borrado y recarga offline con cola comprobados, ambas barras actualizadas y texto al 200% sin desbordamiento.
 
 - Objetivo: crear/elegir/gestionar categorías; tareas sin categoría siguen accesibles.
 - `target_paths`: `features/tags/**`, integración en tareas/workspace y registro de navegación si añade pantalla importante; fixture y plan. Dependencia: `05b2`.

@@ -2,6 +2,8 @@
 
 import { useId, useState } from "react"
 import { WorkspaceNavigation } from "@/components/shared/workspace-navigation"
+import { workspaceDestinations } from "@/config/navigation"
+import { TagsScreen } from "@/features/tags/components/tags-screen"
 import { CreateTaskButton } from "@/features/tasks/components/create-task-button"
 import { TaskComposer } from "@/features/tasks/components/task-composer"
 import { DeviceSettings } from "@/features/workspace/components/device-settings"
@@ -13,6 +15,9 @@ import { useWorkspaceView } from "@/features/workspace/hooks/use-workspace-view"
 export function Workspace() {
   const contentId = useId()
   const view = useWorkspaceView()
+  const destination =
+    workspaceDestinations.find((entry) => entry.id === view) ??
+    workspaceDestinations[0]
   const { account, refresh } = useLocalAccount()
   const [composerEpoch, setComposerEpoch] = useState<string | null>(null)
   return (
@@ -50,14 +55,18 @@ export function Workspace() {
           Dalis
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-          {view === "settings" ? "Ajustes" : "Mi espacio"}
+          {destination.label}
         </h1>
         <p className="mt-3 mb-8 max-w-xl text-zinc-600 dark:text-zinc-400">
-          {view === "settings"
-            ? "Tu cuenta y la preparación de este dispositivo."
-            : "Tareas, planes y fechas importantes, también sin conexión."}
+          {destination.description}
         </p>
-        {view === "settings" ? <DeviceSettings /> : <WorkspaceOverview />}
+        {view === "settings" ? (
+          <DeviceSettings />
+        ) : view === "tags" ? (
+          <TagsScreen />
+        ) : (
+          <WorkspaceOverview />
+        )}
         <UpdateNotice />
       </main>
     </div>

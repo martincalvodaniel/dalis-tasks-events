@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { TaskChecklist } from "@/features/tasks/components/task-checklist"
 import { TaskStatusControls } from "@/features/tasks/components/task-status-controls"
 import { civilDateToUtc } from "@/lib/calendar/civil-date"
@@ -19,6 +20,7 @@ export function TaskCard({
   onDelete,
   onStatusChange,
   onChecklistChange,
+  categoryControl,
   busy = false,
 }: {
   task: Task
@@ -26,6 +28,7 @@ export function TaskCard({
   onDelete?: () => void
   onStatusChange?: (status: Task["status"]) => void
   onChecklistChange?: (entryId: string, completed: boolean) => void
+  categoryControl?: ReactNode
   busy?: boolean
 }) {
   return (
@@ -42,6 +45,7 @@ export function TaskCard({
           {task.description}
         </p>
       ) : null}
+      {categoryControl}
       {task.checklist.length ? (
         <TaskChecklist
           entries={task.checklist}
