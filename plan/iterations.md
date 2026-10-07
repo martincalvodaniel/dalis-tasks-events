@@ -473,3 +473,9 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Estado: completada, secuencial; entrada automática17%/74% tras6216981. Rama actual `int` observada al commit anterior; no se ha cambiado por el agente.
 - Objetivo/target_paths: helpers puros de selección de eventos y tests, plan. Dependencias08a–08b. Corte previo a UI: día/rango y orden cronológico sin expandir recurrencias, ni enumerar rangos infinitos.
 - Aceptación: todo el día usa fechas civiles/final exclusivo; temporizados aparecen en días de la zona de la cuenta según instantes, cruces de medianoche y DST, fin nulo, fin exacto medianoche; eventos inválidos históricos identificados sin ocultar válidos, exclusión de tombstones y series pendientes; IDs/orden deterministas, rangos/zonas validados. Consulta civil inclusiva de1–62días para incluir31/12/9999 sin inventar año10000; programas all-day mantienen fin exclusivo. Lint/tipos/tests/build/diff/referencias, sin UI/DB/contrato/dependencia nuevos.
+
+### 08c1a2 — Reutilizar el formateador temporal por consulta
+
+- Estado: completada, secuencial; entrada13%/73% tras3667c97 y push verificado aorigin/int. Corte mínimo previo a UI, sin confiar en renovación.
+- Objetivo/target_paths: factory de resolver en zoned-time, selector de eventos, test de equivalencia y plan. Dependencias08c1a. Diagnóstico:12eventos/rango mensual24ms frente a31consultas independientes5161ms; cada minuto construye Intl.DateTimeFormat nuevo.
+- Aceptación: un formateador por consulta/zona, sin cache global ni política de offsets elegida; mismos candidatos normales/históricos/gaps/repeticiones, no mezclar zonas al reutilizar. Medir mismo fixture, lint/tipos/tests/build/diff/referencias, commit+push int. No conectar contadores aún; preparación mensual sigue siendo corte siguiente.

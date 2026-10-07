@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { resolveEventSchedule } from "@/lib/calendar/event-time"
 import {
+  createZonedTimeResolver,
   possibleZonedInstants,
   resolveZonedInstant,
   ZonedTimeError,
@@ -135,4 +136,20 @@ describe("event exact time", () => {
       })
     ).toThrow()
   })
+})
+
+test("reusable resolvers preserve candidates without sharing formatting zones", () => {
+  const madrid = createZonedTimeResolver("Europe/Madrid")
+  const apia = createZonedTimeResolver("Pacific/Apia")
+  for (const date of [
+    "2026-10-07T12:00",
+    "2026-03-29T02:30",
+    "2026-10-25T02:30",
+    "0001-01-01T12:00",
+    "1890-01-01T12:00",
+  ])
+    expect(madrid(date)).toEqual(possibleZonedInstants(date, "Europe/Madrid"))
+  expect(apia("2011-12-30T12:00")).toEqual([])
+  expect(madrid("2011-12-30T12:00")).toHaveLength(1)
+  expect(() => createZonedTimeResolver("Not/AZone")).toThrow()
 })

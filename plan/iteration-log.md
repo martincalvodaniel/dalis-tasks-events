@@ -367,6 +367,13 @@
 - Evidencia: seis nuevos casos Bun cubren exclusividad, medianoche, cambio de zona LA/Madrid, DST, punto sin fin, Apia, rollback, legado, orden porID, arrays intactos, límites/zonas/rangos. Repetidos con host TZ Pacific/Honolulu:6pass. Global75pass/7auth opt-in omitidos/cero fallos, lint limpio/tipos/build aprobados, referencias/diff revisados. No fixture nueva para este helper puro; el motor Intl base ya se contrastó en navegador08a.
 - Commit `feat(calendar): select events by account date with explicit legacy issues`. Push a int autorizado; verificar HEAD remoto después de crear commit, sin afirmar que el autodespliegue terminó antes de observarlo. Próxima candidata08c1b: formulario/listado y selección mensual preparados, según cuota automática y renovación comprobada.
 
+## 08c1a2 — Formateador temporal reutilizable
+
+- Rama int, secuencial; entrada13%/73% tras3667c97 y push aorigin/int verificado con HEAD remoto idéntico. Vercel informa deployment completado success y check asociado success, comprobados por GitHub API. Diagnóstico previo: rango mensual12eventos24ms;31consultas/día5161ms.
+- Scope mínimo definido antes de editar: zoned-time factory, selector y prueba de equivalencia, plan. Un Intl.DateTimeFormat por consulta/zona reutilizado en sondeos, sin cache global, red ni cambios en política de fechas. API existente conserva resultados; factory explícita evita mezclar zonas. No conecta todavía UI.
+- Validación:76tests aprobados/7auth opt-in omitidos/cero fallos; nuevo caso compara factory con normales, gaps, repeats, años/histórico, zonas independientes e inválidas. Regresión de día breve/Apia pasa. Lint/tipos/build/diff/referencias aprobados. Mismo fixture: rango mensual25ms y31consultas706ms,12apariciones intactas. Medida puntual del host, no afirmación de latencia en móvil; aún exige preparación mensual compartida antes de usar celdas.
+- Commit `perf(calendar): reuse zone formatters within event queries`; push int autorizado y verificar remoto después. Próxima candidata08c1b; consultar cuota y confirmar renovación antes de una entrega UI amplia. Código de esta entrega cerrado independientemente de la renovación.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

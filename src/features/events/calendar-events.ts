@@ -6,7 +6,7 @@ import {
 } from "@/lib/calendar/civil-date"
 import { resolveEventSchedule } from "@/lib/calendar/event-time"
 import {
-  possibleZonedInstants,
+  createZonedTimeResolver,
   ZonedTimeError,
 } from "@/lib/calendar/zoned-time"
 import { civilDateSchema, timeZoneSchema } from "@/schemas/primitives"
@@ -66,7 +66,7 @@ function projectEvent(event: CalendarEvent, timeZone: string): ProjectedEvent {
 function overlapsDay(
   event: ProjectedEvent,
   date: string,
-  timeZone: string,
+  resolveCandidates: (localDateTime: string) => number[],
   candidates: Map<string, number[]>
 ): boolean {
   if (event.firstDate > date || event.lastDate < date) return false
@@ -84,7 +84,7 @@ function overlapsDay(
     const local = `${date}T${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`
     let instants = candidates.get(local)
     if (!instants) {
-      instants = possibleZonedInstants(local, timeZone)
+      instants = resolveCandidates(local)
       candidates.set(local, instants)
     }
     if (
@@ -117,6 +117,7 @@ export function selectCalendarEvents(
   const issues: EventCalendarIssue[] = []
   const selected: ProjectedEvent[] = []
   const candidates = new Map<string, number[]>()
+  const resolveCandidates = createZonedTimeResolver(zone)
   for (const event of events) {
     if (event.deletedAt || event.recurrence) continue
     let projected: ProjectedEvent
@@ -144,7 +145,7 @@ export function selectCalendarEvents(
     let date = projected.firstDate > startDate ? projected.firstDate : startDate
     const last = projected.lastDate < endDate ? projected.lastDate : endDate
     while (date <= last) {
-      if (overlapsDay(projected, date, zone, candidates)) {
+      if (overlapsDay(projected, date, resolveCandidates, candidates)) {
         selected.push(projected)
         break
       }

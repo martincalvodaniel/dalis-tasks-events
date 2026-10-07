@@ -46,9 +46,9 @@ function civilPartsEpoch(formatter: Intl.DateTimeFormat, instant: number) {
   return date.getTime()
 }
 
-export function possibleZonedInstants(
+function possibleInstantsWithFormatter(
   localDateTime: string,
-  timeZone: string
+  formatter: Intl.DateTimeFormat
 ): number[] {
   const local = localDateTimeSchema.parse(localDateTime)
   const carrier = civilDateToUtc(local.slice(0, 10))
@@ -59,7 +59,6 @@ export function possibleZonedInstants(
     0
   )
   const wallTime = carrier.getTime()
-  const formatter = formatterFor(timeZone)
   // Nearby offsets are candidates, never a disambiguation policy. Every result must round-trip exactly.
   const offsets = new Set(
     [-86400000, 0, 86400000].map((delta) => {
@@ -71,6 +70,19 @@ export function possibleZonedInstants(
     .map((offset) => wallTime - offset)
     .filter((candidate) => civilPartsEpoch(formatter, candidate) === wallTime)
     .sort((a, b) => a - b)
+}
+
+export function createZonedTimeResolver(timeZone: string) {
+  const formatter = formatterFor(timeZone)
+  return (localDateTime: string) =>
+    possibleInstantsWithFormatter(localDateTime, formatter)
+}
+
+export function possibleZonedInstants(
+  localDateTime: string,
+  timeZone: string
+): number[] {
+  return createZonedTimeResolver(timeZone)(localDateTime)
 }
 
 export function resolveZonedInstant(
