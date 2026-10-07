@@ -1,5 +1,6 @@
 "use client"
 
+import { planRankMove } from "@/lib/ordering/rank"
 import { itemViewSchema, tagSchema } from "@/schemas/preferences"
 import type { CalendarItem } from "@/types/calendar-item"
 import type { LocalPreferenceCommand } from "@/types/local-sync"
@@ -7,7 +8,7 @@ import type { ItemView, Tag } from "@/types/preferences"
 
 export function applyLocalTagCommand(
   tags: Tag[],
-  command: Exclude<LocalPreferenceCommand, { type: "item-view.set" }>,
+  command: Extract<LocalPreferenceCommand, { type: "tag.save" | "tag.delete" }>,
   userId: string,
   timestamp: string
 ): Tag {
@@ -80,4 +81,28 @@ export function applyLocalItemViewCommand(
     updatedAt: timestamp,
     deletedAt: null,
   })
+}
+
+export function applyLocalTagMoveCommand(
+  tags: Tag[],
+  command: Extract<LocalPreferenceCommand, { type: "tag.move" }>,
+  userId: string,
+  timestamp: string
+): Tag[] {
+  if (tags.some((tag) => tag.userId !== userId))
+    throw new Error("Personal record belongs to another account")
+  const positions = planRankMove(
+    tags.filter((tag) => !tag.deletedAt),
+    command.tagId,
+    command
+  )
+  return tags
+    .filter((tag) => positions.has(tag.id))
+    .map((tag) =>
+      tagSchema.parse({
+        ...tag,
+        position: positions.get(tag.id),
+        updatedAt: timestamp,
+      })
+    )
 }

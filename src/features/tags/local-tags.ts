@@ -5,6 +5,7 @@ import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import { LocalRepository } from "@/lib/local-db/repository"
+import { compareRank } from "@/lib/ordering/rank"
 import { tagDraftSchema } from "@/schemas/preferences"
 import type { LocalPreferenceCommand } from "@/types/local-sync"
 import type { Tag } from "@/types/preferences"
@@ -21,12 +22,7 @@ export async function readLocalTags(account: LocalAccount) {
     ])
     await requireActiveAccount(account)
     return {
-      tags: tags.sort(
-        (a, b) =>
-          a.position - b.position ||
-          a.normalizedName.localeCompare(b.normalizedName) ||
-          a.id.localeCompare(b.id)
-      ),
+      tags: tags.sort(compareRank),
       views: Object.fromEntries(
         views.map((view) => [view.itemId, view.primaryTagId])
       ),

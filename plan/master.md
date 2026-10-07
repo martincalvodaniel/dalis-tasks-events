@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; diálogos y navegación móvil corregidos en `07c`; siguiente candidata `07b1`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; diálogos y navegación móvil corregidos en `07c`; ranking y categorías atómicas entregados en `07b1a`; siguiente candidata `07b1b`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -129,3 +129,5 @@ Lote reanudado cerrado al completar `05a1`: shell offline, cierre/cuentas, barra
 `07a` agrupa las tareas del día por categorías personales, con “Sin categoría” cuando corresponde, y añade Atrasadas global en Mi espacio. Las pendientes anteriores a hoy mantienen fecha/estado; completarlas las retira de esa sección sin perder su historial en el calendario. Hoy y próximas contiene las fechas actuales/futuras; las completadas antiguas se consultan desde su día. El día de cuenta se revisa cada minuto con la app abierta y al recuperar foco/visibilidad; no hay cron, traslado de fecha ni nuevas intenciones por reclasificar. Un reloj simulado en iframe ficticio comprueba la transición de día con el servidor de aplicación detenido. Reordenación manual queda en `07b`.
 
 `07c` retira de Mi espacio el resumen verde redundante con Ajustes. Las etiquetas inferiores usan tamaños en rem según anchura (11px a 320px, 12px desde 360px, con fuente raíz normal); escritorio conserva 14px. Se reproduce y corrige el cierre accidental de diálogos durante el doble montaje de Strict Mode en desarrollo: eventos de cierre antiguos no desmontan un diálogo reabierto. Crear/editar/confirmar, Cancelar, Escape y persistencia tras recarga comprobados. No se desactiva Strict Mode. Lote cerrado después del commit de esta corrección; próxima candidata `07b1` con nuevas cuotas.
+
+`07b1a` entrega el motor de ranking y `tag.move` atómico: vecinos activos validados, compactación de posiciones agotadas, replay y rollback, sin tocar contenido compartido ni revisiones remotas. Lectores de categorías y grupos desempatan por ID; renombrar no reordena posiciones iguales. Los controles visibles dependen de completar también colocaciones de tareas (`07b1b`) antes de `07b2`.

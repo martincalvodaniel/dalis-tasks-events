@@ -9,7 +9,7 @@ export type OutboxEntry = z.infer<typeof outboxEntrySchema>
 export type RemoteShadow = z.infer<typeof remoteShadowSchema>
 export type LocalPreferenceCommand = Extract<
   SyncCommand,
-  { type: "tag.save" | "tag.delete" | "item-view.set" }
+  { type: "tag.save" | "tag.delete" | "tag.move" | "item-view.set" }
 >
 export type LocalItemCommand = Extract<
   SyncCommand,

@@ -2,9 +2,13 @@ import { describe, expect, test } from "bun:test"
 import {
   applyLocalItemViewCommand,
   applyLocalTagCommand,
+  applyLocalTagMoveCommand,
 } from "@/lib/local-db/preference-mutation"
+import { compareRank } from "@/lib/ordering/rank"
 import { taskSchema } from "@/schemas/calendar-item"
 import { outboxEntrySchema } from "@/schemas/local-sync"
+
+import { syncCommandSchema } from "@/schemas/sync"
 
 const userId = "preference-test-owner"
 const tagId = "2dbe2bcb-8c3c-4a6d-992b-88b7bf7d75f8"
@@ -182,5 +186,89 @@ describe("personal preference mutations", () => {
       outboxEntrySchema.safeParse({ ...viewEntry, entityKey: `item:${itemId}` })
         .success
     ).toBe(false)
+  })
+})
+
+describe("category movement", () => {
+  const second = { ...tag, id: itemId, position: 1024 }
+  const command = {
+    type: "tag.move" as const,
+    tagId: second.id,
+    beforeId: tag.id,
+    afterId: null,
+  }
+  test("changes rank without overwriting names, remote revisions or tombstones", () => {
+    const deleted = { ...second, id: crypto.randomUUID(), deletedAt: now }
+    const input = [tag, { ...second, revision: 7 }, deleted]
+    const snapshot = JSON.stringify(input)
+    const [moved] = applyLocalTagMoveCommand(input, command, userId, now)
+    expect(moved.id).toBe(second.id)
+    expect(moved.name).toBe(second.name)
+    expect(moved.color).toBe(second.color)
+    expect(moved.revision).toBe(7)
+    expect(moved.createdAt).toBe(second.createdAt)
+    expect([tag, moved].toSorted(compareRank)[0].id).toBe(second.id)
+    expect(JSON.stringify(input)).toBe(snapshot)
+    expect(() =>
+      applyLocalTagMoveCommand(
+        [tag, deleted],
+        { ...command, tagId: deleted.id },
+        userId,
+        now
+      )
+    ).toThrow()
+    expect(() =>
+      applyLocalTagMoveCommand(input, command, "other-user", now)
+    ).toThrow()
+  })
+  test("validates movement identities and preserves the personal outbox namespace", () => {
+    expect(syncCommandSchema.safeParse(command).success).toBe(true)
+    for (const invalid of [
+      { ...command, beforeId: second.id },
+      { ...command, afterId: tag.id },
+      { ...command, beforeId: "invalid" },
+      { ...command, position: 999 },
+    ])
+      expect(syncCommandSchema.safeParse(invalid).success).toBe(false)
+    const entry = {
+      userId,
+      entityKey: `tag:${second.id}`,
+      operation: {
+        operationId: crypto.randomUUID(),
+        protocolVersion: 1,
+        baseRevision: 7,
+        command,
+      },
+      sequence: 1,
+      dependencies: [],
+      state: "pending",
+      attempts: 0,
+      createdAt: now,
+      lease: null,
+    }
+    expect(outboxEntrySchema.safeParse(entry).success).toBe(true)
+    expect(
+      outboxEntrySchema.safeParse({ ...entry, entityKey: `item:${second.id}` })
+        .success
+    ).toBe(false)
+    expect(
+      outboxEntrySchema.safeParse({ ...entry, entityKey: `tag:${tag.id}` })
+        .success
+    ).toBe(false)
+  })
+  test("equal positions use stable IDs regardless of category names", () => {
+    const equal = [
+      { ...tag, name: "Z", normalizedName: "z" },
+      { ...second, name: "A", normalizedName: "a", position: tag.position },
+    ]
+    expect(equal.toSorted(compareRank).map((record) => record.id)).toEqual(
+      [tag.id, second.id].sort()
+    )
+    expect(
+      equal
+        .map((record) => ({ ...record, name: "Renamed" }))
+        .toSorted(compareRank)
+        .map((record) => record.id)
+    ).toEqual(equal.toSorted(compareRank).map((record) => record.id))
   })
 })

@@ -56,7 +56,11 @@ export const outboxEntrySchema = z
   )
   .refine((entry) => {
     const command = entry.operation.command
-    if (command.type === "tag.save" || command.type === "tag.delete")
+    if (
+      command.type === "tag.save" ||
+      command.type === "tag.delete" ||
+      command.type === "tag.move"
+    )
       return entry.entityKey === `tag:${command.tagId}`
     if (command.type === "item-view.set")
       return entry.entityKey === `item-view:${command.itemId}`

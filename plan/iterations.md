@@ -208,7 +208,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 07b — Reordenación persistente (dividida)
 
-- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b1`.
+- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b1b`.
 - `target_paths`: componentes/hooks de orden en `src/features/tasks/**` y `src/features/tags/**`, preferencias en `src/lib/local-db/**`.
 - Dependencias: `07a`.
 - Aceptación: mover grupos y tareas, cambiar categoría personal, ordenar atrasadas; alternativa de teclado a drag-and-drop; recarga conserva orden; operaciones por ID/intención, sin reemplazo global de arrays.
@@ -218,14 +218,23 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 - Estado: completada, exclusivamente documental. Entrada 29%/89%; `target_paths`: `plan/**`, dependencias `07a` y código de preferencias vigente.
 - Objetivo: concretar scopes, clave global de atrasadas, validaciones transaccionales y separación de persistencia/controles/arrastre. Aceptación: rutas y evidencias de cada corte, sin habilitar comandos no implementados. Validación: referencias locales, consistencia y `git diff --check`.
 
-#### 07b1 — Ranking, comandos y persistencia atómica
+#### 07b1a — Ranking y movimiento atómico de categorías
 
-- `target_paths`: schemas/types, ranking y preferencias en `lib/local-db/**`, pruebas y plan. Dependencia: `07b0`.
-- Aceptación: comandos nuevos ejecutables e idempotentes; vecinos/actor/scope validados; compactación y movimiento entre categorías atómicos; rollback, colas antiguas y recarga comprobados. No escribir posiciones directamente desde componentes.
+- Estado: completada, secuencial. Reanudación autorizada «Continua»; lectura automática 5h 100% / 7d 87%. Árbol limpio, rama `main`.
+- Objetivo: `tag.move` con vecinos activos, orden determinista por posición/ID, compactación local y una sola intención atómica e idempotente.
+- `target_paths`: `schemas/sync.ts`, `schemas/local-sync.ts`, `types/local-sync.ts`, ranking en `lib/ordering/**`, mutaciones/outbox de preferencias, lectores de categorías/grupos, fixture `test/browser/ordering.ts`, registro del servidor de fixtures y `plan/**`. Un responsable, sin paralelo.
+- Dependencias: `07b0`, `05b2`, `07a`; reutiliza índice `byPosition`, stores y versión actuales. Sin consultas MongoDB ni nuevos paquetes.
+- Aceptación: inicio/medio/final, vecinos obsoletos/borrados/self rechazados, desempate estable frente a renombrar, compactación acotada, revisión/contenido preservados, replay sin doble movimiento, colisión de UUID rechazada, particiones separadas, rollback tras fallo de cola y persistencia tras recarga. Colas anteriores legibles; no habilitar movimiento de tareas aquí.
+- Validación: tests de ranking/contrato, IndexedDB real (concurrencia, rollback, recarga), tipos/lint/build, diff y referencias. Tras commit consultar ambas ventanas automáticamente durante la continuación autorizada; conservar reserva del 20%.
+
+#### 07b1b — Movimiento atómico de tareas y colocaciones
+
+- `target_paths`: schemas/types de movimientos, preferencias/colocaciones en `lib/local-db/**`, pruebas y plan. Dependencia: `07b1a`.
+- Aceptación: tareas simples por día y atrasadas, vecinos/actor/scope validados; categoría+colocación/compactación en una transacción; replay, rollback, legado y recarga comprobados. Evaluar colocaciones existentes antes de escribir. No escribir posiciones desde componentes.
 
 #### 07b2 — Controles accesibles y orden visible
 
-- `target_paths`: servicios/hooks/lectores y controles de tareas/categorías, fixture y plan. Dependencia: `07b1`.
+- `target_paths`: servicios/hooks/lectores y controles de tareas/categorías, fixture y plan. Dependencia: `07b1b`.
 - Aceptación: mover grupos/tareas por botones y teclado, cambiar grupo, conservar orden del día y atrasadas al recargar offline; confirmación real de guardado, foco y errores españoles.
 
 #### 07b3 — Arrastre con el mismo comando
@@ -236,7 +245,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 ## 08 — Eventos y citas
 
 - `target_paths`: `src/features/events/**`, selectores de calendario, reglas de zonas en `src/lib/calendar/**`, schemas de evento.
-- Dependencias: `07b1–07b3`.
+- Dependencias: `07b1a–07b3`.
 - Aceptación: activar “Evento o cita”; hora, categoría, descripción, duración opcional y día completo; orden cronológico; evento que cruza medianoche visible en los días correctos; editar/borrar offline. Validar horas ambiguas/inexistentes y duración antes de guardar.
 - Corte: si conversión de zona requiere aprobación de dependencia, cerrar primero su análisis; no aproximar horas silenciosamente.
 

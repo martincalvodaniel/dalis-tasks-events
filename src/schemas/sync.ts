@@ -42,6 +42,20 @@ export const syncCommandSchema = z.discriminatedUnion("type", [
     input: tagDraftSchema,
   }),
   z.strictObject({ type: z.literal("tag.delete"), tagId: entityIdSchema }),
+  z
+    .strictObject({
+      type: z.literal("tag.move"),
+      tagId: entityIdSchema,
+      beforeId: entityIdSchema.nullable(),
+      afterId: entityIdSchema.nullable(),
+    })
+    .refine(
+      (command) =>
+        command.beforeId !== command.tagId &&
+        command.afterId !== command.tagId &&
+        (command.beforeId === null || command.beforeId !== command.afterId),
+      "Movement neighbors must have distinct identities"
+    ),
   z.strictObject({
     type: z.literal("item-view.set"),
     itemId: entityIdSchema,

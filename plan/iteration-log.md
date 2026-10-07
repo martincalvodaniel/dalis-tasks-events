@@ -256,6 +256,15 @@
 - Limpieza: partición/control ficticios retirados, pestañas cerradas, viewport restablecido y servidor aislado detenido; servidor del usuario conservado.
 - Commit: `fix(ui): keep development dialogs open and compact mobile navigation`. Cierre definitivo del lote; lectura posterior al commit comunicada al usuario. Próxima candidata `07b1` con ambos presupuestos nuevos.
 
+## 07b1a — Ranking y movimiento atómico de categorías
+
+- Rama `main`, secuencial; entrada automática **5h 100%; 7d 87%** tras solicitud «Continua». Se reanuda autorización de continuidad con reserva/consulta entre commits. División de `07b1` decidida antes de implementar: categorías primero, tareas después.
+- Objetivo/`target_paths`: ranking, schemas/types de comando, motor/outbox de preferencias, lectores de categorías/grupos, fixture/servidor de pruebas y plan; dependencias `07b0`, `05b2`, `07a`. Sin nueva pantalla, paquetes, migración ni consultas MongoDB. Reutiliza `byPosition` y transacción existente.
+- Resultado: `tag.move` transmite IDs de vecinos activos/adyacentes y rechaza vecinos propios, borrados o desactualizados. Posición intermedia o compactación determinista de la lista activa dentro de la misma transacción. Nombre/color, revisión remota, tarea y categoría asignada conservados. Dato+cola+contador+cola personal atómicos; replay previo a movimiento/compactación. Un solo comando por intención; claves personales y comandos antiguos compatibles. Lectores usan posición/ID para mantener orden al renombrar.
+- Evidencia IndexedDB real: inicio/medio/final, mismo UUID sin duplicar, payload distinto rechazado, editor anterior rechazado, otra cuenta aislada, dos conexiones incompatibles confirman solo una intención. Posiciones consecutivas de punto flotante agotan intervalo; fallo inducido de índice de secuencia revierte snapshot de categorías/items/views/outbox/metadatos; recuperación compacta y guarda secuencia 12, renombrado genera 13. Nueva carga conserva orden, tombstone, tarea en curso y trece entradas consecutivas. [Captura de cinco checks](evidence/07b1a-browser.png). Dos rondas y particiones ficticias limpiadas, pestañas y servidor detenidos.
+- Validación: 53 tests aprobados (7 nuevos de ranking/contrato/invariantes), 7 auth opt-in sin repetir, cero fallos; lint limpio, tipos y build aprobados. Diff/referencias revisados. Los nuevos botones aún corresponden a `07b2`.
+- Commit: `feat(ordering): persist atomic category moves with bounded ranks`. Próxima candidata `07b1b`, con cuota automática nueva y sin paralelo.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

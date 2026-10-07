@@ -1,7 +1,12 @@
 import { resolve } from "node:path"
 
 const suite = process.argv[2] ?? "local-db"
-if (suite !== "local-db" && suite !== "outbox" && suite !== "preferences")
+if (
+  suite !== "local-db" &&
+  suite !== "outbox" &&
+  suite !== "preferences" &&
+  suite !== "ordering"
+)
   throw new Error("Unknown browser test suite")
 const entrypoint = resolve(`test/browser/${suite}.ts`)
 const build = await Bun.build({ entrypoints: [entrypoint], target: "browser" })

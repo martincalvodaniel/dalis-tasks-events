@@ -38,8 +38,12 @@ Reutilizar `byPosition` y `byDateAndScope`. Evaluar índices locales si aparece 
 | Corte | Alcance y rutas | Evidencia de cierre |
 | --- | --- | --- |
 | `07b0` | Este diseño y reparto en `plan/**`; sin cambios de código. | Referencias/consistencia/diff y commit documental. |
-| `07b1` | `schemas/**`, `types/**`, helpers de ranking y `lib/local-db/**`, pruebas/plan. Comandos y persistencia unidos para no aceptar movimientos sin ejecutor. | Mover inicio/medio/final, mismo UUID, vecinos obsoletos, cuentas aisladas, destino borrado, posición agotada, rollback tras fallo de outbox y lectura tras recarga en IndexedDB real. Compatibilidad de registros previos. |
+| `07b1a / 07b1b` | Ranking y categorías (`07b1a`); colocaciones y tareas (`07b1b`). `schemas/**`, `types/**`, `lib/ordering/**`, `lib/local-db/**`, lectores, pruebas/plan. Cada comando se añade junto a su ejecutor. | Mover inicio/medio/final, mismo UUID, vecinos obsoletos, cuentas aisladas, destino borrado, posición agotada, rollback tras fallo de outbox y lectura tras recarga en IndexedDB real. Compatibilidad de registros previos. |
 | `07b2` | Lecturas/selectores y controles de grupos/tareas en `features/tasks/**` y `features/tags/**`; fixtures/plan. | Botones Arriba/Abajo y elección de categoría con teclado/móvil; orden real del día y atrasadas, recarga sin servidor, un solo commit por intención, errores españoles y foco conservado. Actualizar ambas barras si se añade una pantalla. |
 | `07b3` | Arrastre táctil/ratón en las filas existentes y sus pruebas; sin sustituir botones. | Cancelar arrastre no escribe; soltar invoca el mismo comando una vez; funciona con scroll móvil y alternativa de teclado. Sin dependencias nuevas. |
 
 Cada corte requiere su commit y control de ambas ventanas. `08` comienza después de completar todos los cortes de código. Presupuesto y disponibilidad de pruebas pueden dividirlos más antes de editar; no separar la aceptación de un comando de su ejecución atómica.
+
+## Corte al reanudar el 7 de octubre
+
+Se divide `07b1` por dominio: categorías primero, tareas después. La primera entrega añade `tag.move` y ranking reutilizable, conserva registros/colas anteriores y cambia desempates de lectores a posición/ID. La segunda evaluará colocaciones previas antes de habilitar escrituras de tareas. `07b2` depende de ambas y conecta los controles; no hay un nuevo botón en la primera entrega de infraestructura.

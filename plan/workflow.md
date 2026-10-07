@@ -96,3 +96,7 @@ Se completa únicamente `07b0`, diseño documental de movimientos/ranking y cort
 ### Cierre tras corrección intercalada `07c`
 
 La lectura posterior a `07b0` fue **21%/88% restantes**, menor que al abrir su diseño. El usuario intercala explícitamente la corrección pequeña de home/nav/`+`; se completa y valida antes del cierre. No se empieza reordenación, eventos ni otra entrega. La corrección termina en commit propio con lectura automática final comunicada al usuario. Esta priorización consume margen de cierre y no rebaja permanentemente la reserva. Al reanudar, solicitar ambos porcentajes nuevos y elegir el corte `07b1` o dividirlo antes de implementar.
+
+### Reanudación solicitada tras `07c`
+
+El usuario pide «Continua». Se retoma la autorización previa de avanzar mientras haya margen, con commits y lecturas automáticas individuales, sin cambiar la reserva del 20%. Lectura inicial de la cuenta: **5h 100%; 7d 87%**; nueva ventana corta, sin inferir consumo a través del reinicio. Se divide `07b1` en categorías (`07b1a`) y colocaciones de tareas (`07b1b`), cada una con comando y ejecutor juntos. Ninguna entrega habilita botones sobre mutaciones incompletas.

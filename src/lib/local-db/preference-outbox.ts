@@ -3,6 +3,7 @@
 import {
   applyLocalItemViewCommand,
   applyLocalTagCommand,
+  applyLocalTagMoveCommand,
 } from "@/lib/local-db/preference-mutation"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
@@ -27,6 +28,7 @@ export function commitLocalPreferenceCommand(
   if (
     parsed.type !== "tag.save" &&
     parsed.type !== "tag.delete" &&
+    parsed.type !== "tag.move" &&
     parsed.type !== "item-view.set"
   )
     return Promise.reject(
@@ -140,7 +142,14 @@ export function commitLocalPreferenceCommand(
                       userId,
                       timestamp
                     )
-                  : applyLocalTagCommand(records, command, userId, timestamp)
+                  : command.type === "tag.move"
+                    ? applyLocalTagMoveCommand(
+                        records,
+                        command,
+                        userId,
+                        timestamp
+                      )
+                    : applyLocalTagCommand(records, command, userId, timestamp)
               const candidates = [
                 tailEntry,
                 previous.result ? parseEntry(previous.result.value) : null,
@@ -179,6 +188,8 @@ export function commitLocalPreferenceCommand(
                 lease: null,
               })
               if (command.type === "item-view.set") views.put(record)
+              else if (Array.isArray(record))
+                for (const tag of record) tags.put(tag)
               else tags.put(record)
               outbox.add(entry)
               metadata.put(

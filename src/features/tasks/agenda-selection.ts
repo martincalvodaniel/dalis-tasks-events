@@ -1,4 +1,5 @@
 import { isTaskOverdue } from "@/lib/calendar/overdue"
+import { compareRank } from "@/lib/ordering/rank"
 import { civilDateSchema } from "@/schemas/primitives"
 import type { Task } from "@/types/calendar-item"
 import type { Tag } from "@/types/preferences"
@@ -41,12 +42,7 @@ export function groupAgendaTasks(
     return [{ id: "unavailable", title: "Tareas", tasks: [...tasks] }]
   const tags = categories.tags
     .filter((tag) => !tag.deletedAt)
-    .toSorted(
-      (left, right) =>
-        left.position - right.position ||
-        left.normalizedName.localeCompare(right.normalizedName) ||
-        left.id.localeCompare(right.id)
-    )
+    .toSorted(compareRank)
   const groups = new Map<string, AgendaGroup>(
     tags.map((tag) => [tag.id, { id: tag.id, title: tag.name, tasks: [] }])
   )
