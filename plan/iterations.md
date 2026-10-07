@@ -376,6 +376,14 @@ Primeros cortes revisados:11a1a configura/valida replica set de prueba aislado y
 
 - Resultado: runner propio, guard de env y pruebas reales pasan; dos tests/seis aserciones, recuperación después de rollback y lecturas externas. SIGTERM exit1/limpieza comprobados y listado de contenedores propios vacío. Lint220 archivos/tipos/build29recursos aprobados; suite122pass/11opt-in skip/0fallos. Siguiente11a1b1 repositorio simple/CAS con índices de producto, antes de subir operaciones.
 
+### 11a1b1 — Repositorio remoto propio y CAS
+
+- Entrada92%/57%, secuencial/int. Objetivo: persistir registros CalendarItem validados enitems, con actor vinculado al repositorio y escrituras por revisión; todavía sin ejecutor de comandos/endpoint.
+- `target_paths`: `src/lib/db/{collections,ensure-indexes,ensure-indexes.test,remote-items,remote-items.integration.test}.ts`, `src/schemas/remote-items.ts`, runner yplan. Depende de11a1a2/schema existente; guía Next data-security revisada. Driver y tipos físicos soloDB; singleton/getCollection.
+- Aceptación: IDs únicos globales, insert revision1/no borrado; CAS base→base+1 con owner/id/kind/createdAt activo, tombstones conservados y sin resurrección. Lectura/página propias (incluye tombstones), cursor_ID ylimit1–100 validados; índiceownerId+_id por consulta real. Otra cuenta/registro corrupto rechazado sin datos ajenos. Dos editores de misma revisión solo uno modifica, duplicatecreate no sobrescribe; paginación y aislamiento enMongo real. Source/tests/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas. Recibos/journal todavía posteriores.
+
+- Resultado: repo server-only yDTO CalendarItem propios, CAS/duplicados/tombstones/paginación/corrupción pasan enMongoDB8.2.11 propio. Cuatro tests nuevos; runner6pass/33aserciones, normal123pass/17opt-in skip/0fallos, lint223files/tipos/build29recursos pasan. ÍndiceownerId+_id registrado, sin ad hoc. Siguiente11a1b2 reductor de comandos simples compartido, después11b1 recibo/journal transaccionales; sin transporte activo todavía.
+
 ### 11b — Acción validada e idempotencia
 
 - `target_paths`: `src/features/sync/actions.ts`, validadores de sync, recibos/transacciones en DB, pruebas de autorización.

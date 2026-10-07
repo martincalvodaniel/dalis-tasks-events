@@ -6,6 +6,7 @@ import { getDatabase } from "@/lib/db/client"
 
 // Register collection names here alongside the feature that introduces them.
 export const COLLECTION_NAMES = {
+  items: "items",
   authUser: AUTH_MODEL_NAMES.user,
   authAccount: AUTH_MODEL_NAMES.account,
   authSession: AUTH_MODEL_NAMES.session,

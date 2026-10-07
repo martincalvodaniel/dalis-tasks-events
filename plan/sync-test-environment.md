@@ -17,6 +17,8 @@ Ejecución reproducible: `bun run test:sync-db`, [runner](../scripts/sync-db-tes
 
 Probe reutilizaauthVerification solo en la DB de prueba; no nueva colección/index especulativo. Dos tests/seis aserciones verifican visibilidad fuera de sesión, fallo de_id duplicado que aborta la primera escritura, dato previo intacto y transacción posterior válida. Suite normal omite estos tests; runner aislado los ejecuta. CAS/repositorios/recibos/journal aún pendientes. Documentación primaria: [transacciones Node](https://www.mongodb.com/docs/drivers/node/current/crud/transactions/), [replica set](https://www.mongodb.com/docs/manual/tutorial/deploy-replica-set/).
 
+Avance11a1b1: runner incluye [repositorio propio](../src/lib/db/remote-items.ts) ycuatro tests deCAS/owner/tombstone/paginación/corrupción. Colecciónitems eíndiceownerId+_id registrados centralmente, unicidadglobalpor_id; no driver fueraDB. Recibos/journal/servicio todavía pendientes. Total6tests/33aserciones reales.
+
 Rutas previstas: configuración tipada en `src/config/**`, soporte de test y fixture de integración en `src/lib/db/**`, scripts TypeScript de ejecución/limpieza bajo `scripts/**` y este plan. Respetar [reglas DB](../src/lib/db/AGENTS.md): driver solo en la capa DB, servidor aislado del cliente, conexión singleton y registro central de colecciones/índices.
 
 1. Comprobar runtime Docker existente antes de elegir una imagen compatible y fijar versión. Preparar instancia de test propia con replica set de un nodo, puerto loopback y almacenamiento temporal; registrar identificador único de la ejecución. No usar volumen ni contenedor del usuario.

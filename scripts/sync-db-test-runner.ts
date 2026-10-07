@@ -166,6 +166,7 @@ try {
       "--preload",
       "./test/setup.ts",
       "src/lib/db/transactions.integration.test.ts",
+      "src/lib/db/remote-items.integration.test.ts",
     ],
     {
       env: syncTestProcessEnvironment(config),

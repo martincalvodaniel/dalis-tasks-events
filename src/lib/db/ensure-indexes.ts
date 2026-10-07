@@ -21,6 +21,11 @@ export interface IndexSpec {
 // collection or query pattern. Do not add speculative indexes.
 export const INDEX_SPECS: readonly IndexSpec[] = [
   {
+    collection: "items",
+    keys: { ownerId: 1, _id: 1 },
+    options: { name: "items_owner_id_idx" },
+  },
+  {
     collection: AUTH_MODEL_NAMES.user,
     keys: { email: 1 },
     options: { name: "users_email_uidx", unique: true },

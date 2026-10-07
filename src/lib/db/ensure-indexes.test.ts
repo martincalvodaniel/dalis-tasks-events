@@ -13,6 +13,19 @@ import {
 } from "./ensure-indexes"
 
 describe("MongoDB index specifications", () => {
+  test("supports bounded owner item pagination without changing global identity uniqueness", () => {
+    expect(INDEX_SPECS).toContainEqual({
+      collection: COLLECTION_NAMES.items,
+      keys: { ownerId: 1, _id: 1 },
+      options: { name: "items_owner_id_idx" },
+    })
+    expect(
+      INDEX_SPECS.filter(
+        (spec) =>
+          spec.collection === COLLECTION_NAMES.items && spec.options.unique
+      )
+    ).toHaveLength(0)
+  })
   test("the application index registry is valid", () => {
     expect(() => validateIndexSpecs(INDEX_SPECS)).not.toThrow()
   })
