@@ -286,7 +286,23 @@ async function runChecks() {
             JSON.stringify(retry.operation) ===
               JSON.stringify(secondSend.operation)
           )
-          secondSend = retry
+          assert(
+            (await outbox.release(
+              retry.operation.operationId,
+              crypto.randomUUID()
+            )) === false
+          )
+          assert(
+            (await outbox.release(retry.operation.operationId, senderId)) ===
+              true
+          )
+          secondSend = await outbox.claim(retry.operation.operationId, senderId)
+          assert(
+            secondSend &&
+              secondSend.attempts === 3 &&
+              JSON.stringify(secondSend.operation) ===
+                JSON.stringify(retry.operation)
+          )
         }
       )
       await check(

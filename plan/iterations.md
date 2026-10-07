@@ -721,3 +721,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación servicio: simular sesiónB ypayloadA (cero escrituras), match ycamposforjados; suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas. SinconsultaDBnueva/índices/deps/seguridadampliada.
 
 - Resultado12b2a1: expectedUserId estrictamente validado ycomparado conactor de sesión antes deejecutor; account_changed noescribe. SesiónB/payloadA ysinafirmación probados, suite138pass/30opt-in skip, lint243files/tipos/build29recursos pasan. Candidata12b2a2 coordinador; ningúnconsumidorUI antiguo.
+
+### 12b2a2 — Pasada acotada de sincronización y liberación de lease
+
+- Objetivo previo: coordinar identidad/pull/claim/push/ACK secuencialmente mediante puertos tipados, con límites por pasada, coalescing ystop. Entrada60%/52%, int/secuencial/reserva10%; dependencias12b2a1/12b1c. Aún sin activar UI/redautomática.
+- `target_paths`: `src/features/sync/{coordinator,coordinator.test}.ts`, `src/lib/sync/item-command-support.ts`, `src/lib/local-db/outbox.ts`, `test/browser/sync-results.ts`, `plan/{master,iterations,iteration-log,offline-and-sync}.md`.
+- Aceptación: cuenta esperada antesdeclaim ycadaefecto; pull hasta checkpoint antesdepush, unaoperación porenvío yresultado exacto. Releer cola trasACK para basesdependientes, lease entrepestañas yrelease solo dueño; pérdida respuesta reintenta mismo payload. Comandos sin soporte nuncaenviar/ACK; conflicto/rechazo no bloquea entidades independientes. Pasada acotada ycoalesced, stop evita efectos posteriores, sin falsas garantíastodas lasentidades convergen.
+- Validación puertoscontrolados: cambio de cuenta/noenvío, dependency/orden/bases, presupuesto de páginas/ops, coalescing/stop, fallo/liberación/payload; IndexedDBfixture verifica release propietario/reclaimsinmutación. Suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas. Adaptador de transporte ydosdispositivos reales/simulados después, antesdehabilitarUI.
+
+- Resultado12b2a2: coordinador porpuertos/identidad/guardias/budgets4páginas+5envíos, rereaddependientes trasACK/coalescing/stop, release exclusivodueño ypayload congelado. Sietetests nuevos, fixtureACK+release+recarga pasan. Normal145pass/30opt-in skip, lint246files/tipos/build29recursos pasan. Próxima12b2a3 adaptador ydosdispositivos; UIaúnnoactivada.

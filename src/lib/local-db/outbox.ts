@@ -354,6 +354,39 @@ export class LocalOutbox {
     )
   }
 
+  release(operationId: string, ownerId: string): Promise<boolean> {
+    const id = entityIdSchema.parse(operationId)
+    const owner = entityIdSchema.parse(ownerId)
+    return runLocalTransaction(
+      this.database,
+      ["outbox"],
+      "readwrite",
+      (context) => {
+        const store = context.transaction.objectStore("outbox")
+        const request = store.get(id)
+        request.onsuccess = () => {
+          try {
+            if (request.result === undefined) {
+              context.setResult(false)
+              return
+            }
+            const entry = this.parseEntry(request.result)
+            if (entry.state !== "sending" || entry.lease?.ownerId !== owner) {
+              context.setResult(false)
+              return
+            }
+            store.put(
+              this.parseEntry({ ...entry, state: "pending", lease: null })
+            )
+            context.setResult(true)
+          } catch (error) {
+            context.fail(error)
+          }
+        }
+      }
+    )
+  }
+
   recoverExpiredSends(now = new Date()): Promise<number> {
     const timestamp = timestampSchema.parse(now.toISOString())
     return runLocalTransaction(

@@ -261,3 +261,9 @@ SyncMetadata pull-cursor conserva after ythrough mientras quede página. Aplicac
 ### Cuenta esperada12b2a1
 
 Consultar identidad antesdepush no basta si sesión cambia entrepeticiones. Por ello subida exige expectedUserId, validado conZod ycomparado conactor derivado de sesiónantes demutar. Expected es solo afirmación decoherencia; actor ypermisos continúan exclusivos del servidor. Account_changed/unauthorized paran envíos ypreservan cola sinACK. Estecontrato se preparó antesdeactivar consumidores, sincompatibilidadUIprevia que mantener.
+
+### Pasadas12b2a2
+
+Coordinador limita una pasada a4páginas antesdepush y5operaciones individuales; devuelve more_work para continuar acotadamente. Consultar identidad, comprobar cuentaactiva antesdeefectos, recuperar leases expirados yterminar checkpoint precede subir. Releer cola entreACK prepara revisión dependiente, no construirunbatchconbasesviejas. Commandsupport filtra simples ynoenvía preferencias/recurrencias/cumpleaños.
+
+Runcoalesced evita pasadas superpuestas delmismocoordinador; claim deIndexedDB impide enviar mismaintención desde dospestañas. Release verificado porowner devuelve sendingapending sin modificar operation/attempts, preservando replay después derespuesta perdida. Stop noaplica respuestas tardías; no cancela uncommit yaaceptadoporelservidor, cuyo recibo resolverá futuroreintento. Settled solo significa pasada terminada, nunca que todoelespacio esté sincronizado; UI/transportadapter pendientes.
