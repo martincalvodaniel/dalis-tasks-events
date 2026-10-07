@@ -77,6 +77,7 @@ Ejemplo: una tarea prevista para el 6 de octubre que esté `in_progress` aparece
 - Eventos de día completo guardan inicio inclusivo y fin exclusivo como fechas civiles. Un evento que cruza medianoche aparece en ambos días pertinentes.
 - “Hoy” y atrasadas usan la zona de la cuenta; mostrar la zona de un evento si difiere. Un viaje no cambia silenciosamente la programación.
 - En horas inexistentes o ambiguas por cambio horario, validar y pedir una elección explícita en el formulario; no desplazar silenciosamente una cita. Implementar y probar la conversión con el runtime disponible; una biblioteca adicional requiere aprobación.
+- Corte de eventos MVP (`08a`): como el contrato actual no almacena un offset elegido, las horas repetidas o inexistentes se rechazan y se pide elegir otra hora válida. No se modifica un evento almacenado para normalizarlo. Ofrecer las dos apariciones de una hora repetida requiere primero ampliar el contrato de programación en una entrega separada; no se simula esa elección con un UTC derivado que luego se perdería.
 - Nombres de días/meses y horas mediante `Intl`; no construir strings de fecha ambiguos para persistencia.
 
 ## Repetición

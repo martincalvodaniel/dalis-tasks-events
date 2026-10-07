@@ -9,6 +9,12 @@ import {
   prepareLocalAccount,
 } from "@/features/workspace/local-account"
 import { addCivilDays, todayInTimeZone } from "@/lib/calendar/civil-date"
+import { resolveEventSchedule } from "@/lib/calendar/event-time"
+import {
+  possibleZonedInstants,
+  resolveZonedInstant,
+  ZonedTimeError,
+} from "@/lib/calendar/zoned-time"
 import {
   ACCOUNT_CONTROL_DATABASE,
   completeRemoteLogout,
@@ -63,6 +69,77 @@ async function requestStatus() {
 }
 async function run() {
   const mode = new URLSearchParams(location.search).get("mode")
+  if (mode === "event-time") {
+    await check(
+      "Zona explícita, offsets fraccionarios y años extremos",
+      async () => {
+        for (const [local, zone, expected] of [
+          ["2026-10-07T00:00", "Asia/Kathmandu", "2026-10-06T18:15:00.000Z"],
+          ["0001-01-01T00:00", "UTC", "0001-01-01T00:00:00.000Z"],
+          ["0099-01-01T12:34", "UTC", "0099-01-01T12:34:00.000Z"],
+          ["9999-12-31T23:59", "UTC", "9999-12-31T23:59:00.000Z"],
+          ["1890-01-01T12:00", "Europe/Paris", "1890-01-01T11:50:39.000Z"],
+        ])
+          assert(
+            new Date(resolveZonedInstant(local, zone)).toISOString() ===
+              expected
+          )
+      }
+    )
+    await check(
+      "Saltos, repeticiones y duración real sin elección silenciosa",
+      async () => {
+        for (const [local, zone] of [
+          ["2026-03-29T02:30", "Europe/Madrid"],
+          ["2026-10-04T02:15", "Australia/Lord_Howe"],
+          ["2011-12-30T12:00", "Pacific/Apia"],
+        ]) {
+          assert(possibleZonedInstants(local, zone).length === 0)
+          let reason: string | null = null
+          try {
+            resolveZonedInstant(local, zone)
+          } catch (error) {
+            assert(error instanceof ZonedTimeError)
+            reason = error.reason
+          }
+          assert(reason === "nonexistent")
+        }
+        assert(
+          possibleZonedInstants("2026-10-25T02:30", "Europe/Madrid").length ===
+            2
+        )
+        assert(
+          possibleZonedInstants("2026-04-05T01:45", "Australia/Lord_Howe")
+            .length === 2
+        )
+        const schedule = resolveEventSchedule({
+          mode: "timed",
+          localStart: "2026-03-29T01:30",
+          localEnd: "2026-03-29T03:30",
+          timeZone: "Europe/Madrid",
+        })
+        assert(
+          schedule.mode === "timed" && schedule.durationMilliseconds === 3600000
+        )
+        const point = resolveEventSchedule({
+          mode: "timed",
+          localStart: "2026-10-07T12:00",
+          localEnd: null,
+          timeZone: "UTC",
+        })
+        assert(
+          point.mode === "timed" &&
+            point.end === null &&
+            point.durationMilliseconds === null
+        )
+      }
+    )
+    const status = document.getElementById("status")
+    if (status)
+      status.textContent =
+        "Conversión temporal comprobada en este navegador, sin cuenta ni escrituras."
+    return
+  }
   if (mode === "drag-touch") {
     const actions = document.getElementById("actions")
     assert(actions)

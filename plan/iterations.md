@@ -287,6 +287,25 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 - Aceptación: activar “Evento o cita”; hora, categoría, descripción, duración opcional y día completo; orden cronológico; evento que cruza medianoche visible en los días correctos; editar/borrar offline. Validar horas ambiguas/inexistentes y duración antes de guardar.
 - Corte: si conversión de zona requiere aprobación de dependencia, cerrar primero su análisis; no aproximar horas silenciosamente.
 
+### 08a — Conversión de hora/zona y validación temporal
+
+- Estado: completa, secuencial; entrada automática 5h 48% / 7d 79%, tras `0d544c2`. Cuota recibida tras demora; no se editó código antes de recibirla.
+- `target_paths`: `lib/calendar/zoned-time.ts`, `event-time.ts`, tests/fixture de runtime y plan. Dependencias `07b3b`, schemas de `02a`. Sin UI nueva, dependencia, store, índice o cambio de formato persistido.
+- Objetivo: convertir fecha/hora local con Intl y comprobar candidatos UTC mediante vuelta exacta; distinguir instante único, hora repetida y hora inexistente. Validar inicio/fin y duración real antes del futuro guardado. Todo el día conserva fechas civiles/final exclusivo; fin opcional no inventa duración.
+- Política MVP: no hay campo persistido que distinga las dos apariciones de una hora repetida. Rechazar esa programación y pedir otra hora válida explícitamente; no elegir antes/después silenciosamente. Una futura elección de offset exige contrato separado compatible. Mantener schema almacenado para no invalidar datos antiguos; la validación temporal se aplicará al input de producto en `08b`.
+- Validación: UTC, Madrid/NY, transición de media hora, salto de día, offsets fraccionarios/históricos, años extremos, medianoche/duración real y casos inválidos; runtime Bun y navegador aislado, lint/tipos/tests/build/referencias/diff.
+- Resultado: 67 tests pasan (cuatro nuevos), casos temporales repetidos con host TZ Honolulu y en navegador; sin normalización, escrituras o cuenta. Lint/tipos/build aprobados, [evidencia](evidence/08a-browser.png).
+
+### 08b — Persistencia atómica y lectura de eventos
+
+- `target_paths`: `features/events/local-events.ts`, validación de input temporal compartida, mutación/outbox existente y fixture/tests, plan. Dependencia `08a`.
+- Objetivo: crear/editar/borrar eventos simples, rechazar horas inválidas antes de guardar, mismo UUID y CAS conservados; lector separado de tareas, datos/cola atómicos. No activar UI antes de completar motor.
+
+### 08c1 / 08c2 — Crear/ver, después editar/borrar eventos
+
+- `target_paths`: composer/list/card de eventos, creación compartida del workspace, selectores de calendario y plan. Dependencias `08b`; separar creación/listado de edición/borrado antes de empezar según cuota.
+- Aceptación conjunta: selector + con Evento o cita activo, día completo/hora/duración/descripcion/categoría, cronología y días correctos, UI española y navegación responsive, offline/recarga/una intención, errores horarios explícitos y foco.
+
 ## 09 — Series y ocurrencias
 
 ### 09a — Motor de repetición
