@@ -349,6 +349,15 @@ Prioridad revisada el7oct: adelantar sincronización del alcance local ya operat
 
 Primeros cortes revisados:11a1a configura/valida replica set de prueba aislado y comprueba commit/rollback sin acceder a datos reales;11a1b introduce repositorio de elementos simples con CAS y registro central de índices, conflictos/concurrencia/borrados comprobados contra esa DB. Revisar estado de herramientas existentes al abrir, no instalar servicios ni cambiar configuración de hosting por iniciativa propia. Después11b1 integra recibo+mutación+journal atómicos, autorización y replay, antes de exponer acción de subida. Preferencias pendientes deben viajar antes de anunciar convergencia completa del espacio.
 
+### 11a0 — Entorno y matriz de pruebas de sincronización
+
+- Objetivo documental: dejar11a1a listo para implementación con aislamiento, ejecución y pruebas concretas. Entrada14%/59%, secuencial enint; usuario pide otra entrega mínima. No configurar ni arrancar servicios en este corte.
+- `target_paths`: `plan/{sync-test-environment,master,iterations,iteration-log,offline-and-sync}.md`. Dependencias:11b0, singleton/índices y fixture de auth existentes. Herramientas locales inspeccionadas sin credenciales/conexión DB.
+- Aceptación: distinguir tooling disponible de runtime/replica set no comprobados; definir guards de configuración/limpieza, lifecycle y casos verificables de atomicidad/CAS/replay/journal. Separar11a1a de11a1b/11b1 sin afirmar garantías remotas ni añadir índices especulativos.
+- Validación: referencias/consistencia/diff, commit/push int y ambas cuotas. Código sin cambios; no requiere repetir build para documentación.
+
+- Resultado: [entorno/matriz](sync-test-environment.md) documentados con guards, lifecycle y12 escenarios por cortes. Docker CLI29.8.2 confirmado, runtime/replica set pendientes; no se inició servicio ni se conectó a una DB. Referencias/diff/consistencia aprobados. Siguiente11a1a implementa runner y prueba commit/rollback reales.
+
 ### 11b — Acción validada e idempotencia
 
 - `target_paths`: `src/features/sync/actions.ts`, validadores de sync, recibos/transacciones en DB, pruebas de autorización.

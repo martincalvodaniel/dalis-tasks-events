@@ -145,6 +145,8 @@ Cada índice nuevo entra en `src/lib/db/ensure-indexes.ts` con nombre estable y 
 
 ## Validación de arquitectura
 
+[Entorno y matriz de sync](sync-test-environment.md), preparados en11a0, concretan el siguiente corte11a1a: configuración local opt-in, replica set de prueba propio y commit/rollback real antes de repositorios. Docker CLI disponible no confirma runtime ni soporte transaccional. CAS, recibos y journal se verifican después en11a1b/11b1; no presentar tests omitidos como sincronización probada.
+
 Pruebas de reglas puras con Bun; contratos/schema y repositorios con pruebas de autorización; navegador real para IndexedDB, worker, múltiples pestañas y recarga offline; MongoDB de prueba compatible para transacciones, journal e idempotencia. Si no hay entorno de integración, prepararlo en su entrega sin tocar datos reales; los mocks no bastan para declarar probada la convergencia.
 
 Ningún cliente importa auth servidor, MongoDB o PDF. Revisar esto con tipos, lint y build en cada iteración de código, además de la [definición de terminado](../AGENTS.md).
