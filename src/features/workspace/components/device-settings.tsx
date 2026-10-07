@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react"
 import { canPrepareOfflineShell } from "@/config/pwa"
+import { DeviceSyncSettings } from "@/features/sync/components/device-sync-settings"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import {
   closeLocalAccount,
@@ -167,9 +168,9 @@ export function DeviceSettings() {
           {displayedNotice}
         </p>
       ) : null}
-      <p className="mt-6 text-sm text-zinc-500 dark:text-zinc-400">
-        La sincronización con otros dispositivos todavía no está disponible.
-      </p>
+      {account ? (
+        <DeviceSyncSettings key={account.epoch} account={account} />
+      ) : null}
     </div>
   )
 }

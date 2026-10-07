@@ -281,3 +281,7 @@ Dos orígenes de navegador conectados aMongo aislado ejercitan transporte/runtim
 ### Estado local12b2b1
 
 LocalSyncStore ofrece resumen en snapshotreadonly deitems/outbox. Distingue pendientes enviables, esperando dependencia, bloqueados y sin soporte; además enviando, conflictos yrechazos. ACK no cuentan comopendientes. Grafo iterativo evita recursión yno interpreta ciclos/dependenciasausentes comoenviables. Este resumen será fuente de UI; settled delcoordinador indica solo pasada acabada, nunca «todo sincronizado».
+
+### Ejecución manual12b2b2
+
+Ajustes ofrece «Sincronizar ahora» para tareas/eventos propios sinrepetición. Cada pulsación abre runtimepropio, verifica cuenta, ejecuta pasada acotada, renueva caches user/epoch ycierra conexiones. Unmount detieneefectos. Pasadas máslargas requieren otrapulsación hasta scheduler; auth/cursor/red/cambiocuenta conservan cola. Panel muestra pendientes/conflictos/rechazos ycomandos sinsoporte; no promete sincronización depreferencias/series ni resolución deconflictos. DispatcherServerActionusa startTransition; compilación frontera aprobada, pilotoGoogle/RPC real pendiente.

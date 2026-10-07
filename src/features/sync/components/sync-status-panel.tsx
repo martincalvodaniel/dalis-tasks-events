@@ -1,0 +1,113 @@
+import type { SyncPassResult } from "@/features/sync/coordinator"
+import type { SyncQueueSummary } from "@/lib/sync/queue-summary"
+
+interface SyncStatusPanelProps {
+  summary: SyncQueueSummary | null
+  error: boolean
+  busy: boolean
+  result: SyncPassResult | null
+  onSync(): void
+}
+const messages: Record<SyncPassResult["status"], string> = {
+  settled: "Última revisión terminada.",
+  more_work: "Quedan cambios por revisar. Vuelve a sincronizar.",
+  unauthorized:
+    "Inicia sesión de nuevo para sincronizar. Tus cambios locales se conservan.",
+  account_changed:
+    "La sesión remota ha cambiado de cuenta. Tus cambios locales se conservan.",
+  retry_later:
+    "No se pudo terminar. Comprueba la conexión y vuelve a intentarlo; tus cambios se conservan.",
+  stopped: "Sincronización detenida. Tus cambios locales se conservan.",
+  recovery_required:
+    "La sincronización necesita revisión. Tus cambios locales se conservan.",
+}
+
+export function SyncStatusPanel({
+  summary,
+  error,
+  busy,
+  result,
+  onSync,
+}: SyncStatusPanelProps) {
+  const unresolved = summary
+    ? summary.pending + summary.sending + summary.conflicts + summary.rejected
+    : null
+  const counts = summary
+    ? [
+        summary.pending > 0
+          ? `${summary.pending} ${summary.pending === 1 ? "pendiente" : "pendientes"}`
+          : "",
+        summary.sending > 0 ? `${summary.sending} enviando` : "",
+        summary.conflicts > 0 ? `${summary.conflicts} en conflicto` : "",
+        summary.rejected > 0
+          ? `${summary.rejected} ${summary.rejected === 1 ? "rechazado" : "rechazados"}`
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : ""
+  const pendingLabel =
+    unresolved === 0 ? "Sin cambios locales pendientes." : counts
+  return (
+    <section
+      aria-label="Sincronización"
+      className="mt-4 rounded-xl border border-zinc-200 p-3 text-sm dark:border-zinc-800"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-semibold">Sincronización</h2>
+        <button
+          type="button"
+          onClick={onSync}
+          disabled={busy || error || !summary}
+          className="min-h-11 rounded-lg bg-emerald-700 px-3 font-medium text-white hover:bg-emerald-800 disabled:opacity-50"
+        >
+          {busy ? "Sincronizando…" : "Sincronizar ahora"}
+        </button>
+      </div>
+      <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+        Tareas y eventos sin repetición. Categorías, orden y repeticiones se
+        guardan solo en este dispositivo por ahora.
+      </p>
+      <div role="status" aria-live="polite" className="mt-2">
+        {error ? (
+          <p>
+            No se pudo leer la cola local. Recarga para volver a intentarlo.
+          </p>
+        ) : !summary ? (
+          <p>Comprobando cambios locales…</p>
+        ) : (
+          <>
+            <p>{pendingLabel}</p>
+            {summary.unsupported > 0 ? (
+              <p>
+                {summary.unsupported} cambios todavía sin sincronización
+                disponible.
+              </p>
+            ) : null}
+            {summary.waiting + summary.blocked > 0 ? (
+              <p>
+                {summary.waiting + summary.blocked} cambios dependen de otras
+                operaciones pendientes.
+              </p>
+            ) : null}
+            {summary.conflicts + summary.rejected > 0 ? (
+              <p>
+                Los borradores se conservan. La resolución de estos cambios
+                estará disponible próximamente.
+              </p>
+            ) : null}
+          </>
+        )}
+        {result ? <p className="mt-1">{messages[result.status]}</p> : null}
+      </div>
+      {result?.status === "unauthorized" ? (
+        <a
+          className="mt-2 inline-flex min-h-11 items-center font-medium text-emerald-700 underline dark:text-emerald-400"
+          href="/auth/signin?callbackUrl=%2Fworkspace%3Fview%3Dsettings"
+        >
+          Iniciar sesión con Google
+        </a>
+      ) : null}
+    </section>
+  )
+}
