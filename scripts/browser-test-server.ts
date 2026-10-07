@@ -5,6 +5,7 @@ if (
   suite !== "local-db" &&
   suite !== "outbox" &&
   suite !== "sync-results" &&
+  suite !== "sync-pull" &&
   suite !== "preferences" &&
   suite !== "ordering" &&
   suite !== "task-ordering" &&

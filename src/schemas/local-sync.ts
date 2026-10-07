@@ -6,10 +6,14 @@ import {
 } from "@/schemas/ordering"
 import {
   entityIdSchema,
+  revisionSchema,
   timestampSchema,
   userIdSchema,
 } from "@/schemas/primitives"
-import { remoteOperationResultSchema } from "@/schemas/remote-sync"
+import {
+  remoteChangesPageSchema,
+  remoteOperationResultSchema,
+} from "@/schemas/remote-sync"
 import { syncOperationSchema } from "@/schemas/sync"
 
 export const itemEntityKeySchema = z
@@ -134,4 +138,30 @@ export const localOperationOutcomeSchema = z
       outcome.key === `operation-outcome:${outcome.operation.operationId}` &&
       outcome.operation.operationId === outcome.result.operationId,
     "Stored outcome must match its operation"
+  )
+
+export const localPullCursorSchema = z
+  .strictObject({
+    key: z.literal("pull-cursor"),
+    after: revisionSchema,
+    through: revisionSchema.nullable(),
+  })
+  .refine(
+    (cursor) => cursor.through === null || cursor.after < cursor.through,
+    "Stored pull checkpoint must have remaining records"
+  )
+
+export const localChangesPageInputSchema = z
+  .strictObject({
+    after: revisionSchema,
+    page: remoteChangesPageSchema,
+  })
+  .refine(
+    (input) =>
+      (input.page.changes.length > 0 || !input.page.hasMore) &&
+      input.page.nextAfter === input.after + input.page.changes.length &&
+      input.page.changes.every(
+        (change, index) => change.sequence === input.after + index + 1
+      ),
+    "Pull page sequences must follow the requested cursor"
   )

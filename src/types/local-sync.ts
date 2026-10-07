@@ -1,5 +1,6 @@
 import type { z } from "zod"
 import type {
+  localPullCursorSchema,
   outboxEntrySchema,
   remoteShadowSchema,
 } from "@/schemas/local-sync"
@@ -19,3 +20,5 @@ export type LocalOccurrenceCommand = Extract<
   SyncCommand,
   { type: "task.update-occurrence" | "task.cancel-occurrence" }
 >
+
+export type LocalPullCursor = z.infer<typeof localPullCursorSchema>

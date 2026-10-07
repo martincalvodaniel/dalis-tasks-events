@@ -703,3 +703,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación browserIndexedDB propio: creación+edición posterior, claims dependientes, replay/cambio de payload/stalelease/cuenta, conflicto/rechazo/unsupported, fallo tardío metadata revierte todo, recarga. Suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas. Después12b1c pull/cursoratómicos y coordinador.
 
 - Resultado12b1b: LocalSyncStore verifica operación/lease/cuenta/revisión ypersistencia conjunta de resultado/outbox/shadow/vista; dependientes nunca enviados reciben base deACK, reintentos congelados. Siete checks browser+recarga pasan, rollback tardío/cursor intacto; normal137pass/30opt-in skip, lint241files/tipos/build29recursos pasan. Próxima12b1c pull/cursor; sin coordinador todavía.
+
+### 12b1c — Pull, shadow y cursor locales atómicos
+
+- Objetivo previo: guardar página de cambios ycursor en misma transacción, con checkpoint fijo y proyección conservadora. Entrada68%/53%, int/secuencial/reserva10%; dependencias12a1/12b1a–b.
+- `target_paths`: `src/lib/local-db/{sync-store,pull-changes}.ts`, `src/schemas/local-sync.ts`, tiposlocal-sync si necesario, `test/browser/sync-pull.ts`, whitelistserverfixture y `plan/{master,iterations,iteration-log,offline-and-sync}.md`.
+- Aceptación: validar cuenta, secuencias contiguas desdeafter ycheckpoint; cursor local CAS, páginas viejas no regresan, futuras/solapadas no saltan. Agrupar últimas versiones porID; conservar local conpendientes yshadowmonotónico incluso ante ACKmásnuevo. Página no confirma outbox aunque coincida operationId. Datos/shadows/cursor se confirman o revierten juntos; sinnetwork/await dentroIDB, sin borrar bases/cola. Persistircheckpoint para reabrir y continuar bootstrap; sinDBversion/deps nuevos.
+- Validación IndexedDB real: páginas/checkpoint/recarga, tombstones, ACKadelantado ypendingcreate/edits, malformed/foreign/gap/futurecursor, fallo tardío metadata revierte todo, dos respuestas delmismoafter compiten seguras. Suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas; coordinador después.
+
+- Resultado12b1c: cursor CAS/checkpoint durable, páginas contiguas/pliegue porID/proyección pendiente yshadow monotónico; seis checks IndexedDB+recarga pasan, rollback tardío y dos respuestas seguras. Normal137pass/30opt-in skip, lint243files/tipos/build29recursos pasan. Próxima12b2a coordinador; sin sync automática aún.

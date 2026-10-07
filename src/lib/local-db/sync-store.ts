@@ -1,18 +1,20 @@
 "use client"
 
 import { openLocalDatabase } from "@/lib/local-db/client"
+import { applyLocalChangesPage } from "@/lib/local-db/pull-changes"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { planRemoteItemProjection } from "@/lib/sync/item-projection"
 import { calendarItemSchema } from "@/schemas/calendar-item"
 import {
   localOperationOutcomeSchema,
+  localPullCursorSchema,
   localSyncResultInputSchema,
   outboxEntrySchema,
   remoteShadowSchema,
 } from "@/schemas/local-sync"
 import { userIdSchema } from "@/schemas/primitives"
 import type { CalendarItem } from "@/types/calendar-item"
-import type { OutboxEntry } from "@/types/local-sync"
+import type { LocalPullCursor, OutboxEntry } from "@/types/local-sync"
 
 export class LocalSyncStore {
   private constructor(
@@ -23,6 +25,38 @@ export class LocalSyncStore {
     const userId = userIdSchema.parse(userIdInput)
     return new LocalSyncStore(userId, await openLocalDatabase(userId))
   }
+  readPullCursor(): Promise<LocalPullCursor> {
+    return runLocalTransaction(
+      this.database,
+      ["syncMetadata"],
+      "readonly",
+      (context) => {
+        const request = context.transaction
+          .objectStore("syncMetadata")
+          .get("pull-cursor")
+        request.onsuccess = () => {
+          try {
+            context.setResult(
+              localPullCursorSchema.parse(
+                request.result ?? {
+                  key: "pull-cursor",
+                  after: 0,
+                  through: null,
+                }
+              )
+            )
+          } catch (error) {
+            context.fail(error)
+          }
+        }
+      }
+    )
+  }
+
+  applyChangesPage(input: unknown) {
+    return applyLocalChangesPage(this.database, this.userId, input)
+  }
+
   close() {
     this.database.close()
   }
