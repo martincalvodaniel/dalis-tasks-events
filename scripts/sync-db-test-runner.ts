@@ -7,6 +7,9 @@ import {
 import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
 
 const runId = crypto.randomUUID()
+const mode = process.argv[2] ?? "database"
+if (mode !== "database" && mode !== "browser")
+  throw new Error("Unknown isolated sync test mode")
 const name = `dalis-sync-test-${runId}`
 const label = "dalis.sync-test-run"
 let activeChild: ReturnType<typeof Bun.spawn> | undefined
@@ -158,30 +161,37 @@ try {
     'rs.initiate({_id:"dalis-sync-test",members:[{_id:0,host:"127.0.0.1:27017"}]})',
   ])
   await ready("if (!db.hello().isWritablePrimary) quit(1)")
-  const testProcess = Bun.spawn(
-    [
-      "bun",
-      "--no-env-file",
-      "test",
-      "--preload",
-      "./test/setup.ts",
-      "src/lib/db/transactions.integration.test.ts",
-      "src/lib/db/remote-items.integration.test.ts",
-      "src/lib/db/remote-item-commands.integration.test.ts",
-      "src/lib/db/remote-changes.integration.test.ts",
-    ],
-    {
-      env: syncTestProcessEnvironment(config),
-      stdout: "inherit",
-      stderr: "inherit",
-    }
-  )
+  const argumentsForMode =
+    mode === "browser"
+      ? [
+          "bun",
+          "--no-env-file",
+          "--preload",
+          "./test/setup.ts",
+          "scripts/sync-browser-test-server.ts",
+        ]
+      : [
+          "bun",
+          "--no-env-file",
+          "test",
+          "--preload",
+          "./test/setup.ts",
+          "src/lib/db/transactions.integration.test.ts",
+          "src/lib/db/remote-items.integration.test.ts",
+          "src/lib/db/remote-item-commands.integration.test.ts",
+          "src/lib/db/remote-changes.integration.test.ts",
+        ]
+  const testProcess = Bun.spawn(argumentsForMode, {
+    env: syncTestProcessEnvironment(config),
+    stdout: "inherit",
+    stderr: "inherit",
+  })
   activeChild = testProcess
   const testExitCode = await testProcess.exited
   activeChild = undefined
   if (testExitCode !== 0)
     throw new Error("Isolated database integration tests failed")
-  console.info("Isolated transaction tests passed.")
+  console.info(`Isolated ${mode} tests passed.`)
 } finally {
   for (const socket of bridgeSockets) socket.destroy()
   for (const child of bridgeChildren) child.kill()

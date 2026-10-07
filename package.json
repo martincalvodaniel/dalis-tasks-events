@@ -13,6 +13,7 @@
     "start": "next start",
     "test": "bun test --preload ./test/setup.ts",
     "test:sync-db": "bun run scripts/sync-db-test-runner.ts",
+    "test:sync-browser": "bun run scripts/sync-db-test-runner.ts browser",
     "test:watch": "bun test --watch --preload ./test/setup.ts",
     "type-check": "tsc --noEmit"
   },

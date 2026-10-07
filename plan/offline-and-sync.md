@@ -273,3 +273,7 @@ Runcoalesced evita pasadas superpuestas delmismocoordinador; claim deIndexedDB i
 Httptransport requiere identidad yGETprivado concookies same-origin/no-store; pull añade expectedUserId, after/through/limit50 yvalida salida/contigüidad contraafter. GETtambién comparaexpectedconactor antesdeleer (opcional para consumidores previos, siempre enviado portransportador). Unauthorized detiene; account_changed detiene sinotrosdatos; cursoradelantado409 requiere recuperaciónexplícita ynoresetea cola/cursor automáticamente.
 
 Deadline30s cubre fetch/lecturaJSON yespera decallbackdeacción. Timeout no cancela una mutación remota ya iniciada; devuelveerror, releaseconservapayload yreciboidempotente resolveráreintento. Runtimelocal ligado aepoch/cuenta usa conexiones propias, claim120s ystopesperapasada antesdecerrar. No hayhook/polling/UIoperativos todavía; prueba de dosalmacenes de navegador conbackendreal en12b2a4.
+
+### Prueba integrada12b2a4
+
+Dos orígenes de navegador conectados aMongo aislado ejercitan transporte/runtime/coordinador con IndexedDB real: cola sinred/recarga, bootstrap, progreso dependiente, replay después derespuesta perdida y tombstone convergen sin duplicación. Concurrentes mantienen conflicto/borrador/shadow ypermiten otra entidad; recuperación deconflicto no está implementada todavía. Véase [entorno](sync-test-environment.md). Falta consumidorUI yprueba deRPC/autenticación real; el próximo resumen decola debe evitar mensajes de sincronización total cuando existan comandos sinsoporte o conflictos.

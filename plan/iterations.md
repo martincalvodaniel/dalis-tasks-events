@@ -744,3 +744,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 
 - Entrada51%/50% trasb29017e, int/secuencial/reserva10%; objetivo yscope previo: solo `plan/{master,iterations,iteration-log,offline-and-sync}.md`. El scriptdocumental falló por sintaxis antes deactualizar archivos, pero elcomando siguiente hizo commit/push delcódigo validado yscopeprevio. Registrar cierre encommit adicional sinreescribir historia publicada.
 - Aceptación: estado/evidencias/siguiente candidata exactos, referencias/diff consistentes; sin cambios decódigo ni repetirvalidaciones aprobadas porMarkdown. Commit+pushint/verificar HEAD/cuotas.
+
+### 12b2a4 — Dos particiones de navegador con MongoDB real
+
+- Objetivo previo: ejercer runtime/coordinador/transporte con IndexedDB de dos orígenes independientes y el ejecutor/journal reales en la instancia propia del runner. Entrada49%/50%, int/secuencial/reserva10%; dependencias12b2a3.
+- `target_paths`: `scripts/{sync-db-test-runner,sync-browser-test-server}.ts`, `test/browser/sync-{devices,device}.ts`, `src/schemas/sync-browser-test.ts` ytests, `package.json`, `plan/{master,iterations,iteration-log,offline-and-sync,sync-test-environment}.md`.
+- Aceptación: descriptor/ownership existentes antes de conectar, HTTP solo loopback con capacidad porrun, sin env/auth deproducto. Dospuertos efímeros aíslan IndexedDB delmismoactor; crear sinred conserva intención tras recarga, conectar/descargar/progreso/borrado convergen en ambos yMongo. Pérdida derespuesta después decommit reintenta mismaoperación sin duplicar; concurrentes preservan conflicto/borrador yentidadindependiente avanza. Todoslosrecursos propios secierran ysolo particiones ficticias seeliminan.
+- Límite: lafixture inyecta actor ficticio verificado ycallbackHTTP en lugar delRPC deServerAction; prueba pila sync/DB, no loginGoogle ni convergencia de preferencias/series/compartidos. No habilitar sync enUI hastaevidencia.
+- Validación: esquemas deldescriptor/comandosfixture, pruebasbrowser dosorígenes+recarga/rollbackprevios, runnerMongo, suite/lint/tipos/build/diff/referencias; plan/registro/commit+pushint/HEADremoto/cuotas.
+
+- Resultado12b2a4: dos orígenes efímeros con IndexedDB real y MongoDB propio pasan seis escenarios: cola offline/recarga, bootstrap/convergencia, estado/checklist dependientes, respuesta perdida/replay, tombstone/recarga y conflicto con entidad independiente. Runner original15pass/105aserciones; normal154pass/30opt-in skip, lint255files/tipos/build29recursos pasan. Ambos modos limpian contenedor y recursos propios. Siguiente12b2b1 resumen de pendientes/bloqueos; aún sin UI automática ni RPCGoogle probado.

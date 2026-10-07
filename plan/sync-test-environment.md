@@ -57,3 +57,9 @@ El runner incorpora [tests del ejecutor](../src/lib/db/remote-item-commands.inte
 ## Evidencia12a1
 
 [Prueba de descarga](../src/lib/db/remote-changes.integration.test.ts) captura checkpoint2, intercala tres escrituras y termina bootstrap2 antes de recuperar3–5. El estado reconstruido equivale al repositorio actual, incluidos borrados. Otra cuenta vacía, cursor futuro, hueco/corrupción y cambio simulado de propietario rechazan sin payload parcial; fixtures restaurados enfinally. Runner15pass/105aserciones; esto prueba DAL, todavía no dos dispositivos/IndexedDB/transportador.
+
+## Evidencia12b2a4: dos particiones conectadas
+
+Ejecutar `bun run test:sync-browser`, abrir la URL loopback que imprime el runner y pulsar «Ejecutar prueba integrada». Dos iframes con orígenes/puertos efímeros distintos comparten cuenta ficticia, con IndexedDB independiente. El servidor usa servicio de subida yjournal/DAL reales mediante descriptor aislado; no habilita bypass de auth en rutas deproducto. Capacidad UUID porrun, entradas estrictas, respuestas privadas no-store, deadline10min y cierre por resultado o señal. Runner conserva modoMongo habitual y limpieza por ownership.
+
+Seis checks browser pasan: offline simulado/recarga, convergencia de tareas simples, progreso/checklist dependientes, respuesta perdida trascommit/replay sin duplicados, borrado durable y conflicto conservador con otra entidad independiente. Se verifican proyecciones/cursor contraMongo y conflicto tras recarga. Se eliminan solo particiones ficticias del run y recursos del runner; exit0 deambos modos. RegresiónMongo15pass/105aserciones. No sustituye pilotoGoogle/NextRPC, modo avión del shell ya probado, ni sincronización de preferencias/series/compartidos.
