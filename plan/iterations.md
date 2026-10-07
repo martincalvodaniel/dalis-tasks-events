@@ -581,3 +581,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Aceptación: opciones/propuesta y decisiones no validadas claramente separadas del comportamiento entregado; casos de adyacencia/legado/snapshot/paginación/extremos; pasos concretos y rollback completo antes deUI. Enlaces/diff/consistencia, commit+push int y cuotafinal. No iniciar implementación09b4b2 en este lote.
 
 - Resultado09b4b0: problema de ranks observado documentado, alternativas/propuesta no validada y cuatro cortes definidos, sin schema/código abiertos. Referencias/consistencia/diff comprobados; cierre en commit+push int, cuotas finales al usuario. Próxima09b4b2a con presupuesto renovado suficiente.
+
+### 09b4b2a1 — Compatibilidad del orden numérico en claves textuales
+
+- Objetivo: primer corte puro de09b4b2a, representar el orden legado de posiciones sin pérdida de precisión. Entrada23%/61%, secuencial enint, solicitud expresa de una entrega pequeña.
+- `target_paths`: `src/lib/ordering/legacy-rank-key.ts`, su test y `plan/{master,iterations,iteration-log,backlog-ordering}.md`. Depende de09b4b1 y del comparador actual `compareRank`; guía instalada use-client revisada, helper independiente de runtime.
+- Aceptación: comparación binaria de claves coincide con el comparador numérico y su desempate por ID; negativos, fracciones adyacentes, subnormales, ±0, límites±1e12 y posiciones iguales. Rechazar posiciones inválidas; clave con prefijo fijo y sin mutar input. Contrastar contra oráculo de registros deterministas. Solo adaptador candidato, sin schema, migración, integración ni formato definitivo de inserción.
+- Validación: tests del helper y suite completa, lint, tipos, build, diff/referencias; actualizar resultado y registro, commit/push int. Restan clave implícita, inserción/agotamiento y adyacencia antes de ordenar backlog o habilitar UI.
+
+- Resultado: cuatro tests/1.306 aserciones, oráculo determinista de2.112 registros y extremos/desempates aprobados; lint211 archivos, tipos y suite111 pass/7auth opt-in skip/0fallos. Adaptador candidato aislado; formato persistido y comportamiento UI intactos. Build y cierre registrados eniteration-log. Próximo corte09b4b2a continúa con clave implícita/inserción y agotamiento; este resultado no adopta el formato definitivo.

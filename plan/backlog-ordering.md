@@ -34,11 +34,20 @@ Alternativas que deben compararse: claves lexicográficas dispersas con legado c
 | Corte | Resultado y criterio de cierre |
 | --- | --- |
 | 09b4b2a | Especificación concreta de claves/legado y motor puro; comparación con oráculo expandido, vecinos iguales, extremos y agotamiento. Solo elegir formato al pasar esas pruebas. |
+| 09b4b2a1 (entregado) | Adaptador puro de rank legado a clave textual: precisión y desempate demostrados. Primer corte de09b4b2a; inserción, clave implícita y agotamiento pendientes. |
 | 09b4b2b | Búsqueda paginada de vecinos virtuales/materializados; páginas vacías, series largas, completadas y reprogramadas; cursor de snapshot explícito. Sin escrituras. |
 | 09b4b2c | Ejecutor local completo con schema de colocación compatible, dependencias, CAS y rollback; IndexedDB real, concurrencia, recarga y regresión día/simple. Comando solo se habilita cuando ejecutor y lector convergen. |
 | 09b5 | Hook/lector/UI de repetición de tareas, backlog paginado y formulario compacto; estado/checklist/editar/cancelar/orden offline y calendario real. |
 
 Si el motor requiere otro corte, registrar objetivo y aceptación antes de modificar código. Mantener commit/push int individual y consulta de ambas cuotas al terminar cada subentrega. Continuación futura sigue los límites de [workflow](workflow.md); no prometer consumo exacto.
+
+### Compatibilidad probada en09b4b2a1
+
+[legacy-rank-key.ts](../src/lib/ordering/legacy-rank-key.ts) transforma los ocho bytes IEEE754 de cada posición válida en16 dígitos hexadecimales ordenables: invierte bits de negativos, cambia el bit de signo de no negativos y normaliza−0 a0. Añade `:id` para conservar el desempate binario actual. Comparar con `<`/`>`, nunca con `localeCompare`; el prefijo de longitud fija impide que el ID altere la prioridad numérica. Validación reutiliza `positionSchema`.
+
+[Pruebas](../src/lib/ordering/legacy-rank-key.test.ts) contrastan con `compareRank`: extremos±1e12, negativos, subnormales, valores adyacentes, ceros, IDs con prefijo común y posiciones repetidas; oráculo de2.112 registros deterministas. Rechazan NaN/infinito/fuera de rango y comprueban input intacto.
+
+Es un adaptador candidato sin consumidores en la aplicación. El formato persistido continúa siendo numérico y no se migra ningún dato. La prueba resuelve compatibilidad de comparación, no demuestra inserción entre claves, agotamiento, prefijos implícitos, adyacencia ni orden paginado del backlog. Esos requisitos siguen abiertos en09b4b2a; no habilitar UI de repetición por este resultado.
 
 ## Escenarios mínimos de validación
 
