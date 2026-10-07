@@ -197,6 +197,18 @@
 - Commit: `feat(tags): manage and assign categories offline`.
 - Próxima candidata `06`, calendario mensual y apertura del día en secuencial; leer cuotas tras commit y dividir si el alcance supera la reserva.
 
+## 05c — Preparación tras Google y desarrollo local
+
+- Rama `main`, secuencial; entrada automática **5h 57%; 7d 93% restantes**. El usuario intercala una corrección con tres capturas de workspace sin activar; `06` queda pendiente.
+- Objetivo y `target_paths`: preparación/restauración y hook compartido en `features/workspace/**`, textos de ajustes/resumen/entrada, fixture `test/browser/workspace.tsx`, servidor de pruebas `scripts/workspace-test-server.ts` y plan. Dependencias `04b`, `05b3`.
+- Causa: login remoto y preparación local eran pasos separados; `prepareLocalAccount` exigía un worker que `NODE_ENV=development` desactiva. Las pruebas anteriores preparaban la identidad ficticia directamente y no cubrían esta entrada con sesión.
+- Resultado: SWR restaura primero el espacio y prepara automáticamente una sesión verificada si no hay cuenta activa ni cierre pendiente. Un 401 muestra Google; errores de infraestructura permiten reintentar. Desarrollo activa/restaura IndexedDB sin worker y muestra su limitación; producción exige shell completo y mantiene el estado offline real. Una época cambiada invalida la preparación; una cuenta activada en otra pestaña no se sustituye al terminar una lectura antigua. No modifica autenticación, allowlist ni esquema persistido.
+- Evidencia: cinco casos de desarrollo y seis de producción en navegador real: 401 sin activación, preparación automática, tarea/outbox conservadas sin consultar sesión al restaurar, cierre pendiente sin peticiones, cierre durante respuesta retrasada y rechazo de worker ausente en producción. Interfaz React de desarrollo y build Next de producción usan los componentes reales con identidad ficticia servida exclusivamente en loopback. Después de detener ambos servidores de producción: recarga, navegación a ajustes, creación por `+` y segunda recarga conservan dos tareas. [Captura móvil revisada](evidence/05c-mobile.png). Google real no se ha repetido; la verificación cubre el paso posterior a una identidad autorizada, sin usar la cuenta del usuario.
+- Validación: lint sin ruido, tipos, build de producción y 40 tests unitarios aprobados; 7 pruebas auth opt-in no repetidas. Revisión de diff y `git diff --check`. La fixture de proxy corrigió sus propias cabeceras de compresión antes de aprobar el recorrido; no se debilitó la política del worker.
+- Limpieza: datos ficticios, registros/cachés de worker y pestañas retirados; procesos aislados detenidos. El servidor local del usuario no se detiene ni se modifica. Sin nuevas dependencias ni push.
+- Commit: `fix(workspace): prepare authenticated local sessions automatically`.
+- Próxima candidata: `06`, con lectura automática de ambas ventanas tras commit y reserva del lote del 20%.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

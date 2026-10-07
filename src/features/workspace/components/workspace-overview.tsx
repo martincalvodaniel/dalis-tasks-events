@@ -14,8 +14,16 @@ export function WorkspaceOverview() {
         className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 sm:p-8 dark:border-emerald-900 dark:bg-emerald-950"
       >
         <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-          Disponible sin conexión
+          {account.offlineReady
+            ? "Disponible sin conexión"
+            : "Espacio local preparado"}
         </p>
+        {!account.offlineReady ? (
+          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-300">
+            Modo de desarrollo: puedes probar y guardar tus tareas aquí. Para
+            reabrir la aplicación sin red, usa la versión de producción.
+          </p>
+        ) : null}
         <h2 className="mt-3 text-2xl font-semibold">Tu espacio, a mano</h2>
         <p className="mt-3 text-zinc-600 dark:text-zinc-300">
           {account.itemCount === 0

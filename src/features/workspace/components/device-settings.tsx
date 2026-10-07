@@ -1,6 +1,7 @@
 "use client"
 
 import { useId, useState } from "react"
+import { canPrepareOfflineShell } from "@/config/pwa"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import {
   closeLocalAccount,
@@ -9,8 +10,14 @@ import {
 
 export function DeviceSettings() {
   const statusHeadingId = useId()
-  const { account, error, isLoading, logoutPending, refresh } =
-    useLocalAccount()
+  const {
+    account,
+    error,
+    isLoading,
+    logoutPending,
+    authenticationRequired,
+    refresh,
+  } = useLocalAccount()
   const [preparing, setPreparing] = useState(false)
   const [failed, setFailed] = useState(false)
   const [notice, setNotice] = useState("")
@@ -65,7 +72,9 @@ export function DeviceSettings() {
       >
         <h2 id={statusHeadingId} className="text-xl font-semibold">
           {state === "ready"
-            ? "Disponible sin conexión"
+            ? account?.offlineReady
+              ? "Disponible sin conexión"
+              : "Espacio local preparado"
             : "Prepara este dispositivo"}
         </h2>
         <div
@@ -73,7 +82,9 @@ export function DeviceSettings() {
           aria-live="polite"
           className="mt-3 text-zinc-600 dark:text-zinc-400"
         >
-          {state === "loading" ? <p>Comprobando el espacio guardado…</p> : null}
+          {state === "loading" ? (
+            <p>Comprobando la sesión y preparando tu espacio…</p>
+          ) : null}
           {state === "preparing" ? (
             <p>
               Guardando el espacio y sus recursos. Mantén esta página abierta…
@@ -81,8 +92,9 @@ export function DeviceSettings() {
           ) : null}
           {state === "unprepared" ? (
             <p>
-              Inicia sesión con Google y prepara el dispositivo una vez con
-              conexión. Después podrás volver a abrir tu espacio sin red.
+              {authenticationRequired
+                ? "Inicia sesión con Google. Tu espacio se preparará automáticamente al volver."
+                : "Prepara este dispositivo con conexión para volver a abrir tu espacio."}
             </p>
           ) : null}
           {state === "error" ? (
@@ -101,15 +113,25 @@ export function DeviceSettings() {
             </p>
           ) : null}
         </div>
+        {!canPrepareOfflineShell ? (
+          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+            Modo de desarrollo: tus cambios se guardan en este navegador. La
+            reapertura sin red se prueba con la versión de producción.
+          </p>
+        ) : null}
         {state === "unprepared" || state === "error" ? (
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={prepare}
-              className="min-h-12 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700"
-            >
-              Preparar este dispositivo
-            </button>
+            {!authenticationRequired ? (
+              <button
+                type="button"
+                onClick={prepare}
+                className="min-h-12 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700"
+              >
+                {state === "error"
+                  ? "Volver a intentarlo"
+                  : "Preparar este dispositivo"}
+              </button>
+            ) : null}
             <a
               href="/auth/signin?callbackUrl=%2Fworkspace"
               className="flex min-h-12 items-center justify-center rounded-xl border border-zinc-300 px-5 py-3 font-medium dark:border-zinc-700"

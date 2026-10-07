@@ -1,5 +1,6 @@
 "use client"
 
+import { canPrepareOfflineShell } from "@/config/pwa"
 import { completePendingRemoteLogout } from "@/features/auth/pending-logout"
 import { authClient } from "@/lib/auth/auth-client"
 import {
@@ -16,12 +17,21 @@ export interface LocalAccount {
   userId: string
   itemCount: number
   epoch: string
+  offlineReady: boolean
+}
+
+export class AccountAuthenticationError extends Error {
+  constructor() {
+    super("An authorized online session is required")
+    this.name = "AccountAuthenticationError"
+  }
 }
 
 export async function restoreLocalAccount(): Promise<LocalAccount | null> {
   const account = await readAccountControl()
   if (!account.userId || account.logoutPending) return null
-  if (!(await isOfflineShellReady()))
+  const offlineReady = canPrepareOfflineShell && (await isOfflineShellReady())
+  if (canPrepareOfflineShell && !offlineReady)
     throw new Error("Offline shell is not ready")
   const repository = await LocalRepository.open(account.userId)
   try {
@@ -34,6 +44,7 @@ export async function restoreLocalAccount(): Promise<LocalAccount | null> {
           userId: account.userId,
           itemCount: items.length,
           epoch: account.epoch,
+          offlineReady,
         }
       : null
   } finally {
@@ -41,13 +52,23 @@ export async function restoreLocalAccount(): Promise<LocalAccount | null> {
   }
 }
 
-export async function prepareLocalAccount(): Promise<LocalAccount> {
-  const control = await completePendingRemoteLogout()
+export async function prepareLocalAccount(
+  expectedEpoch?: string
+): Promise<LocalAccount> {
+  const control = expectedEpoch
+    ? await readAccountControl()
+    : await completePendingRemoteLogout()
+  if (
+    control.logoutPending ||
+    (expectedEpoch && control.epoch !== expectedEpoch)
+  )
+    throw new Error("Account preparation was invalidated")
   const response = await fetch("/api/sync/identity", {
     credentials: "same-origin",
     cache: "no-store",
   })
-  if (!response.ok) throw new Error("An authorized online session is required")
+  if (response.status === 401) throw new AccountAuthenticationError()
+  if (!response.ok) throw new Error("Workspace identity request failed")
   const identity = workspaceIdentitySchema.parse(await response.json())
   const repository = await LocalRepository.open(identity.userId)
   try {
@@ -65,7 +86,7 @@ export async function prepareLocalAccount(): Promise<LocalAccount> {
       })
     }
     const items = await repository.list("items")
-    await prepareOfflineShell()
+    if (canPrepareOfflineShell) await prepareOfflineShell()
     const prepared = await activatePreparedAccount(
       identity.userId,
       timestamp,
@@ -75,9 +96,38 @@ export async function prepareLocalAccount(): Promise<LocalAccount> {
       userId: identity.userId,
       itemCount: items.length,
       epoch: prepared.epoch,
+      offlineReady: canPrepareOfflineShell,
     }
   } finally {
     repository.close()
+  }
+}
+
+export async function loadLocalAccount() {
+  let account = await restoreLocalAccount()
+  let control = await readAccountControl()
+  let authenticationRequired = false
+  if (!account && !control.userId && !control.logoutPending) {
+    try {
+      account = await prepareLocalAccount(control.epoch)
+    } catch (error) {
+      const current = await readAccountControl()
+      if (current.epoch !== control.epoch) {
+        return {
+          account: null,
+          logoutPending: current.logoutPending,
+          authenticationRequired: false,
+        }
+      }
+      if (!(error instanceof AccountAuthenticationError)) throw error
+      authenticationRequired = true
+    }
+    control = await readAccountControl()
+  }
+  return {
+    account: account && account.epoch === control.epoch ? account : null,
+    logoutPending: control.logoutPending,
+    authenticationRequired,
   }
 }
 

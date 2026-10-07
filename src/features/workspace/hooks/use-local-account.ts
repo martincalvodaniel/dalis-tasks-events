@@ -2,30 +2,24 @@
 
 import { useEffect } from "react"
 import useSWR from "swr"
-import { restoreLocalAccount } from "@/features/workspace/local-account"
-import {
-  readAccountControl,
-  subscribeAccountChanges,
-} from "@/lib/local-db/account-control"
+import { loadLocalAccount } from "@/features/workspace/local-account"
+import { subscribeAccountChanges } from "@/lib/local-db/account-control"
 
 export function useLocalAccount() {
   const { data, error, mutate, isLoading } = useSWR(
     "dalis:active-local-account",
-    async () => {
-      const account = await restoreLocalAccount()
-      const control = await readAccountControl()
-      return {
-        account: account && account.epoch === control.epoch ? account : null,
-        logoutPending: control.logoutPending,
-      }
-    },
+    loadLocalAccount,
     { revalidateOnReconnect: false, shouldRetryOnError: false }
   )
   useEffect(
     () =>
       subscribeAccountChanges(() => {
         void mutate(
-          { account: null, logoutPending: false },
+          {
+            account: null,
+            logoutPending: false,
+            authenticationRequired: false,
+          },
           { revalidate: true }
         )
       }),
@@ -34,6 +28,7 @@ export function useLocalAccount() {
   return {
     account: data?.account ?? null,
     logoutPending: data?.logoutPending ?? false,
+    authenticationRequired: data?.authenticationRequired ?? false,
     error,
     isLoading,
     refresh: () => mutate(),

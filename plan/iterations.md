@@ -177,10 +177,18 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 - `target_paths`: `features/tags/**`, integración en tareas/workspace y registro de navegación si añade pantalla importante; fixture y plan. Dependencia: `05b2`.
 - Aceptación: operaciones reales offline con errores españoles, asignar y retirar categoría, borrar categoría conserva tareas, recarga mantiene resultado. Si añade destino, actualizar ambas barras en la misma entrega.
 
+## 05c — Preparación tras Google y pruebas en desarrollo
+
+- Estado: completada; cinco casos de desarrollo y seis de producción, recarga/navegación/creación sin servidores y captura móvil comprobados con identidades ficticias.
+- Objetivo: abrir automáticamente el espacio de una sesión autorizada y permitir probar tareas/categorías en desarrollo sin exigir el worker de producción.
+- `target_paths`: `features/workspace/local-account.ts`, hook y textos de workspace/ajustes, pruebas de navegador aisladas y scripts de fixture; `plan/**`. Dependencias: `04b`, `05b3`; ejecución secuencial.
+- Aceptación: sesión verificada activa la partición local y el `+`; un 401 solicita Google sin activar datos; desarrollo restaura datos sin worker y explica que la reapertura offline requiere producción; producción sigue exigiendo shell preparado. Cierre pendiente y época invalidada impiden reactivación; se conservan particiones y outbox.
+- Validación: fixture con identidad ficticia servida únicamente en loopback, preparación/recarga/401/cierre y producción sin servidor; lint, tipos, tests, build y revisión de diff. No modifica Google, allowlist ni autorización remota.
+
 ## 06 — Calendario mensual y apertura del día
 
 - `target_paths`: `src/features/calendar/**`, componentes de agenda inicial, entradas routing que los monten.
-- Dependencias: `05b3`.
+- Dependencias: `05b3`, corrección intercalada `05c`.
 - Aceptación: mes anterior/siguiente, “Hoy”, lunes como inicio, selección y URL del día; contadores e indicadores; abrir día muestra tareas reales; navegar a otro mes y recargar sin red; móvil y teclado usables.
 - Alcance: cuadrícula propia sencilla, sin nueva librería de calendario. Contar eventos/cumpleaños cuando existan, no fabricar contenido de ejemplo como estado real.
 - Hito: primera demostración útil de calendario personal offline.

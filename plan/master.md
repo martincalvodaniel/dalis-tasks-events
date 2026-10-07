@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas, navegación, tareas y categorías comprobados (`01a–05b3`); siguiente candidata `06`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación, tareas y categorías comprobados (`01a–05b3`); preparación tras Google y desarrollo corregidos en `05c`; siguiente candidata `06`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -120,3 +120,5 @@ Lote reanudado cerrado al completar `05a1`: shell offline, cierre/cuentas, barra
 `05b2` deja operativas las intenciones locales de categorías y asignaciones personales: unicidad normalizada, tombstones, aislamiento, reintento y rollback comprobados en IndexedDB real. La interfaz de categorías es la próxima entrega (`05b3`).
 
 `05b3` entrega pantalla de categorías, selector personal en cada tarea y navegación SVG coherente en ambas barras. Crear/editar/borrar/asignar/retirar funciona offline; nombre duplicado y confirmación en español. La clasificación actual se hace después de guardar la tarea, sin fingir un guardado conjunto. Próxima entrega: calendario mensual y día (`06`).
+
+`05c` se intercala a petición del usuario: Google autorizaba la sesión pero el espacio no se preparaba automáticamente; en desarrollo la preparación además exigía un worker desactivado. Abrir `/workspace` prepara una sesión verificada sin segundo botón, conserva cierre/época y distingue un 401. En desarrollo se puede usar IndexedDB, tareas y categorías sin worker; la UI explica que reabrir sin red exige producción (`bun run build` y `bun run start`). Producción mantiene el requisito de shell completo antes de activar una cuenta. No cambia auth, permisos, allowlist, particiones ni outbox. Calendario sigue pendiente en `06`.
