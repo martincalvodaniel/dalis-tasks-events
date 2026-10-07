@@ -503,3 +503,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Límites: simples, no recurrencia ni birthday; mutaciones atómicas08b se reutilizan sin cambios de schema/DB/deps/auth/remoto. Lector conserva legado; no migración automática destructiva.
 
 - Resultado08c2: formulario edición/confirmación operativos, reparación/borrado de legado y CAS en dos pestañas; caché revalidada tras rechazo conservando borrador. Inspector16intenciones/7updates/2tombstones, tarea y categoría intactas; recarga sin servidores y contadores2/1; desarrolloStrictMode,320px y200% sin overflow. Lint/tipos/build/79tests+7skip aprobados; próxima09a.
+
+### 09a1 — Fechas civiles de recurrencia paginadas
+
+- Estado: completada; int secuencial, entrada71%/68% trasfe47801 publicado. Dependencias08; scope antes de editar: lib/calendar/recurrence.ts y tests, schema de consulta compartido si necesario, plan. Corte de09a: fechas civiles primero; proyección de eventos/ocurrencias y DST después09a2, UI09b–09c.
+- Decisiones: días semanales0domingo–6sábado, semanaslunes; intervalo semanal anclado a semana del inicio, primera semana omite días anteriores al ancla. Until inclusivo; count cuenta fechas programadas válidas (meses sin31 y años sin29feb se omiten, no consumen count). Rango de consulta inclusivo0001–9999, cursorfecha exclusivo, límite1–500 y nextAfter explícito cuando quedan resultados; no truncado silencioso.
+- Aceptación: diaria/semanal/mensual/anual conintervalo/límites, no mutar regla ni depender de zona host; ancla/cadencia estables al consultar páginas o fechas lejanas; count global no se reinicia por rango/página; calendario31/bisiestos/centurias y años extremos. Saltar directamente a rango, sin recorrer millones de días; prefixcalendar400años solo donde haga falta, trabajo acotado. Tests ejemplos+oráculo independiente/paginación, medir rango remoto; lint/tipos/tests/build/diff/ref y commit+pushint.
+- No materializar ocurrencias/activar repetición todavía; contrato de series actual intacto, sin DB/deps.09a2 resolverá slots/IDs y problemas horarios explícitos, sin normalizar una cita silenciosamente.
+
+- Resultado09a1: cuatro frecuencias paginadas, count global/ciclo400años/oráculo independiente192combinaciones y hostTZHonolulu aprobados. Cien consultas0001→9999 con página3:13ms observados. Lint/tipos/build,86tests+7skip; siguiente09a2 slots/ocurrencias, sin UI nueva.

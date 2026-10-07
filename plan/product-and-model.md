@@ -114,3 +114,11 @@ Estas extensiones no forman parte de “completamente offline” y no deben intr
 ### Reglas iniciales implementadas en `02b`
 
 Fechas civiles admitidas: años `0001–9999`, sin conversión implícita a la zona del dispositivo. La zona de la cuenta determina hoy mediante un reloj inyectable. Los rangos usan final exclusivo, semanas de lunes a domingo y un límite de expansión. Atrasadas conserva la fecha y el estado; excluye completadas, tombstones y ocurrencias canceladas. Una serie se evalúa por ocurrencias, nunca por su registro padre; su generación llega en `09`.
+
+
+### Semántica civil de repetición implementada en09a1
+
+- `weekdays`:0domingo–6sábado; cadence semanal anclada a semana de lunes que contiene `anchorDate`. En la primera semana solo se incluyen días iguales/posteriores al ancla, aunque esta no figure entre los días seleccionados.
+- `until` incluye su fecha. `count` limita las fechas programadas válidas desde el origen, sin reiniciarse al cambiar rango/página. Mes sin el día anclado y año sin29feb no generan slot ni consumen count. Cumpleaños mantiene su regla separada28feb pendiente10.
+- Consulta civil inclusiva, cursorfecha exclusivo y páginas1–500 con `nextAfter` explícito; rango máximo soportado0001–9999. El límite controla resultados, no elimina silenciosamente lo restante. Se salta a rango por aritmética, y count de fechas omitidas usa ciclo gregoriano400años.
+- Este corte entrega fechas, no instantes/ocurrencias/UI.09a2 proyectará slots de eventos y señalará gaps/folds; la política de conteo de slots con problema horario se documentará allí antes de activarlos.
