@@ -656,3 +656,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación: suite existente/lint/tipos/build/diff/referencias, plan/registro/commit+pushint y cuotas. Después11b1 aplica el reductor dentro de recibo+mutación+journal atómicos, con límites explícitos de soporte.
 
 - Resultado11a1b2: reductor puro compartido, wrapper local compatible y tipoItemCommand genérico; regresiones locales y eventos pasan sin cambio de semántica/revisión. Suite123pass/17opt-in skip, lint224files/tipos/build29recursos aprobados; sin IO ni UI nuevos. Siguiente11b1 transacción remota.
+
+### 11b1a — Recibo, mutación y journal remotos atómicos
+
+- Objetivo previo: ejecutar comandos de tareas/eventos simples propios con CAS, recibo idempotente y secuencia durable por receptor en una misma transacción. Entrada82%/55%, int/secuencial/reserva10%; depende11b0/11a1a2/11a1b1–2.
+- `target_paths`: `src/lib/db/{remote-items,remote-item-commands,collections,ensure-indexes}.ts`, tests DB asociados, `src/schemas/remote-sync.ts`, `src/types/remote-sync.ts`, runner y `plan/{master,iterations,iteration-log,offline-and-sync,sync-test-environment}.md`.
+- Aceptación: actor validado recibido solo por futura capa autenticada; ninguna identidad/metadato de propietario en comando cliente. Mismo actor+operationId devuelve resultado guardado sin duplicar; payload distinto rechazado. CAS inválido/conflicto y ID ajeno no sobrescriben ni filtran datos; comandos recurrentes/cumpleaños/preferencias no soportados nunca aceptados. Revision/recibo/journal/contador commit o rollback conjuntos. Secuencia por receptor serializa commits; índices únicos reales registrados, sin TTL.
+- Pruebas MongoDB propio: reintentos concurrentes, dos editores/base igual, múltiples escrituras/destinatarios aislados, pérdida de respuesta/replay tras tombstone, reutilizaciónID, fallo tardío forzado sin restos y posterior recuperación. Suite/lint/tipos/build/diff/ref; plan/registro/commit+pushint/cuotas. Acción autenticada y descarga siguen en cortes posteriores, sin habilitar sync UI.
+
+- Resultado11b1a: transacción snapshot/majority, recibos propios/huella, CAS/revisión y journal+contador serializado; seis tests nuevos enMongo real, runner12pass/82aserciones y recursos limpios. Normal124pass/25opt-in skip, lint228files/tipos/build29recursos pasan. Siguiente11b1b acción autenticada; no subida automática/UI activada.

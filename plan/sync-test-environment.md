@@ -49,3 +49,7 @@ Salida: runner reproducible, guards de aislamiento probados y evidencia de commi
 Las pruebas de actor/membresía en acciones se añaden en11b1 con sesiones verificadas, además de aislamiento del repositorio. Preferencias, descarga completa y reconciliación son necesarias antes de anunciar convergencia del espacio en dos dispositivos. La matriz no sustituye implementar esas capas.
 
 Cerrar cada corte con lint/tipos/tests/build pertinentes, plan/registro y commit/pushint. Mantener fuera de la suite normal las pruebas que exigen runtime explícito, con ejecución de integración separada y evidencia clara de qué se ejecutó. Ver [workflow](workflow.md) para presupuesto y reservas.
+
+## Evidencia11b1a
+
+El runner incorpora [tests del ejecutor](../src/lib/db/remote-item-commands.integration.test.ts): replay/carrera de recibos, CAS/conflicto durable, secuencias concurrentes, aislamiento, comandos sin soporte, validación temporal y fallo tardío de journal. Este último utiliza un validator temporal solo enDB propia y lo restaura enfinally; fallo revierte elemento/recibo/journal/contador, reintento después funciona. Runner12pass/82aserciones; no se ha probado transporte ni dos dispositivos.

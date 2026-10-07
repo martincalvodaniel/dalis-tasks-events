@@ -21,6 +21,16 @@ export interface IndexSpec {
 // collection or query pattern. Do not add speculative indexes.
 export const INDEX_SPECS: readonly IndexSpec[] = [
   {
+    collection: "sync_operations",
+    keys: { actorUserId: 1, operationId: 1 },
+    options: { name: "sync_operations_actor_operation_uidx", unique: true },
+  },
+  {
+    collection: "sync_changes",
+    keys: { recipientUserId: 1, sequence: 1 },
+    options: { name: "sync_changes_recipient_sequence_uidx", unique: true },
+  },
+  {
     collection: "items",
     keys: { ownerId: 1, _id: 1 },
     options: { name: "items_owner_id_idx" },

@@ -26,6 +26,26 @@ describe("MongoDB index specifications", () => {
       )
     ).toHaveLength(0)
   })
+  test("registers durable receipt and journal uniqueness without TTL or a redundant counter index", () => {
+    expect(INDEX_SPECS).toContainEqual({
+      collection: COLLECTION_NAMES.syncOperations,
+      keys: { actorUserId: 1, operationId: 1 },
+      options: { name: "sync_operations_actor_operation_uidx", unique: true },
+    })
+    expect(INDEX_SPECS).toContainEqual({
+      collection: COLLECTION_NAMES.syncChanges,
+      keys: { recipientUserId: 1, sequence: 1 },
+      options: { name: "sync_changes_recipient_sequence_uidx", unique: true },
+    })
+    expect(
+      INDEX_SPECS.some(
+        (spec) => spec.collection === COLLECTION_NAMES.syncCounters
+      )
+    ).toBe(false)
+    expect(
+      INDEX_SPECS.some((spec) => spec.options.expireAfterSeconds !== undefined)
+    ).toBe(false)
+  })
   test("the application index registry is valid", () => {
     expect(() => validateIndexSpecs(INDEX_SPECS)).not.toThrow()
   })
