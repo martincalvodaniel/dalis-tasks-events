@@ -3,6 +3,7 @@ import {
   calendarItemDraftSchema,
   taskStatusSchema,
 } from "@/schemas/calendar-item"
+import { taskOccurrenceInputSchema } from "@/schemas/occurrence"
 import { tagDraftSchema, userSettingsInputSchema } from "@/schemas/preferences"
 import {
   civilDateSchema,
@@ -40,6 +41,17 @@ export const syncCommandSchema = z.discriminatedUnion("type", [
     type: z.literal("tag.save"),
     tagId: entityIdSchema,
     input: tagDraftSchema,
+  }),
+  z.strictObject({
+    type: z.literal("task.update-occurrence"),
+    itemId: entityIdSchema,
+    occurrenceId: occurrenceIdSchema,
+    input: taskOccurrenceInputSchema,
+  }),
+  z.strictObject({
+    type: z.literal("task.cancel-occurrence"),
+    itemId: entityIdSchema,
+    occurrenceId: occurrenceIdSchema,
   }),
   z.strictObject({ type: z.literal("tag.delete"), tagId: entityIdSchema }),
   z

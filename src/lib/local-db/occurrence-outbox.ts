@@ -1,34 +1,44 @@
 "use client"
 
+import { applyLocalOccurrenceCommand } from "@/lib/local-db/occurrence-mutation"
 import {
   applyLocalOccurrenceProgress,
   type OccurrenceProgressCommand,
 } from "@/lib/local-db/occurrence-progress"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
+import { editableTaskOccurrence } from "@/lib/local-db/task-occurrence"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { calendarItemSchema } from "@/schemas/calendar-item"
 import { outboxEntrySchema, outboxSequenceSchema } from "@/schemas/local-sync"
+import { itemOccurrenceSchema } from "@/schemas/occurrence"
 import { entityIdSchema, timestampSchema } from "@/schemas/primitives"
 import { syncCommandSchema } from "@/schemas/sync"
-import type { CalendarItem } from "@/types/calendar-item"
-import type { OutboxEntry } from "@/types/local-sync"
+import type { CalendarItem, ItemOccurrence } from "@/types/calendar-item"
+import type { LocalOccurrenceCommand, OutboxEntry } from "@/types/local-sync"
 
-export function commitLocalOccurrenceProgress(
+export function commitLocalTaskOccurrenceCommand(
   database: IDBDatabase,
   userId: string,
-  input: OccurrenceProgressCommand,
-  options: { operationId?: string; now?: Date; expectedItem?: CalendarItem }
+  input: OccurrenceProgressCommand | LocalOccurrenceCommand,
+  options: {
+    operationId?: string
+    now?: Date
+    expectedItem?: CalendarItem
+    expectedOccurrence?: ItemOccurrence
+  }
 ): Promise<OutboxEntry> {
   const command = syncCommandSchema.parse(input)
   if (
     (command.type !== "task.set-status" &&
-      command.type !== "task.set-checklist-entry") ||
+      command.type !== "task.set-checklist-entry" &&
+      command.type !== "task.update-occurrence" &&
+      command.type !== "task.cancel-occurrence") ||
     !command.occurrenceId
   )
     return Promise.reject(
-      new Error("Command requires task occurrence progress")
+      new Error("Command requires task occurrence mutation")
     )
-  const progress = command
+  const occurrenceCommand = command
   const occurrenceId = command.occurrenceId
   const expected = options.expectedItem
     ? calendarItemSchema.parse(options.expectedItem)
@@ -36,6 +46,25 @@ export function commitLocalOccurrenceProgress(
   if (expected && expected.id !== command.itemId)
     return Promise.reject(
       new Error("Expected series does not match the command")
+    )
+  const expectedOccurrence = options.expectedOccurrence
+    ? itemOccurrenceSchema.parse(options.expectedOccurrence)
+    : undefined
+  if (
+    expectedOccurrence &&
+    (expectedOccurrence.id !== occurrenceId ||
+      expectedOccurrence.seriesId !== command.itemId)
+  )
+    return Promise.reject(
+      new Error("Expected occurrence does not match the command")
+    )
+  if (
+    (command.type === "task.update-occurrence" ||
+      command.type === "task.cancel-occurrence") &&
+    (!expected || !expectedOccurrence)
+  )
+    return Promise.reject(
+      new Error("Occurrence editing requires series and occurrence snapshots")
     )
   const operationId = entityIdSchema.parse(
     options.operationId ?? crypto.randomUUID()
@@ -107,13 +136,39 @@ export function commitLocalOccurrenceProgress(
                       occurrenceRequest.result,
                       userId
                     )
-              const record = applyLocalOccurrenceProgress(
-                series,
-                current,
-                progress,
-                userId,
-                timestamp
-              )
+              if (expectedOccurrence) {
+                const editable = editableTaskOccurrence(
+                  series,
+                  current,
+                  occurrenceId,
+                  occurrenceCommand.itemId,
+                  userId
+                )
+                if (
+                  JSON.stringify(editable.current) !==
+                  JSON.stringify(expectedOccurrence)
+                )
+                  throw new Error(
+                    "Occurrence changed since the editor was opened"
+                  )
+              }
+              const record =
+                occurrenceCommand.type === "task.update-occurrence" ||
+                occurrenceCommand.type === "task.cancel-occurrence"
+                  ? applyLocalOccurrenceCommand(
+                      series,
+                      current,
+                      occurrenceCommand,
+                      userId,
+                      timestamp
+                    )
+                  : applyLocalOccurrenceProgress(
+                      series,
+                      current,
+                      occurrenceCommand,
+                      userId,
+                      timestamp
+                    )
               const sequence =
                 sequenceRequest.result === undefined
                   ? 1

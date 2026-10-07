@@ -131,3 +131,10 @@ Fechas civiles admitidas: años `0001–9999`, sin conversión implícita a la z
 - All-day conserva número de díasciviles. Timed desplaza fechas de inicio/final por el mismo offsetcivil, conserva ambas horas locales y zona. Así09:00→10:00 se mantiene local, y una duración que cruzaDST puede variar en instantes. No usar duraciónUTC fija ni sumar24h para repetir.
 - Gap/fold/desbordamiento del año9999 se devuelve como incidencia con ID/slot original, junto a apariciones válidas. `count`/limit cuentan slotsciviles, incluidos los que necesitan revisiónhoraria; no reemplazarlos ni extender el conteo silenciosamente. Cursor sigue avanzando aunque la página contenga solo incidencias.
 - Excepciones, persistencia, lectura por zona de cuenta y UI siguen09b–09c. Este helper no escribe DB ni interpreta una aparición reprogramada como un nuevo slot.
+
+
+### Excepciones locales de tareas — 09b2
+
+La excepción de tarea admite `content: {title, description}` opcional. Los registros anteriores sin contenido siguen siendo válidos y heredan de su padre al leerse; la siguiente materialización o mutación congela el contenido vigente. Una aparición editada conserva su propia copia. La nueva fecha prevista puede quedar fuera de la cadencia; `id` y `slotKey` siempre identifican la programación original.
+
+Editar recibe título, descripción, fecha prevista e IDs/textos de checklist. Conserva el completado de pasos existentes y crea los nuevos sin completar; no modifica estado/completedAt. Cancelar marca `cancelled` y conserva contenido, fecha y progreso. Ambos comandos exigen snapshots de serie y aparición (virtual o persistida), comprobados dentro de la transacción para evitar sobrescribir progreso concurrente. La UI todavía no ofrece repetición; los lectores deben aplicar excepciones y seleccionar reprogramadas por su fecha efectiva en 09b3.

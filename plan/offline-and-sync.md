@@ -213,3 +213,8 @@ Confirmación HTML y bloqueo/reintento de intenciones se extraen para compartirl
 Los comandos de estado/checklist con `occurrenceId` materializan la excepción en `occurrences`, junto con outbox y secuencia, dentro de una única transacción. La primera escritura valida que el slot original pertenece a la regla; una excepción existente conserva su checklist e historia aunque cambie la plantilla futura. No se permite progreso sobre series borradas ni apariciones canceladas/borradas.
 
 La cola usa `entityKey=item:seriesId` y `baseRevision` del padre, serializando sus comandos y los de sus apariciones como un agregado. El progreso local no modifica el padre ni incrementa revisiones remotas. En `11–12`, un ACK deberá avanzar la revisión agregada y publicar los cambios de excepciones asociados; el pull debe traer ambas partes. El replay de un UUID ya guardado devuelve su recibo antes de validar el estado actual, incluso después de borrar la serie, sin reescribir. No hay transporte remoto habilitado todavía.
+
+
+### Edición y cancelación de aparición — 09b2
+
+`task.update-occurrence` y `task.cancel-occurrence` tienen ejecutor local y contratos estrictos de transporte. Se encolan en el agregado `item:seriesId`, igual que progreso. No aceptan identidad/regla/estado dentro del input de edición. La guardia de edición compara ambos snapshots dentro de la transacción; el snapshot local no viaja como prueba de autorización. Remoto 11–12 deberá validar permisos y revisión del agregado y aplicar estas intenciones por campo, preservando progreso concurrente según su política de conflictos. No existe transporte desplegado que acepte estos comandos todavía.

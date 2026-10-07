@@ -2,7 +2,7 @@
 
 import { openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalItemCommand } from "@/lib/local-db/item-mutation"
-import { commitLocalOccurrenceProgress } from "@/lib/local-db/occurrence-outbox"
+import { commitLocalTaskOccurrenceCommand } from "@/lib/local-db/occurrence-outbox"
 import { commitLocalPreferenceCommand } from "@/lib/local-db/preference-outbox"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
@@ -18,9 +18,10 @@ import {
   userIdSchema,
 } from "@/schemas/primitives"
 import { syncCommandSchema } from "@/schemas/sync"
-import type { CalendarItem } from "@/types/calendar-item"
+import type { CalendarItem, ItemOccurrence } from "@/types/calendar-item"
 import type {
   LocalItemCommand,
+  LocalOccurrenceCommand,
   LocalPreferenceCommand,
   OutboxEntry,
   RemoteShadow,
@@ -74,7 +75,7 @@ export class LocalOutbox {
         parsed.type === "task.set-checklist-entry") &&
       parsed.occurrenceId !== null
     )
-      return commitLocalOccurrenceProgress(
+      return commitLocalTaskOccurrenceCommand(
         this.database,
         this.userId,
         parsed,
@@ -196,6 +197,23 @@ export class LocalOutbox {
           }
         }
       }
+    )
+  }
+
+  commitOccurrenceCommand(
+    input: LocalOccurrenceCommand,
+    options: {
+      operationId?: string
+      now?: Date
+      expectedItem: CalendarItem
+      expectedOccurrence: ItemOccurrence
+    }
+  ): Promise<OutboxEntry> {
+    return commitLocalTaskOccurrenceCommand(
+      this.database,
+      this.userId,
+      input,
+      options
     )
   }
 

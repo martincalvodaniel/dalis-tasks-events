@@ -24,3 +24,8 @@ export type LocalItemCommand = Extract<
       | "task.set-checklist-entry"
   }
 >
+
+export type LocalOccurrenceCommand = Extract<
+  SyncCommand,
+  { type: "task.update-occurrence" | "task.cancel-occurrence" }
+>

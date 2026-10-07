@@ -8,7 +8,8 @@ if (
   suite !== "ordering" &&
   suite !== "task-ordering" &&
   suite !== "events" &&
-  suite !== "occurrence-progress"
+  suite !== "occurrence-progress" &&
+  suite !== "occurrence-edit"
 )
   throw new Error("Unknown browser test suite")
 const entrypoint = resolve(`test/browser/${suite}.ts`)
