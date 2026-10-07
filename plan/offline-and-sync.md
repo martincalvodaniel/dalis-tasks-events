@@ -237,3 +237,9 @@ Resultado tipado aplicado incluye elemento y secuencia; conflicto incluye solo e
 ### Subida11b1b
 
 Server ActionpushSyncOperations obtiene sesión persistida vigente desdeheaders; no admite actor como entrada. El servicio valida el lote completo antes de escribir. Complete significa que cada operación tiene resultado, no que todas estén aplicadas; soloapplied permite futuroACK local. Unauthorized/invalid_batch no escriben; retry_later incluye prefijo terminado para conservar IDs y reintentar duraderamente. Identity_reuse rechaza IDconotrocontenido; unsupported nunca se vacía de outbox. Activación del cliente exige pull/reconciliación e integración de pendientes.
+
+### Descarga12a1
+
+GET `/api/sync/changes` acepta after (0por defecto), through (checkpoint opcional) ylimit1–100. Actor siempre de sesión. Primera página captura through decontador confirmado en snapshot; páginas siguientes conservan ese valor. Journal immutable/sincompactación, contigüidad exacta y consulta porreceptor+secuencia impiden saltos. nextAfter/hasMore se devuelven solo tras validar todos los registros y propiedad actual. Cursor adelantado409; corrupción/hueco/permisoausente503 sin página parcial.
+
+Primer bootstrap reproduce todas las entradas desde0 hasta through y mantiene el registro más reciente por identidad, incluidos tombstones; después continúa desde through. Se elige historia paginada porque journal aún no se compacta y todas las nuevas escrituras de producto pasan por11b1a. Una importación o colección histórica sin entradas exigirá migración antes de activar este camino. Reconciliación local debe persistir cursor y shadow junto a la proyección optimista, nunca reemplazar outbox por bootstrap. Preferencias/ocurrencias y fanout compartido se incorporarán antes de garantizar convergencia completa del espacio.

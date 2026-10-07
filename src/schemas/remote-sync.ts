@@ -72,3 +72,35 @@ export const remotePushResultSchema = z.discriminatedUnion("status", [
     failedOperationId: entityIdSchema,
   }),
 ])
+
+const queryIntegerSchema = z.preprocess(
+  (value) =>
+    typeof value === "string" && /^\d+$/.test(value) ? Number(value) : value,
+  revisionSchema
+)
+export const remotePullQuerySchema = z
+  .strictObject({
+    after: queryIntegerSchema.default(0),
+    through: queryIntegerSchema.nullable().default(null),
+    limit: queryIntegerSchema.pipe(z.number().min(1).max(100)).default(50),
+  })
+  .refine(
+    (query) => query.through === null || query.after <= query.through,
+    "Pull cursor cannot exceed its checkpoint"
+  )
+
+export const remoteChangesPageSchema = z
+  .strictObject({
+    changes: z.array(remoteItemChangeSchema).max(100),
+    nextAfter: revisionSchema,
+    through: revisionSchema,
+    hasMore: z.boolean(),
+  })
+  .refine(
+    (page) =>
+      page.nextAfter <= page.through &&
+      page.hasMore === page.nextAfter < page.through &&
+      (!page.changes.length ||
+        page.changes.at(-1)?.sequence === page.nextAfter),
+    "Change page cursor must match its checkpoint and records"
+  )

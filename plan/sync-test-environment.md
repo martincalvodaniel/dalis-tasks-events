@@ -53,3 +53,7 @@ Cerrar cada corte con lint/tipos/tests/build pertinentes, plan/registro y commit
 ## Evidencia11b1a
 
 El runner incorpora [tests del ejecutor](../src/lib/db/remote-item-commands.integration.test.ts): replay/carrera de recibos, CAS/conflicto durable, secuencias concurrentes, aislamiento, comandos sin soporte, validación temporal y fallo tardío de journal. Este último utiliza un validator temporal solo enDB propia y lo restaura enfinally; fallo revierte elemento/recibo/journal/contador, reintento después funciona. Runner12pass/82aserciones; no se ha probado transporte ni dos dispositivos.
+
+## Evidencia12a1
+
+[Prueba de descarga](../src/lib/db/remote-changes.integration.test.ts) captura checkpoint2, intercala tres escrituras y termina bootstrap2 antes de recuperar3–5. El estado reconstruido equivale al repositorio actual, incluidos borrados. Otra cuenta vacía, cursor futuro, hueco/corrupción y cambio simulado de propietario rechazan sin payload parcial; fixtures restaurados enfinally. Runner15pass/105aserciones; esto prueba DAL, todavía no dos dispositivos/IndexedDB/transportador.
