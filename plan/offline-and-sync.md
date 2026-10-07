@@ -218,3 +218,8 @@ La cola usa `entityKey=item:seriesId` y `baseRevision` del padre, serializando s
 ### Edición y cancelación de aparición — 09b2
 
 `task.update-occurrence` y `task.cancel-occurrence` tienen ejecutor local y contratos estrictos de transporte. Se encolan en el agregado `item:seriesId`, igual que progreso. No aceptan identidad/regla/estado dentro del input de edición. La guardia de edición compara ambos snapshots dentro de la transacción; el snapshot local no viaja como prueba de autorización. Remoto 11–12 deberá validar permisos y revisión del agregado y aplicar estas intenciones por campo, preservando progreso concurrente según su política de conflictos. No existe transporte desplegado que acepte estos comandos todavía.
+
+
+### Snapshot de repetición — 09b3b
+
+Series, excepciones (incluidas canceladas/tombstones) y settings se leen en una sola transacción readonly antes de preparar el índice. Evita combinar la regla de una versión con excepciones/zona de otra. El servicio comprueba cuenta/epoch antes y después y no devuelve datos si se cierra o cambia la cuenta durante la lectura; siempre cierra la conexión. La autenticación remota no se sustituye por nombre de DB ni por ese índice. No se escriben intenciones al leer; los hooks/UI se conectarán después de colocaciones por aparición.
