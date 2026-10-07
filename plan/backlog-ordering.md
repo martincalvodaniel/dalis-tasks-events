@@ -34,7 +34,8 @@ Alternativas que deben compararse: claves lexicográficas dispersas con legado c
 | Corte | Resultado y criterio de cierre |
 | --- | --- |
 | 09b4b2a | Especificación concreta de claves/legado y motor puro; comparación con oráculo expandido, vecinos iguales, extremos y agotamiento. Solo elegir formato al pasar esas pruebas. |
-| 09b4b2a1 (entregado) | Adaptador puro de rank legado a clave textual: precisión y desempate demostrados. Primer corte de09b4b2a; inserción, clave implícita y agotamiento pendientes. |
+| 09b4b2a1 (entregado) | Adaptador puro de rank legado a clave textual: precisión y desempate demostrados. Clave implícita cubierta en09b4b2a2; inserción y agotamiento pendientes. |
+| 09b4b2a2 (entregado) | Clave implícita por fecha/creación/ID y oráculo mixto legado/implícito; inserción y agotamiento pendientes. |
 | 09b4b2b | Búsqueda paginada de vecinos virtuales/materializados; páginas vacías, series largas, completadas y reprogramadas; cursor de snapshot explícito. Sin escrituras. |
 | 09b4b2c | Ejecutor local completo con schema de colocación compatible, dependencias, CAS y rollback; IndexedDB real, concurrencia, recarga y regresión día/simple. Comando solo se habilita cuando ejecutor y lector convergen. |
 | 09b5 | Hook/lector/UI de repetición de tareas, backlog paginado y formulario compacto; estado/checklist/editar/cancelar/orden offline y calendario real. |
@@ -47,7 +48,13 @@ Si el motor requiere otro corte, registrar objetivo y aceptación antes de modif
 
 [Pruebas](../src/lib/ordering/legacy-rank-key.test.ts) contrastan con `compareRank`: extremos±1e12, negativos, subnormales, valores adyacentes, ceros, IDs con prefijo común y posiciones repetidas; oráculo de2.112 registros deterministas. Rechazan NaN/infinito/fuera de rango y comprueban input intacto.
 
-Es un adaptador candidato sin consumidores en la aplicación. El formato persistido continúa siendo numérico y no se migra ningún dato. La prueba resuelve compatibilidad de comparación, no demuestra inserción entre claves, agotamiento, prefijos implícitos, adyacencia ni orden paginado del backlog. Esos requisitos siguen abiertos en09b4b2a; no habilitar UI de repetición por este resultado.
+Es un adaptador candidato sin consumidores en la aplicación. El formato persistido continúa siendo numérico y no se migra ningún dato. Este primer corte resuelve compatibilidad de comparación, no demuestra inserción entre claves, agotamiento, prefijos implícitos, adyacencia ni orden paginado del backlog. El siguiente apartado documenta el avance de claves implícitas; no habilitar UI de repetición por estos resultados.
+
+### Clave implícita probada en09b4b2a2
+
+[default-task-key.ts](../src/lib/ordering/default-task-key.ts) valida fecha civil efectiva, timestamp de creación e ID con schemas compartidos, y devuelve `fecha:creación:id`. Fechas ISO validadas tienen anchura fija; comparación binaria reproduce fecha/creación/ID del comparador existente. Una reprogramación cambia la fecha efectiva de la clave, conserva ID original y no necesita guardar una colocación. No usar `localeCompare` sobre la clave completa.
+
+[Pruebas](../src/lib/ordering/default-task-key.test.ts):2.025 comparaciones por pares con años0001/9999 y desempates, reprogramación/copia/input intacto, valores inválidos. Oráculo mixto de45 tareas con15 colocaciones contrasta prefijos candidatos `0:legado` y `1:implícita` contra `orderPlacedTasks`, incluido rank0. Ambos adaptadores siguen sin consumidores; prefijos son propuesta probada para comparación, no formato persistido adoptado. Quedan inserción/extremos/agotamiento de09b4b2a y adyacencia/ejecutor paginados antes de UI.
 
 ## Escenarios mínimos de validación
 

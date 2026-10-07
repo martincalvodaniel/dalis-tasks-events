@@ -590,3 +590,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación: tests del helper y suite completa, lint, tipos, build, diff/referencias; actualizar resultado y registro, commit/push int. Restan clave implícita, inserción/agotamiento y adyacencia antes de ordenar backlog o habilitar UI.
 
 - Resultado: cuatro tests/1.306 aserciones, oráculo determinista de2.112 registros y extremos/desempates aprobados; lint211 archivos, tipos y suite111 pass/7auth opt-in skip/0fallos. Adaptador candidato aislado; formato persistido y comportamiento UI intactos. Build y cierre registrados eniteration-log. Próximo corte09b4b2a continúa con clave implícita/inserción y agotamiento; este resultado no adopta el formato definitivo.
+
+### 09b4b2a2 — Clave implícita compatible de tareas
+
+- Objetivo: representar el orden sin colocación por fecha efectiva/creación/ID, siguiente corte puro tras09b4b2a1. Entrada21%/60%, petición explícita de otra entrega mínima; secuencial enint, protocolo interactivo.
+- `target_paths`: `src/lib/ordering/default-task-key.ts`, su test y `plan/{master,iterations,iteration-log,backlog-ordering}.md`. Depende del comparador vigente y adaptador legado; guía instalada use-client ya revisada, sin APIs nuevas de Next ni runtime/IO.
+- Aceptación: clave determinista/copia implícita sin persistir, comparación binaria equivalente a `compareDefaultTaskOrder`, años0001/9999, desempates y reprogramación manteniendo ID; validar campos con schemas compartidos. Oráculo mixto contra `orderPlacedTasks` usando prefijos candidato para colocadas/implícitas. Sin cambio de schema/formato persistido/consumidores; inserción y agotamiento siguen pendientes.
+- Validación: tests y suite, lint/tipos/build, diff/referencias; plan/registro y commit/push int. Cerrar después de este corte y consultar ambas ventanas.
+
+- Resultado: clave implícita validada y equivalente al comparador, cuatro tests/2.036 aserciones y oráculo mixto45 tareas/15 colocaciones aprobados. Lint213 archivos, tipos y suite115 pass/7auth opt-in skip/0fallos; build y cierre enregistro. Sin integración/migración ni adopción del formato; próximos pasos inserción/agotamiento, después adyacencia paginada y ejecutor.
