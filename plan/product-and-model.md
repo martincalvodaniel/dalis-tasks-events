@@ -138,3 +138,10 @@ Fechas civiles admitidas: años `0001–9999`, sin conversión implícita a la z
 La excepción de tarea admite `content: {title, description}` opcional. Los registros anteriores sin contenido siguen siendo válidos y heredan de su padre al leerse; la siguiente materialización o mutación congela el contenido vigente. Una aparición editada conserva su propia copia. La nueva fecha prevista puede quedar fuera de la cadencia; `id` y `slotKey` siempre identifican la programación original.
 
 Editar recibe título, descripción, fecha prevista e IDs/textos de checklist. Conserva el completado de pasos existentes y crea los nuevos sin completar; no modifica estado/completedAt. Cancelar marca `cancelled` y conserva contenido, fecha y progreso. Ambos comandos exigen snapshots de serie y aparición (virtual o persistida), comprobados dentro de la transacción para evitar sobrescribir progreso concurrente. La UI todavía no ofrece repetición; los lectores deben aplicar excepciones y seleccionar reprogramadas por su fecha efectiva en 09b3.
+
+
+### Selección con excepciones — 09b3a
+
+El índice de snapshot mantiene dos flujos: slots virtuales paginados por serie y excepciones materializadas paginadas por fecha efectiva/ID. Cada excepción suprime su slot virtual, incluso si está cancelada, borrada o reprogramada fuera del rango; la selección de excepciones permite entrar desde un slot original de otro mes. Una excepción activa histórica no se vuelve a validar contra el count futuro.
+
+Los consumidores deben continuar páginas virtuales vacías mientras tengan `nextAfter`, y agotar por separado `nextCursor` de excepciones. Los resultados cargados se unen sin duplicados y se ordenan para la vista; no se anuncia backlog completo ni contador mensual exacto antes de agotar los flujos pertinentes. `includeCompleted=false` filtra el progreso sin modificar registros. Antes de UI falta lector transaccional de snapshot y colocaciones por aparición.
