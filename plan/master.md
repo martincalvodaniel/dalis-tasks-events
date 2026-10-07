@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; diálogos y navegación móvil corregidos en `07c`; ranking y colocaciones atómicas entregados en `07b1a–07b1b`; controles accesibles y arrastre entregados en `07b2a–07b3b`; conversión temporal y persistencia de eventos comprobadas en `08a–08b`, formulario todavía pendiente; agenda/cabeceras y formulario de tareas compactos entregados en las intercaladas `07d–07d2`; siguiente candidata `08c1`, formulario/lectura de eventos con el mismo criterio de densidad. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; diálogos y navegación móvil corregidos en `07c`; ranking y colocaciones atómicas entregados en `07b1a–07b1b`; controles accesibles y arrastre entregados en `07b2a–07b3b`; conversión temporal y persistencia de eventos comprobadas en `08a–08b`, formulario todavía pendiente; agenda/cabeceras y formulario de tareas compactos entregados en las intercaladas `07d–07d3`; siguiente candidata `08c1a`, selectores de eventos, antes de `08c1`, formulario/lectura de eventos con el mismo criterio de densidad. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -145,3 +145,5 @@ Lote reanudado cerrado al completar `05a1`: shell offline, cierre/cuentas, barra
 ### Cierre de esta continuación
 
 Entregas `07b1a–07b3b`, `08a–08b`, `07d–07d2` cerradas individualmente. UI móvil compacta es criterio permanente en AGENTS; muestra de seis tareas visibles y formulario reducido comprobados. Última cuota al cerrar código: **25%/75% restantes**, tras `cfa8a9f`; consulta final posterior al commit documental se comunica al usuario. `08c1` queda pendiente por margen insuficiente sobre reserva20%, con motor temporal y persistencia ya disponibles. Sin implementación abierta; al reanudar comprobar cuotas y mantener ese corte antes de edición/borrado, repetición, cumpleaños y sincronización.
+
+`07d3` compacta Categorías: filas plegables de 58px en 320px, nombre/color en la misma línea del formulario y menos padding/texto repetido. CRUD, cuatro movimientos incluidos arrastre/teclado, foco y recarga offline comprobados; texto al 200% sin overflow. El usuario ha reabierto el lote tras206fac6 para aprovechar24% mientras se aproxima renovación; reserva temporal descrita en workflow, sin depender de ella para cerrar cambios.

@@ -461,3 +461,9 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Estado: completada, secuencial; entrada automática 5h 29% / 7d 76%, tras `2ed4ec1`. Corte menor de densidad antes del formulario de eventos; margen estimado a partir de 07d y alcance reducido, reserva 20% vigente.
 - Objetivo/target_paths: TaskComposer, TaskForm, ChecklistFields, fixture/evidencia y plan. Dependencias 07d. Reducir padding, título y espaciado; campos/botones >=44px. Descripción/pasos opcionales desplegables al crear, abiertos cuando hay contenido al editar; conservar contenido al plegar y abrir si la validación señala pasos inválidos.
 - Aceptación: crear/cancelar/Escape/editar siguen operativos, campos opcionales cerrados no desaparecen de FormData, errores no ocultan paso inválido, offline y recarga conservan datos; 320px y 200% sin overflow, lint/tipos/tests/build/diff/referencias. Sin cambios de contratos, outbox, navegación ni dependencias.
+
+## 07d3 — Categorías compactas
+
+- Estado: completada; secuencial, entrada 24%/75% tras `206fac6`, continuación explícita del usuario y reserva temporal en workflow.
+- Objetivo/target_paths: TagCard/TagManager/TagForm, fixture/evidencias y plan. Dependencias 07b y criterio07d. Filas compactas con nombre/color y controles secundarios desplegables, padding/formulario reducidos, sin texto redundante.
+- Aceptación: crear/editar/borrar, ordenar por botones y arrastre siguen accesibles; detalle abierto conserva foco al reordenar, 320px/200% sin overflow, pulsaciones >=44px. Prueba offline y recarga; lint/tipos/tests/build/diff/referencias. Persistencia/contratos/permisos/navegación intactos.

@@ -59,8 +59,8 @@ export function TagManager({ account }: { account: LocalAccount }) {
     }
   }
   return (
-    <div className="space-y-6">
-      <p className="text-zinc-600 dark:text-zinc-300">
+    <div className="space-y-4">
+      <p className="hidden md:block text-sm text-zinc-600 dark:text-zinc-300">
         Crea tus categorías y elígelas en cada tarea después de guardarla.
       </p>
       {ordering.error ? (
@@ -99,9 +99,9 @@ export function TagManager({ account }: { account: LocalAccount }) {
             }}
           />
           <section aria-label="Categorías guardadas">
-            <h2 className="mb-4 text-xl font-semibold">Tus categorías</h2>
+            <h2 className="mb-2 text-base font-semibold">Tus categorías</h2>
             {data.tags.length ? (
-              <ul data-order-list className="space-y-4">
+              <ul data-order-list className="space-y-1.5">
                 {data.tags.map((tag, index) => (
                   <li
                     key={tag.id}

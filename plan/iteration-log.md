@@ -351,6 +351,14 @@
 - Decisión: 08c1 requiere UI/lector/calendario y pruebas offline, más cierre. Cinco puntos disponibles sobre reserva no cubren una entrega comparable (07d consumió ocho); tampoco se expande su alcance para gastar el presupuesto restante. Motor local de eventos completo, formulario pendiente. No hay código abierto ni procesos propios. Siguiente sesión: cuotas nuevas y corte08c1, secuencial.
 - Validación documental: enlaces locales, coherencia de referencias y git diff --check; commit `docs(plan): close verified batch with mobile density guidance`. Lectura final automática se comunica después del commit; sin push.
 
+## 07d3 — Categorías compactas y reanudación autorizada
+
+- Rama main, secuencial; entrada automática 24%/75% tras206fac6. Usuario pide aprovechar margen y comunica renovación próxima; reapertura y reserva temporal documentadas antes de editar. Alcance/aceptación definidos en iterations: TagCard/Manager/Form, fixture, evidencia y plan.
+- Resultado: fila plegable con nombre/color, botones/arrastre/editar/borrar desplegables; formulario nombre+color compacto, menos títulos/padding/instrucción repetida en móvil. Reutiliza guardado/ranking/outbox y navegación; sin dependencia/contrato/permiso nuevos.
+- [Móvil320px](evidence/07d3-tags.png): filas58px y ancho/scroll320px. Texto200% en iframe280px conserva ancho/scroll280px, incluido detalle desplegado. Targets nuevos44px o mayores; botones/arrastre existentes48px conservados.
+- Sin ambos servidores: crear Casa/Trabajo/Personal, Subir Personal con Enter, arrastrar Personal al inicio, Bajar con Espacio y click, renombrar Familia y borrar Trabajo con confirmación. Panel permanece abierto y foco conserva flecha/handle al ordenar. Recarga conserva Casa/Familia; inspector confirma diez intenciones consecutivas, cuatro tag.move, tres categorías con un tombstone y tarea base intacta. Cuenta/control/worker/cache ficticios y procesos propios retirados, viewport restaurado.
+- Validación: lint limpio, tipos,69 tests/7 auth opt-in omitidos/cero fallos y build final aprobados; referencias/diff revisados. Commit `feat(ui): compact category rows and creation form`. Siguiente corte08c1a selectores de días/zonas de eventos, condicionado a cuota automática antes de editar.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

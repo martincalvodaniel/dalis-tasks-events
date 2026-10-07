@@ -241,6 +241,35 @@ async function run() {
     }
     return
   }
+  if (mode === "compact-tags-inspect") {
+    const repository = await LocalRepository.open(userId)
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      const entries = await outbox.listEntries()
+      const tags = (await repository.list("tags")).sort(compareRank)
+      assert(
+        entries.length === 10 &&
+          entries.every((entry, index) => entry.sequence === index + 1)
+      )
+      assert(tags.map((tag) => tag.name).join() === "Casa,Familia")
+      assert(
+        (await repository.list("tags", { includeDeleted: true })).length === 3
+      )
+      assert(
+        entries.filter((entry) => entry.operation.command.type === "tag.move")
+          .length === 4
+      )
+      assert((await repository.list("items")).length === 1)
+      const status = document.getElementById("status")
+      if (status)
+        status.textContent =
+          "Categorías compactas comprobadas: diez intenciones, cuatro movimientos, edición y borrado, tarea intacta."
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+    return
+  }
   if (mode === "compact-form-inspect") {
     const repository = await LocalRepository.open(userId)
     const outbox = await LocalOutbox.open(userId)
