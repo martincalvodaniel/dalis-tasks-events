@@ -100,3 +100,9 @@ La lectura posterior a `07b0` fue **21%/88% restantes**, menor que al abrir su d
 ### Reanudación solicitada tras `07c`
 
 El usuario pide «Continua». Se retoma la autorización previa de avanzar mientras haya margen, con commits y lecturas automáticas individuales, sin cambiar la reserva del 20%. Lectura inicial de la cuenta: **5h 100%; 7d 87%**; nueva ventana corta, sin inferir consumo a través del reinicio. Se divide `07b1` en categorías (`07b1a`) y colocaciones de tareas (`07b1b`), cada una con comando y ejecutor juntos. Ninguna entrega habilita botones sobre mutaciones incompletas.
+
+### Cierre tras 08b y revisión móvil 07d–07d2
+
+La continuación autorizada tras 07c completa ranking/categorías/colocaciones, controles y arrastre, motor temporal y persistencia de eventos, y dos cortes de UI compacta solicitados por el usuario. Todos tienen commit independiente. Última lectura automática después de `cfa8a9f`: **5h 25%; 7d 75% restantes**. La entrega 07d consumió ocho puntos entre consultas comparables; 07d2, de alcance menor, cuatro. Estas observaciones no excluyen uso en otras conversaciones ni son garantías.
+
+No comenzar 08c1: formulario/lector/calendario de eventos, pruebas offline, reparaciones y cierre no caben razonablemente en los cinco puntos sobre la reserva del 20%. No hay código abierto ni tarea a medias; eventos persistibles no se anuncian como formulario disponible. Se cierra solo el registro documental, con diff/enlaces y commit, y consulta automática posterior. Al reanudar se recupera el protocolo de ambos porcentajes nuevos, salvo autorización desatendida expresa aún vigente en la nueva solicitud.

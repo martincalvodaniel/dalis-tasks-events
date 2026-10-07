@@ -344,6 +344,13 @@
 - Con ambos servidores detenidos: abrir +/Cancelar/reabrir/Escape, título vacío no escribe; añadir paso vacío, plegar, guardar muestra error y abre extras; rellenar descripción/paso, plegar y guardar crea. Editar abre contenido existente y conserva texto, plegar/cambiar título/guardar; recarga conserva tarea. Inspector verifica dos tareas/tres intenciones consecutivas (base, crear, editar) y descripción/paso exactos; cancelación/validación no escribieron. Cuenta/control/worker/cache ficticios limpiados, viewport/pestañas/procesos propios retirados.
 - Validación: lint limpio, tipos, 69 tests aprobados/7 auth opt-in omitidos/cero fallos, build final aprobado; diff y referencias revisados. Commit: `feat(ui): compact task forms with optional detail fields`. Cuota automática de cierre decide si 08c1 cabe sobre reserva 20%; no hay otra implementación abierta.
 
+## Cierre documental de la continuación tras 07c
+
+- Rama main; entrada automática 25%/75% tras `cfa8a9f`. Objetivo y target_paths exclusivamente plan/master, workflow y registro: dejar punto de reanudación y decisión de presupuesto, sin abrir implementación.
+- Commits de este lote: `08aa120` ranking de categorías; `4e6e345` colocaciones; `678ac64` botones categorías; `29e0d7b` botones tareas/grupos; `58abe8f` arrastre categorías; `0d544c2` arrastre tareas/grupos; `587e12b` tiempos de eventos; `27db322` persistencia eventos; `2ed4ec1` agenda compacta; `cfa8a9f` formulario compacto. Cada entrada contiene sus verificaciones; no se repiten tests de código en este cierre documental.
+- Decisión: 08c1 requiere UI/lector/calendario y pruebas offline, más cierre. Cinco puntos disponibles sobre reserva no cubren una entrega comparable (07d consumió ocho); tampoco se expande su alcance para gastar el presupuesto restante. Motor local de eventos completo, formulario pendiente. No hay código abierto ni procesos propios. Siguiente sesión: cuotas nuevas y corte08c1, secuencial.
+- Validación documental: enlaces locales, coherencia de referencias y git diff --check; commit `docs(plan): close verified batch with mobile density guidance`. Lectura final automática se comunica después del commit; sin push.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |
