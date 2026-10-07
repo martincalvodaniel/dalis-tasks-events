@@ -122,10 +122,150 @@ async function run() {
     mode === "calendar" ||
       mode === "agenda" ||
       mode === "agenda-inspect" ||
+      mode === "task-order" ||
+      mode === "task-order-inspect" ||
       mode === "category-order-inspect"
       ? "authorized"
       : "unauthorized"
   )
+  if (mode === "task-order" || mode === "task-order-inspect") {
+    const state = await loadLocalAccount()
+    assert(state.account?.userId === userId)
+    const account = state.account
+    const repository = await LocalRepository.open(userId)
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      const settings = await repository.get("settings", userId)
+      assert(settings)
+      const today = todayInTimeZone(settings.timeZone)
+      if (mode === "task-order") {
+        assert((await repository.list("tags")).length === 0)
+        const baseline = (await repository.list("items"))[0]
+        assert(baseline?.kind === "task")
+        const workId = crypto.randomUUID()
+        for (const [name, id, position] of [
+          ["Trabajo", workId, 0],
+          ["Salud", crypto.randomUUID(), 1],
+          ["Casa", crypto.randomUUID(), 2],
+        ] as const)
+          await saveLocalTag(
+            account,
+            id,
+            { name, color: "#059669", position },
+            crypto.randomUUID()
+          )
+        await assignLocalCategory(
+          account,
+          baseline.id,
+          workId,
+          crypto.randomUUID()
+        )
+        for (const [title, date, status] of [
+          ["Revisar notas", today, "not_started"],
+          ["Enviar informe", today, "not_started"],
+          ["Pendiente de ayer", addCivilDays(today, -1), "in_progress"],
+          ["Pendiente de anteayer", addCivilDays(today, -2), "not_started"],
+        ] as const) {
+          const id = crypto.randomUUID()
+          await createLocalTask(
+            account,
+            {
+              kind: "task",
+              title,
+              description: "",
+              scheduledDate: date,
+              status,
+              checklist: [],
+              recurrence: null,
+            },
+            id,
+            crypto.randomUUID()
+          )
+          await assignLocalCategory(account, id, workId, crypto.randomUUID())
+        }
+        assert((await outbox.listEntries()).length === 13)
+      } else {
+        const items = await repository.list("items")
+        const tags = (await repository.list("tags")).sort(compareRank)
+        const views = await repository.list("itemViews")
+        const placements = await repository.list("taskPlacements")
+        const entries = await outbox.listEntries()
+        assert(
+          items.length === 5 && views.length === 5 && placements.length === 5
+        )
+        assert(
+          JSON.stringify(tags.map((tag) => tag.name)) ===
+            JSON.stringify(["Casa", "Trabajo", "Salud"])
+        )
+        assert(
+          entries.length === 19 &&
+            entries.every((entry, index) => entry.sequence === index + 1)
+        )
+        assert(
+          entries.filter(
+            (entry) => entry.operation.command.type === "task.move"
+          ).length === 4
+        )
+        assert(
+          entries.filter((entry) => entry.operation.command.type === "tag.move")
+            .length === 1
+        )
+        assert(entries.at(-1)?.operation.command.type === "task.set-status")
+        const sent = items.find((item) => item.title === "Enviar informe")
+        const completed = items.find(
+          (item) => item.title === "Pendiente de ayer"
+        )
+        const late = items.find(
+          (item) => item.title === "Pendiente de anteayer"
+        )
+        assert(
+          sent?.kind === "task" &&
+            completed?.kind === "task" &&
+            late?.kind === "task"
+        )
+        assert(sent.scheduledDate === today && sent.status === "not_started")
+        assert(
+          completed.scheduledDate === addCivilDays(today, -1) &&
+            completed.status === "completed"
+        )
+        assert(
+          late.scheduledDate === addCivilDays(today, -2) &&
+            late.status === "not_started"
+        )
+        assert(
+          views.find((view) => view.itemId === sent.id)?.primaryTagId ===
+            tags[0].id
+        )
+        assert(
+          placements.find((placement) => placement.occurrenceId === sent.id)
+            ?.tagId === tags[0].id
+        )
+        assert(
+          placements.filter((placement) => placement.scope === "day").length ===
+            3
+        )
+        assert(
+          placements
+            .filter((placement) => placement.scope === "overdue")
+            .every((placement) => placement.date === "0001-01-01")
+        )
+      }
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+    const status = document.getElementById("status")
+    if (status)
+      status.textContent =
+        mode === "task-order"
+          ? "Agenda de orden preparada: cinco tareas, tres categorías y trece intenciones."
+          : "Orden comprobado: diecinueve intenciones, cinco posiciones y fechas conservadas."
+    const link = document.createElement("a")
+    link.href = "/workspace"
+    link.textContent = "Abrir agenda"
+    document.getElementById("actions")?.append(link)
+    return
+  }
   if (mode === "category-order-inspect") {
     const repository = await LocalRepository.open(userId)
     const outbox = await LocalOutbox.open(userId)

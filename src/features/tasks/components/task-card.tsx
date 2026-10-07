@@ -21,6 +21,7 @@ export function TaskCard({
   onStatusChange,
   onChecklistChange,
   categoryControl,
+  orderControl,
   busy = false,
 }: {
   task: Task
@@ -29,6 +30,7 @@ export function TaskCard({
   onStatusChange?: (status: Task["status"]) => void
   onChecklistChange?: (entryId: string, completed: boolean) => void
   categoryControl?: ReactNode
+  orderControl?: ReactNode
   busy?: boolean
 }) {
   return (
@@ -56,8 +58,9 @@ export function TaskCard({
       {onStatusChange ? (
         <TaskStatusControls task={task} busy={busy} onChange={onStatusChange} />
       ) : null}
-      {onEdit || onDelete ? (
+      {onEdit || onDelete || orderControl ? (
         <div className="mt-4 flex flex-wrap gap-3">
+          {orderControl}
           {onEdit ? (
             <button
               type="button"

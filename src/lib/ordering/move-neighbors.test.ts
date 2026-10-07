@@ -1,5 +1,8 @@
 import { expect, test } from "bun:test"
-import { adjacentMoveNeighbors } from "@/lib/ordering/move-neighbors"
+import {
+  adjacentMoveNeighbors,
+  visibleMoveNeighbors,
+} from "@/lib/ordering/move-neighbors"
 import { compareRank, planRankMove } from "@/lib/ordering/rank"
 
 test("adjacent controls communicate neighbors for the actual resulting order", () => {
@@ -25,4 +28,19 @@ test("adjacent controls communicate neighbors for the actual resulting order", (
         .map((row) => row.id)
     ).toEqual([...expected])
   }
+})
+
+test("visible group moves jump empty categories while retaining valid full-list neighbors", () => {
+  const ids = ["a", "empty", "b"]
+  const visible = ["a", "b"]
+  expect(visibleMoveNeighbors(ids, visible, "b", "up")).toEqual({
+    beforeId: "a",
+    afterId: null,
+  })
+  expect(visibleMoveNeighbors(ids, visible, "a", "down")).toEqual({
+    beforeId: null,
+    afterId: "b",
+  })
+  expect(visibleMoveNeighbors(ids, visible, "a", "up")).toBeNull()
+  expect(visibleMoveNeighbors(ids, visible, "missing", "down")).toBeNull()
 })

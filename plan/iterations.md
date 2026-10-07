@@ -208,7 +208,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 07b — Reordenación persistente (dividida)
 
-- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b2b`.
+- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b3`.
 - `target_paths`: componentes/hooks de orden en `src/features/tasks/**` y `src/features/tags/**`, preferencias en `src/lib/local-db/**`.
 - Dependencias: `07a`.
 - Aceptación: mover grupos y tareas, cambiar categoría personal, ordenar atrasadas; alternativa de teclado a drag-and-drop; recarga conserva orden; operaciones por ID/intención, sin reemplazo global de arrays.
@@ -247,6 +247,13 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 #### 07b2b — Orden visible y controles de tareas
 
+- Estado: completa, secuencial; entrada automática 5h 76% / 7d 83%, tras `678ac64`.
+- Objetivo: leer colocaciones de forma independiente (fallo de preferencias no oculta tareas), ordenar por día o global atrasadas, botones Subir/Bajar, cambio de categoría vía `task.move` y grupos con `tag.move`. Una intención por movimiento; fechas intactas.
+- Alcance: `features/tasks/**`, selector de categoría compartido, helper de vecinos visibles/rangos, fixture workspace/servidor/evidencia y `plan/**`. Dependencias `07b1b`, `07b2a`; reutilizar controles, SWR/intent y cuenta. Sin nueva pantalla ni destinos.
+- Foco: preservar botón al reordenar; al cambiar grupo, recuperar el selector de la tarea en su nueva fila dentro de la sección. Grupos saltan categorías vacías mediante vecinos de la lista completa; Sin categoría permanece al final.
+- Hoy y próximas: ordenar y mover dentro de la fecha original de cada tarea, sin cruzar días. Atrasadas usa lista global; completar conserva colocaciones/historial y cambio de día no escribe.
+- Aceptación/validación: prueba de producción con servidores detenidos, día/atrasadas, grupo vacío intermedio, cambio de categoría atómico, teclado/foco, recarga, inspección de cola y estado, 320/390/escritorio/200%, tipos/lint/tests/build, referencias/diff.
+- Resultado: todos los criterios anteriores comprobados; 62 tests aprobados, 7 auth opt-in omitidos, cero fallos; lint/tipos/build aprobados. Inspector confirma 19 operaciones consecutivas y cinco colocaciones, sin cambiar fechas; [evidencia móvil](evidence/07b2b-mobile.png).
 - `target_paths`: lecturas/selectores/hooks y controles de grupos/tareas, fixture/plan. Dependencias: `07b1b`, `07b2a`.
 - Aceptación: movimientos por botones y categoría con teclado/móvil; orden real por día y global atrasadas, recarga offline, una sola intención por cambio, errores españoles y foco conservado. Usar el mismo planificador de orden inicial; no mover fechas. Añadir controles de grupos si aportan acceso directo útil. Actualizar ambas barras si se añade pantalla.
 

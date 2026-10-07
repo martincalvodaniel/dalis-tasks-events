@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ErrorBanner } from "@/components/ui/error-banner"
+import { OrderControls } from "@/components/ui/order-controls"
 import { ItemCategorySelect } from "@/features/tags/components/item-category-select"
-import { useItemCategory } from "@/features/tags/hooks/use-item-category"
 import { useLocalTags } from "@/features/tags/hooks/use-local-tags"
+import { useTagOrder } from "@/features/tags/hooks/use-tag-order"
 import {
   type AgendaSelection,
   groupAgendaTasks,
@@ -14,11 +15,22 @@ import { DeleteTaskDialog } from "@/features/tasks/components/delete-task-dialog
 import { TaskCard } from "@/features/tasks/components/task-card"
 import { TaskComposer } from "@/features/tasks/components/task-composer"
 import { TaskGroup } from "@/features/tasks/components/task-group"
+import { useLocalTaskPlacements } from "@/features/tasks/hooks/use-local-task-placements"
 import { useLocalTasks } from "@/features/tasks/hooks/use-local-tasks"
+import { useTaskOrder } from "@/features/tasks/hooks/use-task-order"
 import { useTaskProgress } from "@/features/tasks/hooks/use-task-progress"
 import { deleteLocalTask } from "@/features/tasks/local-tasks"
+import {
+  orderAgendaGroupTasks,
+  taskOrderContext,
+  taskOrderPeers,
+} from "@/features/tasks/task-order-selection"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import type { LocalAccount } from "@/features/workspace/local-account"
+import {
+  adjacentMoveNeighbors,
+  visibleMoveNeighbors,
+} from "@/lib/ordering/move-neighbors"
 import type { Task } from "@/types/calendar-item"
 
 const allTasksSelection = { kind: "all" } as const
@@ -36,7 +48,21 @@ export function TaskList({
   const { refresh } = useLocalAccount()
   const progress = useTaskProgress(account)
   const { data: categories, error: categoryReadError } = useLocalTags(account)
-  const category = useItemCategory(account)
+  const ordering = useTaskOrder(account)
+  const groupOrdering = useTagOrder(account)
+  const { data: placements, error: placementReadError } =
+    useLocalTaskPlacements(account)
+  const section = useRef<HTMLElement>(null)
+  const categoryFocus = useRef<string | null>(null)
+  useEffect(() => {
+    if (ordering.busy || categoryFocus.current === null) return
+    section.current
+      ?.querySelector<HTMLSelectElement>(
+        `select[data-item-id="${categoryFocus.current}"]`
+      )
+      ?.focus({ preventScroll: true })
+    categoryFocus.current = null
+  }, [ordering.busy])
   const [editing, setEditing] = useState<Task | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Task | null>(null)
@@ -44,6 +70,24 @@ export function TaskList({
   const groups = groupAgendaTasks(
     tasks,
     categoryReadError ? undefined : categories
+  ).map((group) => ({
+    ...group,
+    tasks:
+      placements && !placementReadError
+        ? orderAgendaGroupTasks(
+            group.tasks,
+            placements,
+            selection,
+            group.id === "uncategorized" ? null : group.id
+          )
+        : group.tasks,
+  }))
+  const visibleTagIds = groups
+    .filter((group) => categories?.tags.some((tag) => tag.id === group.id))
+    .map((group) => group.id)
+  const busy = deleting || progress.busy || ordering.busy || groupOrdering.busy
+  const canOrder = Boolean(
+    categories && !categoryReadError && placements && !placementReadError
   )
   async function remove(task: Task, operationId: string) {
     setDeleting(true)
@@ -58,6 +102,7 @@ export function TaskList({
   }
   return (
     <section
+      ref={section}
       aria-label={
         selection.kind === "day"
           ? "Tareas del día"
@@ -79,13 +124,18 @@ export function TaskList({
         </ErrorBanner>
       ) : null}
       {progress.busy ? <p role="status">Guardando progreso…</p> : null}
-      {categoryReadError || category.error ? (
+      {categoryReadError ||
+      ordering.error ||
+      placementReadError ||
+      groupOrdering.error ? (
         <ErrorBanner>
-          No se pudo leer o guardar la categoría. Vuelve a intentarlo; tus
-          tareas se conservan.
+          No se pudo leer o guardar el orden o la categoría. Vuelve a
+          intentarlo; tus tareas se conservan.
         </ErrorBanner>
       ) : null}
-      {category.busy ? <p role="status">Guardando categoría…</p> : null}
+      {ordering.busy || groupOrdering.busy ? (
+        <p role="status">Guardando orden y categoría…</p>
+      ) : null}
       {pendingDelete ? (
         <DeleteTaskDialog
           task={pendingDelete}
@@ -115,23 +165,125 @@ export function TaskList({
       ) : tasks?.length ? (
         <div className="space-y-6">
           {groups.map((group) => (
-            <TaskGroup key={group.id} title={group.title}>
+            <TaskGroup
+              key={group.id}
+              title={group.title}
+              orderControl={
+                canOrder &&
+                visibleTagIds.length > 1 &&
+                visibleTagIds.includes(group.id) ? (
+                  <OrderControls
+                    label={`grupo ${group.title}`}
+                    busy={busy}
+                    canMoveUp={visibleTagIds.indexOf(group.id) > 0}
+                    canMoveDown={
+                      visibleTagIds.indexOf(group.id) < visibleTagIds.length - 1
+                    }
+                    onMove={(direction) => {
+                      const neighbors = visibleMoveNeighbors(
+                        categories?.tags.map((tag) => tag.id) ?? [],
+                        visibleTagIds,
+                        group.id,
+                        direction
+                      )
+                      if (neighbors)
+                        void groupOrdering.change({
+                          type: "tag.move",
+                          tagId: group.id,
+                          ...neighbors,
+                        })
+                    }}
+                  />
+                ) : undefined
+              }
+            >
               {group.tasks.map((task) => (
                 <li key={task.id}>
                   <TaskCard
                     task={task}
                     onEdit={() => setEditing(task)}
                     onDelete={() => setPendingDelete(task)}
-                    busy={deleting || progress.busy || category.busy}
+                    busy={busy}
                     categoryControl={
                       categories && !categoryReadError ? (
                         <ItemCategorySelect
                           title={task.title}
+                          itemId={task.id}
                           tags={categories.tags}
                           selectedId={categories.views[task.id] ?? null}
-                          busy={deleting || progress.busy || category.busy}
+                          busy={busy || !canOrder}
                           onChange={(tagId) => {
-                            void category.change({ itemId: task.id, tagId })
+                            const currentTagId =
+                              group.id === "uncategorized" ? null : group.id
+                            if (tagId === currentTagId) return
+                            const destination = groups.find(
+                              (candidate) =>
+                                candidate.id === (tagId ?? "uncategorized")
+                            )
+                            const peers = taskOrderPeers(
+                              destination?.tasks ?? [],
+                              selection,
+                              task
+                            ).filter((record) => record.id !== task.id)
+                            categoryFocus.current = task.id
+                            void ordering.change({
+                              type: "task.move",
+                              itemId: task.id,
+                              occurrenceId: null,
+                              tagId,
+                              ...taskOrderContext(selection, task),
+                              beforeId: null,
+                              afterId: peers.at(-1)?.id ?? null,
+                            })
+                          }}
+                        />
+                      ) : undefined
+                    }
+                    orderControl={
+                      canOrder ? (
+                        <OrderControls
+                          label={`tarea ${task.title}`}
+                          busy={busy}
+                          canMoveUp={
+                            taskOrderPeers(
+                              group.tasks,
+                              selection,
+                              task
+                            ).findIndex((record) => record.id === task.id) > 0
+                          }
+                          canMoveDown={
+                            taskOrderPeers(
+                              group.tasks,
+                              selection,
+                              task
+                            ).findIndex((record) => record.id === task.id) <
+                            taskOrderPeers(group.tasks, selection, task)
+                              .length -
+                              1
+                          }
+                          onMove={(direction) => {
+                            const peers = taskOrderPeers(
+                              group.tasks,
+                              selection,
+                              task
+                            )
+                            const neighbors = adjacentMoveNeighbors(
+                              peers.map((record) => record.id),
+                              task.id,
+                              direction
+                            )
+                            if (neighbors)
+                              void ordering.change({
+                                type: "task.move",
+                                itemId: task.id,
+                                occurrenceId: null,
+                                tagId:
+                                  group.id === "uncategorized"
+                                    ? null
+                                    : group.id,
+                                ...taskOrderContext(selection, task),
+                                ...neighbors,
+                              })
                           }}
                         />
                       ) : undefined

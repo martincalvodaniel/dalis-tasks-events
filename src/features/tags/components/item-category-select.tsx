@@ -9,7 +9,9 @@ export function ItemCategorySelect({
   selectedId,
   busy,
   onChange,
+  itemId,
 }: {
+  itemId?: string
   title: string
   tags: Tag[]
   selectedId: string | null
@@ -25,6 +27,7 @@ export function ItemCategorySelect({
       </label>
       <select
         id={id}
+        data-item-id={itemId}
         value={active ?? ""}
         disabled={busy}
         onChange={(event) => onChange(event.target.value || null)}

@@ -284,6 +284,15 @@
 - Validación: 59 tests aprobados (nuevo caso de comandos de vecinos para las cuatro direcciones), 7 auth opt-in sin repetir, cero fallos; tipos, lint limpio y build aprobados; diff/referencias revisados. Sin dependencias, migración o nuevos índices.
 - Commit: `feat(tags): reorder categories with accessible offline controls`. Próxima candidata `07b2b`, lectores y controles de tareas, tras consultar ambas cuotas.
 
+## 07b2b — Orden accesible de tareas y grupos
+
+- Rama `main`, secuencial; entrada automática **5h 76%; 7d 83%**, tras `678ac64`. Alcance definido antes de editar: servicio/lector/hook de colocaciones, selección por alcance, controles de tareas/grupos, foco del selector, fixture y plan. Dependencias `07b1b`, `07b2a`; sin pantalla, índice, migración ni dependencia nuevos.
+- Resultado: lector independiente de posiciones no oculta tareas si falla; orden por día en calendario/Hoy y próximas y global en atrasadas. Subir/Bajar y cambio de categoría usan `task.move`; grupos usan `tag.move` con vecinos de la lista completa para saltar categorías vacías. Sin categoría permanece al final. Reutiliza guardia de cuenta, bloqueo de intención y revalidación SWR; errores visibles españoles. Foco conserva flecha o selector al pasar a otro grupo.
+- Producción con ambos servidores detenidos: dos movimientos de Enviar informe por click/Enter, límite por Return sin escritura, cambio Trabajo→Casa y subir grupo Casa saltando Salud vacío; subir tarea de ayer en atrasadas y completarla. Recarga y navegación offline conservan orden y estado, calendario del día original conserva la completada. Inspector confirma 19 secuencias consecutivas, exactamente cuatro `task.move`, un `tag.move`, cinco colocaciones (tres day/dos overdue) y cinco fechas intactas. Reloj de iframe avanza un día: pendientes pasan a atrasadas, el rango global previo precede tareas recién atrasadas dentro de Trabajo; no añade intenciones.
+- Diseño: 320/390px sin desbordamiento; escritorio 1280px muestra barra superior. Texto al 200% en iframe de 280px: página 280px, barra inferior 269px, reserva 576px. [Orden en móvil](evidence/07b2b-mobile.png). Cuenta/control/worker/cache ficticios retirados, viewport restablecido, pestañas y procesos aislados detenidos; servidor del usuario conservado.
+- Validación: 62 tests aprobados (tres casos nuevos de alcances/vecinos visibles), 7 auth opt-in omitidos, cero fallos; lint limpio, tipos y build aprobados. Se corrigió el nombre de un campo de fixture detectado por tipos antes del build final. Diff/referencias revisados.
+- Commit: `feat(tasks): reorder daily tasks and overdue groups offline`. Próxima candidata `07b3`, arrastre con los mismos comandos y controles de botones conservados; leer ambas cuotas antes de definir su corte.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |
