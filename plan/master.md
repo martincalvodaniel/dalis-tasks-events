@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas, navegación y creación de tareas comprobados (`01a–05b1`); siguiente candidata `05b2`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación y creación de tareas comprobados (`01a–05b2`); siguiente candidata `05b3`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -116,3 +116,5 @@ Lote reanudado cerrado al completar `05a1`: shell offline, cierre/cuentas, barra
 `05a2` completa edición y borrado offline con confirmación y protección frente a editores obsoletos. Lote reanudado con 100%/30% comunicados; las lecturas automáticas posteriores reflejan renovación de ambas ventanas (96%/99% durante el cierre). Se conserva la reserva del 20% y el control tras cada commit. Próxima candidata `05b1`, estados y checklist interactivos; categorías se separan para mantener entregas pequeñas.
 
 `05b1` incorpora estados y checklist interactivos con intenciones por campo, recarga offline y acciones accesibles comprobadas en móvil. Próxima entrega: transacciones de categorías y preferencias (`05b2`) antes de su interfaz (`05b3`).
+
+`05b2` deja operativas las intenciones locales de categorías y asignaciones personales: unicidad normalizada, tombstones, aislamiento, reintento y rollback comprobados en IndexedDB real. La interfaz de categorías es la próxima entrega (`05b3`).

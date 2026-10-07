@@ -175,6 +175,17 @@
 - Commit: `feat(tasks): change status and checklist progress offline`.
 - Próxima candidata `05b2`, contratos/transacciones de categorías y preferencias en secuencial; consultar cuotas tras commit y reservar cierre completo.
 
+## 05b2 — Categorías y asignaciones personales atómicas
+
+- Rama `main`, secuencial; entrada automática tras `acce8ab`: **5h 83%; 7d 97%**. Reserva 20%, lote vigente.
+- Objetivo y `target_paths`: schema/tipo de entidades personales en outbox, mutación/transacción de preferencias en `lib/local-db/**`, suite `test/browser/preferences.ts` y su servidor, pruebas unitarias y plan. Dependencia `05b1`. Entrega de infraestructura, sin nueva pantalla ni dependencia.
+- Resultado: crear/editar/borrar categoría propia y asignar/retirar categoría por elemento; nombres activos normalizados únicos, borrado lógico sin tocar tareas/vistas, nuevo ID al repetir nombre borrado. Dato+intención+contador+cola de preferencias atómicos, IDs estables para reintento y protección de editor obsoleto. Dependencias evitan enviar asignación antes de elemento/categoría o borrar antes de asignar.
+- Evidencia en IndexedDB real: cinco checks pasan; reintento no duplica y colisión de payload rechazada; cambio con valor esperado antiguo rechazado; borrar conserva tarea idéntica; retirar/reasignar y reutilizar nombre con nuevo ID; dos conexiones concurrentes dejan solo un nombre NFKC normalizado; segunda cuenta tiene cola separada. Fallo inducido del índice de secuencia después de escribir revierte categoría/cola/metadatos, siguiente operación conserva secuencia 11. Nueva carga de documento conserva dos categorías activas, dos tombstones, vista personal y doce operaciones consecutivas. Particiones de prueba limpiadas y servidor detenido.
+- Validación: tipos, lint global y build aprobados; 40 tests pasan, cero fallos y 7 auth opt-in sin cambios. `git diff --check` aprobado. Índices/migración evaluados y documentados: reutilizar tiendas/versiones existentes, escaneo local de nombres bajo transacción y claves primarias; MongoDB/índices remotos pendientes de `11a`. Sin secretos ni push.
+- Decisión: cola conservadora de preferencias `preference-tail`, máximo tres dependencias directas; referencias a categorías borradas quedan disponibles para reconciliación y se mostrarán sin categoría. Documentado impacto de conflicto en coordinador futuro.
+- Commit: `feat(tags): persist personal categories and assignments atomically`.
+- Próxima candidata `05b3`, interfaz de gestión/asignación y navegación coherente, secuencial; consultar cuotas tras commit.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

@@ -15,10 +15,25 @@ export const itemEntityKeySchema = z
       entityIdSchema.safeParse(value.slice(5)).success,
     "Invalid item entity key"
   )
+export const personalEntityKeySchema = z.string().refine((value) => {
+  const prefix = value.startsWith("tag:")
+    ? "tag:"
+    : value.startsWith("item-view:")
+      ? "item-view:"
+      : null
+  return (
+    prefix !== null &&
+    entityIdSchema.safeParse(value.slice(prefix.length)).success
+  )
+}, "Invalid personal entity key")
+export const outboxEntityKeySchema = z.union([
+  itemEntityKeySchema,
+  personalEntityKeySchema,
+])
 export const outboxEntrySchema = z
   .strictObject({
     userId: userIdSchema,
-    entityKey: itemEntityKeySchema,
+    entityKey: outboxEntityKeySchema,
     operation: syncOperationSchema,
     sequence: z.number().int().min(1).max(Number.MAX_SAFE_INTEGER),
     dependencies: z.array(entityIdSchema).max(32),
@@ -39,12 +54,14 @@ export const outboxEntrySchema = z
     (entry) => (entry.state === "sending") === (entry.lease !== null),
     "Sending state requires a lease"
   )
-  .refine(
-    (entry) =>
-      "itemId" in entry.operation.command &&
-      entry.entityKey === `item:${entry.operation.command.itemId}`,
-    "Outbox entity does not match its command"
-  )
+  .refine((entry) => {
+    const command = entry.operation.command
+    if (command.type === "tag.save" || command.type === "tag.delete")
+      return entry.entityKey === `tag:${command.tagId}`
+    if (command.type === "item-view.set")
+      return entry.entityKey === `item-view:${command.itemId}`
+    return "itemId" in command && entry.entityKey === `item:${command.itemId}`
+  }, "Outbox entity does not match its command")
   .refine(
     (entry) =>
       new Set(entry.dependencies).size === entry.dependencies.length &&
@@ -65,4 +82,9 @@ export const remoteShadowSchema = z
 export const outboxSequenceSchema = z.strictObject({
   key: z.literal("outbox-sequence"),
   value: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER),
+})
+
+export const preferenceTailSchema = z.strictObject({
+  key: z.literal("preference-tail"),
+  operationId: entityIdSchema,
 })

@@ -2,6 +2,7 @@
 
 import { openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalItemCommand } from "@/lib/local-db/item-mutation"
+import { commitLocalPreferenceCommand } from "@/lib/local-db/preference-outbox"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { calendarItemSchema } from "@/schemas/calendar-item"
@@ -19,9 +20,11 @@ import { syncCommandSchema } from "@/schemas/sync"
 import type { CalendarItem } from "@/types/calendar-item"
 import type {
   LocalItemCommand,
+  LocalPreferenceCommand,
   OutboxEntry,
   RemoteShadow,
 } from "@/types/local-sync"
+import type { Tag } from "@/types/preferences"
 
 export class LocalOutbox {
   private constructor(
@@ -204,6 +207,18 @@ export class LocalOutbox {
           }
         }
       }
+    )
+  }
+
+  commitPreferenceCommand(
+    input: LocalPreferenceCommand,
+    options: { operationId?: string; now?: Date; expectedTag?: Tag } = {}
+  ): Promise<OutboxEntry> {
+    return commitLocalPreferenceCommand(
+      this.database,
+      this.userId,
+      input,
+      options
     )
   }
 

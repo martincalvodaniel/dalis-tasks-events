@@ -161,6 +161,8 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 #### 05b2 — Intenciones locales para categorías y preferencias
 
+- Estado: completada; transacciones, duplicados concurrentes, dependencias, rollback e inspección tras nueva carga comprobados en IndexedDB real.
+
 - Objetivo: contratos y transacciones de crear/editar/borrar categoría personal y asignar categoría al elemento sin alterar su contenido.
 - `target_paths`: schemas/types compartidos, outbox/mutaciones de preferencias en `lib/local-db/**`, pruebas y plan. Dependencia: `05b1`.
 - Aceptación: pertenencia a cuenta validada, nombres duplicados tratados explícitamente, borrado conserva tareas y cola; asignaciones y categoría/orden quedan listos para transporte remoto. Evaluar índices y compatibilidad de registros existentes antes de editar.
