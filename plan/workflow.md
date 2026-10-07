@@ -116,3 +116,10 @@ El usuario revoca el cierre tras `206fac6`: pide aprovechar el 24% y comunica re
 El usuario confirma la rama de integración `int` y autoriza commit y push tras cada iteración terminada para activar el autodespliegue preproductivo existente. Comprobar rama/diff/tests/build y cerrar el commit antes del push; verificar que HEAD remoto coincide. No crear despliegues adicionales, publicar producción ni modificar secretos/configuración de hosting. La autorización sustituye la prohibición por defecto de push para esta rama; sigue vigente la protección de otras ramas.
 
 La consulta al llegar al reinicio confirma nueva ventana **100%/73%**, 7oct19:15Madrid, después de cerrar/push071a2c4. Vercel deployment success confirmado para ese SHA. Se vuelve a reserva reforzada20% y se continúa secuencial: preparar snapshot mensual08c1b0, después UI de creación/listado08c1b1. No comparar consumo5h a través del reinicio.
+
+
+### Cierre tras09b4b1
+
+Continuación de integración entrega hasta referencias acotadas de tarea/aparición y movimiento mixto del día. Todos los cortes tienen commit y push aorigin/int; Vercel success confirmado hasta6ea331b. Después de7c8dc42:28%/61% restantes. Desde09b3b/09b4a se observaron7/8 puntos de consumo5h por entrega entre consultas comparables; no excluyen otras sesiones.
+
+Ocho puntos disponibles sobre reserva20% no cubren el siguiente cambio de orden del backlog, paginación, compatibilidad de datos y reparaciones. Se cierra solo diseño09b4b0 (referencias/diff/consistencia/commit/push), sin abrir otro cambio de código. Cuota final se comunica tras ese commit; no se consumen créditos ni se depende de un reinicio no confirmado. Próximo corte09b4b2a segúnbacklog-ordering; recuperar ambas lecturas nuevas al reanudar.

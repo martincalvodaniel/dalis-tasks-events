@@ -19,6 +19,7 @@ Este documento es la entrada al plan. La iteración `00` entregó la planificaci
 | [Iteraciones](iterations.md) | Entregas pequeñas, dependencias, rutas y aceptación. |
 | [Flujo de trabajo](workflow.md) | Ventanas de Codex, cierre, commits, pruebas y paralelismo. |
 | [Reordenación](reordering.md) | Intenciones, ranking, alcances y cortes concretos de `07b`. |
+| [Orden del backlog repetido](backlog-ordering.md) | Problema de ranks implícitos, propuesta a validar y próximos cortes de `09b4b2`. |
 | [Registro de iteraciones](iteration-log.md) | Trabajo completado, evidencias y siguiente candidata. |
 | [Operación de auth](auth-operations.md) | Transición de sesiones antiguas y verificación vigente. |
 
@@ -181,3 +182,8 @@ Al integrar contadores mensuales en08c1, preparar selección por rango y reutili
 
 
 `09b4b1` resuelve una tarea/aparición por identidad original con una sola consulta de slot, sin expandir años de backlog. Guarda la semántica de excepciones históricas y se reutiliza al validar el target del día. Ordenar backlog de apariciones y conectar UI de repetición siguen pendientes.
+
+
+### Cierre tras09b4b1
+
+Lote completado hasta lookup de referencias: estado/checklist, edición/cancelación, selección paginada, snapshot coherente y orden mixto del día, con commits y push aint individuales. Lectura previa al cierre documental28%/61%. La siguiente entrega modifica orden/paginación/persistencia y necesita más que ocho puntos sobre reserva20%; cortes comparables anteriores consumieron7/8 puntos sin contar incertidumbre compartida. Se documenta propuesta y subentregas en [backlog-ordering](backlog-ordering.md), sin modificar schema ni activar el ejecutor pendiente. No hay código abierto; UI de repetición, cumpleaños, sincronización y compartición siguen pendientes. La próxima sesión requiere ambas lecturas nuevas para elegir09b4b2a.
