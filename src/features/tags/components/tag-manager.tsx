@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { DragOrderHandle } from "@/components/ui/drag-order-handle"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { OrderControls } from "@/components/ui/order-controls"
 import { DeleteTagDialog } from "@/features/tags/components/delete-tag-dialog"
@@ -100,34 +101,53 @@ export function TagManager({ account }: { account: LocalAccount }) {
           <section aria-label="Categorías guardadas">
             <h2 className="mb-4 text-xl font-semibold">Tus categorías</h2>
             {data.tags.length ? (
-              <ul className="space-y-4">
+              <ul data-order-list className="space-y-4">
                 {data.tags.map((tag, index) => (
-                  <li key={tag.id}>
+                  <li
+                    key={tag.id}
+                    data-order-item={tag.id}
+                    data-order-label={tag.name}
+                  >
                     <TagCard
                       tag={tag}
                       busy={busy}
                       onEdit={() => setEditing(tag)}
                       onDelete={() => setPendingDelete(tag)}
                       orderControl={
-                        <OrderControls
-                          label={`categoría ${tag.name}`}
-                          busy={busy}
-                          canMoveUp={index > 0}
-                          canMoveDown={index < data.tags.length - 1}
-                          onMove={(direction) => {
-                            const neighbors = adjacentMoveNeighbors(
-                              data.tags.map((record) => record.id),
-                              tag.id,
-                              direction
-                            )
-                            if (neighbors)
+                        <>
+                          <DragOrderHandle
+                            itemId={tag.id}
+                            label={`categoría ${tag.name}`}
+                            peers={data.tags.map((record) => record.id)}
+                            busy={busy}
+                            onDrop={(neighbors) => {
                               void ordering.change({
                                 type: "tag.move",
                                 tagId: tag.id,
                                 ...neighbors,
                               })
-                          }}
-                        />
+                            }}
+                          />
+                          <OrderControls
+                            label={`categoría ${tag.name}`}
+                            busy={busy}
+                            canMoveUp={index > 0}
+                            canMoveDown={index < data.tags.length - 1}
+                            onMove={(direction) => {
+                              const neighbors = adjacentMoveNeighbors(
+                                data.tags.map((record) => record.id),
+                                tag.id,
+                                direction
+                              )
+                              if (neighbors)
+                                void ordering.change({
+                                  type: "tag.move",
+                                  tagId: tag.id,
+                                  ...neighbors,
+                                })
+                            }}
+                          />
+                        </>
                       }
                     />
                   </li>

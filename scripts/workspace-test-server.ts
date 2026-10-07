@@ -75,10 +75,25 @@ Bun.serve({
         url.pathname + url.search,
         "http://127.0.0.1:4183"
       )
-      const response = await fetch(upstream, {
-        redirect: "manual",
-        headers: { "Accept-Encoding": "identity" },
-      })
+      let response: Response
+      try {
+        response = await fetch(upstream, {
+          redirect: "manual",
+          headers: { "Accept-Encoding": "identity" },
+        })
+      } catch (error) {
+        if (
+          error &&
+          typeof error === "object" &&
+          "code" in error &&
+          error.code === "ConnectionRefused"
+        )
+          return new Response("Isolated upstream is offline", {
+            status: 503,
+            headers,
+          })
+        throw error
+      }
       const upstreamHeaders = new Headers(response.headers)
       upstreamHeaders.delete("content-encoding")
       upstreamHeaders.delete("content-length")

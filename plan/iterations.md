@@ -208,7 +208,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 07b — Reordenación persistente (dividida)
 
-- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b3`.
+- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b3b`.
 - `target_paths`: componentes/hooks de orden en `src/features/tasks/**` y `src/features/tags/**`, preferencias en `src/lib/local-db/**`.
 - Dependencias: `07a`.
 - Aceptación: mover grupos y tareas, cambiar categoría personal, ordenar atrasadas; alternativa de teclado a drag-and-drop; recarga conserva orden; operaciones por ID/intención, sin reemplazo global de arrays.
@@ -257,7 +257,21 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 - `target_paths`: lecturas/selectores/hooks y controles de grupos/tareas, fixture/plan. Dependencias: `07b1b`, `07b2a`.
 - Aceptación: movimientos por botones y categoría con teclado/móvil; orden real por día y global atrasadas, recarga offline, una sola intención por cambio, errores españoles y foco conservado. Usar el mismo planificador de orden inicial; no mover fechas. Añadir controles de grupos si aportan acceso directo útil. Actualizar ambas barras si se añade pantalla.
 
-#### 07b3 — Arrastre con el mismo comando
+#### 07b3a — Arrastre de categorías y control compartido
+
+- Estado: completa, secuencial; entrada automática 5h 67% / 7d 82%, tras `29e0d7b`. División decidida antes de editar para probar el gesto antes de conectarlo a tareas/grupos.
+- Objetivo: handle de Pointer Events para ratón/táctil con umbral, captura, cancelación por Escape/pérdida de foco, indicador de destino y scroll en bordes; una operación solo al soltar en un destino válido. Reutilizar `tag.move` y Subir/Bajar.
+- `target_paths`: `components/ui/drag-order-handle.tsx`, icono SVG, helper puro de vecinos de drop y tests, manager/card de categorías, fixture/servidor/evidencias y plan. Dependencias `07b2b`. Sin nueva pantalla, paquetes, esquema o índice.
+- Aceptación: cancelación y click sin mover no escriben; soltar guarda una intención, límites/destinos obsoletos no inventan vecinos, foco tras guardar, recarga offline; arrastre con scroll y teclado alternativo. Prueba real de ratón más secuencia táctil en fixture aislado, responsividad; lint/tipos/tests/build/referencias/diff.
+- Resultado: ratón real con servidores detenidos, cancelación fuera de lista, un `tag.move` y recarga comprobados; secuencia táctil sintética con captura sustituida solo en fixture comprueba handlers/cancelación/scroll. No sustituye piloto táctil de dispositivo real. 63 tests, lint/tipos/build aprobados; [controles móviles](evidence/07b3a-mobile.png).
+
+#### 07b3b — Arrastre de tareas y grupos
+
+- `target_paths`: filas/controles de tareas y grupos, pruebas/fixture, plan. Dependencia: `07b3a`.
+- Objetivo: conectar el control compartido a comandos existentes por día/global atrasadas y al orden de grupos; categoría se cambia con selector accesible. No cruzar días ni modificar fechas.
+- Aceptación: arrastre táctil/ratón y cancelación, una intención al soltar, scroll móvil; alternativa por botones permanece operativa. Sin biblioteca nueva.
+
+#### 07b3 — Arrastre con el mismo comando (bloque)
 
 - `target_paths`: filas/controles de orden y pruebas, plan. Dependencia: `07b2b`.
 - Aceptación: arrastre táctil/ratón y cancelación, una intención al soltar, scroll móvil; alternativa por botones permanece operativa. Sin biblioteca nueva.
@@ -265,7 +279,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 ## 08 — Eventos y citas
 
 - `target_paths`: `src/features/events/**`, selectores de calendario, reglas de zonas en `src/lib/calendar/**`, schemas de evento.
-- Dependencias: `07b1a–07b3`.
+- Dependencias: `07b1a–07b3b`.
 - Aceptación: activar “Evento o cita”; hora, categoría, descripción, duración opcional y día completo; orden cronológico; evento que cruza medianoche visible en los días correctos; editar/borrar offline. Validar horas ambiguas/inexistentes y duración antes de guardar.
 - Corte: si conversión de zona requiere aprobación de dependencia, cerrar primero su análisis; no aproximar horas silenciosamente.
 

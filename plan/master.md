@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; diálogos y navegación móvil corregidos en `07c`; ranking y categorías atómicas entregados en `07b1a`; colocaciones atómicas de tareas entregadas en `07b1b`; controles accesibles de categorías, tareas y grupos entregados en `07b2a–07b2b`; siguiente candidata `07b3`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; diálogos y navegación móvil corregidos en `07c`; ranking y categorías atómicas entregados en `07b1a`; colocaciones atómicas de tareas entregadas en `07b1b`; controles accesibles de categorías, tareas y grupos entregados en `07b2a–07b2b`; arrastre de categorías entregado en `07b3a`; siguiente candidata `07b3b`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 

@@ -293,6 +293,16 @@
 - Validación: 62 tests aprobados (tres casos nuevos de alcances/vecinos visibles), 7 auth opt-in omitidos, cero fallos; lint limpio, tipos y build aprobados. Se corrigió el nombre de un campo de fixture detectado por tipos antes del build final. Diff/referencias revisados.
 - Commit: `feat(tasks): reorder daily tasks and overdue groups offline`. Próxima candidata `07b3`, arrastre con los mismos comandos y controles de botones conservados; leer ambas cuotas antes de definir su corte.
 
+## 07b3a — Arrastre de categorías y handle compartido
+
+- Rama `main`, secuencial; entrada automática **5h 67%; 7d 82%**, tras `29e0d7b`. Corte definido antes de editar para separar interacción de integración en tareas/grupos. `target_paths`: handle/icono/helper de vecinos, manager de categorías, fixtures de gesto/workspace, servidor de pruebas y plan. Sin nueva pantalla, dependencia, store, índice o cambio de contrato.
+- Resultado: Pointer Events, captura y umbral de 6px, handle táctil `touch-action: none` sin bloquear scroll del resto de la tarjeta; indicador de inserción y anuncio de destino en español. RAF solo durante gesto activo, scroll junto a bordes respetando la barra fija. Cancelación por Escape, pointercancel, pérdida de captura/foco/visibilidad, cambio de peers o guardado. Click o misma posición no invocan el comando; soltar válido usa `tag.move` una vez y conserva foco. Subir/Bajar continúan disponibles.
+- Evidencia: con ambos servidores detenidos, click de Casa sin cambio, arrastrar Salud fuera de lista cancela, Casa→inicio confirma Casa/Trabajo/Salud y foco en Casa. Recarga offline conserva orden. Inspector verifica 14 operaciones totales, exactamente un `tag.move`, cinco tareas y cero colocaciones de tareas: cancelación/click no escribieron. Herramienta de navegador tuvo una espera fallida; se recuperó el enlace y se completó el recorrido antes del cierre.
+- Fixture táctil aislado: PointerEvent con pointerType touch prueba click, umbral, pointercancel, Escape, blur, drop fuera de lista, autoscroll y doble pointerup con una sola entrega. La captura se sustituye únicamente en el nodo ficticio para despachar eventos sintéticos; no modifica el handle de producto. Pendiente piloto con hardware táctil real en `15`, sin afirmar que esta secuencia equivale a él.
+- Diseño: 320/390px sin desbordamiento, handles y alternativas envuelven; escritorio sigue con barra superior. 200% en iframe 280px: ancho/scroll 280px, barra 269px, reserva 576px. [Captura móvil](evidence/07b3a-mobile.png). Datos/control/cache/worker de cuenta ficticia limpiados; tabs, viewport y procesos retirados. Proxy de prueba ahora devuelve 503 solo al estar apagado su upstream aislado, evitando ruido esperado; no cambia auth ni el rechazo de worker faltante.
+- Validación: 63 tests pasan, 7 auth opt-in omitidos, cero fallos; tipos, lint sin warnings y build final aprobados. Fixture extraído a componente propio para evitar ruido de Fast Refresh. Diff/referencias revisados.
+- Commit: `feat(tags): drag categories with cancelable pointer controls`. Próxima candidata `07b3b`, con lectura automática nueva antes de integrar tareas/grupos.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

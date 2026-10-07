@@ -19,6 +19,7 @@ import { localDatabaseName } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import { LocalRepository } from "@/lib/local-db/repository"
 import { compareRank } from "@/lib/ordering/rank"
+import { runTouchDragChecks } from "./drag-handle"
 
 if (
   location.hostname !== "127.0.0.1" ||
@@ -62,6 +63,12 @@ async function requestStatus() {
 }
 async function run() {
   const mode = new URLSearchParams(location.search).get("mode")
+  if (mode === "drag-touch") {
+    const actions = document.getElementById("actions")
+    assert(actions)
+    await runTouchDragChecks(actions)
+    return
+  }
   if (mode === "magnify") {
     const frame = document.createElement("iframe")
     frame.title = "Espacio con texto ampliado"
@@ -124,10 +131,37 @@ async function run() {
       mode === "agenda-inspect" ||
       mode === "task-order" ||
       mode === "task-order-inspect" ||
+      mode === "category-drag-inspect" ||
       mode === "category-order-inspect"
       ? "authorized"
       : "unauthorized"
   )
+  if (mode === "category-drag-inspect") {
+    const repository = await LocalRepository.open(userId)
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      const tags = (await repository.list("tags")).sort(compareRank)
+      const entries = await outbox.listEntries()
+      assert(tags.map((tag) => tag.name).join() === "Casa,Trabajo,Salud")
+      assert(
+        entries.length === 14 &&
+          entries.filter((entry) => entry.operation.command.type === "tag.move")
+            .length === 1
+      )
+      assert(
+        (await repository.list("items")).length === 5 &&
+          (await repository.list("taskPlacements")).length === 0
+      )
+      const status = document.getElementById("status")
+      if (status)
+        status.textContent =
+          "Arrastre guardado una vez: categorías ordenadas, cinco tareas intactas y cancelación sin escrituras."
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+    return
+  }
   if (mode === "task-order" || mode === "task-order-inspect") {
     const state = await loadLocalAccount()
     assert(state.account?.userId === userId)

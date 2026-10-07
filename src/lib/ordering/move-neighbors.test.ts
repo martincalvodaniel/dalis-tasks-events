@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test"
 import {
   adjacentMoveNeighbors,
+  dropMoveNeighbors,
   visibleMoveNeighbors,
 } from "@/lib/ordering/move-neighbors"
 import { compareRank, planRankMove } from "@/lib/ordering/rank"
@@ -28,6 +29,28 @@ test("adjacent controls communicate neighbors for the actual resulting order", (
         .map((row) => row.id)
     ).toEqual([...expected])
   }
+})
+
+test("drop neighbors ignore unchanged positions and invalid or self targets", () => {
+  const ids = ["a", "b", "c", "d"]
+  expect(dropMoveNeighbors(ids, "b", "a", "after")).toBeNull()
+  expect(dropMoveNeighbors(ids, "b", "c", "before")).toBeNull()
+  expect(dropMoveNeighbors(ids, "b", "b", "after")).toBeNull()
+  expect(dropMoveNeighbors(ids, "b", "missing", "after")).toBeNull()
+  expect(dropMoveNeighbors(ids, "missing", "a", "after")).toBeNull()
+  expect(dropMoveNeighbors(ids, "d", "a", "before")).toEqual({
+    beforeId: "a",
+    afterId: null,
+  })
+  expect(dropMoveNeighbors(ids, "a", "d", "after")).toEqual({
+    beforeId: null,
+    afterId: "d",
+  })
+  expect(dropMoveNeighbors(ids, "d", "b", "after")).toEqual({
+    beforeId: "c",
+    afterId: "b",
+  })
+  expect(ids).toEqual(["a", "b", "c", "d"])
 })
 
 test("visible group moves jump empty categories while retaining valid full-list neighbors", () => {

@@ -34,3 +34,21 @@ export function visibleMoveNeighbors(
     afterId: remaining[destination - 1] ?? null,
   }
 }
+
+export function dropMoveNeighbors(
+  ids: readonly string[],
+  movedId: string,
+  targetId: string,
+  side: "before" | "after"
+): RankNeighbors | null {
+  if (movedId === targetId || !ids.includes(movedId)) return null
+  const remaining = ids.filter((id) => id !== movedId)
+  const target = remaining.indexOf(targetId)
+  if (target < 0) return null
+  const destination = target + (side === "after" ? 1 : 0)
+  if (destination === ids.indexOf(movedId)) return null
+  return {
+    beforeId: remaining[destination] ?? null,
+    afterId: remaining[destination - 1] ?? null,
+  }
+}
