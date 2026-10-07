@@ -774,3 +774,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Ampliación concreta de fixture12b2b2 antes de editar: `scripts/sync-browser-test-server.ts`, `test/browser/sync-settings.tsx`. Renderizar DeviceSyncSettings/hook reales en origen propio con actor/DB ficticios; plugin de bundle sustituye solo referencia deServerAction por callbackHTTP defixture, sincambiar acción/rutas producto. Botónreal debe confirmar tarea yseguir mostrando preferencia sinsoporte; control«Validar y cerrar» verificará resultado/cola/Mongo antesdelimpiar. No afirmar RPCNext probado por este seam.
 
 - Resultado12b2b2: botón manual funcional/estado durable en Ajustes, ServerAction envuelta entransición yruntime propio coalescido/cerrable; cache filtrada user+epoch. Ocho tests nuevos devida/cierre/caches/SSR; UIhookreal sobrefixtureMongo confirma tarea yretiene categoría pendiente, móvil390px sinoverflow/control44px. Normal167pass/30opt-in skip/4434aserciones, lint267files/tipos/build30recursos pasan. Próxima12b2b3 scheduler acotado; Google/RPCreal/piloto aúnporcomprobar.
+
+### 12b2b3 — Scheduler limitado con backoff y pausa
+
+- Objetivo previo: política de arranque/reanudación/reintentos que conserve una sola pasada activa, intervalos ypausa porauth/cuenta/cursor, sin depender delworker. Entrada30%/47%, int/secuencial/reserva10%; dependencias12b2b2.
+- `target_paths`: `src/features/sync/{scheduler,scheduler.test}.ts`, `plan/{master,iterations,iteration-log,offline-and-sync}.md`.
+- Aceptación: 60s traspasada acabada, 2s para more_work, backoff30s–5min trasfallo; foco/online respetan deadline yno ocasionan flood. No ejecutar automáticamente oculto/offline, reanudar alwake disponible; auth/cuentacambiada/cursorpausan hasta peticiónmanual. Coalescer peticiónmanual/automática, stop cancela timer ypasada propia/suprime callbacks tardíos. Testrelojinyectado, sin timers reales prolongados.
+- Validación: oráculos de tiempos/morework/fallo/eligibilidad/flood/coalescing/stop/pausa/manual; suite/lint/tipos/build/diff/referencias. SinUIcambio aún, no índices/deps nuevos. Commit+pushint/HEADremoto/cuotas. 12b2b4 conectará proveedor común enWorkspace/Ajustes.
+
+- Resultado12b2b3: scheduler coalesce/manual, intervalos60s/2s ybackoff30s–5min, gatevisible/online, auth/cuenta/recuperaciónpausan, stopcancela ysilenciarespuestatardía. Cinco tests conrelojcontrolado pasan; normal172pass/30opt-in skip/4465aserciones, lint269files/tipos/build30recursos. Próxima12b2b4 proveedorcomún yarranqueUI, todavíanoautomático.

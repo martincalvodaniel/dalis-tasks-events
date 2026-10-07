@@ -285,3 +285,7 @@ LocalSyncStore ofrece resumen en snapshotreadonly deitems/outbox. Distingue pend
 ### Ejecución manual12b2b2
 
 Ajustes ofrece «Sincronizar ahora» para tareas/eventos propios sinrepetición. Cada pulsación abre runtimepropio, verifica cuenta, ejecuta pasada acotada, renueva caches user/epoch ycierra conexiones. Unmount detieneefectos. Pasadas máslargas requieren otrapulsación hasta scheduler; auth/cursor/red/cambiocuenta conservan cola. Panel muestra pendientes/conflictos/rechazos ycomandos sinsoporte; no promete sincronización depreferencias/series ni resolución deconflictos. DispatcherServerActionusa startTransition; compilación frontera aprobada, pilotoGoogle/RPC real pendiente.
+
+### Política de scheduler12b2b3
+
+Una pasada activa compartida; revisión60s trasacabar ycontinuación2s siquedan páginas/operaciones soportadas. Fallo transitorio usa backoff30s hasta5min, que foco/online noadelantan. Oculto/offline espera disponibilidad, auth/cuentacambiada/cursor inviable exige reintentomanual. Stopterminal limpia timer/cancela recursos deejecución ysuprime callbackstardíos. Preparado para proveedorúnico en12b2b4; todavía sinarranque automático.
