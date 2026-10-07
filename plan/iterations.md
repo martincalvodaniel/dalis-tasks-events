@@ -298,8 +298,11 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 08b — Persistencia atómica y lectura de eventos
 
+- Estado: completada, secuencial; entrada automática 5h 43% / 7d 78%, tras `587e12b`. IndexedDB real verifica cinco intenciones, rechazo sin escrituras, CAS, replay histórico y rollback; detalle en el registro.
 - `target_paths`: `features/events/local-events.ts`, validación de input temporal compartida, mutación/outbox existente y fixture/tests, plan. Dependencia `08a`.
 - Objetivo: crear/editar/borrar eventos simples, rechazar horas inválidas antes de guardar, mismo UUID y CAS conservados; lector separado de tareas, datos/cola atómicos. No activar UI antes de completar motor.
+- Detalle previo: schema de input temporal separado del schema almacenado; validarlo en ejecutor local después de replay/guardias, antes de escribir. Reutilizar outbox item y singleton local; servicio valida estructura y guardia de cuenta. Lectura no reconvierte/rechaza registros históricos ambiguos. Recurrencia en input pendiente de `09c`.
+- Aceptación: creación/edición/borrado simples, rechazo gap/repetición sin secuencia ni escritura, CAS/editor obsoleto, replay sin duplicar, legado legible y replay anterior preservado; IndexedDB real, cuentas aisladas, fallo de outbox revierte todo. Lint/tipos/tests/build/referencias/diff; sin pantalla/índice/dependencia nuevos.
 
 ### 08c1 / 08c2 — Crear/ver, después editar/borrar eventos
 

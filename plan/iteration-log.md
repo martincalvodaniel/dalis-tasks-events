@@ -321,6 +321,13 @@
 - Evidencia: Madrid/NY, Lord Howe (30min), Apia (día inexistente), Kathmandu, Paris histórico con segundos, años 0001/0099/9999. Duración real de 1h y 3h para intervalos locales de 2h alrededor de DST; medianoche, fin nulo y rangos inválidos. Cuatro casos nuevos en Bun, repetidos con `TZ=Pacific/Honolulu`; [navegador aislado](evidence/08a-browser.png) coincide en offsets/eras/gaps/duración. Fixture no abre cuenta ni escribe; pestaña/servidor retirados.
 - Validación: 67 tests aprobados, 7 auth opt-in omitidos, cero fallos; lint limpio, tipos y build aprobados; diff/referencias revisados. Commit: `feat(calendar): resolve event times without silent DST shifts`. Próxima candidata `08b`, con lectura automática nueva.
 
+## 08b — Persistencia atómica de eventos simples
+
+- Rama `main`, secuencial; entrada 43%/78% tras `587e12b`. Alcance y aceptación definidos antes de editar: servicio local de eventos, schema de input, ejecutor item existente, fixture/tests y plan. Se incorpora también la nueva prioridad del usuario en AGENTS y master: UI móvil mínima y densa, acciones secundarias desplegables, revisión antes del formulario de eventos.
+- Resultado: lectura separada de eventos con guardia de cuenta y zona; crear/editar/borrar reutiliza outbox atómica y CAS. Validación temporal en ejecutor después de replay, antes de escribir; schema almacenado sigue leyendo legado. Repetición pendiente de su capa de ocurrencias. No cambia estructura de datos, índices, auth ni dependencias; pantalla de eventos sigue pendiente.
+- [IndexedDB real](evidence/08b-browser.png): temporizado cruzando medianoche y todo el día; gap/ambigüedad sin modificar dato/cola/secuencia; edición obsoleta y expected de otro propietario rechazados; UUID repetido no duplica, colisión de payload rechazada; fallo único de outbox revierte las tres stores y guardado posterior funciona. Registro histórico ambiguo conserva revisión 7, replay no revalida ni modifica; borrado mantiene tombstone y replay no resucita. Recarga verifica cinco secuencias consecutivas. Base ficticia, pestaña y proceso aislados eliminados.
+- Validación: lint sin warnings, tipos, 69 tests aprobados/7 auth opt-in omitidos/cero fallos, build aprobado. Referencias y diff revisados. Commit: `feat(events): persist validated events in the local outbox`. Próxima candidata intercalada `07d`, tareas y cabeceras móviles compactas; cuota automática antes de abrir.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

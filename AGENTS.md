@@ -20,6 +20,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Nested `AGENTS.md` files may add narrowly scoped instructions, but must preserve the root boundaries, language rules, and iteration closing protocol.
 
 ## Responsive Navigation
+- Prioritize a minimal, information-dense mobile UI: compact rows and typography, short headings, avoid repeated subtitles and large status blocks, and reveal secondary actions/details on demand. Keep essential actions accessible and usable by touch; density must not depend on shrinking interactive targets below a usable size.
 - Build mobile-first responsive screens, usable on both phones and desktop.
 - Use a bottom navigation bar with local SVG icons on mobile and a top navigation bar on desktop, driven by a single shared destination registry.
 - Whenever an important screen is added, update both navigation variants in the same iteration. Show only working destinations, active state and Spanish accessible labels.

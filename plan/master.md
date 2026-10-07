@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; diálogos y navegación móvil corregidos en `07c`; ranking y colocaciones atómicas entregados en `07b1a–07b1b`; controles accesibles y arrastre entregados en `07b2a–07b3b`; conversión temporal de eventos comprobada en `08a`, formulario todavía pendiente; siguiente candidata `08b`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; diálogos y navegación móvil corregidos en `07c`; ranking y colocaciones atómicas entregados en `07b1a–07b1b`; controles accesibles y arrastre entregados en `07b2a–07b3b`; conversión temporal y persistencia de eventos comprobadas en `08a–08b`, formulario todavía pendiente; siguiente candidata intercalada `07d`, UI móvil compacta. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -36,6 +36,8 @@ Observaciones de archivos versionados; no se ha probado el login de producción 
 - Hay pruebas con Bun, comprobación de tipos y Biome. El README sigue siendo el de arranque y se actualizará cuando haya un flujo ejecutable.
 
 ## Decisiones de producto
+
+Prioridad visual añadida por el usuario el 7 de octubre: UI minimalista y densa, especialmente en móvil. Filas compactas, menos título/subtítulo redundante y acciones secundarias/detalles desplegables; evitar que botones y tarjetas consuman la pantalla. Mantener creación accesible y controles táctiles utilizables. Intercalar revisión de la UI actual después de `08b`, antes del formulario de eventos.
 
 1. **Tres tipos de elemento**: `task`, `event`, `birthday`, con una base común y validación discriminada. Una cita es un evento. Evita asignar estado o checklist a un cumpleaños y permite compartir navegación, almacenamiento y sincronización.
 2. **Un botón principal `+`** siempre accesible: “Tarea”, “Evento o cita” y “Cumpleaños”. Crear desde un día usa ese día como valor inicial.

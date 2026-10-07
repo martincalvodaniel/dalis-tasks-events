@@ -1,6 +1,7 @@
 "use client"
 
 import { calendarItemSchema } from "@/schemas/calendar-item"
+import { eventInputSchema } from "@/schemas/event-input"
 import { timestampSchema, userIdSchema } from "@/schemas/primitives"
 import type { CalendarItem } from "@/types/calendar-item"
 import type { LocalItemCommand } from "@/types/local-sync"
@@ -16,8 +17,12 @@ export function applyLocalItemCommand(
   if (command.type === "item.create") {
     if (current)
       throw new Error("Item already exists, including deleted records")
+    const input =
+      command.input.kind === "event"
+        ? eventInputSchema.parse(command.input)
+        : command.input
     return calendarItemSchema.parse({
-      ...command.input,
+      ...input,
       id: command.itemId,
       ownerId: actor,
       revision: 0,
@@ -44,9 +49,13 @@ export function applyLocalItemCommand(
   if (command.type === "item.update") {
     if (current.kind !== command.input.kind)
       throw new Error("Item kind cannot change")
+    const input =
+      command.input.kind === "event"
+        ? eventInputSchema.parse(command.input)
+        : command.input
     return calendarItemSchema.parse({
       ...current,
-      ...command.input,
+      ...input,
       updatedAt: now,
       ...(command.input.kind === "task"
         ? {
