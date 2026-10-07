@@ -65,8 +65,9 @@ export function SyncStatusPanel({
         </button>
       </div>
       <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-        Tareas y eventos sin repetición. Categorías, orden y repeticiones se
-        guardan solo en este dispositivo por ahora.
+        Automática con conexión mientras la aplicación está abierta. Tareas y
+        eventos sin repetición. Categorías, orden y repeticiones se guardan solo
+        en este dispositivo por ahora.
       </p>
       <div role="status" aria-live="polite" className="mt-2">
         {error ? (

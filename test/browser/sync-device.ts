@@ -85,7 +85,7 @@ const transport = createHttpSyncTransport(
   testFetch
 )
 const runtime = await openLocalSyncRuntime(
-  { userId, epoch: control.epoch, itemCount: 0, offlineReady: true },
+  { userId, epoch: control.epoch },
   transport
 )
 const status = document.getElementById("status")

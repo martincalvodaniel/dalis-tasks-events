@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client"
 import { DeviceSyncSettings } from "@/features/sync/components/device-sync-settings"
+import { WorkspaceSyncProvider } from "@/features/sync/components/workspace-sync-provider"
 import {
   activatePreparedAccount,
   completeRemoteLogout,
@@ -52,12 +53,21 @@ if (!rootElement || !actions || !status)
 const statusElement = status
 const root = createRoot(rootElement)
 root.render(
-  <DeviceSyncSettings
+  <WorkspaceSyncProvider
     account={{ userId, epoch: control.epoch, itemCount: 1, offlineReady: true }}
-  />
+  >
+    <DeviceSyncSettings
+      account={{
+        userId,
+        epoch: control.epoch,
+        itemCount: 1,
+        offlineReady: true,
+      }}
+    />
+  </WorkspaceSyncProvider>
 )
 statusElement.textContent =
-  "Pulsa Sincronizar ahora y después valida el resultado."
+  "Espera la revisión automática, prueba Sincronizar ahora y valida el resultado."
 const button = document.createElement("button")
 button.textContent = "Validar y cerrar prueba"
 button.className = "mt-4 min-h-11 rounded-lg border px-3 text-sm"

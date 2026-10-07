@@ -289,3 +289,7 @@ Ajustes ofrece «Sincronizar ahora» para tareas/eventos propios sinrepetición.
 ### Política de scheduler12b2b3
 
 Una pasada activa compartida; revisión60s trasacabar ycontinuación2s siquedan páginas/operaciones soportadas. Fallo transitorio usa backoff30s hasta5min, que foco/online noadelantan. Oculto/offline espera disponibilidad, auth/cuentacambiada/cursor inviable exige reintentomanual. Stopterminal limpia timer/cancela recursos deejecución ysuprime callbackstardíos. Preparado para proveedorúnico en12b2b4; todavía sinarranque automático.
+
+### Arranque automático12b2b4
+
+Workspace monta proveedorúnico porusuario/epoch; comparte motor/estado conAjustes, no reinicia por cambiarvista. Autoarranca conappvisible/conred, reanuda mediante online/foco/visibility yrespeta deadline/backoff/pausas. Cleanup detiene resources/listeners/timer ylaspasadaspropias. UserId+epoch siguenverificados anteefectos. Puertas servidor sesióngenuina/CAS/recibo/journal yvalidación permanecen. Primeralcance: propiossimples, no preferencias/series/sharing niworker cuandoappestácerrada; conflictos yrechazos conservados para13a. PruebaReact/Mongo deauto+manualsin duplicado aprobada; falta pilotoGoogle/RPCNext real en entorno desplegado.

@@ -17,7 +17,7 @@ export interface LocalSyncRuntime {
 }
 
 export async function openLocalSyncRuntime(
-  account: LocalAccount,
+  account: Pick<LocalAccount, "userId" | "epoch">,
   transport: SyncTransport
 ): Promise<LocalSyncRuntime> {
   await requireActiveAccount(account)
