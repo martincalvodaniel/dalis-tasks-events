@@ -297,3 +297,7 @@ Workspace monta proveedorúnico porusuario/epoch; comparte motor/estado conAjust
 ### Reacción local12b2c
 
 Guardar intenciónoutbox emite aviso validado deusuario trascommit; evento local yBroadcastChannel mismo origen despiertan motor yresumen. Fallos denotificación no cambian éxito delguardado. Scheduler adelanta idle a1s, respetando backoff/pausas yrevisando escrituras llegadas durantepasada; ninguna señal depull/ACK provoca bucle. VistasfueraAjustes muestran enlacecompacto de revisión solo para incidencias que requierenatención. Conflictos/rechazos siguenconservados hasta13a.
+
+### Evidencia para recuperación13a1a
+
+Proyecciónpure deconflicto/rechazo ligaentrada congelada/outcome/records propios, preserva borradoractual yversiones conocidas. Replaytardío puede tener versiónmenor queshadowalrecibirlo; elegir másnueva porrevisión yrechazar igualcontenido contradictorio. Shadowoutcome no es basehistórica deoperación. [Diseño](conflict-recovery.md) exige elección explícita ycadenasdependientes, registro/nuevoUUID/CAS/tombstones; snapshot/lector/UI/ejecutor siguenpendientes.
