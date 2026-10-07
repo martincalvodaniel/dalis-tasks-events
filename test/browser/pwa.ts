@@ -288,9 +288,11 @@ async function run() {
     const frame = document.createElement("iframe")
     frame.title = "Vista con texto ampliado"
     frame.src =
-      query.get("view") === "tags"
-        ? "/workspace?view=tags"
-        : "/workspace?view=settings"
+      query.get("view") === "calendar"
+        ? "/workspace?view=calendar&date=2026-10-10"
+        : query.get("view") === "tags"
+          ? "/workspace?view=tags"
+          : "/workspace?view=settings"
     frame.style.width = "100%"
     frame.style.height = "800px"
     frame.style.border = "0"

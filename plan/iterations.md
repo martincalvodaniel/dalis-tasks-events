@@ -187,7 +187,9 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ## 06 — Calendario mensual y apertura del día
 
-- `target_paths`: `src/features/calendar/**`, componentes de agenda inicial, entradas routing que los monten.
+- Estado: completada; mes/día/creación y recarga sin servidores comprobados, ambas barras actualizadas, extremos de fecha y reflow al 200% validados. Entrada automática 48%/92%, secuencial.
+- Objetivo: mes y día reales con enlaces offline, creación preseleccionada desde el día y ambas barras actualizadas.
+- `target_paths`: `src/features/calendar/**`, filtro del listado/composer de tareas, workspace, registro/links/iconos de navegación, pruebas y `plan/**`.
 - Dependencias: `05b3`, corrección intercalada `05c`.
 - Aceptación: mes anterior/siguiente, “Hoy”, lunes como inicio, selección y URL del día; contadores e indicadores; abrir día muestra tareas reales; navegar a otro mes y recargar sin red; móvil y teclado usables.
 - Alcance: cuadrícula propia sencilla, sin nueva librería de calendario. Contar eventos/cumpleaños cuando existan, no fabricar contenido de ejemplo como estado real.

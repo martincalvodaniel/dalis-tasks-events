@@ -15,7 +15,15 @@ import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import type { Task } from "@/types/calendar-item"
 
-export function TaskList({ account }: { account: LocalAccount }) {
+export function TaskList({
+  account,
+  scheduledDate,
+  heading = "Tus tareas",
+}: {
+  account: LocalAccount
+  scheduledDate?: string
+  heading?: string
+}) {
   const { data, error, isLoading, mutate } = useLocalTasks(account)
   const { refresh } = useLocalAccount()
   const progress = useTaskProgress(account)
@@ -24,6 +32,11 @@ export function TaskList({ account }: { account: LocalAccount }) {
   const [editing, setEditing] = useState<Task | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Task | null>(null)
+  const tasks = scheduledDate
+    ? data?.tasks.filter(
+        (task) => !task.recurrence && task.scheduledDate === scheduledDate
+      )
+    : data?.tasks
   async function remove(task: Task, operationId: string) {
     setDeleting(true)
     try {
@@ -36,8 +49,13 @@ export function TaskList({ account }: { account: LocalAccount }) {
     }
   }
   return (
-    <section aria-label="Tareas guardadas" className="mt-8 space-y-4">
-      <h2 className="text-xl font-semibold">Tus tareas</h2>
+    <section
+      aria-label={scheduledDate ? "Tareas del día" : "Tareas guardadas"}
+      className="mt-8 space-y-4"
+    >
+      <h2 className="text-xl font-semibold first-letter:uppercase">
+        {heading}
+      </h2>
       {progress.error ? (
         <ErrorBanner>
           No se pudo cambiar el progreso. Vuelve a intentarlo; si la tarea
@@ -78,9 +96,9 @@ export function TaskList({ account }: { account: LocalAccount }) {
         </ErrorBanner>
       ) : isLoading ? (
         <p role="status">Cargando tareas…</p>
-      ) : data?.tasks.length ? (
+      ) : tasks?.length ? (
         <ul className="space-y-4">
-          {data.tasks.map((task) => (
+          {tasks.map((task) => (
             <li key={task.id}>
               <TaskCard
                 task={task}
@@ -131,7 +149,9 @@ export function TaskList({ account }: { account: LocalAccount }) {
         </ul>
       ) : (
         <p className="rounded-2xl border border-dashed border-zinc-300 p-5 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
-          Pulsa + para añadir tu primera tarea.
+          {scheduledDate
+            ? "No hay tareas para este día. Pulsa + para añadir una."
+            : "Pulsa + para añadir tu primera tarea."}
         </p>
       )}
     </section>

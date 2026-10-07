@@ -7,6 +7,13 @@ export const workspaceDestinations = [
     description: "Tareas, planes y fechas importantes, también sin conexión.",
   },
   {
+    id: "calendar",
+    label: "Calendario",
+    href: "/workspace?view=calendar",
+    icon: "calendar",
+    description: "Tus tareas, mes a mes. Selecciona un día para organizarlo.",
+  },
+  {
     id: "tags",
     label: "Categorías",
     href: "/workspace?view=tags",

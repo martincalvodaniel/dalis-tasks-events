@@ -16,11 +16,13 @@ import type { Task } from "@/types/calendar-item"
 export function TaskComposer({
   account,
   initialTask,
+  initialDate,
   onClose,
   onSaved,
 }: {
   account: LocalAccount
   initialTask?: Task
+  initialDate?: string
   onClose: () => void
   onSaved: () => void
 }) {
@@ -92,7 +94,9 @@ export function TaskComposer({
       ) : data ? (
         <TaskForm
           scheduledDate={
-            initialTask?.scheduledDate ?? todayInTimeZone(data.timeZone)
+            initialTask?.scheduledDate ??
+            initialDate ??
+            todayInTimeZone(data.timeZone)
           }
           initialTask={initialTask}
           onSave={save}

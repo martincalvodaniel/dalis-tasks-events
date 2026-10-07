@@ -12,7 +12,7 @@ export function WorkspaceNavigation({
   return (
     <>
       <header className="hidden border-b border-zinc-200 bg-white md:block dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-6 px-8 py-4">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-5 py-4 lg:px-8">
           <a
             href="/workspace"
             aria-label="Dalis, ir a mi espacio"
@@ -22,7 +22,7 @@ export function WorkspaceNavigation({
           </a>
           <nav
             aria-label="Navegación principal"
-            className="flex items-center gap-4"
+            className="flex min-w-0 items-center gap-2 lg:gap-4"
           >
             <NavigationLinks activeView={activeView} />
             {createAction}

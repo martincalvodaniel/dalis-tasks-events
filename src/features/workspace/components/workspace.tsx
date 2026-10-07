@@ -3,6 +3,8 @@
 import { useId, useState } from "react"
 import { WorkspaceNavigation } from "@/components/shared/workspace-navigation"
 import { workspaceDestinations } from "@/config/navigation"
+import { CalendarScreen } from "@/features/calendar/components/calendar-screen"
+import { useCalendarDate } from "@/features/calendar/hooks/use-calendar-date"
 import { TagsScreen } from "@/features/tags/components/tags-screen"
 import { CreateTaskButton } from "@/features/tasks/components/create-task-button"
 import { TaskComposer } from "@/features/tasks/components/task-composer"
@@ -15,6 +17,7 @@ import { useWorkspaceView } from "@/features/workspace/hooks/use-workspace-view"
 export function Workspace() {
   const contentId = useId()
   const view = useWorkspaceView()
+  const calendarDate = useCalendarDate()
   const destination =
     workspaceDestinations.find((entry) => entry.id === view) ??
     workspaceDestinations[0]
@@ -40,6 +43,9 @@ export function Workspace() {
         <TaskComposer
           key={account.epoch}
           account={account}
+          initialDate={
+            view === "calendar" ? (calendarDate ?? undefined) : undefined
+          }
           onClose={() => setComposerEpoch(null)}
           onSaved={() => {
             void refresh()
@@ -49,7 +55,7 @@ export function Workspace() {
       <main
         id={contentId}
         tabIndex={-1}
-        className="mx-auto w-full min-w-0 max-w-3xl wrap-anywhere px-5 pt-8 pb-[calc(14rem+env(safe-area-inset-bottom))] sm:px-8 md:py-12"
+        className="mx-auto w-full min-w-0 max-w-3xl wrap-anywhere px-5 pt-8 pb-[calc(18rem+env(safe-area-inset-bottom))] sm:px-8 md:py-12"
       >
         <p className="text-sm font-bold uppercase tracking-[0.24em] text-emerald-700 md:hidden dark:text-emerald-400">
           Dalis
@@ -64,6 +70,8 @@ export function Workspace() {
           <DeviceSettings />
         ) : view === "tags" ? (
           <TagsScreen />
+        ) : view === "calendar" ? (
+          <CalendarScreen />
         ) : (
           <WorkspaceOverview />
         )}

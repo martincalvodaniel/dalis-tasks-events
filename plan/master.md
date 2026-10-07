@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas, navegación, tareas y categorías comprobados (`01a–05b3`); preparación tras Google y desarrollo corregidos en `05c`; siguiente candidata `06`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación, tareas, categorías y calendario comprobados (`01a–06`); preparación tras Google y desarrollo corregidos en `05c`; siguiente candidata `07a`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -31,7 +31,7 @@ Observaciones de archivos versionados; no se ha probado el login de producción 
 - `01a` conecta Better Auth al adaptador MongoDB ya instalado: usuarios, cuentas, sesiones y verificaciones persistentes. Pruebas con MongoDB local real y dos clientes HTTP independientes comprueban estabilidad de ID tras logout y reconexión. El login interactivo contra Google real se comprobará en el piloto; los tests usan firmas válidas con una clave de prueba y conservan las verificaciones de token.
 - El acceso depende de `ALLOWED_EMAILS`. Una lista vacía no admite usuarios; una invitación no debe ampliar esa lista automáticamente. Compartir en el piloto exige que ambos usuarios estén autorizados.
 - Existen singleton MongoDB, cuatro colecciones de autenticación y seis índices centrales. El adaptador solo reconoce solicitudes automáticas de índices previamente registrados y provisionados. Las colecciones de producto aún están pendientes. Se respeta [src/lib/db/AGENTS.md](../src/lib/db/AGENTS.md).
-- El dashboard conserva su pantalla inicial. No hay calendario todavía. `03a–03b` incorporan repositorios IndexedDB y una outbox atómica; `04a–04b` añaden shell neutro `/workspace`, worker de recursos, preparación y cierre de cuenta entre pestañas. Recarga y reapertura sin servidor probadas en producción; transporte remoto todavía no implementado.
+- El dashboard conserva una entrada al espacio, con preparación automática en `05c`. `06` incorpora calendario mensual y tareas del día. `03a–03b` aportan repositorios IndexedDB y una outbox atómica; `04a–04b` añaden shell neutro `/workspace`, worker de recursos, preparación y cierre de cuenta entre pestañas. Recarga y reapertura sin servidor probadas en producción; transporte remoto todavía no implementado.
 - Hay pruebas con Bun, comprobación de tipos y Biome. El README sigue siendo el de arranque y se actualizará cuando haya un flujo ejecutable.
 
 ## Decisiones de producto
@@ -122,3 +122,5 @@ Lote reanudado cerrado al completar `05a1`: shell offline, cierre/cuentas, barra
 `05b3` entrega pantalla de categorías, selector personal en cada tarea y navegación SVG coherente en ambas barras. Crear/editar/borrar/asignar/retirar funciona offline; nombre duplicado y confirmación en español. La clasificación actual se hace después de guardar la tarea, sin fingir un guardado conjunto. Próxima entrega: calendario mensual y día (`06`).
 
 `05c` se intercala a petición del usuario: Google autorizaba la sesión pero el espacio no se preparaba automáticamente; en desarrollo la preparación además exigía un worker desactivado. Abrir `/workspace` prepara una sesión verificada sin segundo botón, conserva cierre/época y distingue un 401. En desarrollo se puede usar IndexedDB, tareas y categorías sin worker; la UI explica que reabrir sin red exige producción (`bun run build` y `bun run start`). Producción mantiene el requisito de shell completo antes de activar una cuenta. No cambia auth, permisos, allowlist, particiones ni outbox. Calendario sigue pendiente en `06`.
+
+`06` completa mes, selección del día por URL, contadores reales, anterior/siguiente y Hoy en la zona de la cuenta. Crear desde un día preselecciona su fecha; el listado permite editar, borrar, cambiar progreso y categoría mediante los controles existentes. Las dos barras incorporan Calendario y SVG local. Navegación/recarga/creación sin servidores, fechas extremas y reflow al 200% comprobados. Próxima entrega: agrupación y atrasadas (`07a`); eventos/cumpleaños y repetición siguen en sus iteraciones posteriores.

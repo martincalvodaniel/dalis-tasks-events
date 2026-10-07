@@ -209,6 +209,19 @@
 - Commit: `fix(workspace): prepare authenticated local sessions automatically`.
 - Próxima candidata: `06`, con lectura automática de ambas ventanas tras commit y reserva del lote del 20%.
 
+## 06 — Calendario mensual y día
+
+- Rama `main`, secuencial; entrada automática **5h 48%; 7d 92% restantes**, después de cerrar la corrección intercalada `05c`.
+- Objetivo y `target_paths`: `features/calendar/**`, filtro/composer de tareas, workspace, registro/links/iconos de navegación, pruebas de navegador y plan. Dependencias `05b3`, `05c`.
+- Resultado: semanas de lunes a domingo, meses anterior/siguiente con día conservado y acotado, Hoy según zona de cuenta, URL del día validada y selección visible. Contadores de tareas reales, incluidas completadas; día seleccionado reutiliza todos los controles del listado. `+` preselecciona la fecha elegida. Navegación local por enlaces HTML, sin RSC o API de calendario. Ambas barras incorporan Calendario con SVG local; escritorio puede envolver enlaces sin desbordar.
+- Evidencia con build de producción y cuenta ficticia: calendario muestra la tarea existente del día 7; sin ambos servidores, elegir el día 10 deja lista vacía y abre formulario con fecha 10. Guardar «Plan del sábado», recargar, pasar a noviembre y volver conserva tarea/contador/fecha. Hoy recupera el día de cuenta; Tab llega al siguiente día y Enter lo abre. Fixture inspecciona dos tareas y dos intenciones de creación, sin duplicados. [Captura móvil del build final](evidence/06-mobile.png).
+- Responsividad: 320/390/768/1280px sin desbordamiento horizontal de página, variante inferior/superior y destino activo. Iframe de 304px con fuente al 200% mantiene ancho de página: la tabla permite desplazamiento horizontal local. Se detectó barra inferior de 457px frente a reserva anterior de 448px; se corrigió a 576px y se volvió a medir, dejando margen para contenido/foco. No se limita el crecimiento de los textos.
+- Validación: 43 tests unitarios aprobados, incluidos fechas URL inválidas, febrero bisiesto, cambio de año, cuadrícula de 4/5 semanas y extremos 0001/9999. Siete pruebas auth opt-in no repetidas. Lint sin ruido, tipos y build final aprobados; revisión de referencias/diff. Reutiliza lectura local compartida por SWR e índices existentes; no añade consultas/índices MongoDB ni dependencias.
+- Limpieza: fixtures públicas generadas retiradas, partición/control/cachés ficticios limpiados, pestañas y procesos de prueba cerrados. No se toca el servidor local del usuario.
+- Alcance: tareas simples; agrupación, orden y atrasadas corresponden a `07`; eventos/cumpleaños se incorporarán cuando existan. No se fabrican elementos o indicadores remotos.
+- Commit: `feat(calendar): browse monthly tasks and create from selected days`.
+- Próxima candidata: `07a`, con consulta automática de ambas ventanas y reserva del lote del 20%.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

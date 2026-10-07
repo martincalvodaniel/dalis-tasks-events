@@ -14,6 +14,7 @@ import {
 } from "@/lib/local-db/account-control"
 import { localDatabaseName } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
+import { LocalRepository } from "@/lib/local-db/repository"
 
 if (
   location.hostname !== "127.0.0.1" ||
@@ -51,8 +52,45 @@ async function requestStatus() {
   }
 }
 async function run() {
-  const { userId } = await session("unauthorized")
-  if (new URLSearchParams(location.search).get("mode") === "cleanup") {
+  const mode = new URLSearchParams(location.search).get("mode")
+  const { userId } = await session(
+    mode === "calendar" ? "authorized" : "unauthorized"
+  )
+  if (mode === "calendar") {
+    const control = await readAccountControl()
+    assert(control.userId === userId && !control.logoutPending)
+    await check(
+      "Crear desde el día conserva fecha, tarea y outbox tras recarga",
+      async () => {
+        const repository = await LocalRepository.open(userId)
+        const outbox = await LocalOutbox.open(userId)
+        try {
+          const tasks = await repository.list("items")
+          assert(tasks.length === 2)
+          const created = tasks.find((item) => item.title === "Plan del sábado")
+          assert(
+            created?.kind === "task" && created.scheduledDate === "2026-10-10"
+          )
+          const entries = await outbox.listEntries()
+          assert(
+            entries.length === 2 &&
+              entries.some(
+                (entry) =>
+                  entry.operation.command.type === "item.create" &&
+                  entry.operation.command.itemId === created.id
+              )
+          )
+        } finally {
+          repository.close()
+          outbox.close()
+        }
+      }
+    )
+    const status = document.getElementById("status")
+    if (status) status.textContent = "Creación desde calendario comprobada."
+    return
+  }
+  if (mode === "cleanup") {
     const current = await readAccountControl()
     assert(current.userId === null || current.userId === userId)
     for (const name of [localDatabaseName(userId), ACCOUNT_CONTROL_DATABASE])
