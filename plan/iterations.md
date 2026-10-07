@@ -448,3 +448,10 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación: reproducción previa en React de desarrollo, recorrido posterior, lint/tipos/tests/build y diff. Presupuesto automático 21%/88%; se prioriza esta corrección explícita y pequeña antes de cerrar el lote, aunque el margen reforzado ya no permite otra iteración de producto.
 - Resultado: bloque retirado; etiquetas completas a 320/390px, barra superior a 1280px. Diálogos operativos bajo Strict Mode; Escape/Cancelar/reapertura y creación persistida tras recarga aprobados. Texto al 200% en iframe de 310px sin desbordamiento: barra 236px, reserva 576px.
 - Cierre: lint/tipos/build aprobados; 46 tests pasan, 7 auth opt-in omitidos, cero fallos. Fixture ahora monta Strict Mode y permite ampliar texto. Datos ficticios limpiados y servidor aislado detenido.
+
+## 07d — UI móvil compacta (intercalada antes de 08c1)
+
+- Estado: completada, secuencial; entrada automática 5h 37% / 7d 77%, tras `27db322`. Prioridad explícita del usuario. Evidencia de filas de 66px/targets de 44px, 25 intenciones verificadas offline y reflow 200% en el registro.
+- Objetivo/target_paths: cards/listas/grupos de tareas, controles de estado, cabecera de Workspace y helpers UI estrictamente necesarios, fixture/evidencia y plan. Dependencias: 07b completo; sin cambios en persistencia, permisos, contratos o navegación.
+- Aceptación: fila compacta con título, fecha/estado y progreso de checklist; completar/reabrir accesible directamente. Descripción, checklist, categoría, orden, editar/borrar desplegables; estado abierto y foco conservados al cambiar de grupo. Cabecera móvil sin marca/subtítulo redundantes; separación y vacíos reducidos. Grupo con orden desplegable. 320/390px, desktop y texto 200% sin desbordamiento; tap esencial >=44px, teclado, CRUD/estado/categoría/orden y recarga offline operativos. Lint/tipos/tests/build/diff/referencias.
+- Corte: compactar agenda y chrome primero; formularios/categorías/ajustes se revisarán en entregas pequeñas posteriores siguiendo el criterio permanente. No reducir indiscriminadamente todos los targets táctiles.

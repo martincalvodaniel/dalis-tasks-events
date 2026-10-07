@@ -241,6 +241,62 @@ async function run() {
     }
     return
   }
+  if (mode === "compact-inspect") {
+    const button = document.createElement("button")
+    button.textContent = "Comprobar agenda compacta"
+    button.onclick = async () => {
+      const repository = await LocalRepository.open(userId)
+      const outbox = await LocalOutbox.open(userId)
+      try {
+        const items = await repository.list("items", { includeDeleted: true })
+        const entries = await outbox.listEntries()
+        const tags = (await repository.list("tags")).sort(compareRank)
+        const views = await repository.list("itemViews")
+        assert(
+          entries.length === 25 &&
+            entries.every((entry, index) => entry.sequence === index + 1)
+        )
+        assert(
+          items.length === 7 &&
+            items.filter((item) => !item.deletedAt).length === 6
+        )
+        const sent = items.find((item) => item.title === "Enviar informe")
+        const notes = items.find((item) => item.title === "Revisar notas")
+        const tomorrow = items.find((item) => item.title === "Mañana sin mover")
+        assert(
+          sent?.kind === "task" &&
+            sent.status === "in_progress" &&
+            sent.description === "Detalle compacto" &&
+            sent.checklist[0]?.completed
+        )
+        assert(notes?.kind === "task" && notes.status === "not_started")
+        assert(
+          tomorrow?.deletedAt &&
+            items.some((item) => item.title === "Nueva compacta")
+        )
+        assert(
+          tags[0].name === "Casa" &&
+            views.find((view) => view.itemId === notes.id)?.primaryTagId ===
+              tags[0].id
+        )
+        const recent = entries
+          .slice(15)
+          .map((entry) => entry.operation.command.type)
+        assert(recent.filter((type) => type === "task.set-status").length === 3)
+        assert(recent.filter((type) => type === "task.move").length === 2)
+        assert(recent.filter((type) => type === "tag.move").length === 1)
+        const status = document.getElementById("status")
+        if (status)
+          status.textContent =
+            "Agenda compacta comprobada: veinticinco intenciones, estados, checklist, categoría, orden y CRUD persistidos."
+      } finally {
+        repository.close()
+        outbox.close()
+      }
+    }
+    document.getElementById("actions")?.append(button)
+    return
+  }
   if (mode === "task-drag-inspect") {
     const repository = await LocalRepository.open(userId)
     const outbox = await LocalOutbox.open(userId)

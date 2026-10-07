@@ -33,7 +33,7 @@ export function TaskAgenda({ account }: { account: LocalAccount }) {
         selection={{ kind: "upcoming", date: today }}
         heading="Hoy y próximas"
       />
-      <p className="mt-6 text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="hidden md:block mt-6 text-sm text-zinc-600 dark:text-zinc-400">
         Las tareas completadas de días pasados siguen disponibles en el
         calendario.
       </p>

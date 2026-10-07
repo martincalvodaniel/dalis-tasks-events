@@ -64,6 +64,9 @@ export function TaskList({
       ?.focus({ preventScroll: true })
     categoryFocus.current = null
   }, [ordering.busy])
+  const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(
+    () => new Set()
+  )
   const [editing, setEditing] = useState<Task | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Task | null>(null)
@@ -113,9 +116,9 @@ export function TaskList({
               ? "Hoy y próximas"
               : "Tareas guardadas"
       }
-      className="mt-8 space-y-4"
+      className="mt-4 space-y-2 sm:mt-6"
     >
-      <h2 className="text-xl font-semibold first-letter:uppercase">
+      <h2 className="text-base sm:text-xl font-semibold first-letter:uppercase">
         {heading}
       </h2>
       {progress.error ? (
@@ -164,7 +167,7 @@ export function TaskList({
       ) : isLoading ? (
         <p role="status">Cargando tareas…</p>
       ) : tasks?.length ? (
-        <div data-order-list className="space-y-6">
+        <div data-order-list className="space-y-3 sm:space-y-4">
           {groups.map((group) => (
             <TaskGroup
               key={group.id}
@@ -223,6 +226,16 @@ export function TaskList({
                 >
                   <TaskCard
                     task={task}
+                    expanded={expandedIds.has(task.id)}
+                    onExpandedChange={(expanded) => {
+                      setExpandedIds((current) => {
+                        if (current.has(task.id) === expanded) return current
+                        const next = new Set(current)
+                        if (expanded) next.add(task.id)
+                        else next.delete(task.id)
+                        return next
+                      })
+                    }}
                     onEdit={() => setEditing(task)}
                     onDelete={() => setPendingDelete(task)}
                     busy={busy}
@@ -367,7 +380,7 @@ export function TaskList({
           ))}
         </div>
       ) : (
-        <p className="rounded-2xl border border-dashed border-zinc-300 p-5 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+        <p className="rounded-2xl border border-dashed border-zinc-300 p-3 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
           {selection.kind === "day"
             ? "No hay tareas para este día. Pulsa + para añadir una."
             : selection.kind === "overdue"
