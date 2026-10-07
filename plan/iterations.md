@@ -665,3 +665,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Pruebas MongoDB propio: reintentos concurrentes, dos editores/base igual, múltiples escrituras/destinatarios aislados, pérdida de respuesta/replay tras tombstone, reutilizaciónID, fallo tardío forzado sin restos y posterior recuperación. Suite/lint/tipos/build/diff/ref; plan/registro/commit+pushint/cuotas. Acción autenticada y descarga siguen en cortes posteriores, sin habilitar sync UI.
 
 - Resultado11b1a: transacción snapshot/majority, recibos propios/huella, CAS/revisión y journal+contador serializado; seis tests nuevos enMongo real, runner12pass/82aserciones y recursos limpios. Normal124pass/25opt-in skip, lint228files/tipos/build29recursos pasan. Siguiente11b1b acción autenticada; no subida automática/UI activada.
+
+### 11b1b — Acción autenticada de subida limitada
+
+- Objetivo previo: exponer ejecutor11b1a mediante Server Action, obteniendo actor exclusivamente de sesión persistida vigente; validar lote completo antes de la primera escritura. Entrada79%/55%, int/secuencial/reserva10%; dependencias11b1a/01b/contrato03b.
+- `target_paths`: `src/features/sync/{actions,push-batch,push-batch.test}.ts`, `src/schemas/remote-sync.ts` y tipos si necesario, `plan/{master,iterations,iteration-log,offline-and-sync}.md`.
+- Aceptación: sin sesión no ejecutar ni aceptar actor cliente; lote inválido/duplicado/excesivo falla antes de mutar. Orden secuencial por operación; resultados explícitos, ID reutilizado no acepta y fallo transitorio conserva prefijo aplicado para reintento idempotente. Comandos sin soporte se mantienen pendientes; no arranque automático de envío ni mutación IndexedDB hasta reconciliación.
+- Validación: pruebas del servicio con dependencia de sesión/ejecutor controladas (no sustituyenMongo real11b1a ni loginGoogle piloto), suite/lint/tipos/build/diff/ref; plan/registro/commit+pushint/cuotas. Después descarga consistente y reconciliación local antes de coordinador.
+
+- Resultado11b1b: acción obtiene sesión persistida sin caché/refresh yactor exclusivo; lote entero validado antes de ejecutor, secuencial, identidad reutilizada explícita y prefijo durable tras fallo. Cinco tests del servicio, suite129pass/25opt-in skip, lint231files/tipos/build29recursos pasan. No coordinador/ACK local todavía; siguiente11c1 descarga propia porjournal.

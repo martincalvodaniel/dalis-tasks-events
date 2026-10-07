@@ -19,9 +19,10 @@ export const remoteOperationResultSchema = z.discriminatedUnion("status", [
     status: z.literal("conflict"),
     current: calendarItemSchema,
   }),
-  ...(["unavailable", "unsupported", "invalid_command"] as const).map(
-    (status) =>
-      z.strictObject({ operationId: entityIdSchema, status: z.literal(status) })
+  ...(
+    ["unavailable", "unsupported", "invalid_command", "identity_reuse"] as const
+  ).map((status) =>
+    z.strictObject({ operationId: entityIdSchema, status: z.literal(status) })
   ),
 ])
 
@@ -57,3 +58,17 @@ export const remoteItemChangeSchema = z
     (change) => change.recipientUserId === change.item.ownerId,
     "Own item changes must match their recipient"
   )
+
+export const remotePushResultSchema = z.discriminatedUnion("status", [
+  z.strictObject({ status: z.literal("unauthorized") }),
+  z.strictObject({ status: z.literal("invalid_batch") }),
+  z.strictObject({
+    status: z.literal("complete"),
+    results: z.array(remoteOperationResultSchema).min(1).max(50),
+  }),
+  z.strictObject({
+    status: z.literal("retry_later"),
+    results: z.array(remoteOperationResultSchema).max(49),
+    failedOperationId: entityIdSchema,
+  }),
+])
