@@ -267,3 +267,9 @@ Consultar identidad antesdepush no basta si sesión cambia entrepeticiones. Por 
 Coordinador limita una pasada a4páginas antesdepush y5operaciones individuales; devuelve more_work para continuar acotadamente. Consultar identidad, comprobar cuentaactiva antesdeefectos, recuperar leases expirados yterminar checkpoint precede subir. Releer cola entreACK prepara revisión dependiente, no construirunbatchconbasesviejas. Commandsupport filtra simples ynoenvía preferencias/recurrencias/cumpleaños.
 
 Runcoalesced evita pasadas superpuestas delmismocoordinador; claim deIndexedDB impide enviar mismaintención desde dospestañas. Release verificado porowner devuelve sendingapending sin modificar operation/attempts, preservando replay después derespuesta perdida. Stop noaplica respuestas tardías; no cancela uncommit yaaceptadoporelservidor, cuyo recibo resolverá futuroreintento. Settled solo significa pasada terminada, nunca que todoelespacio esté sincronizado; UI/transportadapter pendientes.
+
+### Transporte y recursos12b2a3
+
+Httptransport requiere identidad yGETprivado concookies same-origin/no-store; pull añade expectedUserId, after/through/limit50 yvalida salida/contigüidad contraafter. GETtambién comparaexpectedconactor antesdeleer (opcional para consumidores previos, siempre enviado portransportador). Unauthorized detiene; account_changed detiene sinotrosdatos; cursoradelantado409 requiere recuperaciónexplícita ynoresetea cola/cursor automáticamente.
+
+Deadline30s cubre fetch/lecturaJSON yespera decallbackdeacción. Timeout no cancela una mutación remota ya iniciada; devuelveerror, releaseconservapayload yreciboidempotente resolveráreintento. Runtimelocal ligado aepoch/cuenta usa conexiones propias, claim120s ystopesperapasada antesdecerrar. No hayhook/polling/UIoperativos todavía; prueba de dosalmacenes de navegador conbackendreal en12b2a4.

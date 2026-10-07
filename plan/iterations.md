@@ -737,3 +737,10 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - `target_paths`: `src/features/sync/{http-transport,http-transport.test,transport-error,local-runtime}.ts`, coordinator/pull-response ytests, `src/schemas/remote-sync.ts`, `plan/{master,iterations,iteration-log,offline-and-sync}.md`.
 - Aceptación: identidad/pull concredentials same-origin/no-store/query esperado/checkpoint ydeadline; callback deServerActioninyectado sinbundlear auth/DB enbrowser. Cambio de cuenta también protegeGET, cursorfuturo requiere recuperación, 401 pausa. Validar input/output y límites; fallos noACK. Runtime verificaepochlocal, abre/cierra recursos propios ystopespera pasada antesdecerrar conexiones; claim120s protege envíos acotados. Sinpolling/UItodavía.
 - Validación transporte conRequest/Responsecontrolados (HTTP real de dosparticiones después): identity/query/cookies/no-cache/códigos/timeout/payloadmalformado; regresióncoordinador. Suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas. Ningunadependencia/secret/hosting/cambioDB.
+
+- Resultado12b2a3: transporte privado/deadlines/schema+contexto, accountChangedGET/401/cursorfuturotipados yfactorylocalstop/cierrepropio; seisHTTPtests+guardGET+regresióncoordinador pasan. Normal153pass/30opt-in skip, lint250files/tipos/build29recursos pasan. Próxima12b2a4 prueba integrada real de dosparticiones antesdeUI.
+
+### 12b2a3d — Completar registro de transporte
+
+- Entrada51%/50% trasb29017e, int/secuencial/reserva10%; objetivo yscope previo: solo `plan/{master,iterations,iteration-log,offline-and-sync}.md`. El scriptdocumental falló por sintaxis antes deactualizar archivos, pero elcomando siguiente hizo commit/push delcódigo validado yscopeprevio. Registrar cierre encommit adicional sinreescribir historia publicada.
+- Aceptación: estado/evidencias/siguiente candidata exactos, referencias/diff consistentes; sin cambios decódigo ni repetirvalidaciones aprobadas porMarkdown. Commit+pushint/verificar HEAD/cuotas.
