@@ -303,6 +303,15 @@
 - Validación: 63 tests pasan, 7 auth opt-in omitidos, cero fallos; tipos, lint sin warnings y build final aprobados. Fixture extraído a componente propio para evitar ruido de Fast Refresh. Diff/referencias revisados.
 - Commit: `feat(tags): drag categories with cancelable pointer controls`. Próxima candidata `07b3b`, con lectura automática nueva antes de integrar tareas/grupos.
 
+## 07b3b — Arrastre de tareas y grupos
+
+- Rama `main`, secuencial; entrada automática **5h 56%; 7d 80%**, tras `58abe8f`. `target_paths`: TaskList/TaskGroup y handle compartido, fixture táctil/workspace, evidencias y plan. Alcance previo: mismo grupo/día o global atrasadas, grupos con ranking personal; selector para cambiar categoría. Sin dependencias, esquema, índice o pantalla nuevos.
+- Resultado: listas/filas identificadas para hit-test; tarea solo admite peers de su fecha o alcance overdue. Drop sobre fila de otro día se rechaza antes de calcular vecinos; cambio de peers durante gesto cancela y pointerup vuelve a comprobar snapshot. Grupo admite vecinos completos y salta categorías vacías, Sin categoría queda fijo. Reutiliza hooks de intención/SWR, errores/foco y mismo comando de botones. No cambia fechas al ordenar.
+- Offline real con servidores detenidos: Enviar informe antes de Revisar notas en calendario (una intención), Pendiente de ayer antes de anteayer en atrasadas globales (una), Revisar→Casa con selector (una), arrastrar grupo Casa antes de Trabajo saltando Salud vacío (una). Foco conserva handle. Drop de Enviar sobre Mañana sin mover rechazado sin escritura. Recarga conserva filas/grupos. Inspector: 19 operaciones consecutivas, tres `task.move` y un `tag.move`, seis tareas con fecha/estado originales y cinco colocaciones; ninguna colocación inventada para mañana.
+- Fixture táctil sintético agrega fila fuera de peers y lista cambiada durante gesto, ambos sin entregar; conserva umbral/cancelación/Escape/blur/scroll/doble pointerup de `07b3a`. Captura real comprobada mediante ratón, hardware táctil pendiente de piloto.
+- Diseño: 320/390px sin desbordamiento, escritorio 1280×900 operativo; iframe 280px al 200% conserva ancho 280px, barra 269px y reserva 576px. [Atrasadas en móvil](evidence/07b3b-mobile.png). Cleanup confirmado en UI pese a una espera de locator fallida; cuenta/control/worker/cache ficticios retirados, pestañas/viewport/procesos restaurados.
+- Validación: lint limpio, tipos, 63 tests aprobados/7 auth opt-in omitidos/cero fallos y build aprobados; diff/referencias revisados. Commit: `feat(tasks): drag daily tasks and agenda groups offline`. Próximo bloque `08`, dividir conversión de zona/persistencia y UI antes de editar según cuota automática.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

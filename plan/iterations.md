@@ -208,7 +208,7 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 07b — Reordenación persistente (dividida)
 
-- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b3b`.
+- Diseño y cortes: [reordering.md](reordering.md). `07b0–07b3b` completos; candidata `08`, dividir antes de implementar.
 - `target_paths`: componentes/hooks de orden en `src/features/tasks/**` y `src/features/tags/**`, preferencias en `src/lib/local-db/**`.
 - Dependencias: `07a`.
 - Aceptación: mover grupos y tareas, cambiar categoría personal, ordenar atrasadas; alternativa de teclado a drag-and-drop; recarga conserva orden; operaciones por ID/intención, sin reemplazo global de arrays.
@@ -267,8 +267,12 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 #### 07b3b — Arrastre de tareas y grupos
 
+- Estado: completa, secuencial; entrada automática 5h 56% / 7d 80%, tras `58abe8f`.
 - `target_paths`: filas/controles de tareas y grupos, pruebas/fixture, plan. Dependencia: `07b3a`.
 - Objetivo: conectar el control compartido a comandos existentes por día/global atrasadas y al orden de grupos; categoría se cambia con selector accesible. No cruzar días ni modificar fechas.
+- Detalle previo: cada lista de grupo identifica sus filas; peers de tarea solo incluyen mismo día (o global overdue). El hit-test rechaza una fila de otro día o grupo antes de calcular vecinos; grupos usan vecinos completos para saltar categorías vacías. Sin categoría queda fijo. Foco/errores/cola reutilizan hooks existentes.
+- Validación: arrastre real de ratón offline en día/atrasadas/grupos, rechazo fuera de lista/otro día, inspector con una intención por drop y fechas intactas; fixture táctil del handle conserva cancelación/scroll. Recarga, móvil/escritorio/200%, lint/tipos/tests/build/referencias/diff.
+- Resultado: 19 operaciones consecutivas, tres `task.move` y un `tag.move` sobre seis tareas, sin modificar fechas/estado; drop entre días rechazado. 63 tests, lint/tipos/build aprobados, fixture táctil añade destino incompatible/lista cambiante; [móvil](evidence/07b3b-mobile.png).
 - Aceptación: arrastre táctil/ratón y cancelación, una intención al soltar, scroll móvil; alternativa por botones permanece operativa. Sin biblioteca nueva.
 
 #### 07b3 — Arrastre con el mismo comando (bloque)

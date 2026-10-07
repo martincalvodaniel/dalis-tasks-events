@@ -2,6 +2,8 @@
 
 Diseño previo a implementar. `07a` ya agrupa y deriva atrasadas; aún no hay controles ni comandos de reordenación. Este corte documental concreta las siguientes entregas sin aceptar operaciones que el motor todavía no sabe ejecutar.
 
+Estado posterior: `07b1a–07b3b` entregados y verificados; los párrafos de base describen el snapshot previo al bloque. Botones, selector de categoría y arrastre usan los mismos ejecutores atómicos. Queda el piloto táctil de dispositivo real en `15` y sincronización remota en `11–13`.
+
 ## Base comprobada y objetivo
 
 - Categorías: posición personal y registros separados del contenido. La lectura existente usa `byPosition`; hoy desempata por nombre e ID. El bloque de orden unificará lectores y mutaciones para desempatar por ID, de modo que renombrar no mueva una categoría con posición igual.

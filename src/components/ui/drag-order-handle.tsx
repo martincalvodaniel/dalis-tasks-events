@@ -65,12 +65,12 @@ export function DragOrderHandle({
       return null
     const rows = [
       ...list.querySelectorAll<HTMLElement>(":scope > [data-order-item]"),
-    ].filter((row) => peers.includes(row.dataset.orderItem ?? ""))
+    ]
     const row =
       rows.find((record) => point.y <= record.getBoundingClientRect().bottom) ??
       rows.at(-1)
     const id = row?.dataset.orderItem
-    if (!row || !id) return null
+    if (!row || !id || !peers.includes(id)) return null
     const rect = row.getBoundingClientRect()
     const side = point.y < rect.top + rect.height / 2 ? "before" : "after"
     if (!dropMoveNeighbors(peers, itemId, id, side)) return null
@@ -192,6 +192,10 @@ export function DragOrderHandle({
         onPointerUp={(event) => {
           const current = gesture.current
           if (!current || current.pointerId !== event.pointerId) return
+          if (current.fingerprint !== fingerprint) {
+            cancel()
+            return
+          }
           current.x = event.clientX
           current.y = event.clientY
           const destination = current.active ? findTarget(current) : null

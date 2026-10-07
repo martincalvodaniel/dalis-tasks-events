@@ -49,6 +49,43 @@ export async function runTouchDragChecks(host: HTMLElement) {
       throw new Error("Canceled touch gesture wrote an operation")
   }
   try {
+    root.render(
+      <StrictMode>
+        <DragFixture
+          blockedId="a"
+          onDrop={(neighbors) => operations.push(neighbors)}
+        />
+      </StrictMode>
+    )
+    await settle()
+    start()
+    dispatch("pointerup", target.left + 20, target.top + 5)
+    unchanged()
+    root.render(
+      <StrictMode>
+        <DragFixture onDrop={(neighbors) => operations.push(neighbors)} />
+      </StrictMode>
+    )
+    await settle()
+    start()
+    await settle()
+    root.render(
+      <StrictMode>
+        <DragFixture
+          blockedId="a"
+          onDrop={(neighbors) => operations.push(neighbors)}
+        />
+      </StrictMode>
+    )
+    await settle()
+    dispatch("pointerup", target.left + 20, target.top + 5)
+    unchanged()
+    root.render(
+      <StrictMode>
+        <DragFixture onDrop={(neighbors) => operations.push(neighbors)} />
+      </StrictMode>
+    )
+    await settle()
     dispatch("pointerdown")
     dispatch("pointerup")
     unchanged()

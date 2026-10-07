@@ -4,8 +4,10 @@ import type { RankNeighbors } from "@/lib/ordering/rank"
 
 export function DragFixture({
   onDrop,
+  blockedId,
 }: {
   onDrop: (neighbors: RankNeighbors) => void
+  blockedId?: string
 }) {
   const [ids, setIds] = useState(["a", "b", "c"])
   return (
@@ -21,7 +23,7 @@ export function DragFixture({
           <DragOrderHandle
             itemId={id}
             label={id}
-            peers={ids}
+            peers={ids.filter((peer) => peer !== blockedId)}
             busy={false}
             onDrop={(neighbors) => {
               onDrop(neighbors)
