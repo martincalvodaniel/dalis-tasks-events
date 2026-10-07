@@ -512,3 +512,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - No materializar ocurrencias/activar repetición todavía; contrato de series actual intacto, sin DB/deps.09a2 resolverá slots/IDs y problemas horarios explícitos, sin normalizar una cita silenciosamente.
 
 - Resultado09a1: cuatro frecuencias paginadas, count global/ciclo400años/oráculo independiente192combinaciones y hostTZHonolulu aprobados. Cien consultas0001→9999 con página3:13ms observados. Lint/tipos/build,86tests+7skip; siguiente09a2 slots/ocurrencias, sin UI nueva.
+
+### 09a2 — Proyección pura de ocurrencias y problemas horarios
+
+- Estado: completada; int secuencial, entrada67%/68% tras4b1aa2a publicado. Dependencias09a1/08a; scope antes de editar: lib/calendar/occurrences.ts/tests, esquemas/tipos compartidos existentes solo si necesario y plan.
+- Objetivo: página de slots originales con IDseriesId:slotKey; tareas empiezan sin empezar/checklistcopia no completada, eventos all-day conservan longitudcivil; timed desplaza fecha de inicio y final el mismo número de díasciviles, conservando ambas horas locales/zona (duración exacta puede variar porDST).
+- Decisión: limit/count cuentan slots de fechas civiles, aunque un horario resultegap/fold; devolver issueconID/slot/reason, no normalizar ni sustituir porotrafecha. nextAfter sigue la página de slots aunque todos fallen. Query se refiere a fechas de inicio en zona de serie; selección por zona de cuenta/solapes será integración09c. Cumpleaños y excepciones/materialización09b–10 posteriores.
+- Aceptación: IDs/páginas deterministas, tareaestado/checklist independientes sin mutar padre ni otraaparición; medianoche/duracióncivil/DSTsin24hfijo; gaps/folds/fin inválido y desbordamiento9999 explícitos con IDs conservados y otrasapariciones válidas; count/cursor no duplican slots; tombstonepadre vacío, schemas/zonas/extremos validados. Tests/hostTZalterno/lint/tipos/build/diff/ref, commit+pushint, cuotas. Sin UI/mutaciones nuevas ni deps/DB.
+
+- Resultado09a2: IDs/metadata/checklist independientes, extremos/gaps/folds/Apia y endpointsDST/cursor comprobados;91tests+7skip, hostHonolulu, lint/tipos/build aprobados. Página500timed:269ms observados, sin expandir más slots que el límite. Siguiente09b1 ejecutor local para estado/excepciones de tareas.

@@ -427,3 +427,12 @@ No rellenar evidencias a partir de intención o memoria. Un test no ejecutado es
 - Siete tests: ejemplos de diaria/semanal/parcial/mensual31/anualbisiesto1900/2000, countagotado/fechauntil/extremos0001/9999/limitecursor; oráculo independiente día por día192combinaciones de anclas/frecuencias/intervalos/límites, comparadas con páginas3. Conteosmensuales después de ciclo400años y intervalos2/12 comprobados.
 - Repetición de esos7tests con hostTZPacific/Honolulu pasa. Benchmark100queriesdiarias desdeancla0001 a diciembre9999/página3:13ms total observados, no garantía universal.86tests pasan/7authopt-in omitidos/0fallos; lint187files/tipos/build29recursos aprobados, diff/ref revisados.
 - Commit+pushint al cerrar y cuotas después. Próxima09a2: generar IDs/slots y plantillas de ocurrencias, conservando hora local/estadoindividual y avisos explícitosDST; no activar recurrencia enUI antes deejecutor/lector completo.
+
+
+## 09a2 — Proyección pura de apariciones, 7 de octubre
+
+- Int secuencial, entrada67%/68% tras4b1aa2a publicado. [occurrences.ts](../src/lib/calendar/occurrences.ts) valida serie y consulta existentes; IDsseriesId:slotKey, metadatos inicialesrevision0/createdAtde serie, tombstonepadre vacío. Sin DB/UI/mutaciones/deps nuevas.
+- Tarea copia cada checklist con IDsoriginales, completadosfalse, estado sinempezar/completedAtnull; ninguna aparición comparte objetos/estado con otra ni padre. All-day desplaza longitudcivil; timed conserva ambos endpoints locales y día relativo del final, con zona de serie explícita. No suma24h ni conserva duraciónUTC fija al cruzarDST.
+- Incidenciasgap/fold/out-of-range llevan mismoID/slot, no normalizan ni consumen un slot extra; count/limit cuentan intentos programadosciviles. nextAfterse conserva aunque página entera falle. Consulta se define sobre comienzos originales, solapes/zona de cuenta se integran en09c.
+- Cinco tests: copia/IDs/páginas/tombstone, all-day y años0001/9999, Madridprimavera2h→1h y otoñoovernight5h→4h, gap/fold/conteo/pagecontinúa, fininexistente/Apia/saltofechacivil/desbordamientotimed.32assertions; repeticiónTZPacificHonolulu pasa. Página500timed09→10 diario:269ms/500válidas/0issues/cursor2027-05-15observados, no garantía de móvil.
+- Lint189files/tipos/build29recursos pasan;91tests/7authopt-in skip/0fallos; diff/ref revisados. Commit+pushint al cerrar, cuotas automáticas después. Próxima09b1: estado/checklist/cancelación local de ocurrencias, con creación de excepción atómica y validación de slot/serie, antes de lectura/formulario.

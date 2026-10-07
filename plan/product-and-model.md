@@ -122,3 +122,12 @@ Fechas civiles admitidas: años `0001–9999`, sin conversión implícita a la z
 - `until` incluye su fecha. `count` limita las fechas programadas válidas desde el origen, sin reiniciarse al cambiar rango/página. Mes sin el día anclado y año sin29feb no generan slot ni consumen count. Cumpleaños mantiene su regla separada28feb pendiente10.
 - Consulta civil inclusiva, cursorfecha exclusivo y páginas1–500 con `nextAfter` explícito; rango máximo soportado0001–9999. El límite controla resultados, no elimina silenciosamente lo restante. Se salta a rango por aritmética, y count de fechas omitidas usa ciclo gregoriano400años.
 - Este corte entrega fechas, no instantes/ocurrencias/UI.09a2 proyectará slots de eventos y señalará gaps/folds; la política de conteo de slots con problema horario se documentará allí antes de activarlos.
+
+
+### Proyección de ocurrencias implementada en09a2
+
+- Página por fecha original de inicio en la zona de la serie, no por visibilidad en la cuenta. Slot de tarea/all-day es fecha; timed es fecha+hora original. IDseriesId:slotKey nunca depende de la fecha visible que después cambie una excepción.
+- Tarea generada comienza sin empezar, con completedAtnull y copia independiente del checklist no completada. Metadata inicialrevision0/timestampscreatedAtde serie; el padre no presta progreso ni estado a una aparición.
+- All-day conserva número de díasciviles. Timed desplaza fechas de inicio/final por el mismo offsetcivil, conserva ambas horas locales y zona. Así09:00→10:00 se mantiene local, y una duración que cruzaDST puede variar en instantes. No usar duraciónUTC fija ni sumar24h para repetir.
+- Gap/fold/desbordamiento del año9999 se devuelve como incidencia con ID/slot original, junto a apariciones válidas. `count`/limit cuentan slotsciviles, incluidos los que necesitan revisiónhoraria; no reemplazarlos ni extender el conteo silenciosamente. Cursor sigue avanzando aunque la página contenga solo incidencias.
+- Excepciones, persistencia, lectura por zona de cuenta y UI siguen09b–09c. Este helper no escribe DB ni interpreta una aparición reprogramada como un nuevo slot.
