@@ -684,3 +684,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Pruebas Mongo real: checkpoint bajo ediciones/borrado/nuevos elementos durante páginas, siguiente pasada recupera posteriores; otroactor, cursorfuturo, hueco/corrupción y permisoactual denegado no entregan página parcial. GETtests401/400/no-store/sesión/500 sin detalles. Suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas; reconciliación/coordinador después.
 
 - Resultado12a1: GETprivado/actor de sesión/query limitado, checkpoint decontador y secuencias contiguas en snapshot; bootstrap desdejournal0 y replay posteriores preservan todos los cambios. Mongo15pass/105aserciones, normal133pass/30opt-in skip, lint236files/tipos/build29recursos pasan. Siguiente12b1 reconciliación IndexedDB; no convergencia de dispositivos anunciada.
+
+### 12b1a — Proyección conservadora de cambios con trabajo pendiente
+
+- Objetivo previo: helper puro para decidir shadow/vista al recibir un elemento remoto, conservando la proyección local mientras existan intenciones sinACK. Entrada75%/54%, int/secuencial/reserva10%; dependencias12a1/03b.
+- `target_paths`: `src/lib/sync/item-projection.ts` ytest, `src/schemas/item-projection.ts`, `plan/{master,iterations,iteration-log,offline-and-sync}.md`.
+- Aceptación: validar cuenta/identidad/registros/cola de entidad; shadow solo avanza revisión, igualdad concontenido distinto falla, respuesta vieja no regresa metadata. Sin pendientes adoptar remoto/tombstone; conpendientes conservar local íntegro (incluidas series no soportadas) y guardar remoto separado. ACK porUUID de journal no se presume; recibo/payload verificado precederá confirmación. Sin escrituras IndexedDB ni modificación de cola aún.
+- Decisión conservadora: pull no reaplica automáticamente una intención sobre cambios remotos concurrentes ni sobrescribe su borrador. Vista local existente representa intenciones acumuladas; shadow conserva remoto para resolver/reconciliar posteriormente. Cortes siguientes: recibos/ACKatómico, cursor/pullatómico, preparación de revisión de envío congelada ycoordinador.
+- Validación: oráculos de ediciones/crear/borrar local, replay/viejas/misma revisión contradictoria, foreign/corrupt/no identidad, input sinmutar; suite/lint/tipos/build/diff/ref, plan/registro/commit+pushint/cuotas.
+
+- Resultado12b1a: planner puro valida cuenta/identidad/cola y conserva optimismo sinACK, shadow monotónico y replayigual; cuatro tests/26aserciones, normal137pass/30opt-in skip, lint239files/tipos/build29recursos pasan. No persistencia/cursor/ACK nuevos; siguiente12b1b confirma recibos e intenciones localmente.
