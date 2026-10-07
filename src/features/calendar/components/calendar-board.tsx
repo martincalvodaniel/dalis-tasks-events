@@ -2,11 +2,12 @@
 
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { MonthGrid } from "@/features/calendar/components/month-grid"
+import { useAccountDay } from "@/features/calendar/hooks/use-account-day"
 import { useCalendarDate } from "@/features/calendar/hooks/use-calendar-date"
 import { TaskList } from "@/features/tasks/components/task-list"
 import { useLocalTasks } from "@/features/tasks/hooks/use-local-tasks"
 import type { LocalAccount } from "@/features/workspace/local-account"
-import { civilDateToUtc, todayInTimeZone } from "@/lib/calendar/civil-date"
+import { civilDateToUtc } from "@/lib/calendar/civil-date"
 
 const dayFormatter = new Intl.DateTimeFormat("es-ES", {
   dateStyle: "full",
@@ -16,6 +17,7 @@ const dayFormatter = new Intl.DateTimeFormat("es-ES", {
 export function CalendarBoard({ account }: { account: LocalAccount }) {
   const { data, error, isLoading } = useLocalTasks(account)
   const requestedDate = useCalendarDate()
+  const today = useAccountDay(data?.timeZone)
   if (error)
     return (
       <ErrorBanner>
@@ -23,8 +25,8 @@ export function CalendarBoard({ account }: { account: LocalAccount }) {
         intentarlo.
       </ErrorBanner>
     )
-  if (isLoading || !data) return <p role="status">Cargando calendario…</p>
-  const today = todayInTimeZone(data.timeZone)
+  if (isLoading || !data || !today)
+    return <p role="status">Cargando calendario…</p>
   const selected = requestedDate ?? today
   const counts = new Map<string, number>()
   for (const task of data.tasks) {
@@ -36,7 +38,7 @@ export function CalendarBoard({ account }: { account: LocalAccount }) {
       <MonthGrid selectedDate={selected} today={today} counts={counts} />
       <TaskList
         account={account}
-        scheduledDate={selected}
+        selection={{ kind: "day", date: selected }}
         heading={dayFormatter.format(civilDateToUtc(selected))}
       />
     </>

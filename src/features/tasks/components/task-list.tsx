@@ -5,9 +5,15 @@ import { ErrorBanner } from "@/components/ui/error-banner"
 import { ItemCategorySelect } from "@/features/tags/components/item-category-select"
 import { useItemCategory } from "@/features/tags/hooks/use-item-category"
 import { useLocalTags } from "@/features/tags/hooks/use-local-tags"
+import {
+  type AgendaSelection,
+  groupAgendaTasks,
+  selectAgendaTasks,
+} from "@/features/tasks/agenda-selection"
 import { DeleteTaskDialog } from "@/features/tasks/components/delete-task-dialog"
 import { TaskCard } from "@/features/tasks/components/task-card"
 import { TaskComposer } from "@/features/tasks/components/task-composer"
+import { TaskGroup } from "@/features/tasks/components/task-group"
 import { useLocalTasks } from "@/features/tasks/hooks/use-local-tasks"
 import { useTaskProgress } from "@/features/tasks/hooks/use-task-progress"
 import { deleteLocalTask } from "@/features/tasks/local-tasks"
@@ -15,13 +21,15 @@ import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import type { Task } from "@/types/calendar-item"
 
+const allTasksSelection = { kind: "all" } as const
+
 export function TaskList({
   account,
-  scheduledDate,
+  selection = allTasksSelection,
   heading = "Tus tareas",
 }: {
   account: LocalAccount
-  scheduledDate?: string
+  selection?: AgendaSelection
   heading?: string
 }) {
   const { data, error, isLoading, mutate } = useLocalTasks(account)
@@ -32,11 +40,11 @@ export function TaskList({
   const [editing, setEditing] = useState<Task | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Task | null>(null)
-  const tasks = scheduledDate
-    ? data?.tasks.filter(
-        (task) => !task.recurrence && task.scheduledDate === scheduledDate
-      )
-    : data?.tasks
+  const tasks = data ? selectAgendaTasks(data.tasks, selection) : []
+  const groups = groupAgendaTasks(
+    tasks,
+    categoryReadError ? undefined : categories
+  )
   async function remove(task: Task, operationId: string) {
     setDeleting(true)
     try {
@@ -50,7 +58,15 @@ export function TaskList({
   }
   return (
     <section
-      aria-label={scheduledDate ? "Tareas del día" : "Tareas guardadas"}
+      aria-label={
+        selection.kind === "day"
+          ? "Tareas del día"
+          : selection.kind === "overdue"
+            ? "Atrasadas"
+            : selection.kind === "upcoming"
+              ? "Hoy y próximas"
+              : "Tareas guardadas"
+      }
       className="mt-8 space-y-4"
     >
       <h2 className="text-xl font-semibold first-letter:uppercase">
@@ -97,61 +113,69 @@ export function TaskList({
       ) : isLoading ? (
         <p role="status">Cargando tareas…</p>
       ) : tasks?.length ? (
-        <ul className="space-y-4">
-          {tasks.map((task) => (
-            <li key={task.id}>
-              <TaskCard
-                task={task}
-                onEdit={() => setEditing(task)}
-                onDelete={() => setPendingDelete(task)}
-                busy={deleting || progress.busy || category.busy}
-                categoryControl={
-                  categories && !categoryReadError ? (
-                    <ItemCategorySelect
-                      title={task.title}
-                      tags={categories.tags}
-                      selectedId={categories.views[task.id] ?? null}
-                      busy={deleting || progress.busy || category.busy}
-                      onChange={(tagId) => {
-                        void category.change({ itemId: task.id, tagId })
-                      }}
-                    />
-                  ) : undefined
-                }
-                onStatusChange={
-                  task.recurrence
-                    ? undefined
-                    : (status) => {
-                        void progress.change({
-                          type: "task.set-status",
-                          itemId: task.id,
-                          occurrenceId: null,
-                          status,
-                        })
-                      }
-                }
-                onChecklistChange={
-                  task.recurrence
-                    ? undefined
-                    : (entryId, completed) => {
-                        void progress.change({
-                          type: "task.set-checklist-entry",
-                          itemId: task.id,
-                          occurrenceId: null,
-                          entryId,
-                          completed,
-                        })
-                      }
-                }
-              />
-            </li>
+        <div className="space-y-6">
+          {groups.map((group) => (
+            <TaskGroup key={group.id} title={group.title}>
+              {group.tasks.map((task) => (
+                <li key={task.id}>
+                  <TaskCard
+                    task={task}
+                    onEdit={() => setEditing(task)}
+                    onDelete={() => setPendingDelete(task)}
+                    busy={deleting || progress.busy || category.busy}
+                    categoryControl={
+                      categories && !categoryReadError ? (
+                        <ItemCategorySelect
+                          title={task.title}
+                          tags={categories.tags}
+                          selectedId={categories.views[task.id] ?? null}
+                          busy={deleting || progress.busy || category.busy}
+                          onChange={(tagId) => {
+                            void category.change({ itemId: task.id, tagId })
+                          }}
+                        />
+                      ) : undefined
+                    }
+                    onStatusChange={
+                      task.recurrence
+                        ? undefined
+                        : (status) => {
+                            void progress.change({
+                              type: "task.set-status",
+                              itemId: task.id,
+                              occurrenceId: null,
+                              status,
+                            })
+                          }
+                    }
+                    onChecklistChange={
+                      task.recurrence
+                        ? undefined
+                        : (entryId, completed) => {
+                            void progress.change({
+                              type: "task.set-checklist-entry",
+                              itemId: task.id,
+                              occurrenceId: null,
+                              entryId,
+                              completed,
+                            })
+                          }
+                    }
+                  />
+                </li>
+              ))}
+            </TaskGroup>
           ))}
-        </ul>
+        </div>
       ) : (
         <p className="rounded-2xl border border-dashed border-zinc-300 p-5 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
-          {scheduledDate
+          {selection.kind === "day"
             ? "No hay tareas para este día. Pulsa + para añadir una."
-            : "Pulsa + para añadir tu primera tarea."}
+            : selection.kind === "overdue"
+              ? "No tienes tareas atrasadas."
+              : selection.kind === "upcoming"
+                ? "No hay tareas para hoy o próximas fechas. Pulsa + para añadir una."
+                : "Pulsa + para añadir tu primera tarea."}
         </p>
       )}
     </section>

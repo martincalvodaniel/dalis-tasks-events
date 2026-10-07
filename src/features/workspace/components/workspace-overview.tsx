@@ -1,6 +1,6 @@
 "use client"
 
-import { TaskList } from "@/features/tasks/components/task-list"
+import { TaskAgenda } from "@/features/tasks/components/task-agenda"
 import { DeviceSettings } from "@/features/workspace/components/device-settings"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 
@@ -37,7 +37,7 @@ export function WorkspaceOverview() {
           Gestionar este dispositivo
         </a>
       </section>
-      <TaskList key={account.epoch} account={account} />
+      <TaskAgenda key={account.epoch} account={account} />
     </>
   )
 }

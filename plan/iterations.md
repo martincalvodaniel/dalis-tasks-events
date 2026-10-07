@@ -199,9 +199,12 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 ### 07a — Grupos y atrasadas
 
-- `target_paths`: agenda en `src/features/calendar/components/**`, selectores/hooks de tareas, actualización de reloj.
+- Estado: completada; grupos, atrasadas, completar/recargar offline, historial original y cambio de día sin nuevas intenciones comprobados. Entrada automática 38%/90%, entrega secuencial.
+- Objetivo: grupos personales en el día y sección global de atrasadas que conserva fecha/estado y se recalcula al cambiar de día.
+- `target_paths`: selectores/componentes de tareas y calendario, hook de día de cuenta, resumen del workspace, pruebas/fixtures y `plan/**`.
 - Dependencias: `06` y reglas de `02b`.
 - Aceptación: título de categoría con sus tareas debajo; sección “Atrasadas” global con fecha original/estado; cambio de día y reentrada recalculan; completar retira de atrasadas; historial del día original preservado.
+- Validación: selectores para categorías ausentes/borradas y completadas; reloj/foco con tiempo simulado únicamente en iframe de fixture; recorrido offline de completar y recargar, inspección de datos/cola; lint, tipos, tests y build. Reutiliza ambas pantallas existentes, sin nuevos destinos.
 
 ### 07b — Reordenación persistente
 

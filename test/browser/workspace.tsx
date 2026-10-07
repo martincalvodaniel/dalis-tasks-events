@@ -1,11 +1,13 @@
 import { createRoot } from "react-dom/client"
 import { canPrepareOfflineShell } from "@/config/pwa"
+import { assignLocalCategory, saveLocalTag } from "@/features/tags/local-tags"
 import { createLocalTask } from "@/features/tasks/local-tasks"
 import { Workspace } from "@/features/workspace/components/workspace"
 import {
   loadLocalAccount,
   prepareLocalAccount,
 } from "@/features/workspace/local-account"
+import { addCivilDays, todayInTimeZone } from "@/lib/calendar/civil-date"
 import {
   ACCOUNT_CONTROL_DATABASE,
   completeRemoteLogout,
@@ -53,9 +55,137 @@ async function requestStatus() {
 }
 async function run() {
   const mode = new URLSearchParams(location.search).get("mode")
+  if (mode === "clock") {
+    const frame = document.createElement("iframe")
+    frame.title = "Agenda con reloj de prueba"
+    frame.src = "/workspace"
+    frame.style.width = "100%"
+    frame.style.height = "1000px"
+    let advance: (() => void) | null = null
+    frame.addEventListener("load", () => {
+      const frameWindow = frame.contentWindow
+      assert(frameWindow)
+      let instant = Date.now()
+      const simulatedDate = new Proxy(Date, {
+        construct(target, argumentsList) {
+          return Reflect.construct(
+            target,
+            argumentsList.length ? argumentsList : [instant]
+          )
+        },
+        get(target, key) {
+          return key === "now" ? () => instant : Reflect.get(target, key)
+        },
+      })
+      Object.defineProperty(frameWindow, "Date", {
+        value: simulatedDate,
+        configurable: true,
+      })
+      advance = () => {
+        instant += 86400000
+        frameWindow.dispatchEvent(new Event("focus"))
+      }
+    })
+    const button = document.createElement("button")
+    button.textContent = "Avanzar un día de prueba"
+    button.addEventListener("click", () => advance?.())
+    document.getElementById("actions")?.append(button, frame)
+    const status = document.getElementById("status")
+    if (status)
+      status.textContent = "Tiempo simulado únicamente en este iframe ficticio."
+    return
+  }
   const { userId } = await session(
-    mode === "calendar" ? "authorized" : "unauthorized"
+    mode === "calendar" || mode === "agenda" || mode === "agenda-inspect"
+      ? "authorized"
+      : "unauthorized"
   )
+  if (mode === "agenda" || mode === "agenda-inspect") {
+    const state = await loadLocalAccount()
+    assert(state.account?.userId === userId)
+    const account = state.account
+    const repository = await LocalRepository.open(userId)
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      const settings = await repository.get("settings", userId)
+      assert(settings)
+      const today = todayInTimeZone(settings.timeZone)
+      if (mode === "agenda") {
+        assert((await repository.list("tags")).length === 0)
+        const baseline = (await repository.list("items"))[0]
+        assert(baseline?.kind === "task")
+        const tagId = crypto.randomUUID()
+        await saveLocalTag(
+          account,
+          tagId,
+          { name: "Trabajo", color: "#059669", position: 0 },
+          crypto.randomUUID()
+        )
+        await assignLocalCategory(
+          account,
+          baseline.id,
+          tagId,
+          crypto.randomUUID()
+        )
+        for (const [title, date, status] of [
+          ["Pendiente de ayer", addCivilDays(today, -1), "in_progress"],
+          ["Hecha ayer", addCivilDays(today, -1), "completed"],
+          ["Comprar pan", today, "not_started"],
+        ] as const) {
+          const id = crypto.randomUUID()
+          await createLocalTask(
+            account,
+            {
+              kind: "task",
+              title,
+              description: "",
+              scheduledDate: date,
+              status,
+              checklist: [],
+              recurrence: null,
+            },
+            id,
+            crypto.randomUUID()
+          )
+          if (title === "Pendiente de ayer")
+            await assignLocalCategory(account, id, tagId, crypto.randomUUID())
+        }
+      } else
+        await check(
+          "Completar conserva fecha y el reloj no añade intenciones",
+          async () => {
+            const items = await repository.list("items")
+            const late = items.find(
+              (item) => item.title === "Pendiente de ayer"
+            )
+            assert(items.length === 4 && late?.kind === "task")
+            assert(
+              late.status === "completed" &&
+                late.scheduledDate === addCivilDays(today, -1)
+            )
+            const entries = await outbox.listEntries()
+            assert(
+              entries.length === 8 &&
+                entries.at(-1)?.operation.command.type === "task.set-status"
+            )
+          }
+        )
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+    const status = document.getElementById("status")
+    if (status)
+      status.textContent =
+        mode === "agenda"
+          ? "Agenda ficticia preparada."
+          : "Datos, fecha y cola comprobados."
+    const link = document.createElement("a")
+    link.href = "/workspace"
+    link.textContent = "Abrir agenda"
+    document.getElementById("actions")?.append(link)
+    return
+  }
   if (mode === "calendar") {
     const control = await readAccountControl()
     assert(control.userId === userId && !control.logoutPending)
@@ -152,7 +282,9 @@ async function run() {
           kind: "task",
           title: "Probar mi espacio local",
           description: "",
-          scheduledDate: "2026-10-07",
+          scheduledDate: todayInTimeZone(
+            Intl.DateTimeFormat().resolvedOptions().timeZone
+          ),
           status: "not_started",
           checklist: [],
           recurrence: null,

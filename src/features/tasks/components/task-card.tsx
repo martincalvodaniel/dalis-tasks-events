@@ -39,7 +39,7 @@ export function TaskCard({
         </time>{" "}
         · {statusLabels[task.status]}
       </p>
-      <h3 className="mt-2 wrap-anywhere text-lg font-semibold">{task.title}</h3>
+      <h4 className="mt-2 wrap-anywhere text-lg font-semibold">{task.title}</h4>
       {task.description ? (
         <p className="mt-3 whitespace-pre-wrap wrap-anywhere text-zinc-600 dark:text-zinc-300">
           {task.description}

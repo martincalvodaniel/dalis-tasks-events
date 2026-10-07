@@ -222,6 +222,18 @@
 - Commit: `feat(calendar): browse monthly tasks and create from selected days`.
 - Próxima candidata: `07a`, con consulta automática de ambas ventanas y reserva del lote del 20%.
 
+## 07a — Grupos personales y atrasadas
+
+- Rama `main`, secuencial; entrada automática **5h 38%; 7d 90% restantes**, después de `06`. Objetivo y `target_paths`: selectores/grupos/listado de tareas, agenda de resumen, reloj de día y board de calendario, fixture de navegador y plan. Dependencias `06`, `02b`.
+- Resultado: cada tarea del día aparece una vez bajo su categoría, según posición personal de grupos, con Sin categoría para referencias ausentes/borradas. Fallo de lectura conserva acceso a las tareas bajo título neutral. H2 de sección, H3 de grupo y H4 de tarea. Mi espacio separa Atrasadas de Hoy y próximas; calendario mantiene todas las tareas de su día, incluidas completadas. No hay nueva pantalla; ambas barras conservan destinos operativos.
+- Reclasificación: conserva fecha, estado y contenido; usa condición derivada existente. Hook compartido revisa día en zona de cuenta cada 60s y en foco/visibilidad, con limpieza de intervalos/listeners. El cambio no escribe datos ni outbox. La fecha de URL sigue siendo la selección explícita; Hoy usa el día actualizado.
+- Evidencia de producción: cuatro tareas ficticias, categoría Trabajo y Sin categoría. Ayer en curso aparece en Atrasadas, ayer completada queda solo en historial y dos tareas de hoy en sus grupos. Con ambos servidores detenidos, completar la atrasada la retira; recargar conserva ausencia y abrir ayer muestra las dos completadas bajo sus categorías y fecha original. [Captura móvil revisada](evidence/07a-mobile.png).
+- Reloj: fixture en iframe, con Date simulado únicamente allí, avanza un día y emite foco con el servidor de aplicación detenido. Las dos tareas de hoy pasan a Atrasadas sin cambiar sus fechas/estados, y Hoy y próximas queda vacío. Inspección posterior confirma cuatro items y ocho intenciones: solo una nueva para completar; el reloj no añade operaciones.
+- Validación: 46 tests unitarios aprobados, incluidos grupos/duplicados, referencias borradas, historial y medianoche de Europe/Madrid sin mutación. Siete tests auth opt-in no repetidos. Lint sin ruido, tipos y build aprobados; revisión de diff/referencias. Reutiliza lectura/indexación local y SWR, sin queries MongoDB o dependencias nuevas.
+- Limpieza: iframe/reloj y pestaña descartados, datos/control/caché ficticios limpiados y procesos detenidos. No se modifica la cuenta, reloj ni servidor local del usuario.
+- Commit: `feat(agenda): group tasks by category and surface overdue work`.
+- Próxima candidata: `07b`, reordenación persistente. Consultar uso después del commit; elegir un corte que incluya validaciones y conserve la reserva del 20%.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

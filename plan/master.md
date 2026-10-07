@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas, navegación, tareas, categorías y calendario comprobados (`01a–06`); preparación tras Google y desarrollo corregidos en `05c`; siguiente candidata `07a`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, grupos y atrasadas comprobados (`01a–07a`); preparación tras Google y desarrollo corregidos en `05c`; siguiente candidata `07b`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -124,3 +124,5 @@ Lote reanudado cerrado al completar `05a1`: shell offline, cierre/cuentas, barra
 `05c` se intercala a petición del usuario: Google autorizaba la sesión pero el espacio no se preparaba automáticamente; en desarrollo la preparación además exigía un worker desactivado. Abrir `/workspace` prepara una sesión verificada sin segundo botón, conserva cierre/época y distingue un 401. En desarrollo se puede usar IndexedDB, tareas y categorías sin worker; la UI explica que reabrir sin red exige producción (`bun run build` y `bun run start`). Producción mantiene el requisito de shell completo antes de activar una cuenta. No cambia auth, permisos, allowlist, particiones ni outbox. Calendario sigue pendiente en `06`.
 
 `06` completa mes, selección del día por URL, contadores reales, anterior/siguiente y Hoy en la zona de la cuenta. Crear desde un día preselecciona su fecha; el listado permite editar, borrar, cambiar progreso y categoría mediante los controles existentes. Las dos barras incorporan Calendario y SVG local. Navegación/recarga/creación sin servidores, fechas extremas y reflow al 200% comprobados. Próxima entrega: agrupación y atrasadas (`07a`); eventos/cumpleaños y repetición siguen en sus iteraciones posteriores.
+
+`07a` agrupa las tareas del día por categorías personales, con “Sin categoría” cuando corresponde, y añade Atrasadas global en Mi espacio. Las pendientes anteriores a hoy mantienen fecha/estado; completarlas las retira de esa sección sin perder su historial en el calendario. Hoy y próximas contiene las fechas actuales/futuras; las completadas antiguas se consultan desde su día. El día de cuenta se revisa cada minuto con la app abierta y al recuperar foco/visibilidad; no hay cron, traslado de fecha ni nuevas intenciones por reclasificar. Un reloj simulado en iframe ficticio comprueba la transición de día con el servidor de aplicación detenido. Reordenación manual queda en `07b`.
