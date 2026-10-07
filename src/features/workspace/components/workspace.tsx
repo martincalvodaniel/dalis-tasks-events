@@ -6,6 +6,7 @@ import { WorkspaceNavigation } from "@/components/shared/workspace-navigation"
 import { workspaceDestinations } from "@/config/navigation"
 import { CalendarScreen } from "@/features/calendar/components/calendar-screen"
 import { useCalendarDate } from "@/features/calendar/hooks/use-calendar-date"
+import { SyncIssueNotice } from "@/features/sync/components/sync-issue-notice"
 import { WorkspaceSyncProvider } from "@/features/sync/components/workspace-sync-provider"
 import { TagsScreen } from "@/features/tags/components/tags-screen"
 import { CreateItemDialog } from "@/features/workspace/components/create-item-dialog"
@@ -77,6 +78,7 @@ export function Workspace() {
             <WorkspaceOverview />
           )}
           <UpdateNotice />
+          {view !== "settings" ? <SyncIssueNotice /> : null}
         </main>
       </div>
     </WorkspaceSyncProvider>

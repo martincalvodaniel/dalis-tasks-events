@@ -22,6 +22,7 @@ export class SyncScheduler {
   private paused = false
   private dueAt = 0
   private failures = 0
+  private dirty = false
   private cancelTimer: (() => void) | null = null
   private running: Promise<SyncPassResult> | null = null
   constructor(private readonly ports: SchedulerPorts) {}
@@ -55,6 +56,13 @@ export class SyncScheduler {
     this.failures = 0
     return this.execute()
   }
+  changed() {
+    this.dirty = true
+    if (this.failures === 0 && !this.paused && !this.running) {
+      this.dueAt = Math.min(this.dueAt, this.ports.now() + 1000)
+      this.wake()
+    }
+  }
   stop() {
     if (this.stopped) return
     this.stopped = true
@@ -66,6 +74,7 @@ export class SyncScheduler {
     if (this.running) return this.running
     this.cancelTimer?.()
     this.cancelTimer = null
+    this.dirty = false
     const work = this.pass().finally(() => {
       if (this.running === work) this.running = null
       this.wake()
@@ -84,7 +93,7 @@ export class SyncScheduler {
     switch (result.status) {
       case "settled":
         this.failures = 0
-        this.dueAt = this.ports.now() + 60000
+        this.dueAt = this.ports.now() + (this.dirty ? 1000 : 60000)
         break
       case "more_work":
         this.failures = 0

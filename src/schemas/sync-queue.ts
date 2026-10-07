@@ -3,6 +3,11 @@ import { calendarItemSchema } from "@/schemas/calendar-item"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import { userIdSchema } from "@/schemas/primitives"
 
+export const syncWakeMessageSchema = z.strictObject({
+  type: z.literal("OUTBOX_CHANGED"),
+  userId: userIdSchema,
+})
+
 export const syncQueueSnapshotSchema = z
   .strictObject({
     userId: userIdSchema,

@@ -10,6 +10,7 @@ import { isAccountSyncCacheKey, SyncAttempt } from "@/features/sync/manual-sync"
 import { SyncScheduler } from "@/features/sync/scheduler"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
+import { subscribeLocalOutboxChanges } from "@/lib/local-db/sync-notifications"
 import { LocalSyncStore } from "@/lib/local-db/sync-store"
 
 type AccountIdentity = Pick<LocalAccount, "userId" | "epoch">
@@ -75,6 +76,10 @@ export function useSyncEngine({ userId, epoch }: AccountIdentity) {
     })
     controller.current = scheduler
     const wake = () => scheduler.wake()
+    const unsubscribe = subscribeLocalOutboxChanges(userId, () => {
+      scheduler.changed()
+      void mutate(["dalis:sync-queue", userId, epoch]).catch(() => undefined)
+    })
     window.addEventListener("online", wake)
     window.addEventListener("focus", wake)
     document.addEventListener("visibilitychange", wake)
@@ -82,6 +87,7 @@ export function useSyncEngine({ userId, epoch }: AccountIdentity) {
     return () => {
       disposed = true
       scheduler.stop()
+      unsubscribe()
       if (controller.current === scheduler) controller.current = null
       window.removeEventListener("online", wake)
       window.removeEventListener("focus", wake)

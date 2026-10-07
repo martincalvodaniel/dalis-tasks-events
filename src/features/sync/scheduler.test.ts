@@ -47,6 +47,38 @@ function result(status: SyncPassResult["status"]): SyncPassResult {
   return { status, uploaded: 0, downloaded: 0 }
 }
 
+test("local changes shorten idle polling but never failure backoff or authorization pauses", async () => {
+  let next = result("settled")
+  const test = fixture(async () => next)
+  test.scheduler.start()
+  await test.fire()
+  test.scheduler.changed()
+  test.scheduler.changed()
+  expect([...test.timers.values()]).toEqual([1000])
+  next = result("retry_later")
+  await test.fire()
+  test.scheduler.changed()
+  expect([...test.timers.values()]).toEqual([31000])
+  next = result("unauthorized")
+  await test.fire()
+  test.scheduler.changed()
+  expect(test.timers.size).toBe(0)
+})
+
+test("a local write during an active pass schedules a short follow-up", async () => {
+  let complete: (value: SyncPassResult) => void = () => undefined
+  const pass = new Promise<SyncPassResult>((resolve) => {
+    complete = resolve
+  })
+  const test = fixture(() => pass)
+  test.scheduler.start()
+  await test.fire()
+  test.scheduler.changed()
+  complete(result("settled"))
+  await test.scheduler.request()
+  expect([...test.timers.values()]).toEqual([1000])
+})
+
 test("scheduler starts immediately, continues bounded pages, then polls once a minute", async () => {
   const values = [result("more_work"), result("settled")]
   const test = fixture(async () => values.shift() ?? result("settled"))

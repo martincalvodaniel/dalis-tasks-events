@@ -5,6 +5,7 @@ import { applyLocalItemCommand } from "@/lib/local-db/item-mutation"
 import { commitLocalTaskOccurrenceCommand } from "@/lib/local-db/occurrence-outbox"
 import { commitLocalPreferenceCommand } from "@/lib/local-db/preference-outbox"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
+import { notifyLocalOutboxChange } from "@/lib/local-db/sync-notifications"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { calendarItemSchema } from "@/schemas/calendar-item"
 import {
@@ -27,6 +28,12 @@ import type {
   RemoteShadow,
 } from "@/types/local-sync"
 import type { Tag } from "@/types/preferences"
+
+type ItemCommitOptions = {
+  operationId?: string
+  now?: Date
+  expectedItem?: CalendarItem
+}
 
 export class LocalOutbox {
   private constructor(
@@ -52,11 +59,19 @@ export class LocalOutbox {
 
   commitItemCommand(
     input: LocalItemCommand,
-    options: {
-      operationId?: string
-      now?: Date
-      expectedItem?: CalendarItem
-    } = {}
+    options: ItemCommitOptions = {}
+  ): Promise<OutboxEntry> {
+    return this.commitItemRecord(input, options).then((entry) =>
+      this.notifyCommitted(entry)
+    )
+  }
+  private notifyCommitted(entry: OutboxEntry): OutboxEntry {
+    notifyLocalOutboxChange(this.userId)
+    return entry
+  }
+  private commitItemRecord(
+    input: LocalItemCommand,
+    options: ItemCommitOptions
   ): Promise<OutboxEntry> {
     const parsed = syncCommandSchema.parse(input)
     if (
@@ -214,7 +229,7 @@ export class LocalOutbox {
       this.userId,
       input,
       options
-    )
+    ).then((entry) => this.notifyCommitted(entry))
   }
 
   listEntries(): Promise<OutboxEntry[]> {
@@ -249,7 +264,7 @@ export class LocalOutbox {
       this.userId,
       input,
       options
-    )
+    ).then((entry) => this.notifyCommitted(entry))
   }
 
   getShadow(itemId: string): Promise<RemoteShadow | null> {

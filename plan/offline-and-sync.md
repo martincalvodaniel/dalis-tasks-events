@@ -293,3 +293,7 @@ Una pasada activa compartida; revisión60s trasacabar ycontinuación2s siquedan 
 ### Arranque automático12b2b4
 
 Workspace monta proveedorúnico porusuario/epoch; comparte motor/estado conAjustes, no reinicia por cambiarvista. Autoarranca conappvisible/conred, reanuda mediante online/foco/visibility yrespeta deadline/backoff/pausas. Cleanup detiene resources/listeners/timer ylaspasadaspropias. UserId+epoch siguenverificados anteefectos. Puertas servidor sesióngenuina/CAS/recibo/journal yvalidación permanecen. Primeralcance: propiossimples, no preferencias/series/sharing niworker cuandoappestácerrada; conflictos yrechazos conservados para13a. PruebaReact/Mongo deauto+manualsin duplicado aprobada; falta pilotoGoogle/RPCNext real en entorno desplegado.
+
+### Reacción local12b2c
+
+Guardar intenciónoutbox emite aviso validado deusuario trascommit; evento local yBroadcastChannel mismo origen despiertan motor yresumen. Fallos denotificación no cambian éxito delguardado. Scheduler adelanta idle a1s, respetando backoff/pausas yrevisando escrituras llegadas durantepasada; ninguna señal depull/ACK provoca bucle. VistasfueraAjustes muestran enlacecompacto de revisión solo para incidencias que requierenatención. Conflictos/rechazos siguenconservados hasta13a.
