@@ -183,7 +183,7 @@ Las notificaciones de cambio de cuenta siguen ocultando inmediatamente las vista
 
 ## Progreso por campo (`05b1`)
 
-`task.set-status` y `task.set-checklist-entry` son comandos absolutos: estado o booleano por ID de paso, sin reemplazar el contenido completo. Se validan con el contrato compartido y operan sobre el registro actual dentro de la misma transacción de dato+outbox. Marcar todos los pasos no completa implícitamente la tarea; reabrir la deja sin empezar y mantiene checklist. Un paso eliminado o un padre recurrente rechaza la operación sin cambio parcial. Ocurrencias se incorporan en `09b`; la UI actual solo ofrece progreso de tareas simples.
+`task.set-status` y `task.set-checklist-entry` son comandos absolutos: estado o booleano por ID de paso, sin reemplazar el contenido completo. Se validan con el contrato compartido y operan sobre el registro actual dentro de la misma transacción de dato+outbox. Marcar todos los pasos no completa implícitamente la tarea; reabrir la deja sin empezar y mantiene checklist. Un paso eliminado o un padre recurrente rechaza la operación sin cambio parcial. El ejecutor de apariciones se incorpora en `09b1`; la UI actual solo ofrece progreso de tareas simples.
 
 El hook bloquea envíos simultáneos, conserva ID de intención para reintentar el mismo comando y revalida IndexedDB tras el commit; no usa una respuesta remota ni confirma guardado por un estado optimista. Editores completos siguen usando la guardia de valor esperado de `05a2`. El transporte remoto de `11b` deberá aceptar estos mismos comandos acotados. No se añade índice: la escritura busca por la clave primaria de elemento y el paso se valida dentro de su checklist limitado a 100 entradas.
 
@@ -206,3 +206,10 @@ El registro de destinos ahora incluye categorías y SVG local en móvil/escritor
 Un selector en cada tarea permite clasificarla después de guardar o retirar su categoría. Una referencia a un tombstone se muestra “Sin categoría” sin perder el registro previo. El formulario de creación de tarea no promete guardar una categoría en la misma transacción: esa comodidad requeriría un comando compuesto o un lote local atómico diseñado expresamente en una futura mejora, sin dos pasos presentados como un único guardado.
 
 Confirmación HTML y bloqueo/reintento de intenciones se extraen para compartirlos entre tareas/categorías; cancelar conserva, borrar exige confirmación y los fallos preservan formulario. La edición de categoría conserva posición/identidad y compara el snapshot inicial. El coordinador remoto sigue pendiente; no se etiqueta una categoría como sincronizada por tenerla localmente guardada.
+
+
+### Progreso de apariciones — 09b1
+
+Los comandos de estado/checklist con `occurrenceId` materializan la excepción en `occurrences`, junto con outbox y secuencia, dentro de una única transacción. La primera escritura valida que el slot original pertenece a la regla; una excepción existente conserva su checklist e historia aunque cambie la plantilla futura. No se permite progreso sobre series borradas ni apariciones canceladas/borradas.
+
+La cola usa `entityKey=item:seriesId` y `baseRevision` del padre, serializando sus comandos y los de sus apariciones como un agregado. El progreso local no modifica el padre ni incrementa revisiones remotas. En `11–12`, un ACK deberá avanzar la revisión agregada y publicar los cambios de excepciones asociados; el pull debe traer ambas partes. El replay de un UUID ya guardado devuelve su recibo antes de validar el estado actual, incluso después de borrar la serie, sin reescribir. No hay transporte remoto habilitado todavía.

@@ -2,6 +2,7 @@
 
 import { openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalItemCommand } from "@/lib/local-db/item-mutation"
+import { commitLocalOccurrenceProgress } from "@/lib/local-db/occurrence-outbox"
 import { commitLocalPreferenceCommand } from "@/lib/local-db/preference-outbox"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
@@ -68,6 +69,17 @@ export class LocalOutbox {
         new Error("Command requires its domain mutation layer")
       )
     }
+    if (
+      (parsed.type === "task.set-status" ||
+        parsed.type === "task.set-checklist-entry") &&
+      parsed.occurrenceId !== null
+    )
+      return commitLocalOccurrenceProgress(
+        this.database,
+        this.userId,
+        parsed,
+        options
+      )
     const command = parsed
     const expected = options.expectedItem
       ? calendarItemSchema.parse(options.expectedItem)
