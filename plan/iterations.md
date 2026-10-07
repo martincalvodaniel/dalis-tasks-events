@@ -811,3 +811,9 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación: oráculos derechazo/conflicto, borradorposterior/tombstone/remoto másnuevo, operaciónmutada/cuenta/estado/revisión/keycorruptos/inputintacto; lint/tipos/suite/build/diff/referencias. Documentar diseño de elección explícita/cola dependiente antesdesnapshot13a1b. Commit+pushint/HEADremoto/cuotas; si no cabesiguientecorte+ cierre sobre10%, finalizar lote cerrado.
 
 - Resultado13a1a: DTO puro valida operación/estado/outcome/cuenta/identidad/revisiones; conserva local actual ydeloutcome, shadow alresultado yremoto másnuevo, sin suponerordencronológico de respuestasreplay. Cinco tests/26aserciones nuevas pasan. Normal184pass/30opt-in skip/4508aserciones, lint280files/tipos/build30recursos. Diseño13a deelección explícita documentado; lectorIO13a1b yresolución quedanpendientes.
+
+### Cierre del lote del 8 de octubre, 00:16 — Reserva y revisión
+
+- Objetivo y scope previos: cierre documental después de `f4ba680`, solo `plan/{master,workflow,iterations,iteration-log}.md`. Lectura 12%/44%. El siguiente `13a1b` necesita IO y navegador; los dos puntos sobre la reserva del 10% no cubren pruebas, reparaciones y cierre. Los últimos cortes de código consumieron 5–8 puntos entre lecturas, que pueden incluir uso compartido.
+- Aceptación: código validado y publicado, sin archivos abiertos; siguiente candidata y límites precisos. Heartbeat actual pausado; revisión de las 05:18 de Madrid preservada con reinicio real 1791429393 y continuación desde el último HEAD completo. Sin cadena extra ni créditos o reinicios de cuota.
+- Validación documental: referencias, consistencia y diff; commit, push a int, HEAD remoto y cuotas finales. No repetir build por Markdown.

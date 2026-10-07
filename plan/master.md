@@ -16,7 +16,7 @@ Este documento es la entrada al plan. La iteración `00` entregó la planificaci
 | --- | --- |
 | [Producto y modelo](product-and-model.md) | Comportamiento, entidades, fechas, repetición, orden y permisos. |
 | [Offline, sincronización y arquitectura](offline-and-sync.md) | Almacenamiento local, cola, conflictos, seguridad y rutas. |
-| [Pruebas de sincronización](sync-test-environment.md) | Entorno aislado y matriz de transacciones/CAS/recibos, pendientes de implementar. |
+| [Pruebas de sincronización](sync-test-environment.md) | Entorno aislado, transacciones/CAS/recibos y pruebas de dos particiones con MongoDB real. |
 | [Iteraciones](iterations.md) | Entregas pequeñas, dependencias, rutas y aceptación. |
 | [Flujo de trabajo](workflow.md) | Ventanas de Codex, cierre, commits, pruebas y paralelismo. |
 | [Recuperación de conflictos](conflict-recovery.md) | Evidencias conservadas y cortes de elección explícita. |
@@ -35,7 +35,7 @@ Observaciones de archivos versionados; no se ha probado el login de producción 
 - `01a` conecta Better Auth al adaptador MongoDB ya instalado: usuarios, cuentas, sesiones y verificaciones persistentes. Pruebas con MongoDB local real y dos clientes HTTP independientes comprueban estabilidad de ID tras logout y reconexión. El login interactivo contra Google real se comprobará en el piloto; los tests usan firmas válidas con una clave de prueba y conservan las verificaciones de token.
 - El acceso depende de `ALLOWED_EMAILS`. Una lista vacía no admite usuarios; una invitación no debe ampliar esa lista automáticamente. Compartir en el piloto exige que ambos usuarios estén autorizados.
 - Existen singleton MongoDB, cuatro colecciones de autenticación y seis índices centrales. El adaptador solo reconoce solicitudes automáticas de índices previamente registrados y provisionados. Colecciónitems/índiceownerId+_id y persistencia propia/CAS entregados en11a1b1; sync_operations/sync_changes/sync_counters y sus invariantes atómicos entregados en11b1a; restantes colecciones de producto pendientes. Se respeta [src/lib/db/AGENTS.md](../src/lib/db/AGENTS.md).
-- El dashboard conserva una entrada al espacio, con preparación automática en `05c`. `06` incorpora calendario mensual y tareas del día. `03a–03b` aportan repositorios IndexedDB y una outbox atómica; `04a–04b` añaden shell neutro `/workspace`, worker de recursos, preparación y cierre de cuenta entre pestañas. Recarga y reapertura sin servidor probadas en producción; transporte remoto todavía no implementado.
+- El dashboard conserva una entrada al espacio, con preparación automática en `05c`. `06` incorpora calendario mensual y tareas del día. `03a–03b` aportan repositorios IndexedDB y una outbox atómica; `04a–04b` añaden shell neutro `/workspace`, worker de recursos, preparación y cierre de cuenta entre pestañas. Recarga y reapertura sin servidor probadas en producción; transporte/coordinador de propios simples activo desde12b2b4, prueba integrada con dos particiones/MongoDB. Preferencias/series/compartidos siguen sin sincronización.
 - Hay pruebas con Bun, comprobación de tipos y Biome. El README sigue siendo el de arranque y se actualizará cuando haya un flujo ejecutable.
 
 ## Decisiones de producto
@@ -189,3 +189,11 @@ Al integrar contadores mensuales en08c1, preparar selección por rango y reutili
 ### Cierre tras09b4b1
 
 Lote completado hasta lookup de referencias: estado/checklist, edición/cancelación, selección paginada, snapshot coherente y orden mixto del día, con commits y push aint individuales. Lectura previa al cierre documental28%/61%. La siguiente entrega modifica orden/paginación/persistencia y necesita más que ocho puntos sobre reserva20%; cortes comparables anteriores consumieron7/8 puntos sin contar incertidumbre compartida. Se documenta propuesta y subentregas en [backlog-ordering](backlog-ordering.md), sin modificar schema ni activar el ejecutor pendiente. No hay código abierto; UI de repetición, cumpleaños, sincronización y compartición siguen pendientes. La próxima sesión requiere ambas lecturas nuevas para elegir09b4b2a.
+
+### Cierre de la continuación del 8 de octubre, 00:16
+
+Se entrega hasta `13a1a`, con sincronización de tareas y eventos propios sin repetición mientras la aplicación esté visible y con red: repositorio y CAS, recibo y journal atómicos, descarga con checkpoint, ACK y cursor locales, coordinador y leases, botón de Ajustes, motor automático con backoff, señal de guardado y aviso compacto. Dos orígenes de IndexedDB con MongoDB aislado verifican convergencia simple, progreso dependiente, replay tras perder la respuesta, tombstones y conservación de conflictos.
+
+Código cerrado en `f4ba680`: 184 pruebas pasan, 30 opt-in omitidas y ningún fallo; lint, tipos y build de 30 recursos aprobados. Google interactivo y el RPC de Next en el entorno real requieren el piloto; la prueba React sustituye la referencia de acción por HTTP solo en la fixture. Preferencias, series, cumpleaños, compartidos y resolución explícita siguen pendientes.
+
+Antes del cierre quedan 12%/44%, con reserva del 10%. `13a1b`, snapshot de incidentes, no cabe con pruebas, reparaciones y cierre en ese margen. La única revisión posterior está programada para el 8 de octubre a las 05:18 de Madrid, más de un minuto después del reinicio real de 5h a las 05:16:33. Comprobará las cuotas y continuará desde el último HEAD completo. El heartbeat actual queda pausado; no se consumen créditos ni se crean nuevas cadenas.
