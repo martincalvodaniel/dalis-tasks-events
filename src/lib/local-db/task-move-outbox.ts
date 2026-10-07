@@ -23,7 +23,10 @@ export function commitLocalTaskMoveCommand(
   options: { operationId?: string; now?: Date }
 ): Promise<OutboxEntry> {
   const parsed = syncCommandSchema.parse(input)
-  if (parsed.type !== "task.move" || parsed.occurrenceId !== null)
+  if (
+    parsed.type !== "task.move" ||
+    (parsed.occurrenceId !== null && parsed.scope !== "day")
+  )
     return Promise.reject(
       new Error("Occurrence movement requires its own mutation layer")
     )
@@ -35,7 +38,7 @@ export function commitLocalTaskMoveCommand(
     (options.now ?? new Date()).toISOString()
   )
   const entityKey = taskPlacementEntityKey(
-    command.itemId,
+    command.occurrenceId ?? command.itemId,
     command.scope,
     command.date
   )
@@ -49,6 +52,7 @@ export function commitLocalTaskMoveCommand(
     database,
     [
       "items",
+      "occurrences",
       "tags",
       "itemViews",
       "taskPlacements",
@@ -77,6 +81,7 @@ export function commitLocalTaskMoveCommand(
             return
           }
           const items = store("items").getAll()
+          const occurrences = store("occurrences").getAll()
           const tags = store("tags").getAll()
           const views = store("itemViews").getAll()
           const placements = store("taskPlacements").getAll()
@@ -94,7 +99,7 @@ export function commitLocalTaskMoveCommand(
           const previous = previousOperation(entityKey)
           const itemPrevious = previousOperation(`item:${command.itemId}`)
           let tailEntry: OutboxEntry | null = null
-          let remaining = 9
+          let remaining = 10
           function finish() {
             if (--remaining !== 0) return
             try {
@@ -102,6 +107,9 @@ export function commitLocalTaskMoveCommand(
                 {
                   items: items.result.map((value) =>
                     parseLocalRecord("items", value, userId)
+                  ),
+                  occurrences: occurrences.result.map((value) =>
+                    parseLocalRecord("occurrences", value, userId)
                   ),
                   tags: tags.result.map((value) =>
                     parseLocalRecord("tags", value, userId)
@@ -178,6 +186,7 @@ export function commitLocalTaskMoveCommand(
           }
           for (const request of [
             items,
+            occurrences,
             tags,
             views,
             placements,

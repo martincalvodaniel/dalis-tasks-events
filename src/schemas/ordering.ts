@@ -1,5 +1,21 @@
 import { z } from "zod"
-import { civilDateSchema, occurrenceIdSchema } from "@/schemas/primitives"
+import {
+  civilDateSchema,
+  entityIdSchema,
+  occurrenceIdSchema,
+} from "@/schemas/primitives"
+
+export const taskReferenceIdSchema = z.union([
+  entityIdSchema,
+  occurrenceIdSchema.refine((value) => {
+    const separator = value.indexOf(":")
+    return (
+      separator > 0 &&
+      entityIdSchema.safeParse(value.slice(0, separator)).success &&
+      civilDateSchema.safeParse(value.slice(separator + 1)).success
+    )
+  }, "Invalid task occurrence reference"),
+])
 
 export const overduePlacementDate = "0001-01-01"
 const placementKeyTupleSchema = z.tuple([

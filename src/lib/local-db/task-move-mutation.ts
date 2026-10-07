@@ -2,13 +2,12 @@
 
 import { todayInTimeZone } from "@/lib/calendar/civil-date"
 import { isTaskOverdue } from "@/lib/calendar/overdue"
+import { planLocalDayTaskMove } from "@/lib/local-db/day-task-move"
 import { applyLocalItemViewCommand } from "@/lib/local-db/preference-mutation"
-import { planRankMove } from "@/lib/ordering/rank"
+import { planTaskPlacements } from "@/lib/local-db/task-placement-mutation"
 import { orderPlacedTasks } from "@/lib/ordering/task-order"
 import { overduePlacementDate, placementDate } from "@/schemas/ordering"
-import { taskPlacementSchema } from "@/schemas/preferences"
-import { positionSchema } from "@/schemas/primitives"
-import type { CalendarItem, Task } from "@/types/calendar-item"
+import type { CalendarItem, ItemOccurrence, Task } from "@/types/calendar-item"
 import type { LocalPreferenceCommand } from "@/types/local-sync"
 import type {
   ItemView,
@@ -23,6 +22,7 @@ export type TaskMoveCommand = Extract<
 >
 export interface TaskMoveSnapshot {
   items: CalendarItem[]
+  occurrences?: ItemOccurrence[]
   tags: Tag[]
   views: ItemView[]
   placements: TaskPlacement[]
@@ -40,6 +40,8 @@ export function planLocalTaskMove(
   current: TaskPlacement | null
 } {
   const { items, tags, views, placements, settings } = snapshot
+  if (command.scope === "day")
+    return planLocalDayTaskMove(snapshot, command, userId, timestamp)
   if (command.occurrenceId !== null)
     throw new Error("Occurrence movement requires its own mutation layer")
   if (
@@ -112,56 +114,14 @@ export function planLocalTaskMove(
   if (effectiveTag(item.id) === command.tagId) destination.push(item)
   const ordered = orderPlacedTasks(destination, scoped, command.tagId)
   if (!ordered.some((record) => record.id === item.id)) ordered.push(item)
-  const compatible = new Map(
-    scoped
-      .filter((record) => !record.deletedAt && record.tagId === command.tagId)
-      .map((record) => [record.occurrenceId, record])
+  const records = planTaskPlacements(
+    ordered,
+    scoped,
+    item.id,
+    command,
+    userId,
+    timestamp
   )
-  let lastPosition = 0
-  const ranks = ordered.map((task) => {
-    const stored = compatible.get(task.id)
-    const position = stored?.position ?? lastPosition + 1024
-    lastPosition = position
-    return { id: task.id, position }
-  })
-  if (
-    ranks.some((record) => !positionSchema.safeParse(record.position).success)
-  )
-    for (const [index, record] of ranks.entries())
-      record.position = positionSchema.parse(
-        (index - Math.floor(ranks.length / 2)) * 1024
-      )
-  const changes = planRankMove(ranks, item.id, command)
-  const planned = ranks.map((rank) => ({
-    ...rank,
-    position: changes.get(rank.id) ?? rank.position,
-  }))
-  const records: TaskPlacement[] = []
-  for (const rank of planned) {
-    const previous = scoped.find((record) => record.occurrenceId === rank.id)
-    if (previous?.deletedAt)
-      throw new Error("Deleted task placement cannot be restored")
-    if (
-      rank.id !== item.id &&
-      previous?.tagId === command.tagId &&
-      previous.position === rank.position
-    )
-      continue
-    records.push(
-      taskPlacementSchema.parse({
-        userId,
-        occurrenceId: rank.id,
-        scope: command.scope,
-        date,
-        tagId: command.tagId,
-        position: rank.position,
-        revision: previous?.revision ?? 0,
-        createdAt: previous?.createdAt ?? timestamp,
-        updatedAt: timestamp,
-        deletedAt: null,
-      })
-    )
-  }
   const previousView = viewMap.get(item.id) ?? null
   const view =
     previousView?.primaryTagId === command.tagId

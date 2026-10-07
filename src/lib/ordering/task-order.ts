@@ -1,8 +1,16 @@
 import { compareRank } from "@/lib/ordering/rank"
-import type { Task } from "@/types/calendar-item"
 import type { TaskPlacement } from "@/types/preferences"
 
-export function compareDefaultTaskOrder(left: Task, right: Task): number {
+export interface OrderableTask {
+  id: string
+  scheduledDate: string
+  createdAt: string
+}
+
+export function compareDefaultTaskOrder(
+  left: OrderableTask,
+  right: OrderableTask
+): number {
   return (
     left.scheduledDate.localeCompare(right.scheduledDate) ||
     left.createdAt.localeCompare(right.createdAt) ||
@@ -10,7 +18,7 @@ export function compareDefaultTaskOrder(left: Task, right: Task): number {
   )
 }
 
-export function orderPlacedTasks(
+export function orderPlacedTasks<Task extends OrderableTask>(
   tasks: readonly Task[],
   placements: readonly TaskPlacement[],
   tagId: string | null

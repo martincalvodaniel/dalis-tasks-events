@@ -4,6 +4,7 @@ import {
   taskStatusSchema,
 } from "@/schemas/calendar-item"
 import { taskOccurrenceInputSchema } from "@/schemas/occurrence"
+import { taskReferenceIdSchema } from "@/schemas/ordering"
 import { tagDraftSchema, userSettingsInputSchema } from "@/schemas/preferences"
 import {
   civilDateSchema,
@@ -81,20 +82,14 @@ export const syncCommandSchema = z.discriminatedUnion("type", [
       scope: z.enum(["day", "overdue"]),
       date: civilDateSchema,
       tagId: entityIdSchema.nullable(),
-      beforeId: occurrenceIdSchema.nullable(),
-      afterId: occurrenceIdSchema.nullable(),
+      beforeId: taskReferenceIdSchema.nullable(),
+      afterId: taskReferenceIdSchema.nullable(),
     })
     .refine(
       (command) =>
         command.beforeId !== (command.occurrenceId ?? command.itemId) &&
         command.afterId !== (command.occurrenceId ?? command.itemId) &&
-        (command.occurrenceId !== null ||
-          ((command.beforeId === null ||
-            entityIdSchema.safeParse(command.beforeId).success) &&
-            (command.afterId === null ||
-              entityIdSchema.safeParse(command.afterId).success) &&
-            (command.beforeId === null ||
-              command.beforeId !== command.afterId))),
+        (command.beforeId === null || command.beforeId !== command.afterId),
       "A task cannot be positioned relative to itself"
     ),
   z.strictObject({

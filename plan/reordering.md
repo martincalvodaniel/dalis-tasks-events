@@ -16,7 +16,7 @@ El usuario puede mover grupos y tareas mediante controles accesibles. El movimie
 ## Intenciones y alcances propuestos
 
 1. `tag.move`: categoría y vecinos `beforeId`/`afterId`. Solo cambia orden personal, sin reenviar nombre o color obsoletos.
-2. `task.move`: elemento, ocurrencia, alcance, categoría de destino y vecinos. En `07b` únicamente tareas simples: ocurrencia nula significa usar el ID de tarea como clave de colocación. Ocurrencias reales se habilitan en `09b`; rechazarlas hasta entonces.
+2. `task.move`: elemento, ocurrencia, alcance, categoría de destino y vecinos. En `07b` únicamente tareas simples: ocurrencia nula significa usar el ID de tarea como clave de colocación. Apariciones del día se habilitan en `09b4a`; las atrasadas siguen rechazadas hasta `09b4b`.
 3. `beforeId` es el sucesor deseado y `afterId` el predecesor. Excluir la fila movida antes de comprobarlos; ambos deben ser vecinos activos y compatibles. Null representa el límite inicial/final; ambos null solo son válidos si el destino queda vacío. El mismo ID no puede aparecer como fila y vecino ni como ambos vecinos.
 4. `day`: fecha explícita, independiente por día/categoría. Verificar que la tarea pertenece a ese día. Mover a otra categoría actualiza `itemViews` y la colocación en una sola transacción.
 5. `overdue`: orden global, no una lista nueva cada medianoche. Usar una clave de alcance constante `0001-01-01` en la colocación local, compatible con el schema/índice existentes; el comando no permite elegir esta fecha. Esa clave nunca cambia ni se muestra como fecha de tarea. La elegibilidad se deriva del día real de cuenta, fecha original y estado.
@@ -55,3 +55,12 @@ Se divide `07b1` por dominio: categorías primero, tareas después. La primera e
 El schema de transporte anterior ya contenía `task.move` con fecha y ocurrencia. Se amplía para permitir ocurrencia nula (tarea simple), sin invalidar lectura de colas antiguas. Para atrasadas, `date` es el día de evaluación verificado frente a hoy en la zona local; la clave persistida se deriva y nunca toma esa fecha como ancla. Claves nuevas de colocación personales; claves item antiguas solo legibles para comandos de ocurrencia anteriores. Registros activos de atrasadas con ancla antigua se preservan y bloquean escrituras de ese alcance hasta una migración separada; no se transforma ni borra legado automáticamente.
 
 Para listas con colocaciones parciales, primero rangos compatibles por posición/ID y luego tareas sin rango por fecha/creación/ID. La primera escritura materializa filas implícitas del destino en el mismo commit atómico y una sola intención. Cambiar categoría conserva colocaciones de otros días/alcances; una colocación con tag distinto del efectivo no dicta el orden.
+
+
+## Día con apariciones — 09b4a
+
+El snapshot de movimiento incluye excepciones en la misma transacción. Proyecta cada serie solo para el día elegido y pagina todas las excepciones cuya fecha efectiva pertenece a ese día; no expande historia ni trunca el grupo a500. Un slot cancelado/borrado o movido fuera del día no puede ser target ni vecino. Vecinos aceptan UUID simple o UUID:fecha civil de tarea, con comprobación de existencia y adyacencia sobre el grupo actual.
+
+Colocaciones mantienen clave personal de aparición/scope/date y revisión propia, separada del contenido. El movimiento virtual no crea excepción de progreso. Categoría pertenece a ItemView del elemento/serie: cambiarla desde una aparición cambia la categoría de esa serie, incluyendo otras apariciones suyas en ese día. La UI futura deberá indicar esa semántica. Compactación de ranks se comparte con tareas simples, preserva revisiones y otras fechas/scopes; outbox depende de cola personal, colocación previa y comandos de padre.
+
+Atrasadas repetidas requieren un corte distinto: el historial puede contener millones de slots virtuales. No reutilizar expansión completa del día para todo el backlog ni ordenar solo una página fingiendo que es todo el grupo. `09b4b` debe definir peers/cursor y ranking compatible antes de habilitar controles o el formulario.
