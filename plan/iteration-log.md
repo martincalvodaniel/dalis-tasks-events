@@ -396,3 +396,15 @@
 | Control siguiente | Pregunta de ambos presupuestos; valores nuevos se anotan al abrir la siguiente entrega. |
 
 No rellenar evidencias a partir de intención o memoria. Un test no ejecutado es una comprobación pendiente, no un resultado aprobado.
+
+
+## 08c1b1 — Crear y consultar eventos offline, 7 de octubre
+
+- Rama `int`, secuencial, entrada97%/72%; dependencias08b/08c1b0/07d. Creación común en workspace, EventForm/Card/List/Agenda propios del dominio y botónSVG compartido. TaskComposer existente sigue usado al editar tareas.
+- Tarea/Evento o cita desde+; formularios permanecen montados al alternar. All-day UI final inclusivo se convierte a exclusivo; timed fin opcional, zonaIANA y descripción plegadas. Schema compartido valida horas exactas antes de guardar y transacción local repite validación. No se añade dependencia/colección/index/mutación remota.
+- Mes prepara snapshot memoizado y mezcla contadores; día conserva lectura independiente de tareas/eventos. Agenda muestra una sola fila por evento próximo en14días; sin atrasadas de eventos. Categoría es intención personal posterior al guardado, usando selector existente. Legado inválido queda identificado en detalles, no se mezcla con eventos situables.
+- Navegador real, origen aislado4184/cuenta ficticia: preparación seischecks, StrictMode diálogo operativo, cambio de tipo conserva títulos/fecha/descripcion, cancelar/Escape sin escritura. GapMadrid29mar02:30 y fold25oct02:30 rechazados en español; guardar después funciona sin servidor4183.
+- Tres eventos: Reuniónlocal23:30→00:00 con descripción plegada; Viaje7→8oct inclusive; PuntoLA09:00 mostrado18:00Madrid. Dos tareas en hoy; contadores5hoy/1mañana; reunión fuera de mañana y viaje presente. CategoríaTrabajo aplicada al evento conserva detalle abierto. Inspector7intenciones consecutivas/5items, sin escrituras de validación/cancelación.
+- Ambos servidores detenidos, recarga del shell de producción conserva items/categorías. A320px página scrollWidth320, filas52px; formulario compacto y targets44px. Iframe280px a200%: rootscrollWidth280, diálogoclient/scroll246, vertical1435/966 accesible por scroll; botones88–112px. Desktop1280navsuperior sin overflow.
+- [Home móvil](evidence/08c1-events-mobile.png), [formulario](evidence/08c1-event-form.png). Fixture/datos/worker/cache ficticios limpiados; propios servidores detenidos, viewport restablecido. No se altera localhost3000 ni cuentas reales.
+- Lint181files limpio; tsc/build pasan29recursosneutros;79tests/7authopt-in skip/0fallos. Diff/referencias revisados. Commit/pushint al cerrar; consulta ambas cuotas después para siguiente08c2. Crear/leer no anuncia aún edición/borrado ni repetición/cumpleaños/sync.

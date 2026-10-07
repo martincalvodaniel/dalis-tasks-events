@@ -1,9 +1,9 @@
-export function CreateTaskButton({ onClick }: { onClick: () => void }) {
+export function CreateItemButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label="Crear tarea"
+      aria-label="Crear"
       className="flex h-14 w-14 max-h-[18vw] max-w-[18vw] shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white shadow-sm hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700"
     >
       <svg

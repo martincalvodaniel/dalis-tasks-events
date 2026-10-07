@@ -241,6 +241,61 @@ async function run() {
     }
     return
   }
+  if (mode === "event-ui-inspect") {
+    const repository = await LocalRepository.open(userId)
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      const entries = await outbox.listEntries()
+      const items = await repository.list("items")
+      const settings = await repository.get("settings", userId)
+      assert(settings)
+      const today = todayInTimeZone(settings.timeZone)
+      const timed = items.find((item) => item.title === "Reunión local")
+      const trip = items.find((item) => item.title === "Viaje")
+      const point = items.find((item) => item.title === "Punto LA")
+      const task = items.find((item) => item.title === "Tipo conservado")
+      assert(
+        entries.length === 7 &&
+          entries.every((entry, index) => entry.sequence === index + 1)
+      )
+      assert(items.length === 5 && task?.kind === "task")
+      assert(
+        timed?.kind === "event" &&
+          timed.schedule.mode === "timed" &&
+          timed.schedule.localStart === `${today}T23:30` &&
+          timed.schedule.localEnd === `${addCivilDays(today, 1)}T00:00`
+      )
+      assert(timed.description === "Descripción conservada")
+      assert(
+        trip?.kind === "event" &&
+          trip.schedule.mode === "all_day" &&
+          trip.schedule.startDate === today &&
+          trip.schedule.endDateExclusive === addCivilDays(today, 2)
+      )
+      assert(
+        point?.kind === "event" &&
+          point.schedule.mode === "timed" &&
+          point.schedule.timeZone === "America/Los_Angeles" &&
+          point.schedule.localEnd === null
+      )
+      const tags = await repository.list("tags")
+      const views = await repository.list("itemViews")
+      assert(tags.length === 1 && tags[0].name === "Trabajo")
+      assert(
+        views.some(
+          (view) => view.itemId === timed.id && view.primaryTagId === tags[0].id
+        )
+      )
+      const status = document.getElementById("status")
+      if (status)
+        status.textContent =
+          "Eventos UI comprobados: tres eventos, tarea, categoría personal y siete intenciones; cancelar y validar no escriben."
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+    return
+  }
   if (mode === "compact-tags-inspect") {
     const repository = await LocalRepository.open(userId)
     const outbox = await LocalOutbox.open(userId)

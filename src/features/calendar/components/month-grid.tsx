@@ -74,7 +74,7 @@ export function MonthGrid({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[15rem] table-fixed border-separate border-spacing-1">
           <caption className="sr-only">
-            {title}. Selecciona un día para ver sus tareas.
+            {title}. Selecciona un día para ver sus tareas y eventos.
           </caption>
           <thead>
             <tr>
@@ -104,7 +104,7 @@ export function MonthGrid({
                       <a
                         href={calendarHref(cell.date)}
                         aria-current={selected ? "true" : undefined}
-                        aria-label={`${dayFormatter.format(civilDateToUtc(cell.date))}${isToday ? ", hoy" : ""}${selected ? ", seleccionado" : ""}, ${count} ${count === 1 ? "tarea" : "tareas"}`}
+                        aria-label={`${dayFormatter.format(civilDateToUtc(cell.date))}${isToday ? ", hoy" : ""}${selected ? ", seleccionado" : ""}, ${count} ${count === 1 ? "elemento" : "elementos"}`}
                         className={`flex min-h-14 flex-col items-center justify-center rounded-lg border py-1 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-emerald-700 ${selected ? "border-emerald-700 bg-emerald-700 font-bold text-white" : isToday ? "border-emerald-700 text-emerald-800 dark:text-emerald-300" : "border-transparent text-zinc-800 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"} ${cell.inMonth ? "" : "opacity-60"}`}
                       >
                         <span>{cell.day}</span>
@@ -124,9 +124,9 @@ export function MonthGrid({
           </tbody>
         </table>
       </div>
-      <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
-        Los números indican las tareas guardadas de cada día, incluidas las
-        completadas.
+      <p className="hidden md:block mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+        Los números indican las tareas y los eventos de cada día, incluidas las
+        tareas completadas.
       </p>
     </section>
   )

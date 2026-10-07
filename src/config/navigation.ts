@@ -11,14 +11,15 @@ export const workspaceDestinations = [
     label: "Calendario",
     href: "/workspace?view=calendar",
     icon: "calendar",
-    description: "Tus tareas, mes a mes. Selecciona un día para organizarlo.",
+    description:
+      "Tareas y eventos, mes a mes. Selecciona un día para organizarlo.",
   },
   {
     id: "tags",
     label: "Categorías",
     href: "/workspace?view=tags",
     icon: "tag",
-    description: "Organiza tus tareas con categorías personales.",
+    description: "Organiza tus tareas y eventos con categorías personales.",
   },
   {
     id: "settings",

@@ -1,13 +1,13 @@
 "use client"
 
 import { useId, useState } from "react"
+import { CreateItemButton } from "@/components/shared/create-item-button"
 import { WorkspaceNavigation } from "@/components/shared/workspace-navigation"
 import { workspaceDestinations } from "@/config/navigation"
 import { CalendarScreen } from "@/features/calendar/components/calendar-screen"
 import { useCalendarDate } from "@/features/calendar/hooks/use-calendar-date"
 import { TagsScreen } from "@/features/tags/components/tags-screen"
-import { CreateTaskButton } from "@/features/tasks/components/create-task-button"
-import { TaskComposer } from "@/features/tasks/components/task-composer"
+import { CreateItemDialog } from "@/features/workspace/components/create-item-dialog"
 import { DeviceSettings } from "@/features/workspace/components/device-settings"
 import { UpdateNotice } from "@/features/workspace/components/update-notice"
 import { WorkspaceOverview } from "@/features/workspace/components/workspace-overview"
@@ -35,12 +35,12 @@ export function Workspace() {
         activeView={view}
         createAction={
           account ? (
-            <CreateTaskButton onClick={() => setComposerEpoch(account.epoch)} />
+            <CreateItemButton onClick={() => setComposerEpoch(account.epoch)} />
           ) : undefined
         }
       />
       {account && composerEpoch === account.epoch ? (
-        <TaskComposer
+        <CreateItemDialog
           key={account.epoch}
           account={account}
           initialDate={
