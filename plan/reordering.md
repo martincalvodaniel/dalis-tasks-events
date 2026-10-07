@@ -64,3 +64,10 @@ El snapshot de movimiento incluye excepciones en la misma transacción. Proyecta
 Colocaciones mantienen clave personal de aparición/scope/date y revisión propia, separada del contenido. El movimiento virtual no crea excepción de progreso. Categoría pertenece a ItemView del elemento/serie: cambiarla desde una aparición cambia la categoría de esa serie, incluyendo otras apariciones suyas en ese día. La UI futura deberá indicar esa semántica. Compactación de ranks se comparte con tareas simples, preserva revisiones y otras fechas/scopes; outbox depende de cola personal, colocación previa y comandos de padre.
 
 Atrasadas repetidas requieren un corte distinto: el historial puede contener millones de slots virtuales. No reutilizar expansión completa del día para todo el backlog ni ordenar solo una página fingiendo que es todo el grupo. `09b4b` debe definir peers/cursor y ranking compatible antes de habilitar controles o el formulario.
+
+
+### Referencias acotadas — 09b4b1
+
+El índice `task-reference` permite validar target/vecinos sin generar el rango entre ancla y hoy. UUID simple resuelve solo tarea simple; UUID:fecha original resuelve excepción propia activa o genera exactamente un slot validando la cadencia/count. Reprogramadas conservan su fecha efectiva; historia materializada no desaparece por cierre futuro de regla. Padre recurrente, canceladas/borradas, orphans y otras cuentas no son referencias ejecutables. El planner del día lo usa ya; backlog sigue rechazado.
+
+Próximo 09b4b2 debe validar adyacencia entre vecinos sobre la vista real y mantener el orden de slots aún no cargados. Los ranks actuales colocan registros explícitos antes de los implícitos: materializar solo los vecinos de una página movería ese subconjunto delante del historial restante. Resolver IDs no basta para cerrar ese problema; no habilitar comandos de backlog sobre ese atajo. Definir y probar un cálculo acotado (incluido agotamiento de posiciones/compactación) o partir una preparación paginada con progreso visible, antes de integrar UI.

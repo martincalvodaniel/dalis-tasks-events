@@ -1,6 +1,7 @@
 "use client"
 
 import { createTaskOccurrenceIndex } from "@/lib/calendar/task-occurrence-selection"
+import { createTaskReferenceIndex } from "@/lib/calendar/task-reference"
 import { applyLocalItemViewCommand } from "@/lib/local-db/preference-mutation"
 import type {
   TaskMoveCommand,
@@ -32,14 +33,20 @@ export function planLocalDayTaskMove(
     )
   )
     throw new Error("Personal record belongs to another account")
-  const parent = items.find((record) => record.id === command.itemId)
+  const reference = createTaskReferenceIndex(
+    items,
+    snapshot.occurrences ?? [],
+    userId
+  ).resolve(command.occurrenceId ?? command.itemId)
   if (
-    parent?.kind !== "task" ||
-    parent.deletedAt ||
-    parent.ownerId !== userId ||
-    Boolean(parent.recurrence) !== Boolean(command.occurrenceId)
+    !reference ||
+    reference.parent.id !== command.itemId ||
+    Boolean(command.occurrenceId) !== "seriesId" in reference.record
   )
     throw new Error("Active task movement target is unavailable")
+  if (reference.record.scheduledDate !== command.date)
+    throw new Error("Task no longer belongs to the selected day")
+  const parent = reference.parent
   const activeTags = new Set(
     tags.filter((tag) => !tag.deletedAt).map((tag) => tag.id)
   )
