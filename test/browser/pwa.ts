@@ -45,6 +45,66 @@ async function check(label: string, work: () => Promise<void>) {
   }
 }
 async function run() {
+  if (query.get("mode") === "task-progress") {
+    const repository = await LocalRepository.open(userId)
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      await check(
+        "Estado y checklist conservados tras recarga offline",
+        async () => {
+          const task = (await repository.list("items")).find(
+            (item) => item.title === "Progreso sin red"
+          )
+          assert(task?.kind === "task")
+          assert(task.status === "in_progress" && task.completedAt === null)
+          assert(task.checklist.length === 1 && !task.checklist[0].completed)
+          const entries = (await outbox.listEntries()).filter(
+            (entry) => entry.entityKey === `item:${task.id}`
+          )
+          assert(entries.length === 7)
+          assert(entries[0].operation.command.type === "item.create")
+          assert(entries[1].operation.command.type === "task.set-status")
+          assert(
+            entries[2].operation.command.type === "task.set-checklist-entry"
+          )
+          assert(entries[3].operation.command.type === "task.set-status")
+          assert(entries[4].operation.command.type === "task.set-status")
+          assert(
+            entries[5].operation.command.type === "task.set-checklist-entry"
+          )
+          assert(entries[6].operation.command.type === "task.set-status")
+          for (let index = 1; index < entries.length; index++)
+            assert(
+              entries[index].dependencies[0] ===
+                entries[index - 1].operation.operationId
+            )
+          const timestamp = task.updatedAt
+          let rejected = false
+          try {
+            await outbox.commitItemCommand({
+              type: "task.set-checklist-entry",
+              itemId: task.id,
+              occurrenceId: null,
+              entryId: crypto.randomUUID(),
+              completed: true,
+            })
+          } catch {
+            rejected = true
+          }
+          assert(
+            rejected &&
+              (await repository.get("items", task.id))?.updatedAt === timestamp
+          )
+          assert((await outbox.listEntries()).length === 8)
+        }
+      )
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+    statusElement.textContent = "Progreso offline y cola comprobados."
+    return
+  }
   if (query.get("mode") === "task-edit") {
     const repository = await LocalRepository.open(userId)
     const outbox = await LocalOutbox.open(userId)

@@ -152,6 +152,8 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 #### 05b1 — Estado y checklist interactivos
 
+- Estado: completada; estados/checklist y siete intenciones encadenadas de una tarea conservados tras recarga sin servidor.
+
 - Objetivo: empezar, completar y reabrir tareas simples; marcar pasos sin completar implícitamente la tarea.
 - `target_paths`: servicio/componentes/hooks de tareas, comando de checklist compartido y mutación local, pruebas y plan. Dependencia: `05a2`.
 - Aceptación: cambios por ID y campo, dato+outbox atómicos, estado/checklist persisten tras recarga offline; fallo visible y bloqueo de doble envío mientras guarda. Conserva fechas y contenido; no edita padres recurrentes como si fueran ocurrencias.

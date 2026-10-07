@@ -10,6 +10,11 @@ export type RemoteShadow = z.infer<typeof remoteShadowSchema>
 export type LocalItemCommand = Extract<
   SyncCommand,
   {
-    type: "item.create" | "item.update" | "item.delete" | "task.set-status"
+    type:
+      | "item.create"
+      | "item.update"
+      | "item.delete"
+      | "task.set-status"
+      | "task.set-checklist-entry"
   }
 >

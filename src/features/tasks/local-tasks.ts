@@ -6,6 +6,7 @@ import { LocalOutbox } from "@/lib/local-db/outbox"
 import { LocalRepository } from "@/lib/local-db/repository"
 import { taskDraftSchema } from "@/schemas/calendar-item"
 import type { CalendarItemDraft, Task } from "@/types/calendar-item"
+import type { LocalItemCommand } from "@/types/local-sync"
 
 export type TaskDraft = Extract<CalendarItemDraft, { kind: "task" }>
 
@@ -96,6 +97,25 @@ export async function deleteLocalTask(
       { type: "item.delete", itemId: expected.id },
       { operationId, expectedItem: expected }
     )
+  } finally {
+    outbox.close()
+  }
+}
+
+export type TaskProgressCommand = Extract<
+  LocalItemCommand,
+  { type: "task.set-status" | "task.set-checklist-entry" }
+>
+
+export async function changeLocalTaskProgress(
+  account: LocalAccount,
+  command: TaskProgressCommand,
+  operationId: string
+) {
+  await requireActiveAccount(account)
+  const outbox = await LocalOutbox.open(account.userId)
+  try {
+    await outbox.commitItemCommand(command, { operationId })
   } finally {
     outbox.close()
   }

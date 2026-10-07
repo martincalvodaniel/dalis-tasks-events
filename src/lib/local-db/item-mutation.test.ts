@@ -24,6 +24,57 @@ const task = taskSchema.parse({
 })
 
 describe("local item mutations", () => {
+  test("checklist progress merges by entry ID without completing the task", () => {
+    const firstId = "4ff5fb0e-6cd1-4334-927a-debc002cfbdd"
+    const secondId = "b5a9ef82-64f2-411c-a69f-744e0862d787"
+    const original = {
+      ...task,
+      checklist: [
+        { id: firstId, text: "First step", completed: false },
+        { id: secondId, text: "Second step", completed: false },
+      ],
+    }
+    const command = {
+      type: "task.set-checklist-entry" as const,
+      itemId: id,
+      occurrenceId: null,
+      entryId: firstId,
+      completed: true,
+    }
+    const first = applyLocalItemCommand(original, command, task.ownerId, now)
+    const second = applyLocalItemCommand(
+      first,
+      { ...command, entryId: secondId },
+      task.ownerId,
+      now
+    )
+    if (second.kind !== "task") throw new Error("Unexpected kind")
+    expect(second.checklist.every((entry) => entry.completed)).toBe(true)
+    expect(second.status).toBe("not_started")
+    expect(second.completedAt).toBeNull()
+    expect(second.scheduledDate).toBe(task.scheduledDate)
+    expect(second.revision).toBe(task.revision)
+    const unchecked = applyLocalItemCommand(
+      second,
+      { ...command, completed: false },
+      task.ownerId,
+      now
+    )
+    if (unchecked.kind !== "task") throw new Error("Unexpected kind")
+    expect(unchecked.checklist[0].completed).toBe(false)
+    expect(unchecked.checklist[1].completed).toBe(true)
+    expect(() =>
+      applyLocalItemCommand(task, command, task.ownerId, now)
+    ).toThrow("Checklist entry does not exist")
+    expect(() =>
+      applyLocalItemCommand(
+        original,
+        { ...command, occurrenceId: `${id}:2026-10-06` },
+        task.ownerId,
+        now
+      )
+    ).toThrow()
+  })
   test("completion and reopening preserve the remote revision and original schedule", () => {
     const completed = applyLocalItemCommand(
       task,

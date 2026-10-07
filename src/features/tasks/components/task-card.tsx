@@ -1,3 +1,5 @@
+import { TaskChecklist } from "@/features/tasks/components/task-checklist"
+import { TaskStatusControls } from "@/features/tasks/components/task-status-controls"
 import { civilDateToUtc } from "@/lib/calendar/civil-date"
 import type { Task } from "@/types/calendar-item"
 
@@ -15,11 +17,15 @@ export function TaskCard({
   task,
   onEdit,
   onDelete,
+  onStatusChange,
+  onChecklistChange,
   busy = false,
 }: {
   task: Task
   onEdit?: () => void
   onDelete?: () => void
+  onStatusChange?: (status: Task["status"]) => void
+  onChecklistChange?: (entryId: string, completed: boolean) => void
   busy?: boolean
 }) {
   return (
@@ -37,14 +43,14 @@ export function TaskCard({
         </p>
       ) : null}
       {task.checklist.length ? (
-        <ul aria-label="Checklist" className="mt-4 space-y-2 text-sm">
-          {task.checklist.map((entry) => (
-            <li key={entry.id} className="wrap-anywhere">
-              {entry.completed ? "✓ " : "○ "}
-              {entry.text}
-            </li>
-          ))}
-        </ul>
+        <TaskChecklist
+          entries={task.checklist}
+          busy={busy}
+          onChange={onChecklistChange}
+        />
+      ) : null}
+      {onStatusChange ? (
+        <TaskStatusControls task={task} busy={busy} onChange={onStatusChange} />
       ) : null}
       {onEdit || onDelete ? (
         <div className="mt-4 flex flex-wrap gap-3">

@@ -58,7 +58,8 @@ export class LocalOutbox {
       parsed.type !== "item.create" &&
       parsed.type !== "item.update" &&
       parsed.type !== "item.delete" &&
-      parsed.type !== "task.set-status"
+      parsed.type !== "task.set-status" &&
+      parsed.type !== "task.set-checklist-entry"
     ) {
       return Promise.reject(
         new Error("Command requires its domain mutation layer")

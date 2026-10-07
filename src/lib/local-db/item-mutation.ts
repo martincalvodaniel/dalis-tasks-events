@@ -62,8 +62,21 @@ export function applyLocalItemCommand(
   }
   if (current.kind !== "task" || command.occurrenceId || current.recurrence) {
     throw new Error(
-      "Status changes require a non-recurring task; occurrences use their own mutation layer"
+      "Task progress requires a non-recurring task; occurrences use their own mutation layer"
     )
+  }
+  if (command.type === "task.set-checklist-entry") {
+    if (!current.checklist.some((entry) => entry.id === command.entryId))
+      throw new Error("Checklist entry does not exist")
+    return calendarItemSchema.parse({
+      ...current,
+      checklist: current.checklist.map((entry) =>
+        entry.id === command.entryId
+          ? { ...entry, completed: command.completed }
+          : entry
+      ),
+      updatedAt: now,
+    })
   }
   return calendarItemSchema.parse({
     ...current,

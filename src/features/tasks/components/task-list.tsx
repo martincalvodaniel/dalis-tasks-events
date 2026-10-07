@@ -6,6 +6,7 @@ import { DeleteTaskDialog } from "@/features/tasks/components/delete-task-dialog
 import { TaskCard } from "@/features/tasks/components/task-card"
 import { TaskComposer } from "@/features/tasks/components/task-composer"
 import { useLocalTasks } from "@/features/tasks/hooks/use-local-tasks"
+import { useTaskProgress } from "@/features/tasks/hooks/use-task-progress"
 import { deleteLocalTask } from "@/features/tasks/local-tasks"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import type { LocalAccount } from "@/features/workspace/local-account"
@@ -14,6 +15,7 @@ import type { Task } from "@/types/calendar-item"
 export function TaskList({ account }: { account: LocalAccount }) {
   const { data, error, isLoading, mutate } = useLocalTasks(account)
   const { refresh } = useLocalAccount()
+  const progress = useTaskProgress(account)
   const [editing, setEditing] = useState<Task | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Task | null>(null)
@@ -31,6 +33,13 @@ export function TaskList({ account }: { account: LocalAccount }) {
   return (
     <section aria-label="Tareas guardadas" className="mt-8 space-y-4">
       <h2 className="text-xl font-semibold">Tus tareas</h2>
+      {progress.error ? (
+        <ErrorBanner>
+          No se pudo cambiar el progreso. Vuelve a intentarlo; si la tarea
+          cambió en otra pestaña, comprueba su contenido actualizado.
+        </ErrorBanner>
+      ) : null}
+      {progress.busy ? <p role="status">Guardando progreso…</p> : null}
       {pendingDelete ? (
         <DeleteTaskDialog
           task={pendingDelete}
@@ -65,7 +74,32 @@ export function TaskList({ account }: { account: LocalAccount }) {
                 task={task}
                 onEdit={() => setEditing(task)}
                 onDelete={() => setPendingDelete(task)}
-                busy={deleting}
+                busy={deleting || progress.busy}
+                onStatusChange={
+                  task.recurrence
+                    ? undefined
+                    : (status) => {
+                        void progress.change({
+                          type: "task.set-status",
+                          itemId: task.id,
+                          occurrenceId: null,
+                          status,
+                        })
+                      }
+                }
+                onChecklistChange={
+                  task.recurrence
+                    ? undefined
+                    : (entryId, completed) => {
+                        void progress.change({
+                          type: "task.set-checklist-entry",
+                          itemId: task.id,
+                          occurrenceId: null,
+                          entryId,
+                          completed,
+                        })
+                      }
+                }
               />
             </li>
           ))}

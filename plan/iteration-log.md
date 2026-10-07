@@ -165,6 +165,16 @@
 - Commit: `feat(tasks): edit and delete tasks offline`.
 - Próxima candidata: `05b1`, secuencial. `05b` se divide antes de empezar en estados/checklist, persistencia de preferencias e interfaz de categorías. Consultar ambas ventanas tras commit y continuar con reserva.
 
+## 05b1 — Estado y checklist interactivos
+
+- Rama `main`, secuencial. Entrada automática tras `f006292`: **5h 91%; 7d 99%**. Lote vigente; reserva 20%.
+- Objetivo y `target_paths`: componentes/hook/servicio de tareas, comando compartido en `schemas/sync.ts` y tipo local, mutación y outbox de elementos, prueba de mutación y fixture PWA, plan/evidencia. Dependencia `05a2`. No añade pantalla ni navegación; usa componentes existentes y extrae checklist/controles a archivos propios.
+- Resultado: empezar, completar, reabrir y dejar sin empezar; checklist con checkbox accesible y botones de al menos 48px. Intención `task.set-checklist-entry` cambia un solo paso sobre el registro actual y mantiene otros campos; no completa implícitamente. El hook bloquea doble envío y conserva intención de reintento. Reabrir mantiene checklist y vuelve a sin empezar. Padres recurrentes siguen sin acciones de progreso hasta `09b`.
+- Evidencia: build de producción en navegador interno recuperado, servidor detenido. Crear tarea con paso, empezar, marcar, completar, reabrir, desmarcar y empezar de nuevo; tras comprobar guardado, recargar sin servidor conserva en curso y paso pendiente. Fixture confirma siete intenciones de esa tarea, dependencias consecutivas y rechazo de un paso inexistente sin cambiar dato/cola. [Captura móvil revisada](evidence/05b1-mobile.png): checklist y acciones sin solapamiento con navegación. El primer intento de recarga inmediata antes de terminar la escritura no se contó como guardado; la transacción y su intención no se habían confirmado y se repitió el cambio esperando su estado persistido.
+- Validación: lint global limpio, tipos/build aprobados; 37 tests pasan, cero fallos, 7 auth opt-in sin cambios. Caso unitario comprueba dos pasos independientes, desmarcar, revisión/fecha conservadas, estado no completado y rechazo de paso inexistente/ocurrencia. Sin cambios de índices ni dependencias; fixture cuenta/worker limpiados y procesos de prueba detenidos; `git diff --check` aprobado.
+- Commit: `feat(tasks): change status and checklist progress offline`.
+- Próxima candidata `05b2`, contratos/transacciones de categorías y preferencias en secuencial; consultar cuotas tras commit y reservar cierre completo.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

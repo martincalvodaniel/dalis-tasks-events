@@ -30,6 +30,13 @@ export const syncCommandSchema = z.discriminatedUnion("type", [
     status: taskStatusSchema,
   }),
   z.strictObject({
+    type: z.literal("task.set-checklist-entry"),
+    itemId: entityIdSchema,
+    occurrenceId: occurrenceIdSchema.nullable(),
+    entryId: entityIdSchema,
+    completed: z.boolean(),
+  }),
+  z.strictObject({
     type: z.literal("tag.save"),
     tagId: entityIdSchema,
     input: tagDraftSchema,
