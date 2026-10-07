@@ -45,6 +45,98 @@ async function check(label: string, work: () => Promise<void>) {
   }
 }
 async function run() {
+  if (query.get("mode") === "task-edit") {
+    const repository = await LocalRepository.open(userId)
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      await check(
+        "Edición conserva identidad y estado; borrado conserva tombstone y dependencias",
+        async () => {
+          const items = await repository.list("items", { includeDeleted: true })
+          const edited = items.find((item) => item.title === "Plan de mañana")
+          const deleted = items.find(
+            (item) => item.title === "Eliminar de prueba"
+          )
+          assert(edited?.kind === "task" && !edited.deletedAt)
+          assert(
+            edited.status === "in_progress" &&
+              edited.scheduledDate === "2026-10-08" &&
+              edited.description === "Sin conexión"
+          )
+          assert(
+            edited.checklist.length === 1 &&
+              edited.checklist[0].text === "Revisar notas"
+          )
+          assert(
+            deleted?.deletedAt &&
+              !(await repository.list("items")).some(
+                (item) => item.id === deleted.id
+              )
+          )
+          const entries = await outbox.listEntries()
+          assert(entries.length === 4)
+          assert(
+            entries[0].operation.command.type === "item.create" &&
+              entries[0].operation.command.itemId === edited.id
+          )
+          assert(
+            entries[1].operation.command.type === "item.update" &&
+              entries[1].dependencies[0] === entries[0].operation.operationId
+          )
+          assert(
+            entries[3].operation.command.type === "item.delete" &&
+              entries[3].operation.command.itemId === deleted.id &&
+              entries[3].dependencies[0] === entries[2].operation.operationId
+          )
+        }
+      )
+      await check(
+        "Editor obsoleto no sobrescribe cambios ni crea una intención",
+        async () => {
+          const current = (await repository.list("items")).find(
+            (item) => item.title === "Plan de mañana"
+          )
+          assert(current?.kind === "task")
+          const draft = taskDraftSchema.parse({
+            kind: "task",
+            title: "Versión de otra pestaña",
+            description: current.description,
+            scheduledDate: current.scheduledDate,
+            status: current.status,
+            checklist: current.checklist,
+            recurrence: current.recurrence,
+          })
+          await outbox.commitItemCommand(
+            { type: "item.update", itemId: current.id, input: draft },
+            { expectedItem: current }
+          )
+          let rejected = false
+          try {
+            await outbox.commitItemCommand(
+              {
+                type: "item.update",
+                itemId: current.id,
+                input: { ...draft, title: "Edición obsoleta" },
+              },
+              { expectedItem: current }
+            )
+          } catch {
+            rejected = true
+          }
+          assert(rejected && (await outbox.listEntries()).length === 5)
+          assert(
+            (await repository.get("items", current.id))?.title === draft.title
+          )
+        }
+      )
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+    statusElement.textContent =
+      "Edición, borrado y protección entre pestañas comprobados."
+    return
+  }
   if (query.get("mode") === "task-create") {
     await check(
       "Tarea del formulario y su intención conservadas tras recarga",

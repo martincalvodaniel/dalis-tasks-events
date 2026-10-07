@@ -155,6 +155,16 @@
 - Commit: `feat(tasks): create and list tasks fully offline`.
 - Cierre del lote: lectura durante cierre **5h 19%; 7d 31% restantes**; se termina lo abierto y no se inicia `05a2` por reserva insuficiente en 5h. Lectura final tras commit comunicada al usuario. Siguiente candidata `05a2`, con presupuestos nuevos al reanudar.
 
+## 05a2 — Edición y borrado de tareas offline
+
+- Rama `main`, secuencial. Entrada comunicada **100%/30%**; automática inicial **99%/30%**. Durante el recorrido ambas ventanas se renovaron: **96%/99%** al cierre; no comparar consumo entre periodos distintos. Continúa el lote autorizado con reserva del 20%.
+- Objetivo y `target_paths`: formulario/composer/listado/cards de tareas, servicio local, guardia de valor esperado en `local-db/outbox.ts`, fixture PWA y plan. Dependencia: `05a1`. La guardia adicional evita sobrescribir cambios hechos mientras el editor estaba abierto y se comprueba dentro de la transacción.
+- Resultado: editar conserva identidad, estado y pasos existentes; borrar mediante diálogo HTML accesible pide confirmación, ofrece conservar y persiste tombstone+intención. No se elimina la cola. Un editor obsoleto se rechaza sin añadir una operación. Se reutiliza el formulario; no se añade pantalla ni destino.
+- Evidencia: Chrome nativo privado, producción en origen loopback reservado y cuenta ficticia. Servidor detenido: editar título/fecha/descripción/checklist, crear tarea desechable, cancelar su borrado, confirmar y recargar; conserva la edición en curso y excluye la borrada. Fixture: cuatro intenciones con dependencias crear→editar y crear→borrar, tombstone presente, misma identidad. Una segunda edición simulada invalida el valor esperado del editor anterior y no añade su intención. El navegador interno quedó bloqueado por una confirmación nativa de un ensayo anterior; se sustituyó esa confirmación por diálogo HTML y se completó el recorrido en Chrome. Las dos particiones ficticias internas y la de Chrome se limpiaron; no se tocaron cuentas reales.
+- Validación: lint sin ruido, tipos, build de producción y 36 tests aprobados, cero fallos; 7 pruebas auth opt-in no repetidas. `git diff --check` aprobado. Sin dependencias nuevas, secretos ni push. Captura de prueba privada conservada fuera del repositorio para no versionar la interfaz del navegador del usuario.
+- Commit: `feat(tasks): edit and delete tasks offline`.
+- Próxima candidata: `05b1`, secuencial. `05b` se divide antes de empezar en estados/checklist, persistencia de preferencias e interfaz de categorías. Consultar ambas ventanas tras commit y continuar con reserva.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

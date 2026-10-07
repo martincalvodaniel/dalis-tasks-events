@@ -139,19 +139,40 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 
 #### 05a2 — Editar y borrar tareas offline
 
+- Estado: completada; edición/borrado y recarga sin servidor en Chrome de producción, outbox y rechazo de edición obsoleta comprobados.
+
 - Objetivo y `target_paths`: ampliar formulario/listado y `local-tasks.ts` para actualizar y borrar lógicamente mediante outbox; plan y fixture pertinente. Dependencia: `05a1`.
 - Aceptación: editar título/fecha/descripción/checklist conserva identidad/estado; borrar pide confirmación explícita y crea tombstone, sin borrar cola; recarga sin servidor conserva ambos resultados; comprobación de dependencias de intenciones.
 
-### 05b — Categorías y estados
+### 05b — Categorías y estados (dividida)
 
 - `target_paths`: `src/features/tags/**`, estado/checklist en `src/features/tasks/**`, repositorios locales afectados.
 - Dependencias: `05a2`.
 - Aceptación: crear/elegir categoría; “Sin categoría”; empezar/completar/reabrir; marcar checklist no completa tarea implícitamente; borrar categoría conserva tareas; todos los cambios escriben outbox y sobreviven offline.
 
+#### 05b1 — Estado y checklist interactivos
+
+- Objetivo: empezar, completar y reabrir tareas simples; marcar pasos sin completar implícitamente la tarea.
+- `target_paths`: servicio/componentes/hooks de tareas, comando de checklist compartido y mutación local, pruebas y plan. Dependencia: `05a2`.
+- Aceptación: cambios por ID y campo, dato+outbox atómicos, estado/checklist persisten tras recarga offline; fallo visible y bloqueo de doble envío mientras guarda. Conserva fechas y contenido; no edita padres recurrentes como si fueran ocurrencias.
+- Validación: casos de completar/reabrir/paso inexistente, cola y dependencias en IndexedDB, UI real sin servidor, tipos/lint/tests/build.
+
+#### 05b2 — Intenciones locales para categorías y preferencias
+
+- Objetivo: contratos y transacciones de crear/editar/borrar categoría personal y asignar categoría al elemento sin alterar su contenido.
+- `target_paths`: schemas/types compartidos, outbox/mutaciones de preferencias en `lib/local-db/**`, pruebas y plan. Dependencia: `05b1`.
+- Aceptación: pertenencia a cuenta validada, nombres duplicados tratados explícitamente, borrado conserva tareas y cola; asignaciones y categoría/orden quedan listos para transporte remoto. Evaluar índices y compatibilidad de registros existentes antes de editar.
+
+#### 05b3 — Categorías en la interfaz
+
+- Objetivo: crear/elegir/gestionar categorías; tareas sin categoría siguen accesibles.
+- `target_paths`: `features/tags/**`, integración en tareas/workspace y registro de navegación si añade pantalla importante; fixture y plan. Dependencia: `05b2`.
+- Aceptación: operaciones reales offline con errores españoles, asignar y retirar categoría, borrar categoría conserva tareas, recarga mantiene resultado. Si añade destino, actualizar ambas barras en la misma entrega.
+
 ## 06 — Calendario mensual y apertura del día
 
 - `target_paths`: `src/features/calendar/**`, componentes de agenda inicial, entradas routing que los monten.
-- Dependencias: `05b`.
+- Dependencias: `05b3`.
 - Aceptación: mes anterior/siguiente, “Hoy”, lunes como inicio, selección y URL del día; contadores e indicadores; abrir día muestra tareas reales; navegar a otro mes y recargar sin red; móvil y teclado usables.
 - Alcance: cuadrícula propia sencilla, sin nueva librería de calendario. Contar eventos/cumpleaños cuando existan, no fabricar contenido de ejemplo como estado real.
 - Hito: primera demostración útil de calendario personal offline.

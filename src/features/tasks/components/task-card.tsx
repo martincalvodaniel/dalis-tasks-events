@@ -11,7 +11,17 @@ const dateFormatter = new Intl.DateTimeFormat("es-ES", {
   timeZone: "UTC",
 })
 
-export function TaskCard({ task }: { task: Task }) {
+export function TaskCard({
+  task,
+  onEdit,
+  onDelete,
+  busy = false,
+}: {
+  task: Task
+  onEdit?: () => void
+  onDelete?: () => void
+  busy?: boolean
+}) {
   return (
     <article className="min-w-0 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -35,6 +45,32 @@ export function TaskCard({ task }: { task: Task }) {
             </li>
           ))}
         </ul>
+      ) : null}
+      {onEdit || onDelete ? (
+        <div className="mt-4 flex flex-wrap gap-3">
+          {onEdit ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={onEdit}
+              aria-label={`Editar ${task.title}`}
+              className="min-h-12 rounded-xl border border-zinc-300 px-4 py-2 text-sm font-medium disabled:opacity-50 dark:border-zinc-700"
+            >
+              Editar
+            </button>
+          ) : null}
+          {onDelete ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={onDelete}
+              aria-label={`Eliminar ${task.title}`}
+              className="min-h-12 rounded-xl border border-zinc-300 px-4 py-2 text-sm font-medium disabled:opacity-50 dark:border-zinc-700"
+            >
+              Eliminar
+            </button>
+          ) : null}
+        </div>
       ) : null}
     </article>
   )

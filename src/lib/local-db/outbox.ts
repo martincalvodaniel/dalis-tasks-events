@@ -4,6 +4,7 @@ import { openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalItemCommand } from "@/lib/local-db/item-mutation"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { calendarItemSchema } from "@/schemas/calendar-item"
 import {
   outboxEntrySchema,
   outboxSequenceSchema,
@@ -15,6 +16,7 @@ import {
   userIdSchema,
 } from "@/schemas/primitives"
 import { syncCommandSchema } from "@/schemas/sync"
+import type { CalendarItem } from "@/types/calendar-item"
 import type {
   LocalItemCommand,
   OutboxEntry,
@@ -45,7 +47,11 @@ export class LocalOutbox {
 
   commitItemCommand(
     input: LocalItemCommand,
-    options: { operationId?: string; now?: Date } = {}
+    options: {
+      operationId?: string
+      now?: Date
+      expectedItem?: CalendarItem
+    } = {}
   ): Promise<OutboxEntry> {
     const parsed = syncCommandSchema.parse(input)
     if (
@@ -59,6 +65,13 @@ export class LocalOutbox {
       )
     }
     const command = parsed
+    const expected = options.expectedItem
+      ? calendarItemSchema.parse(options.expectedItem)
+      : undefined
+    if (expected && expected.id !== command.itemId)
+      return Promise.reject(
+        new Error("Expected item does not match the command")
+      )
     const operationId = entityIdSchema.parse(
       options.operationId ?? crypto.randomUUID()
     )
@@ -108,6 +121,11 @@ export class LocalOutbox {
                   itemRequest.result === undefined
                     ? null
                     : parseLocalRecord("items", itemRequest.result, this.userId)
+                if (
+                  expected &&
+                  JSON.stringify(current) !== JSON.stringify(expected)
+                )
+                  throw new Error("Item changed since the editor was opened")
                 const sequence =
                   sequenceRequest.result === undefined
                     ? 1

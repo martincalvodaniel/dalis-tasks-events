@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-Estado: shell offline, cuentas, navegación y creación de tareas comprobados (`01a–05a1`); siguiente candidata `05a2`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
+Estado: shell offline, cuentas, navegación y creación de tareas comprobados (`01a–05a2`); siguiente candidata `05b1`. Fecha: 7 de octubre de 2026. Rama de trabajo actual: `main`.
 
 ## Objetivo
 
@@ -110,3 +110,7 @@ La arquitectura y las reglas funcionales son decisiones de este proyecto. Las li
 ### Último corte de implementación
 
 Lote reanudado cerrado al completar `05a1`: shell offline, cierre/cuentas, barras responsive y creación/listado de tareas. Lectura durante cierre: 19%/31%; consulta final tras commit comunicada al usuario. No se abre `05a2` por reserva insuficiente de 5h. Próxima entrega: editar y borrar tareas offline, seguida de categorías/estado, calendario y agenda. El MVP remoto/recurrencia/compartición sigue pendiente; no se presenta como completado.
+
+### Reanudación del 7 de octubre
+
+`05a2` completa edición y borrado offline con confirmación y protección frente a editores obsoletos. Lote reanudado con 100%/30% comunicados; las lecturas automáticas posteriores reflejan renovación de ambas ventanas (96%/99% durante el cierre). Se conserva la reserva del 20% y el control tras cada commit. Próxima candidata `05b1`, estados y checklist interactivos; categorías se separan para mantener entregas pequeñas.

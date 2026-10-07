@@ -80,3 +80,9 @@ El usuario aclara que el presupuesto restante (60%/38%) todavía permite continu
 ### Cierre tras `05a1`, 7 de octubre
 
 El lote reanudado entrega `04a`, `04b`, `04c` y `05a1`, con commits individuales. Lectura durante el cierre de `05a1`: **5h 19%; 7d 31% restantes**. Se termina validación/documentación/commit de lo abierto y no se inicia `05a2`: la ventana corta ya está por debajo de la reserva del 20%. Las iteraciones de UI/offline consumieron más que los helpers iniciales, por lo que no se extrapola una media optimista a otra entrega con pruebas de navegador. El cierre final comunica la lectura posterior al commit; al reanudar se recupera el protocolo de ambos porcentajes nuevos. No hay una tarea de implementación dejada a medias: creación/listado se separó de edición/borrado antes de comenzar.
+
+### Reanudación autorizada, 7 de octubre
+
+El usuario comunica nueva ventana de **5h 100%; 7d 30% restantes** y sigue durmiendo dos horas. Se reanuda el lote desatendido en secuencial desde `05a2`, consultando ambas ventanas tras cada commit y conservando la reserva del 20%. La lectura automática al abrir es 99%/30%; el reinicio impide comparar consumo de 5h con el lote anterior. No se toma la renovación de 5h como renovación semanal.
+
+La consulta automática durante `05a2` pasó de 99%/30% a 96%/99% con nuevos reinicios informados por la cuenta. Esta renovación permite seguir el lote; no se calcula consumo semanal a través del reinicio ni se deduce de ello una garantía de duración.

@@ -5,21 +5,25 @@ import { ErrorBanner } from "@/components/ui/error-banner"
 import { ChecklistFields } from "@/features/tasks/components/checklist-fields"
 import type { TaskDraft } from "@/features/tasks/local-tasks"
 import { taskDraftSchema } from "@/schemas/calendar-item"
-import type { ChecklistEntry } from "@/types/calendar-item"
+import type { ChecklistEntry, Task } from "@/types/calendar-item"
 
 export function TaskForm({
   scheduledDate,
+  initialTask,
   onSave,
   onCancel,
 }: {
   scheduledDate: string
+  initialTask?: Task
   onSave: (draft: TaskDraft) => Promise<void>
   onCancel: () => void
 }) {
   const titleId = useId()
   const dateId = useId()
   const descriptionId = useId()
-  const [checklist, setChecklist] = useState<ChecklistEntry[]>([])
+  const [checklist, setChecklist] = useState<ChecklistEntry[]>(
+    initialTask?.checklist ?? []
+  )
   const [error, setError] = useState("")
   const [saving, setSaving] = useState(false)
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -31,9 +35,9 @@ export function TaskForm({
       title: fields.get("title"),
       scheduledDate: fields.get("scheduledDate"),
       description: fields.get("description"),
-      status: "not_started",
+      status: initialTask?.status ?? "not_started",
       checklist,
-      recurrence: null,
+      recurrence: initialTask?.recurrence ?? null,
     })
     if (!parsed.success) {
       const field = parsed.error.issues[0]?.path[0]
@@ -54,7 +58,7 @@ export function TaskForm({
       await onSave(parsed.data)
     } catch {
       setError(
-        "No se pudo guardar la tarea. Tus datos siguen en este formulario; vuelve a intentarlo."
+        "No se pudo guardar la tarea. Tus datos siguen en el formulario. Si cambió en otra pestaña, cancela y ábrela de nuevo."
       )
     } finally {
       setSaving(false)
@@ -70,6 +74,7 @@ export function TaskForm({
         <input
           id={titleId}
           name="title"
+          defaultValue={initialTask?.title ?? ""}
           required
           maxLength={160}
           disabled={saving}
@@ -99,6 +104,7 @@ export function TaskForm({
         <textarea
           id={descriptionId}
           name="description"
+          defaultValue={initialTask?.description ?? ""}
           rows={3}
           maxLength={10000}
           disabled={saving}
@@ -116,7 +122,11 @@ export function TaskForm({
           disabled={saving}
           className="min-h-12 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white disabled:opacity-60"
         >
-          {saving ? "Guardando…" : "Guardar tarea"}
+          {saving
+            ? "Guardando…"
+            : initialTask
+              ? "Guardar cambios"
+              : "Guardar tarea"}
         </button>
         <button
           type="button"

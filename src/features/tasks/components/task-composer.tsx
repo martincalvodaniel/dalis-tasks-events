@@ -4,16 +4,23 @@ import { useEffect, useId, useRef } from "react"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { TaskForm } from "@/features/tasks/components/task-form"
 import { useLocalTasks } from "@/features/tasks/hooks/use-local-tasks"
-import { createLocalTask, type TaskDraft } from "@/features/tasks/local-tasks"
+import {
+  createLocalTask,
+  type TaskDraft,
+  updateLocalTask,
+} from "@/features/tasks/local-tasks"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { todayInTimeZone } from "@/lib/calendar/civil-date"
+import type { Task } from "@/types/calendar-item"
 
 export function TaskComposer({
   account,
+  initialTask,
   onClose,
   onSaved,
 }: {
   account: LocalAccount
+  initialTask?: Task
   onClose: () => void
   onSaved: () => void
 }) {
@@ -29,17 +36,25 @@ export function TaskComposer({
   }, [])
   async function save(draft: TaskDraft) {
     intent.current ??= {
-      itemId: crypto.randomUUID(),
+      itemId: initialTask?.id ?? crypto.randomUUID(),
       operationId: crypto.randomUUID(),
     }
     saving.current = true
     try {
-      await createLocalTask(
-        account,
-        draft,
-        intent.current.itemId,
-        intent.current.operationId
-      )
+      if (initialTask)
+        await updateLocalTask(
+          account,
+          initialTask,
+          draft,
+          intent.current.operationId
+        )
+      else
+        await createLocalTask(
+          account,
+          draft,
+          intent.current.itemId,
+          intent.current.operationId
+        )
     } finally {
       saving.current = false
     }
@@ -58,7 +73,7 @@ export function TaskComposer({
       className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] min-w-0 max-w-xl overflow-y-auto rounded-3xl border border-zinc-200 bg-white p-5 wrap-anywhere text-zinc-900 shadow-xl backdrop:bg-black/40 sm:p-8 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
     >
       <h2 id={headingId} className="mb-6 text-2xl font-semibold">
-        Nueva tarea
+        {initialTask ? "Editar tarea" : "Nueva tarea"}
       </h2>
       {error ? (
         <>
@@ -76,7 +91,10 @@ export function TaskComposer({
         </>
       ) : data ? (
         <TaskForm
-          scheduledDate={todayInTimeZone(data.timeZone)}
+          scheduledDate={
+            initialTask?.scheduledDate ?? todayInTimeZone(data.timeZone)
+          }
+          initialTask={initialTask}
           onSave={save}
           onCancel={onClose}
         />

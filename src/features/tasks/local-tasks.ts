@@ -64,3 +64,39 @@ export async function createLocalTask(
     outbox.close()
   }
 }
+
+export async function updateLocalTask(
+  account: LocalAccount,
+  expected: Task,
+  input: TaskDraft,
+  operationId: string
+) {
+  const draft = taskDraftSchema.parse(input)
+  await requireActiveAccount(account)
+  const outbox = await LocalOutbox.open(account.userId)
+  try {
+    await outbox.commitItemCommand(
+      { type: "item.update", itemId: expected.id, input: draft },
+      { operationId, expectedItem: expected }
+    )
+  } finally {
+    outbox.close()
+  }
+}
+
+export async function deleteLocalTask(
+  account: LocalAccount,
+  expected: Task,
+  operationId: string
+) {
+  await requireActiveAccount(account)
+  const outbox = await LocalOutbox.open(account.userId)
+  try {
+    await outbox.commitItemCommand(
+      { type: "item.delete", itemId: expected.id },
+      { operationId, expectedItem: expected }
+    )
+  } finally {
+    outbox.close()
+  }
+}
