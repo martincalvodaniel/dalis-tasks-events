@@ -241,6 +241,33 @@ async function run() {
     }
     return
   }
+  if (mode === "compact-form-inspect") {
+    const repository = await LocalRepository.open(userId)
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      const entries = await outbox.listEntries()
+      const items = await repository.list("items")
+      const item = items.find((record) => record.title === "Formulario editado")
+      assert(
+        entries.length === 3 &&
+          entries.every((entry, index) => entry.sequence === index + 1)
+      )
+      assert(items.length === 2 && item?.kind === "task")
+      assert(
+        item.description === "Texto conservado" &&
+          item.checklist.length === 1 &&
+          item.checklist[0].text === "Paso conservado"
+      )
+      const status = document.getElementById("status")
+      if (status)
+        status.textContent =
+          "Formulario compacto comprobado: cancelar y validar no escriben; crear y editar conservan campos plegados en tres intenciones totales."
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+    return
+  }
   if (mode === "compact-inspect") {
     const button = document.createElement("button")
     button.textContent = "Comprobar agenda compacta"

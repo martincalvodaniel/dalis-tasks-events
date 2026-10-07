@@ -10,8 +10,8 @@ export function ChecklistFields({
   disabled: boolean
 }) {
   return (
-    <fieldset disabled={disabled} className="space-y-3">
-      <legend className="mb-3 font-semibold">Checklist</legend>
+    <fieldset disabled={disabled} className="space-y-2">
+      <legend className="mb-2 text-sm font-semibold">Checklist</legend>
       {entries.map((entry, index) => (
         <div key={entry.id} className="flex items-end gap-2">
           <label className="min-w-0 flex-1 text-sm">
@@ -28,7 +28,7 @@ export function ChecklistFields({
                 )
               }
               maxLength={500}
-              className="mt-1 min-h-12 w-full rounded-xl border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
+              className="mt-1 min-h-11 w-full rounded-lg border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
             />
           </label>
           <button
@@ -37,7 +37,7 @@ export function ChecklistFields({
             onClick={() =>
               onChange(entries.filter((current) => current.id !== entry.id))
             }
-            className="min-h-12 rounded-xl border border-zinc-300 px-3 text-sm dark:border-zinc-700"
+            className="min-h-11 rounded-lg border border-zinc-300 px-3 text-sm dark:border-zinc-700"
           >
             Quitar
           </button>
@@ -52,7 +52,7 @@ export function ChecklistFields({
             { id: crypto.randomUUID(), text: "", completed: false },
           ])
         }
-        className="min-h-12 rounded-xl border border-zinc-300 px-4 py-2 text-sm font-medium disabled:opacity-50 dark:border-zinc-700"
+        className="min-h-11 rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium disabled:opacity-50 dark:border-zinc-700"
       >
         Añadir paso
       </button>

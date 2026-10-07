@@ -24,6 +24,9 @@ export function TaskForm({
   const [checklist, setChecklist] = useState<ChecklistEntry[]>(
     initialTask?.checklist ?? []
   )
+  const [extrasOpen, setExtrasOpen] = useState(
+    Boolean(initialTask?.description || initialTask?.checklist.length)
+  )
   const [error, setError] = useState("")
   const [saving, setSaving] = useState(false)
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -41,6 +44,7 @@ export function TaskForm({
     })
     if (!parsed.success) {
       const field = parsed.error.issues[0]?.path[0]
+      if (field === "checklist" || field === "description") setExtrasOpen(true)
       setError(
         field === "title"
           ? "Escribe un título de hasta 160 caracteres."
@@ -65,7 +69,7 @@ export function TaskForm({
     }
   }
   return (
-    <form onSubmit={submit} noValidate className="space-y-5">
+    <form onSubmit={submit} noValidate className="space-y-3">
       {error ? <ErrorBanner>{error}</ErrorBanner> : null}
       <div>
         <label htmlFor={titleId} className="font-semibold">
@@ -78,7 +82,7 @@ export function TaskForm({
           required
           maxLength={160}
           disabled={saving}
-          className="mt-2 min-h-12 w-full rounded-xl border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
+          className="mt-1 min-h-11 w-full rounded-lg border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
         />
       </div>
       <div>
@@ -94,33 +98,44 @@ export function TaskForm({
           min="0001-01-01"
           max="9999-12-31"
           disabled={saving}
-          className="mt-2 min-h-12 w-full min-w-0 rounded-xl border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
+          className="mt-1 min-h-11 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
         />
       </div>
-      <div>
-        <label htmlFor={descriptionId} className="font-semibold">
-          Descripción
-        </label>
-        <textarea
-          id={descriptionId}
-          name="description"
-          defaultValue={initialTask?.description ?? ""}
-          rows={3}
-          maxLength={10000}
-          disabled={saving}
-          className="mt-2 w-full rounded-xl border border-zinc-300 bg-transparent p-3 dark:border-zinc-700"
-        />
-      </div>
-      <ChecklistFields
-        entries={checklist}
-        onChange={setChecklist}
-        disabled={saving}
-      />
-      <div className="flex flex-wrap gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+      <details
+        open={extrasOpen}
+        onToggle={(event) => setExtrasOpen(event.currentTarget.open)}
+        className="rounded-lg border border-zinc-200 dark:border-zinc-800"
+      >
+        <summary className="min-h-11 cursor-pointer px-3 py-3 text-sm font-medium">
+          Descripción y pasos{checklist.length ? ` (${checklist.length})` : ""}
+        </summary>
+        <div className="space-y-3 px-3 pb-3">
+          <div>
+            <label htmlFor={descriptionId} className="text-sm font-semibold">
+              Descripción
+            </label>
+            <textarea
+              id={descriptionId}
+              name="description"
+              defaultValue={initialTask?.description ?? ""}
+              rows={2}
+              maxLength={10000}
+              disabled={saving}
+              className="mt-1 w-full rounded-lg border border-zinc-300 bg-transparent p-2 dark:border-zinc-700"
+            />
+          </div>
+          <ChecklistFields
+            entries={checklist}
+            onChange={setChecklist}
+            disabled={saving}
+          />
+        </div>
+      </details>
+      <div className="flex flex-wrap gap-2 border-t border-zinc-200 pt-3 dark:border-zinc-800">
         <button
           type="submit"
           disabled={saving}
-          className="min-h-12 rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white disabled:opacity-60"
+          className="min-h-11 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
         >
           {saving
             ? "Guardando…"
@@ -132,7 +147,7 @@ export function TaskForm({
           type="button"
           disabled={saving}
           onClick={onCancel}
-          className="min-h-12 rounded-xl border border-zinc-300 px-4 py-3 dark:border-zinc-700"
+          className="min-h-11 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700"
         >
           Cancelar
         </button>

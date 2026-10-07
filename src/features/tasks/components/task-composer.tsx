@@ -75,9 +75,9 @@ export function TaskComposer({
       onCancel={(event) => {
         if (saving.current) event.preventDefault()
       }}
-      className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] min-w-0 max-w-xl overflow-y-auto rounded-3xl border border-zinc-200 bg-white p-5 wrap-anywhere text-zinc-900 shadow-xl backdrop:bg-black/40 sm:p-8 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
+      className="m-auto max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] min-w-0 max-w-xl overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-3 wrap-anywhere text-zinc-900 shadow-xl backdrop:bg-black/40 sm:p-8 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
     >
-      <h2 id={headingId} className="mb-6 text-2xl font-semibold">
+      <h2 id={headingId} className="mb-4 text-xl font-semibold">
         {initialTask ? "Editar tarea" : "Nueva tarea"}
       </h2>
       {error ? (
@@ -89,7 +89,7 @@ export function TaskComposer({
           <button
             type="button"
             onClick={onClose}
-            className="mt-4 min-h-12 rounded-xl border px-4"
+            className="mt-4 min-h-11 rounded-lg border px-4"
           >
             Cerrar
           </button>
