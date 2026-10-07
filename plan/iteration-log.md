@@ -234,6 +234,16 @@
 - Commit: `feat(agenda): group tasks by category and surface overdue work`.
 - Próxima candidata: `07b`, reordenación persistente. Consultar uso después del commit; elegir un corte que incluya validaciones y conserve la reserva del 20%.
 
+## 07b0 — Diseño acotado de reordenación
+
+- Rama `main`, secuencial, exclusivamente documental. Entrada automática **5h 29%; 7d 89% restantes**, después de `459ad6b`. Objetivo/`target_paths`: diseño y reparto de `07b` en `plan/**`; dependencias `07a` y persistencia vigente. Aceptación/validación: contratos propuestos, cortes comprobables, compatibilidad/índices y referencias/diff; sin código habilitado a medias.
+- Resultado: [reordering.md](reordering.md) define movimientos por vecinos, alcance por día y global de atrasadas, persistencia atómica de categoría/colocación, compactación, replay y requisitos de rollback. `07b1` une contrato+ejecutor; `07b2` conecta lectores y botones accesibles; `07b3` añade arrastre sobre la misma intención. Se corrigió también la tabla de hitos que aún marcaba base offline/calendario como pendientes.
+- Fuente: store/clave/índice de colocaciones existentes, schemas de preferencias, outbox actual y reglas de producto. La clave constante de atrasadas es una decisión documentada compatible con la estructura actual; evaluar legado antes de escribir, sin borrar datos o asumir particiones vacías.
+- Presupuesto: entregas recientes comparables `05c`, `06`, `07a` consumieron respectivamente 9, 10 y 9 puntos de 5h entre lecturas automáticas, con posible consumo externo. Quedan 9 puntos sobre la reserva del 20%; una entrega de código comparable más margen de cierre no cabe. Se entrega este diseño documental y no se inicia `07b1`, que toca transacciones/compactación y requiere prueba real de almacenamiento. No se extrapola el menor consumo histórico de helpers simples.
+- Validación: referencias/consistencia y `git diff --check`; no se repiten tests/build para documentación. Último código validado: 46 tests aprobados, tipos/lint/build y recorridos offline/reloj de `07a`. No hay implementación abierta ni procesos/fixtures de prueba pendientes.
+- Commit: `docs(plan): split personal ordering into atomic delivery steps`.
+- Interrupción solicitada antes del cierre: se intercala `07c` para quitar el bloque redundante, ajustar etiquetas móviles y reproducir/corregir `+`. Leer ambas ventanas tras este commit; `07b1` no se inicia.
+
 ## Plantilla para próximas entradas
 
 | Campo | Qué registrar |

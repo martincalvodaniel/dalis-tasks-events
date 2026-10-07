@@ -18,6 +18,7 @@ Este documento es la entrada al plan. La iteración `00` entregó la planificaci
 | [Offline, sincronización y arquitectura](offline-and-sync.md) | Almacenamiento local, cola, conflictos, seguridad y rutas. |
 | [Iteraciones](iterations.md) | Entregas pequeñas, dependencias, rutas y aceptación. |
 | [Flujo de trabajo](workflow.md) | Ventanas de Codex, cierre, commits, pruebas y paralelismo. |
+| [Reordenación](reordering.md) | Intenciones, ranking, alcances y cortes concretos de `07b`. |
 | [Registro de iteraciones](iteration-log.md) | Trabajo completado, evidencias y siguiente candidata. |
 | [Operación de auth](auth-operations.md) | Transición de sesiones antiguas y verificación vigente. |
 

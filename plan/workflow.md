@@ -86,3 +86,9 @@ El lote reanudado entrega `04a`, `04b`, `04c` y `05a1`, con commits individuales
 El usuario comunica nueva ventana de **5h 100%; 7d 30% restantes** y sigue durmiendo dos horas. Se reanuda el lote desatendido en secuencial desde `05a2`, consultando ambas ventanas tras cada commit y conservando la reserva del 20%. La lectura automática al abrir es 99%/30%; el reinicio impide comparar consumo de 5h con el lote anterior. No se toma la renovación de 5h como renovación semanal.
 
 La consulta automática durante `05a2` pasó de 99%/30% a 96%/99% con nuevos reinicios informados por la cuenta. Esta renovación permite seguir el lote; no se calcula consumo semanal a través del reinicio ni se deduce de ello una garantía de duración.
+
+### Reserva tras `07a` y diseño de `07b0`
+
+Lote reanudado: `05a2`, `05b1–05b3`, corrección solicitada `05c`, calendario `06` y grupos/atrasadas `07a`, todos con commits y verificaciones propias. Después de `07a`: **5h 29%; 7d 89% restantes**. Las tres últimas entregas de código consumieron 9/10/9 puntos de la ventana corta entre consultas comparables, sin poder atribuir consumo de otras conversaciones. Los 9 puntos sobre la reserva no cubren otra entrega comparable más cierre.
+
+Se completa únicamente `07b0`, diseño documental de movimientos/ranking y corte de siguientes entregas. No se inicia un cambio de transacciones, ni se dejan comandos aceptados sin ejecutor. El cierre comunica la lectura posterior al commit documental y el árbol limpio; próxima candidata `07b1`. Antes del cierre, el usuario solicita tres ajustes de la home/barra móvil y corregir el botón `+`. Se intercala `07c` como corrección pequeña, con lectura nueva tras `07b0`; `07b1` permanece aplazada. El cierre definitivo se decidirá tras validar y hacer commit de esa corrección.

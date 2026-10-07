@@ -10,8 +10,8 @@ Los `target_paths` describen el ámbito permitido; antes de editar, concretar ar
 | --- | --- | --- |
 | Plan y reglas | `00` | Completada; validación documental registrada en el log. |
 | Responsive y lote desatendido | `00b` | Requisitos y protocolo incorporados. |
-| Identidad y base offline | `01a–04c` | `01a–01b` implementadas y validadas automáticamente; `02–04c` pendientes. |
-| Calendario personal y creación de tareas | `05a–07b` | Pendiente. |
+| Identidad y base offline | `01a–04c` | Completada; identidad, persistencia, worker/cierre y barras comprobados. Google real y dispositivos físicos siguen en el piloto. |
+| Calendario personal y creación de tareas | `05a–07b` | `05a–07a` completadas, con corrección intercalada `05c`; reordenación pendiente. |
 | Eventos, repetición y cumpleaños | `08–10` | Pendiente. |
 | Remoto, convergencia y recuperación | `11a–13c` | Pendiente. |
 | Compartición y piloto | `14a–15b` | Pendiente. |
@@ -206,16 +206,37 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 - Aceptación: título de categoría con sus tareas debajo; sección “Atrasadas” global con fecha original/estado; cambio de día y reentrada recalculan; completar retira de atrasadas; historial del día original preservado.
 - Validación: selectores para categorías ausentes/borradas y completadas; reloj/foco con tiempo simulado únicamente en iframe de fixture; recorrido offline de completar y recargar, inspección de datos/cola; lint, tipos, tests y build. Reutiliza ambas pantallas existentes, sin nuevos destinos.
 
-### 07b — Reordenación persistente
+### 07b — Reordenación persistente (dividida)
 
+- Diseño y cortes: [reordering.md](reordering.md). `07b0` documental completa; candidata `07b1`.
 - `target_paths`: componentes/hooks de orden en `src/features/tasks/**` y `src/features/tags/**`, preferencias en `src/lib/local-db/**`.
 - Dependencias: `07a`.
 - Aceptación: mover grupos y tareas, cambiar categoría personal, ordenar atrasadas; alternativa de teclado a drag-and-drop; recarga conserva orden; operaciones por ID/intención, sin reemplazo global de arrays.
 
+#### 07b0 — Diseño de intenciones y cierre del lote
+
+- Estado: completada, exclusivamente documental. Entrada 29%/89%; `target_paths`: `plan/**`, dependencias `07a` y código de preferencias vigente.
+- Objetivo: concretar scopes, clave global de atrasadas, validaciones transaccionales y separación de persistencia/controles/arrastre. Aceptación: rutas y evidencias de cada corte, sin habilitar comandos no implementados. Validación: referencias locales, consistencia y `git diff --check`.
+
+#### 07b1 — Ranking, comandos y persistencia atómica
+
+- `target_paths`: schemas/types, ranking y preferencias en `lib/local-db/**`, pruebas y plan. Dependencia: `07b0`.
+- Aceptación: comandos nuevos ejecutables e idempotentes; vecinos/actor/scope validados; compactación y movimiento entre categorías atómicos; rollback, colas antiguas y recarga comprobados. No escribir posiciones directamente desde componentes.
+
+#### 07b2 — Controles accesibles y orden visible
+
+- `target_paths`: servicios/hooks/lectores y controles de tareas/categorías, fixture y plan. Dependencia: `07b1`.
+- Aceptación: mover grupos/tareas por botones y teclado, cambiar grupo, conservar orden del día y atrasadas al recargar offline; confirmación real de guardado, foco y errores españoles.
+
+#### 07b3 — Arrastre con el mismo comando
+
+- `target_paths`: filas/controles de orden y pruebas, plan. Dependencia: `07b2`.
+- Aceptación: arrastre táctil/ratón y cancelación, una intención al soltar, scroll móvil; alternativa por botones permanece operativa. Sin biblioteca nueva.
+
 ## 08 — Eventos y citas
 
 - `target_paths`: `src/features/events/**`, selectores de calendario, reglas de zonas en `src/lib/calendar/**`, schemas de evento.
-- Dependencias: `07b`.
+- Dependencias: `07b1–07b3`.
 - Aceptación: activar “Evento o cita”; hora, categoría, descripción, duración opcional y día completo; orden cronológico; evento que cruza medianoche visible en los días correctos; editar/borrar offline. Validar horas ambiguas/inexistentes y duración antes de guardar.
 - Corte: si conversión de zona requiere aprobación de dependencia, cerrar primero su análisis; no aproximar horas silenciosamente.
 
