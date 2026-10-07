@@ -2,6 +2,8 @@
 
 Estado: diseño de11a0; implementación y pruebas reales pendientes en11a1a. Prioridad: sincronización de tareas/eventos simples antes de continuar repetición y cumpleaños.
 
+Avance11a1a1: [schema del descriptor](../src/schemas/sync-database-test.ts) implementado y [probado](../src/schemas/sync-database-test.test.ts). Exige runId UUID, puerto entero1024–65535, DB exacta `dalis-sync-test-<runId>` y URI exacta `mongodb://127.0.0.1:<port>/?replicaSet=dalis-sync-test&directConnection=true`. Solo se admite esta forma generada por el futuro runner; rechaza localhost alternativo, SRV, multihost, credenciales y parámetros adicionales. Ninguna variable de entorno se lee ni cambia ahora. No hay consumidor/runner todavía; integrar validación antes de cualquier conexión o limpieza y verificar además ownership real del recurso.
+
 ## Evidencia y límites
 
 - Docker CLI29.8.2 disponible localmente. No se ha verificado daemon, imagen MongoDB, replica set ni transacciones. `mongod` no está enPATH; no instalar paquetes ni modificar hosting como parte de este documento.

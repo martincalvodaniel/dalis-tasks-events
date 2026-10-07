@@ -358,6 +358,13 @@ Primeros cortes revisados:11a1a configura/valida replica set de prueba aislado y
 
 - Resultado: [entorno/matriz](sync-test-environment.md) documentados con guards, lifecycle y12 escenarios por cortes. Docker CLI29.8.2 confirmado, runtime/replica set pendientes; no se inició servicio ni se conectó a una DB. Referencias/diff/consistencia aprobados. Siguiente11a1a implementa runner y prueba commit/rollback reales.
 
+### 11a1a1 — Contrato de configuración aislada de test
+
+- Objetivo: validator puro del descriptor que consumirá el futuro runner antes de conectar. Entrada12%/59%, entrega mínima explícita, secuencial enint. `target_paths`: `src/schemas/sync-database-test.ts`, su test, `plan/{master,iterations,iteration-log,sync-test-environment}.md`. Depende de11a0/Zod existente; no API nueva de Next, guía instalada ya revisada.
+- Aceptación: UUID de ejecución/puerto acotado, DB exacta derivada del UUID y URI única loopback de replica set de test; rechazar URI normal/remota/SRV/multihost/credenciales, DB auth/otra ejecución, campos extra. No leer env ni abrir DB; validar descriptor no prueba ownership ni transacciones. Tests, lint/tipos/build/diff/referencias, commit/pushint y cuotas.
+
+- Resultado: tres tests/24 aserciones, configuración válida/extremos de puerto y conexiones/DB inválidas comprobadas. Lint217 archivos, tipos y suite122 pass/7auth opt-in skip/0fallos; build/cierre enregistro. Sin IO ni consumidor; siguiente11a1a2 conecta este guard al runner aislado y verifica ownership/commit/rollback reales.
+
 ### 11b — Acción validada e idempotencia
 
 - `target_paths`: `src/features/sync/actions.ts`, validadores de sync, recibos/transacciones en DB, pruebas de autorización.
