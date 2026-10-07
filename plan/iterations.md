@@ -647,3 +647,12 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación: tests y suite, lint/tipos/build, diff/referencias; plan/registro y commit/push int. Cerrar después de este corte y consultar ambas ventanas.
 
 - Resultado: clave implícita validada y equivalente al comparador, cuatro tests/2.036 aserciones y oráculo mixto45 tareas/15 colocaciones aprobados. Lint213 archivos, tipos y suite115 pass/7auth opt-in skip/0fallos; build y cierre enregistro. Sin integración/migración ni adopción del formato; próximos pasos inserción/agotamiento, después adyacencia paginada y ejecutor.
+
+### 11a1b2 — Reductor de elementos compartido
+
+- Objetivo previo: extraer las reglas ya probadas de mutación local a un módulo puro importable por cliente y servidor, sin duplicar reglas ni cambiar revisiones optimistas. Entrada84%/55%, int/secuencial/reserva10%; dependencias03b/08b/11a1b1.
+- `target_paths`: `src/lib/calendar/item-command.ts`, `src/lib/local-db/item-mutation.ts` y su test, `src/types/{sync,local-sync}.ts`, `plan/{master,iterations,iteration-log}.md`.
+- Aceptación: crear mantiene revision0; editar/progreso/borrado conservan revisión remota, propiedad, identidad, historial completedAt y reglas de eventos. Reutilizar tests de reglas sobre módulo compartido y mantener wrapper cliente para consumidores existentes. Sin Mongo/auth/Next en módulo puro; sin cambio de protocolo, persistencia o UI.
+- Validación: suite existente/lint/tipos/build/diff/referencias, plan/registro/commit+pushint y cuotas. Después11b1 aplica el reductor dentro de recibo+mutación+journal atómicos, con límites explícitos de soporte.
+
+- Resultado11a1b2: reductor puro compartido, wrapper local compatible y tipoItemCommand genérico; regresiones locales y eventos pasan sin cambio de semántica/revisión. Suite123pass/17opt-in skip, lint224files/tipos/build29recursos aprobados; sin IO ni UI nuevos. Siguiente11b1 transacción remota.

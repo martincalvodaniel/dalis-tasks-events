@@ -3,7 +3,7 @@ import type {
   outboxEntrySchema,
   remoteShadowSchema,
 } from "@/schemas/local-sync"
-import type { SyncCommand } from "@/types/sync"
+import type { ItemCommand, SyncCommand } from "@/types/sync"
 
 export type OutboxEntry = z.infer<typeof outboxEntrySchema>
 export type RemoteShadow = z.infer<typeof remoteShadowSchema>
@@ -13,17 +13,7 @@ export type LocalPreferenceCommand = Extract<
     type: "tag.save" | "tag.delete" | "tag.move" | "item-view.set" | "task.move"
   }
 >
-export type LocalItemCommand = Extract<
-  SyncCommand,
-  {
-    type:
-      | "item.create"
-      | "item.update"
-      | "item.delete"
-      | "task.set-status"
-      | "task.set-checklist-entry"
-  }
->
+export type LocalItemCommand = ItemCommand
 
 export type LocalOccurrenceCommand = Extract<
   SyncCommand,

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { applyLocalItemCommand } from "@/lib/local-db/item-mutation"
+import { applyItemCommand } from "@/lib/calendar/item-command"
 import { taskSchema } from "@/schemas/calendar-item"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 
@@ -23,7 +23,7 @@ const task = taskSchema.parse({
   deletedAt: null,
 })
 
-describe("local item mutations", () => {
+describe("shared item mutations", () => {
   test("checklist progress merges by entry ID without completing the task", () => {
     const firstId = "4ff5fb0e-6cd1-4334-927a-debc002cfbdd"
     const secondId = "b5a9ef82-64f2-411c-a69f-744e0862d787"
@@ -41,8 +41,8 @@ describe("local item mutations", () => {
       entryId: firstId,
       completed: true,
     }
-    const first = applyLocalItemCommand(original, command, task.ownerId, now)
-    const second = applyLocalItemCommand(
+    const first = applyItemCommand(original, command, task.ownerId, now)
+    const second = applyItemCommand(
       first,
       { ...command, entryId: secondId },
       task.ownerId,
@@ -54,7 +54,7 @@ describe("local item mutations", () => {
     expect(second.completedAt).toBeNull()
     expect(second.scheduledDate).toBe(task.scheduledDate)
     expect(second.revision).toBe(task.revision)
-    const unchecked = applyLocalItemCommand(
+    const unchecked = applyItemCommand(
       second,
       { ...command, completed: false },
       task.ownerId,
@@ -63,11 +63,11 @@ describe("local item mutations", () => {
     if (unchecked.kind !== "task") throw new Error("Unexpected kind")
     expect(unchecked.checklist[0].completed).toBe(false)
     expect(unchecked.checklist[1].completed).toBe(true)
+    expect(() => applyItemCommand(task, command, task.ownerId, now)).toThrow(
+      "Checklist entry does not exist"
+    )
     expect(() =>
-      applyLocalItemCommand(task, command, task.ownerId, now)
-    ).toThrow("Checklist entry does not exist")
-    expect(() =>
-      applyLocalItemCommand(
+      applyItemCommand(
         original,
         { ...command, occurrenceId: `${id}:2026-10-06` },
         task.ownerId,
@@ -76,7 +76,7 @@ describe("local item mutations", () => {
     ).toThrow()
   })
   test("completion and reopening preserve the remote revision and original schedule", () => {
-    const completed = applyLocalItemCommand(
+    const completed = applyItemCommand(
       task,
       {
         type: "task.set-status",
@@ -91,7 +91,7 @@ describe("local item mutations", () => {
     if (completed.kind !== "task") throw new Error("Unexpected kind")
     expect(completed.completedAt).toBe(now)
     expect(completed.revision).toBe(4)
-    const reopened = applyLocalItemCommand(
+    const reopened = applyItemCommand(
       completed,
       {
         type: "task.set-status",
@@ -107,19 +107,12 @@ describe("local item mutations", () => {
 
   test("deleted or foreign items cannot be mutated or resurrected", () => {
     const command = { type: "item.delete" as const, itemId: id }
+    expect(() => applyItemCommand(task, command, "other-owner", now)).toThrow()
     expect(() =>
-      applyLocalItemCommand(task, command, "other-owner", now)
+      applyItemCommand({ ...task, deletedAt: now }, command, task.ownerId, now)
     ).toThrow()
     expect(() =>
-      applyLocalItemCommand(
-        { ...task, deletedAt: now },
-        command,
-        task.ownerId,
-        now
-      )
-    ).toThrow()
-    expect(() =>
-      applyLocalItemCommand(
+      applyItemCommand(
         task,
         {
           type: "item.create",
@@ -148,7 +141,7 @@ describe("local item mutations", () => {
       status: "completed" as const,
     }
     expect(() =>
-      applyLocalItemCommand(
+      applyItemCommand(
         {
           ...task,
           recurrence: {
@@ -165,7 +158,7 @@ describe("local item mutations", () => {
       )
     ).toThrow()
     expect(() =>
-      applyLocalItemCommand(
+      applyItemCommand(
         task,
         { ...command, occurrenceId: `${id}:2026-10-06` },
         task.ownerId,
