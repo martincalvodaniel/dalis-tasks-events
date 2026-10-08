@@ -1146,3 +1146,10 @@ Variante explícita2/item con resultado item/v2; schema/type y decoder/verificad
 Tres pruebas/22aserciones: conflicto revision2 frente a shadow observado5/local0, clones, applied con tombstone y cuatro rechazos preservados, key/IDs/snapshots/resultado ajenos y versiones/familias/extras inválidos. Suite296pass/86opt-in skip/0fail/5435aserciones; lint415archivos, tipos/build34recursos/diff aprobados. Contrato sin IO no requiere repetir Mongo. Sin lector común, writer, backup, ACK, outbox o caller activo nuevo.
 
 Petición de una iteración adicional cerrada con reserva10%5h/1%7d ya vigente. Próxima candidata11c3c1b2b: variante outcome personal con snapshots exactos y decoder común, antes de backup/ACK/pull. No abrir persistencia personal como ampliación de este corte. CommitpushHEAD/cuotas al cierre.
+
+
+### Resultado11c3c1b2b — Outcome personal y decoder común
+
+Lote renovado autorizado por usuario100%/100%; primera lectura posterior a trabajo paralelo83%/97%, sin inferir consumo exacto entre agentes. Reserva vigente10%5h/1%7d y commit/push/cuotas por corte. Outcome2/preference conserva resultado completo y snapshots exactos del objetivo más todos los efectos, incluidos compactación, ausencias y tombstones. Local admite0; base exige revisión remota positiva, sin ancestralidad ni ordenar replay frente a shadow. Decoder común adapta item legacy sólo en memoria y verifica cuenta/familia/objetivo; límites UTF8 individuales y global5MiB, sin truncar.
+
+Ocho pruebas específicas/95aserciones. Validación global con proyección paralela terminada:314pass/86opt-in skip/0fail/5636aserciones, lint422archivos/tipos/build/diff aprobados. Sin IO/ACK/writer/migración/caller/activación nuevos; Mongo no se repite para contratos puros. Siguiente11c3c2a backup mixto; proyección11c3c3p se cierra separadamente como preparación adelantada.

@@ -1,6 +1,6 @@
 # Evidencia local para preferencias sincronizadas
 
-Estado: contrato de transición `11c3c0`; shadow/decoder puros preparados en `11c3c1a1` y snapshot personal puro en `11c3c1a2`. Recepción mixta pura preparada en `11c3c1b1` y outcome item readonly en `11c3c1b2a`. Todavía sin consumidores activos, outcome personal/backup nuevos ni escritores locales. El servicio y los executors mixtos preparados están probados con MongoDB; el producto mantiene transporte 1 y sincroniza únicamente tareas/eventos propios simples.
+Estado: contrato de transición `11c3c0`; shadow/decoder puros preparados en `11c3c1a1` y snapshot personal puro en `11c3c1a2`. Recepción mixta pura preparada en `11c3c1b1` y outcome item readonly en `11c3c1b2a`. Outcome personal/decoder común preparados en `11c3c1b2b`, con snapshots exactos y límite global5MiBUTF8. Todavía sin consumidores activos, backup nuevo ni escritores locales. El servicio y los executors mixtos preparados están probados con MongoDB; el producto mantiene transporte 1 y sincroniza únicamente tareas/eventos propios simples.
 
 ## Punto de partida comprobado
 
@@ -54,7 +54,7 @@ Backup 2: ownership recursivo, claves únicas, dependencia/tail/sequence exactos
 | `11c3c1a2` | Snapshot personal puro entregado: [schema](../src/schemas/personal-snapshot.ts) y [verificador](../src/lib/sync/personal-snapshot.ts), revisión0 local/ausencia/conjunto exacto/propiedad/UTF8, sin consumidores activos. |
 | `11c3c1b1` | Recepción mixta pura entregada: [schema](../src/schemas/local-sync-result-v2.ts) y [verificador](../src/lib/sync/local-sync-result-v2.ts), intención/sender/cuenta/familia/objetivo, sin lease o ACK. |
 | `11c3c1b2a` | Variante item2/legacy readonly preparada: [schema](../src/schemas/local-item-outcome-v2.ts) y [decoder](../src/lib/sync/local-item-outcome-v2.ts), ownership/identidad/replay histórico sin inventar ancestro. Sin consumidores activos. |
-| `11c3c1b2b` | Outcome personal con snapshots exactos y decoder común. Replay viejo no es ancestro; errores sin documento no conceden permisos. |
+| `11c3c1b2b` | Entregado: [outcome personal](../src/schemas/local-preference-outcome-v2.ts) y [decoder común](../src/lib/sync/local-operation-outcome-v2.ts), snapshots exactos objetivo+todos efectos, local0/base positiva,5MiB global. Replay viejo no es ancestro; errores sin documento no conceden permisos. |
 | `11c3c2` | Backup 2, lector/exportador/import preview y verificadores de ownership/evidencia para ambas historias. Fixtures de dependencia/tail/decisiones, UTF8 y snapshot readonly real; todos los lectores listos antes de writers. |
 | `11c3c3` | ACK y proyección personal atómicos con IndexedDB propio: compactación multiefecto, replay/rollback tardío, pendientes/dependientes y reconciliación al terminar cadena. |
 | `11c3c4` | Pull mixto/cursor y routing de incidentes compatibles, cuenta/época/cierre, unknown-store sin avance y tombstones. No elecciones personales prematuras. |

@@ -174,3 +174,6 @@ El usuario pide adelantar lo posible en paralelo. Se asignan rutas disjuntas: ro
 ### Reanudación tras piloto real, 8 de octubre
 
 Elusuario comunica nueva ventana ypideAdelante. Lectura real100%5h/13%7d, reset5h publicado1791489092; la renovación corta no renueva semanal. Continúa autorización decommitpushint yconsultaautomática poriteración conreserva10ambas; peticiones extraordinarias bajo10 de15a0b/15a1 no seextienden aeste lote. División11c2b1a/b/c, secuencial para mantenercierreconsemanaescasa; no crearautomatizaciones ni consumircréditos/reinicios.
+
+
+El 8 de octubre el usuario comunica reinicio de ambas ventanas y autoriza ambición/paralelismo. Lectura real100%5h/100%7d desdeb77c7d6. Continuación con cuotas automáticas por commit/push y reservas10%5h/1%7d. Trabajo paralelo sólo con ownership disjunto elegido eniterations.md, integración/plan/commits centralizados; no comparar coste con la ventana agotada ni activar writers sin lectores compatibles.

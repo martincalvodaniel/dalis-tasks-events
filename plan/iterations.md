@@ -1718,3 +1718,23 @@ Variante explícita2/item con resultado item/v2; schema/type y decoder/verificad
 Tres pruebas/22aserciones: conflicto revision2 frente a shadow observado5/local0, clones, applied con tombstone y cuatro rechazos preservados, key/IDs/snapshots/resultado ajenos y versiones/familias/extras inválidos. Suite296pass/86opt-in skip/0fail/5435aserciones; lint415archivos, tipos/build34recursos/diff aprobados. Contrato sin IO no requiere repetir Mongo. Sin lector común, writer, backup, ACK, outbox o caller activo nuevo.
 
 Petición de una iteración adicional cerrada con reserva10%5h/1%7d ya vigente. Próxima candidata11c3c1b2b: variante outcome personal con snapshots exactos y decoder común, antes de backup/ACK/pull. No abrir persistencia personal como ampliación de este corte. CommitpushHEAD/cuotas al cierre.
+
+
+## Lote renovado: 11c3c1b2b y proyección preparatoria paralela
+
+- Entrada100%5h/100%7d trasb77c7d6; usuario autoriza ampliar alcance y paralelizar. Reservas10%5h/1%7d vigentes; consultar ambas tras cada entrega, commitpushint/HEAD; sin nuevas automatizaciones ni cambios productivos.
+- Objetivo11c3c1b2b: outcome personal estricto2 con snapshots exactos de objetivo+efectos, cuenta/intención/familia, decoder común item legacy/personal nuevo. Shadow observado no es ancestro ni obliga a revision posterior del replay.
+- `target_paths` worker outcome: `src/schemas/local-preference-outcome-v2.ts`, `src/types/local-operation-outcome-v2.ts`, `src/lib/sync/local-operation-outcome-v2{,.test}.ts`. Sólo estos archivos; no commits ni plan por worker.
+- Objetivo paralelo11c3c3p preparatorio: proyección personal pura por clave con revisiones independientes, snapshot local conservado mientras exista intención personal no resuelta y reconciliación cuando desaparecen pendientes; sin activar escritores antes de lectores/backup.
+- `target_paths` worker proyección: `src/schemas/preference-projection.ts`, `src/lib/sync/preference-projection{,.test}.ts`. Dependencias sólo schemas/snapshots/outbox ya cerrados; no importar archivos del worker outcome en curso.
+- Exploración paralela readonly: identificar adaptaciones exactas de backup/evidencia/importación para corte11c3c2, sin editar archivos.
+- Ownership raíz: plan/workflow/registro e integración/revisión/build/commitpush. Agentes no están solos y preservan cambios ajenos; disjoint paths y validación global al integrar.
+- Aceptación outcome: snapshots propios por conjunto exacto, objetivo incluso error sin efectos, multiefecto íntegro, clones, legado readonly, future/extra/familia/objetivo/owner incoherentes rechazan; guard de envoltura total y base remoto positivo/ausencia observada sin imponer ancestralidad.
+- Aceptación proyección: claves/store/owner y conjuntos coherentes, revisiones remotas por documento, replay viejo no retrocede, misma revisión diferente contenido rechaza, tombstones y pendientes/rejected/conflict/unsupported conservados; decisiones locales no fabrican ACK. Limitar inicialmente tags/itemViews, rechazar store sin soporte íntegro. Sin IO ni UI/callers activos.
+- Validación: tests puros pertinentes para cada corte; raíz suite/lint/tipos/build/diff/plan por entrega cerrada. Proyección anticipada documentada como preparatoria, no saltar lectores/backup ni activar ACK/pull. Actualizar orden/candidata al integrar; completar cada corte antes de reservar el siguiente.
+
+### 11c3c2a — Backup portable mixto puro (lote paralelo renovado)
+
+Objetivo: formato portable2 conserva shadows/outcomes legacy y versionados, mientras portable1 mantiene su shape y bytes lógicos. Protocolo de intención1 y DB2 no cambian. Dependencias: decoder común11c3c1b2b cerrado antes de integrar. Ownership delegado: src/schemas/local-backup.ts, src/types/local-backup.ts, src/lib/backup/local-backup.ts y sus tests, src/lib/backup/import-record.test.ts. Root conserva documentación e integración; sin cambio de snapshot/export/IndexedDB/UI en este corte.
+
+Aceptación: validación de propiedad/claves/familia/objetivo mediante decoders mixtos sólo en memoria; intención exacta, dependencias, tail, sequence, evidencia ACK/conflict/rejected y decisiones superseded intactas. Multiefectos completos, revisión0 local/ausencias, base positiva y replay anterior al shadow aceptados sin fabricar ancestro. Fuente JSON archivada permanece opaca/byteexacta, no introducir verificación recursiva ni aplicar estados importados. Pruebas puras de ambas generaciones, corrupción/cuenta/futuro y roundtrip; lint/tipos/suite/build/diff completos antes de commit/push/cuotas.
