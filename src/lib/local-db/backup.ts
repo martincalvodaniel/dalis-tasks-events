@@ -37,7 +37,7 @@ export function queueLocalBackupSnapshot(
         const backup = validateLocalBackup(
           {
             format: "dalis-local-backup",
-            version: 1,
+            version: 2,
             protocolVersion: 1,
             databaseVersion: database.version,
             userId,

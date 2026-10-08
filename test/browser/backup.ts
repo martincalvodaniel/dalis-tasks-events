@@ -173,6 +173,106 @@ async function run() {
         }
       )
       await check(
+        "Historia mixta se exporta íntegra sin reescribir snapshots ni fabricar ACK",
+        async () => {
+          const before = await readAccountBackup(account)
+          assert(before.version === 2)
+          const tag = before.stores.tags[0]
+          const entry = before.stores.outbox.find(
+            (record) => record.operation.command.type === "tag.save"
+          )
+          const item = before.stores.items.find((record) => record.id === id)
+          assert(tag && entry && item)
+          const local = { store: "tags" as const, record: tag }
+          const base = {
+            store: "tags" as const,
+            record: { ...tag, revision: 5 },
+          }
+          const outcome = {
+            version: 2,
+            kind: "preference",
+            key: `operation-outcome:${entry.operation.operationId}`,
+            operation: entry.operation,
+            result: {
+              kind: "preference",
+              outcome: {
+                operationId: entry.operation.operationId,
+                status: "conflict",
+                current: { store: "tags", record: { ...tag, revision: 2 } },
+              },
+            },
+            local: [{ entityKey: entry.entityKey, record: local }],
+            base: [{ entityKey: entry.entityKey, record: base }],
+          }
+          const shadows = [
+            {
+              version: 2,
+              kind: "preference",
+              entityKey: entry.entityKey,
+              record: base,
+            },
+            {
+              version: 2,
+              kind: "item",
+              entityKey: `item:${id}`,
+              record: { ...item, revision: 4 },
+            },
+          ]
+          await runLocalTransaction(
+            database,
+            ["outbox", "remoteShadows", "syncMetadata"],
+            "readwrite",
+            (context) => {
+              context.transaction
+                .objectStore("outbox")
+                .put({ ...entry, state: "conflict", attempts: 1, lease: null })
+              for (const shadow of shadows)
+                context.transaction.objectStore("remoteShadows").put(shadow)
+              context.transaction.objectStore("syncMetadata").put(outcome)
+              context.setResult(true)
+            }
+          )
+          const mixed = await readAccountBackup(account)
+          assert(
+            mixed.version === 2 &&
+              mixed.protocolVersion === 1 &&
+              mixed.databaseVersion === 2
+          )
+          assert(
+            JSON.stringify(mixed.stores.tags) ===
+              JSON.stringify(before.stores.tags)
+          )
+          assert(
+            JSON.stringify(mixed.stores.items) ===
+              JSON.stringify(before.stores.items)
+          )
+          assert(mixed.stores.remoteShadows.length === 2)
+          assert(
+            mixed.stores.outbox.find(
+              (record) =>
+                record.operation.operationId === entry.operation.operationId
+            )?.state === "conflict"
+          )
+          assert(
+            JSON.stringify(
+              mixed.stores.syncMetadata.find(
+                (record) => record.key === outcome.key
+              )
+            ) === JSON.stringify(outcome)
+          )
+          assert(
+            JSON.stringify(
+              decodeLocalBackup(encodeLocalBackup(mixed, userId), userId)
+            ) === JSON.stringify(mixed)
+          )
+          assert(
+            JSON.stringify((await readAccountBackup(account)).stores) ===
+              JSON.stringify(mixed.stores)
+          )
+          // Only this disposable fixture partition contains synthetic server evidence.
+        }
+      )
+      await check(
         "Partición y época incorrectas rechazan sin entregar datos",
         async () => {
           await refused(() => readLocalBackup(database, "other", now))

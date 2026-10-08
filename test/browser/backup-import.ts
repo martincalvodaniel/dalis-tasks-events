@@ -1,3 +1,4 @@
+import { validateLocalBackup } from "@/lib/backup/local-backup"
 import { applyItemCommand } from "@/lib/calendar/item-command"
 import {
   ACCOUNT_CONTROL_DATABASE,
@@ -13,6 +14,7 @@ import {
 } from "@/lib/local-db/backup-import"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
+import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { entityIdSchema } from "@/schemas/primitives"
 import type { BackupImportRequest } from "@/types/backup-import"
 import type { LocalBackup } from "@/types/local-backup"
@@ -183,7 +185,15 @@ async function run() {
         updatedAt: originalDate,
         deletedAt: null,
       })
-      const sourceJson = JSON.stringify(source)
+      const sourceTag = source.stores.tags[0]
+      assert(source.version === 2 && expected.version === 2)
+      source.stores.remoteShadows.push({
+        version: 2,
+        kind: "preference",
+        entityKey: `tag:${sourceTag.id}`,
+        record: { store: "tags", record: sourceTag },
+      })
+      const sourceJson = JSON.stringify(source, null, 2)
       const input = request(source, expected)
       let notifications = 0
       const notified = () => {
@@ -211,7 +221,8 @@ async function run() {
             )
             assert(
               actual.stores.tags.length === 0 &&
-                actual.stores.itemViews.length === 0
+                actual.stores.itemViews.length === 0 &&
+                actual.stores.remoteShadows.length === 0
             )
             assert(
               JSON.stringify(
@@ -300,6 +311,171 @@ async function run() {
               importLocalBackupCopies(database, userId, collision, sourceJson)
             )
             assert(JSON.stringify((await read()).stores) === before)
+          }
+        )
+        await check(
+          "Archivo legacy se importa junto a evidencia portable2 sin restaurar estados",
+          async () => {
+            const legacySource = validateLocalBackup(
+              {
+                ...structuredClone(source),
+                version: 1 as const,
+                stores: {
+                  ...structuredClone(source.stores),
+                  remoteShadows: [],
+                },
+              },
+              userId
+            )
+            const baseline = await read()
+            const operationId = crypto.randomUUID()
+            const sequence =
+              Math.max(
+                ...baseline.stores.outbox.map((entry) => entry.sequence)
+              ) + 1
+            const entityKey = `tag:${sourceTag.id}`
+            const operation = {
+              operationId,
+              protocolVersion: 1,
+              baseRevision: 0,
+              command: {
+                type: "tag.save",
+                tagId: sourceTag.id,
+                input: {
+                  name: sourceTag.name,
+                  color: sourceTag.color,
+                  position: 0,
+                },
+              },
+            }
+            const remote = {
+              store: "tags",
+              record: { ...sourceTag, revision: 10 },
+            }
+            const outcome = {
+              version: 2,
+              kind: "preference",
+              key: `operation-outcome:${operationId}`,
+              operation,
+              result: {
+                kind: "preference",
+                outcome: {
+                  operationId,
+                  status: "conflict",
+                  current: { store: "tags", record: sourceTag },
+                },
+              },
+              local: [{ entityKey, record: null }],
+              base: [{ entityKey, record: remote }],
+            }
+            // Synthetic conflict evidence belongs only to this disposable test partition.
+            await runLocalTransaction(
+              database,
+              ["outbox", "remoteShadows", "syncMetadata"],
+              "readwrite",
+              (context) => {
+                context.transaction.objectStore("outbox").add({
+                  userId,
+                  entityKey,
+                  sequence,
+                  dependencies: [],
+                  state: "conflict",
+                  attempts: 1,
+                  lease: null,
+                  createdAt: now,
+                  operation,
+                })
+                context.transaction.objectStore("remoteShadows").put({
+                  version: 2,
+                  kind: "preference",
+                  entityKey,
+                  record: remote,
+                })
+                context.transaction
+                  .objectStore("syncMetadata")
+                  .put({ key: "outbox-sequence", value: sequence })
+                context.transaction
+                  .objectStore("syncMetadata")
+                  .put({ key: "preference-tail", operationId })
+                context.transaction.objectStore("syncMetadata").put(outcome)
+                context.setResult(true)
+              }
+            )
+            const current = await read()
+            const legacyInput = request(legacySource, current)
+            const beforeShadows = JSON.stringify(current.stores.remoteShadows)
+            const beforeTags = JSON.stringify(current.stores.tags)
+            const legacyJson = JSON.stringify(legacySource, null, 2)
+            assert(
+              (
+                await importLocalBackupCopies(
+                  database,
+                  userId,
+                  legacyInput,
+                  legacyJson
+                )
+              ).status === "applied"
+            )
+            const after = await read()
+            assert(after.version === 2)
+            const storedOutcome = await runLocalTransaction<unknown>(
+              database,
+              ["syncMetadata"],
+              "readonly",
+              (context) => {
+                const request = context.transaction
+                  .objectStore("syncMetadata")
+                  .get(outcome.key)
+                request.onsuccess = () => context.setResult(request.result)
+              }
+            )
+            assert(JSON.stringify(storedOutcome) === JSON.stringify(outcome))
+            assert(JSON.stringify(after.stores.remoteShadows) === beforeShadows)
+            assert(JSON.stringify(after.stores.tags) === beforeTags)
+            assert(
+              JSON.stringify(
+                after.stores.syncMetadata.find(
+                  (record) => record.key === outcome.key
+                )
+              ) ===
+                JSON.stringify(
+                  current.stores.syncMetadata.find(
+                    (record) => record.key === outcome.key
+                  )
+                )
+            )
+            assert(
+              after.stores.outbox.find(
+                (entry) => entry.operation.operationId === operationId
+              )?.state === "conflict"
+            )
+            assert(
+              JSON.stringify(
+                after.stores.syncMetadata.find(
+                  (record) => record.key === "preference-tail"
+                )
+              ) ===
+                JSON.stringify(
+                  current.stores.syncMetadata.find(
+                    (record) => record.key === "preference-tail"
+                  )
+                )
+            )
+            const receipt = after.stores.syncMetadata.find(
+              (record) =>
+                "importId" in record && record.importId === legacyInput.importId
+            )
+            assert(
+              receipt &&
+                "importId" in receipt &&
+                receipt.sourceJson === legacyJson
+            )
+            for (const copy of legacyInput.copies)
+              assert(
+                after.stores.outbox.find(
+                  (record) => record.operation.operationId === copy.operationId
+                )?.state === "pending"
+              )
           }
         )
         await check("Cuenta y partición ajenas quedan intactas", async () => {

@@ -204,3 +204,8 @@ Próxima11c2b2b: mutaciones multirregistro propias + contador compartido + journ
 
 
 11c3b2c2: runner vigente12archivos, Mongo55pass/618aserciones/0fail. Batch real: pérdida de respuesta tras commit de categoría y replay sin duplicados, identity_reuse por familia/foreign-view unavailable y respuestaUTF8>2MiB sobre16tareas que conserva intención excluida ya committed y converge en32secuencias. Sin ACK local ni piloto físico nuevo; recursos propios eliminados.
+
+
+### 11c3c2b — Backup e importación reales con historia mixta
+
+Fixtures propios en loopback4179/4188: backup cinco checks más recarga conservan once stores, cola/tombstones, snapshots personales local0/base5/conflict2 y shadow item2 sin cambio de datos. Import once checks más recarga comprueba source2 y archivo legacy, outcome personal/counter/tail/conflict/shadow preexistentes intactos, fuente JSON byteexacta, replay/rollback final/carrera y cuenta/época. Comparación del registro bruto IDB prueba que importar no reescribe el outcome personal; comparación del snapshot validado conserva representación lógica. Evidencia sintética sólo en partición browser-test propia, no resultado remoto ni convergencia. Cleanup de todas las particiones/control propios confirmado; servidores y pestañas de fixture cerrados.
