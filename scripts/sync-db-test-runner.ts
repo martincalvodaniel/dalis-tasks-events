@@ -8,7 +8,7 @@ import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
 
 const runId = crypto.randomUUID()
 const mode = process.argv[2] ?? "database"
-if (mode !== "database" && mode !== "browser")
+if (mode !== "database" && mode !== "browser" && mode !== "browser-mixed")
   throw new Error("Unknown isolated sync test mode")
 const name = `dalis-sync-test-${runId}`
 const label = "dalis.sync-test-run"
@@ -162,13 +162,15 @@ try {
   ])
   await ready("if (!db.hello().isWritablePrimary) quit(1)")
   const argumentsForMode =
-    mode === "browser"
+    mode === "browser" || mode === "browser-mixed"
       ? [
           "bun",
           "--no-env-file",
           "--preload",
           "./test/setup.ts",
-          "scripts/sync-browser-test-server.ts",
+          mode === "browser-mixed"
+            ? "scripts/mixed-sync-browser-test-server.ts"
+            : "scripts/sync-browser-test-server.ts",
         ]
       : [
           "bun",

@@ -229,3 +229,8 @@ Sync-results siete checks+reload preservan getter y replay acknowledged brutos c
 ### 11c3c4a2 — Descarga mixta local aislada
 
 Runner sync-pull-v2-test-server en4192 y fixture sync-pull-v2 restringida a loopback/browser-test UUID. Ocho escenarios IndexedDB comprobados: multiefectos+item/view/shadows/cursor y reopen, replay readonly, pendientes/historia, checkpoint/contradicción, late cursor rollback/retry, cuenta/store antes de TX, fila10001, paginación/tombstones y corrupción futura incluso página ignorada. Particiones y pestaña/servidor propios limpiados; no control ni datos de despliegue real. Falta11c3c4b1: convergencia con dos particiones/executors Mongo reales; esta prueba sintética local no la sustituye.
+
+
+### 11c3c4b1 — Dos orígenes, ACK y descarga mixta con Mongo real
+
+`bun scripts/sync-db-test-runner.ts browser-mixed` consume descriptor propio y levanta dos orígenes loopback efímeros con capability run; abrir URL impresa y pulsar Ejecutar prueba mixta integrada. Ocho escenarios reales cubren offline/reload, bootstrap paginado, ACK personal/item y rebalance, pérdida de respuesta con replay UUID y receipt único, tombstone/desasignación explícita, cursor compartido, conflicto con dependientes y task.move histórico unsupported sin ACK. Comparación de ambas particiones con DAL/journal Mongo sólo donde no hay blockers. Cleanup de todas las bases UUID y recursos runner propios confirmado, exit0. No control de cuenta real ni nuevas rutas públicas/transportes activos. La prueba anterior de descarga standalone sigue siendo evidencia local complementaria.

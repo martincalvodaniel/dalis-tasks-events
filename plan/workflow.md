@@ -181,3 +181,7 @@ El 8 de octubre el usuario comunica reinicio de ambas ventanas y autoriza ambici
 ### Continuación puntual con reserva4% en 5h
 
 El usuario autoriza aprovechar el margen restante y seguir hasta conservar4%5h; lectura al abrir12%5h/86%7d. Esta instrucción sustituye10% sólo para esta continuación; semanal permanece1%. Cortes secuenciales pequeños con pruebas/reparación/commitpush/HEAD/cuotas; no abrir trabajo cuyo cierre razonablemente cruce4%. No créditos/reinicios/automatizaciones ni cambios productivos. No implica activar sincronización personal antes de pruebas integradas.
+
+### Renovación desatendida9oct00:25 y revisiones encadenadas autorizadas
+
+Lectura real100%5h/85%7d, reset5h1791516313 (9oct05:25:13Madrid). El usuario autoriza continuar tras cada renovación y reprogramar una única revisión pendiente al cerrar según resetsAt real; sustituye restricción histórica de una sola revisión. Reserva4%5h/1%7d durante este ciclo, consulta tras commit/push; no abrir corte cuyo cierre pueda cruzarla. Próxima programación al menos un minuto después del reinicio publicado, redondeada hacia arriba al minuto, vía automation_update de heartbeat existente y misma política silenciosa. No sumar cinco horas por suposición, duplicados, créditos/reinicios ni nuevas cron. Cuota ilegible/renovación no verificable/bloqueo o weekly<=1% cierran seguro; fecha futura verificada y trabajo/margen requeridos para reprogramar.
