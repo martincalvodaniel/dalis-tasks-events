@@ -1,3 +1,4 @@
+import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import { itemProjectionInputSchema } from "@/schemas/item-projection"
 import type { CalendarItem } from "@/types/calendar-item"
 
@@ -10,7 +11,7 @@ export interface ItemProjection {
 // The local record already contains accumulated intentions; pull never rewrites them.
 export function planRemoteItemProjection(input: unknown): ItemProjection {
   const value = itemProjectionInputSchema.parse(input)
-  const pending = value.entries.some((entry) => entry.state !== "acknowledged")
+  const pending = value.entries.some(isUnresolvedOutboxEntry)
   const previous = value.shadow
   let shadow = value.incoming
   if (previous && previous.revision > shadow.revision) shadow = previous

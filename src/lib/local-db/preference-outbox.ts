@@ -8,6 +8,7 @@ import {
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import { commitLocalTaskMoveCommand } from "@/lib/local-db/task-move-outbox"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import {
   outboxEntrySchema,
   outboxSequenceSchema,
@@ -185,7 +186,7 @@ export function commitLocalPreferenceCommand(
                       .filter(
                         (candidate): candidate is OutboxEntry =>
                           candidate !== null &&
-                          candidate.state !== "acknowledged"
+                          isUnresolvedOutboxEntry(candidate)
                       )
                       .map((candidate) => candidate.operation.operationId)
                   ),

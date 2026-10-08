@@ -69,3 +69,6 @@ Seis checks browser pasan: offline simulado/recarga, convergencia de tareas simp
 
 
 13a1c: `bun run scripts/sync-incident-ui-test-server.ts` sirve en127.0.0.1:4180 una fixture React/IndexedDB propia, con CSS del build. Apertura de conflicto y comando, móvil390×844 sin overflow/summary44px, recarga y comparación sin mutación de cola verificadas. Botón de validación cierra conexiones y elimina solo partición UUID propia; servidor/tab/viewport cerrados/restaurados. No llamaMongo niGoogle.
+
+
+13a2b1: `bun run scripts/browser-test-server.ts sync-resolution` valida executor local con datos/respuestas ficticias en IndexedDB real. Ocho escenarios+recarga: stale, rollback de adopción/retry/contador/notificación, payload/outcome intactos, superseded nunca ACK, pull posterior, replay tras edición, nuevo conflicto, externos/tombstones/cuenta. Recursos propios limpiados. Todavía no prueba de convergencia remota de resoluciones; próxima13a2b1a amplía entorno dos dispositivos/Mongo.

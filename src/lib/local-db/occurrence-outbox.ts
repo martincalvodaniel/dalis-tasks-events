@@ -8,6 +8,7 @@ import {
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import { editableTaskOccurrence } from "@/lib/local-db/task-occurrence"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import { calendarItemSchema } from "@/schemas/calendar-item"
 import { outboxEntrySchema, outboxSequenceSchema } from "@/schemas/local-sync"
 import { itemOccurrenceSchema } from "@/schemas/occurrence"
@@ -187,7 +188,7 @@ export function commitLocalTaskOccurrenceCommand(
                   command,
                 },
                 dependencies:
-                  previous && previous.state !== "acknowledged"
+                  previous && isUnresolvedOutboxEntry(previous)
                     ? [previous.operation.operationId]
                     : [],
                 state: "pending",

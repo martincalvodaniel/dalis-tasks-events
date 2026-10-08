@@ -4,6 +4,8 @@ import { openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalChangesPage } from "@/lib/local-db/pull-changes"
 import { readLocalSyncQueueSummary } from "@/lib/local-db/queue-summary"
 import { readLocalSyncIncidents } from "@/lib/local-db/sync-incidents"
+import { notifyLocalOutboxChange } from "@/lib/local-db/sync-notifications"
+import { resolveLocalSyncIncident } from "@/lib/local-db/sync-resolution"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { planRemoteItemProjection } from "@/lib/sync/item-projection"
 import { calendarItemSchema } from "@/schemas/calendar-item"
@@ -65,6 +67,15 @@ export class LocalSyncStore {
 
   readIncidents() {
     return readLocalSyncIncidents(this.database, this.userId)
+  }
+
+  resolveIncident(input: unknown) {
+    return resolveLocalSyncIncident(this.database, this.userId, input).then(
+      (result) => {
+        if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+        return result
+      }
+    )
   }
 
   close() {

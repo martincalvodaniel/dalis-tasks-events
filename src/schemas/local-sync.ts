@@ -53,6 +53,7 @@ export const outboxEntrySchema = z
       "acknowledged",
       "conflict",
       "rejected",
+      "superseded",
     ]),
     attempts: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER),
     createdAt: timestampSchema,

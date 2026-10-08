@@ -172,3 +172,12 @@ describe("conservative remote item projection", () => {
     }
   })
 })
+
+test("superseded local intentions no longer conceal later remote changes", () => {
+  const value = input()
+  const superseded = { ...entry(), state: "superseded" as const }
+  const result = planRemoteItemProjection({ ...value, entries: [superseded] })
+  expect(result.pending).toBe(false)
+  expect(result.local).toEqual(value.incoming)
+  expect(superseded.state).toBe("superseded")
+})

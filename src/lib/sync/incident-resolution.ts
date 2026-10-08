@@ -58,6 +58,8 @@ export function planSyncIncidentResolution(
       intention.entityKey !== entry.entityKey ||
       intention.state === "acknowledged" ||
       intention.state === "sending" ||
+      intention.state === "superseded" ||
+      (intention.state === "pending" && intention.attempts > 0) ||
       ids.has(intention.operation.operationId) ||
       sequences.has(intention.sequence) ||
       !supportsRemoteItemCommand(intention.operation.command, local ?? remote)

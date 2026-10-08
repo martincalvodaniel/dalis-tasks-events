@@ -7,6 +7,7 @@ if (
   suite !== "sync-results" &&
   suite !== "sync-pull" &&
   suite !== "sync-incidents" &&
+  suite !== "sync-resolution" &&
   suite !== "preferences" &&
   suite !== "ordering" &&
   suite !== "task-ordering" &&

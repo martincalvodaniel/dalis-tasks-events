@@ -1,4 +1,5 @@
 import { projectSyncIncident } from "@/lib/sync/incident-projection"
+import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import { syncIncidentSnapshotInputSchema } from "@/schemas/sync-incident"
 import type { OutboxEntry } from "@/types/local-sync"
 import type { SyncIncidentSnapshot } from "@/types/sync-incident"
@@ -21,7 +22,7 @@ export function projectSyncIncidentSnapshot(
       throw new Error("Incident queue contains foreign or duplicate operations")
     operationIds.add(id)
     sequences.add(entry.sequence)
-    if (entry.state !== "acknowledged") {
+    if (isUnresolvedOutboxEntry(entry)) {
       const group = intentions.get(entry.entityKey) ?? []
       group.push(entry)
       intentions.set(entry.entityKey, group)

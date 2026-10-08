@@ -229,3 +229,14 @@ test("foreign, active, unsupported or reused identities cannot produce a resolut
     planSyncIncidentResolution({ ...request, choice: "adopt_remote" }, current)
   ).toThrow()
 })
+
+test("a dependent operation with an uncertain earlier send cannot be superseded", () => {
+  const { current, request } = fixture()
+  const changed = {
+    ...current,
+    intentions: [current.entry, { ...current.intentions[1], attempts: 1 }],
+  }
+  expect(() =>
+    planSyncIncidentResolution({ ...request, expected: changed }, changed)
+  ).toThrow()
+})

@@ -6,6 +6,7 @@ import {
   type TaskMoveCommand,
 } from "@/lib/local-db/task-move-mutation"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import {
   outboxEntrySchema,
   outboxSequenceSchema,
@@ -141,7 +142,7 @@ export function commitLocalTaskMoveCommand(
                   : null,
               ].filter(
                 (entry): entry is OutboxEntry =>
-                  entry !== null && entry.state !== "acknowledged"
+                  entry !== null && isUnresolvedOutboxEntry(entry)
               )
               const entry = parseEntry({
                 userId,

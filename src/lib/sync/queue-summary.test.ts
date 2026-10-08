@@ -121,3 +121,14 @@ test("foreign accounts and duplicate queue identities cannot produce a summary",
   expect(() => summary([own, own])).toThrow()
   expect(() => summary([own, { ...entry(2), sequence: 1 }])).toThrow()
 })
+
+test("local supersession excludes resolved work without satisfying dependent operations as server acknowledgements", () => {
+  const superseded = entry(1, "superseded")
+  const dependent = entry(2)
+  dependent.dependencies = [superseded.operation.operationId]
+  const result = summary([superseded, dependent])
+  expect(result.pending).toBe(1)
+  expect(result.blocked).toBe(1)
+  expect(result.ready).toBe(0)
+  expect(result.conflicts + result.rejected + result.sending).toBe(0)
+})

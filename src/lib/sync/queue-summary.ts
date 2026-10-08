@@ -46,6 +46,9 @@ export function summarizeSyncQueue(input: unknown): SyncQueueSummary {
         summary.rejected++
         states.set(id, "blocked")
         break
+      case "superseded":
+        states.set(id, "blocked")
+        break
       case "pending": {
         summary.pending++
         const command = entry.operation.command
