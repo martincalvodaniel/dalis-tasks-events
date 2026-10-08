@@ -249,3 +249,8 @@ Runner `bun scripts/mixed-sync-store-test-server.ts` imprime origen efímero loo
 ### 11c4a4p — Coordinador/runtime/HTTP con Mongo
 
 Runner browser-mixed ahora diezescenarios. Ademásde8anteriores, comando coordinate abre runtimereal con accountcontrolficticio y transporteHTTP2, remapeando sólo rutas al mismo loopback, sin inyectarhandshakecliente. Servidorfixture anuncia2, propioMongoexecute/services validados. Respuestaperdida de create antesACK, replay y categoría/vista dependientes confirman tresintenciones únicas y convergenciadosparticionesMongo; recarga/idleoutcomesliteral. Runtime también conserva move/conflictopersonal y permitecontenidoindependiente. Cleanupowncontrol/particiones/conexiones/container/tmpfs/pestaña/server y exit0 confirmados. NoGoogle/prod/activaciónpersonal, ni convergenciadecolasbloqueadas.
+
+
+### 11c4a5i — Readiness contra índices Mongo reales
+
+El runner aislado incorpora mixed-sync-index-readiness.integration.test.ts. Provisiona sólo tres specs centrales explícitos en la DB exacta de su descriptor, inspecciona definición real mediante singleton y verifica listIndexes byteequivalente antes/después de readiness. Suite56pass/620aserciones sin fallo, container/tmpfs/proxy propios limpiados. Mocks verifican ausencia/definiciones incompatibles/error sin provisión; no comprobar DB del despliegue ni alterar sus índices.

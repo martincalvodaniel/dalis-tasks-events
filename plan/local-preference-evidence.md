@@ -92,3 +92,6 @@ El orden concreto de activación está en [mixed-sync-activation.md](mixed-sync-
 
 
 Resumen11c4a5s [puro](../src/lib/sync/queue-summary-v2.ts) reutiliza diagnóstico/capacidades completos y schema de counts vigente. Categorías pending exclusivas, estados sending/conflict/rejected separados y total personal no resuelto con bandera conservadora. No IO, ACK ni permiso; no conectado al resumen activo de transporte1.
+
+
+Readiness11c4a5i [server-only](../src/lib/db/mixed-sync-index-readiness.ts) inspecciona tres índices centrales de tags/vistas: nombre, orden de claves, unicidad, filtro y opciones compatibles. Ausentes/incompatibles impiden ready; sólo NamespaceNotFound26 se clasifica missing y otros errores se propagan. Ninguna provisión personal desde helper; usa singleton con su bootstrap automático vigente. Diez tests mock y una prueba real del descriptor propio con listIndexes intactos. Sin caller/DB real alterada.
