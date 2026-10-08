@@ -774,9 +774,63 @@ button.onclick = async () => {
         )
       }
     )
+    await check(
+      "Despliegue incompatible pausa sin perder cola y reanuda la misma operación",
+      async () => {
+        const id = crypto.randomUUID()
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "item.create",
+            itemId: id,
+            input: { ...draft, title: "Actualizar conservando pendientes" },
+          },
+        })
+        const before = await snapshot(0)
+        const entry = before.entries.find((e) => e.entityKey === `item:${id}`)
+        assert(entry, "pending before deployment mismatch")
+        for (const mode of ["missing", "future", "future-pull"] as const) {
+          await call(0, { type: "protocol", mode })
+          await pass(0, "update_required")
+          const after = await snapshot(0)
+          assert(
+            JSON.stringify(after) === JSON.stringify(before),
+            "incompatibility preserves all local data"
+          )
+        }
+        await call(0, { type: "protocol", mode: "future-push" })
+        await pass(0, "update_required")
+        const entryAfter = (await snapshot(0)).entries.find(
+          (e) => e.operation.operationId === entry.operation.operationId
+        )
+        assert(
+          entryAfter?.state === "pending" &&
+            entryAfter.lease === null &&
+            entryAfter.attempts === 1,
+          "push incompatibility releases without ACK"
+        )
+        assert(
+          JSON.stringify(entryAfter.operation) ===
+            JSON.stringify(entry.operation),
+          "operation and UUID preserved through mismatch"
+        )
+        assert(
+          !(await remote()).some((e) => e.id === id),
+          "no remote mutation under mismatch"
+        )
+        await load(0)
+        await pass(0)
+        await pass(1)
+        await equalDevices()
+        assert(
+          (await remote()).find((e) => e.id === id)?.revision === 1,
+          "compatible reload converges exactly once"
+        )
+      }
+    )
     passed = true
     statusElement.textContent =
-      "Doce escenarios integrados correctos; limpiando recursos propios"
+      "Trece escenarios integrados correctos; limpiando recursos propios"
   } catch (error) {
     statusElement.textContent = `Prueba fallida: ${error instanceof Error ? error.message : "error"}`
   } finally {

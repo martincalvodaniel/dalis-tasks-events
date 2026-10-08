@@ -1,9 +1,11 @@
 import "server-only"
 
+import { syncProtocolVersion } from "@/config/sync-protocol"
 import { OperationIdentityReuseError } from "@/lib/db/remote-item-commands"
 import { userIdSchema } from "@/schemas/primitives"
 import {
   remotePushInputSchema,
+  remotePushProtocolEnvelopeSchema,
   remotePushResultSchema,
 } from "@/schemas/remote-sync"
 import type {
@@ -27,6 +29,16 @@ export async function pushSyncBatch(
   const actor = await dependencies.readActor()
   if (!actor) return { status: "unauthorized" }
   const userId = userIdSchema.parse(actor)
+  const envelope = remotePushProtocolEnvelopeSchema.safeParse(input)
+  if (!envelope.success) return { status: "invalid_batch" }
+  if (envelope.data.expectedUserId !== userId)
+    return { status: "account_changed" }
+  if (
+    envelope.data.operations.some(
+      (operation) => operation.protocolVersion !== syncProtocolVersion
+    )
+  )
+    return { status: "update_required" }
   const batch = remotePushInputSchema.safeParse(input)
   if (!batch.success) return { status: "invalid_batch" }
   if (batch.data.expectedUserId !== userId) return { status: "account_changed" }

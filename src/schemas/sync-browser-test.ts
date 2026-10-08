@@ -40,6 +40,16 @@ export const syncBrowserCommandSchema = z.discriminatedUnion("type", [
   }),
   z.strictObject({ type: z.literal("stop-after-commit") }),
   z.strictObject({
+    type: z.literal("protocol"),
+    mode: z.enum([
+      "compatible",
+      "missing",
+      "future",
+      "future-pull",
+      "future-push",
+    ]),
+  }),
+  z.strictObject({
     type: z.literal("expire-lease"),
     operationId: entityIdSchema,
   }),

@@ -330,3 +330,18 @@ describe("bounded sync coordinator", () => {
     expect(independent.state).toBe("acknowledged")
   })
 })
+
+test("a protocol change at push preserves the claimed operation and releases its lease without ACK", async () => {
+  const value = fixture()
+  const entry = value.add(1)
+  const operation = JSON.stringify(entry.operation)
+  value.ports.push = async () => ({ status: "update_required" })
+  expect(await new SyncCoordinator(owner, value.ports).run()).toEqual({
+    status: "update_required",
+    uploaded: 0,
+    downloaded: 0,
+  })
+  expect(entry.state).toBe("pending")
+  expect(entry.lease).toBeNull()
+  expect(JSON.stringify(entry.operation)).toBe(operation)
+})

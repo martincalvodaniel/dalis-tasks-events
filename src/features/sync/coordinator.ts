@@ -164,6 +164,8 @@ export class SyncCoordinator {
           if (response.status === "unauthorized") return finish("unauthorized")
           if (response.status === "account_changed")
             return finish("account_changed")
+          if (response.status === "update_required")
+            return finish("update_required")
           if (response.status === "invalid_batch") return finish("retry_later")
           const result = response.results[0]
           if (

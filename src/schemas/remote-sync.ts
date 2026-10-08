@@ -64,6 +64,7 @@ export const remotePushResultSchema = z.discriminatedUnion("status", [
   z.strictObject({ status: z.literal("unauthorized") }),
   z.strictObject({ status: z.literal("invalid_batch") }),
   z.strictObject({ status: z.literal("account_changed") }),
+  z.strictObject({ status: z.literal("update_required") }),
   z.strictObject({
     status: z.literal("complete"),
     results: z.array(remoteOperationResultSchema).min(1).max(50),
@@ -131,3 +132,34 @@ export const remoteSyncErrorSchema = z.strictObject({
   error: z.string().max(500),
   code: z.enum(["account_changed", "cursor_ahead"]).optional(),
 })
+
+export const remotePushProtocolEnvelopeSchema = z
+  .strictObject({
+    expectedUserId: userIdSchema,
+    operations: z
+      .array(
+        z.strictObject({
+          operationId: entityIdSchema,
+          protocolVersion: z.number().int().min(1).max(1000000),
+          baseRevision: revisionSchema,
+          command: z.record(z.string(), z.unknown()),
+        })
+      )
+      .min(1)
+      .max(50),
+  })
+  .refine(
+    (batch) =>
+      new Set(batch.operations.map((operation) => operation.operationId))
+        .size === batch.operations.length,
+    "Duplicate operation identifiers"
+  )
+  .refine((batch) => {
+    try {
+      return (
+        new TextEncoder().encode(JSON.stringify(batch)).byteLength <= 512 * 1024
+      )
+    } catch {
+      return false
+    }
+  }, "Sync batch exceeds its size limit")

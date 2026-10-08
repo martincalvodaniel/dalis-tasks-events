@@ -190,3 +190,62 @@ describe("authenticated sync batch", () => {
     })
   })
 })
+
+test("an incompatible operation pauses the whole batch before any prefix executes", async () => {
+  const operations = [
+    operation(),
+    { ...operation(), protocolVersion: 2, command: { type: "future.command" } },
+  ]
+  const dependencies = {
+    readActor: async () => "test-actor",
+    execute: async () => {
+      throw new Error("Incompatible batch must not execute")
+    },
+  }
+  const input = { expectedUserId: "test-actor", operations }
+  expect(await pushSyncBatch(input, dependencies)).toEqual({
+    status: "update_required",
+  })
+  expect(
+    await pushSyncBatch(input, { ...dependencies, readActor: async () => null })
+  ).toEqual({ status: "unauthorized" })
+  expect(
+    await pushSyncBatch(input, {
+      ...dependencies,
+      readActor: async () => "other",
+    })
+  ).toEqual({ status: "account_changed" })
+  for (const protocolVersion of [0, 1.5, 1000001, "2", null])
+    expect(
+      await pushSyncBatch(
+        { ...input, operations: [{ ...operations[1], protocolVersion }] },
+        dependencies
+      )
+    ).toEqual({ status: "invalid_batch" })
+  expect(
+    await pushSyncBatch(
+      { ...input, operations: [operations[1], operations[1]] },
+      dependencies
+    )
+  ).toEqual({ status: "invalid_batch" })
+  expect(
+    await pushSyncBatch(
+      {
+        ...input,
+        operations: [
+          {
+            ...operations[1],
+            command: { type: "future", data: "x".repeat(512 * 1024) },
+          },
+        ],
+      },
+      dependencies
+    )
+  ).toEqual({ status: "invalid_batch" })
+  expect(
+    await pushSyncBatch(
+      { ...input, operations: [{ ...operations[1], protocolVersion: 1 }] },
+      dependencies
+    )
+  ).toEqual({ status: "invalid_batch" })
+})

@@ -1,3 +1,4 @@
+import { syncProtocolHeader } from "@/config/sync-protocol"
 import { createHttpSyncTransport } from "@/features/sync/http-transport"
 import { resolveSyncIncident } from "@/features/sync/local-incidents"
 import { openLocalSyncRuntime } from "@/features/sync/local-runtime"
@@ -28,6 +29,7 @@ let dropResponse = false
 let sessionActive = true
 let expireOnPush = false
 let stopAfterCommit = false
+let protocolMode = "compatible"
 const outbox = await LocalOutbox.open(userId)
 const repository = await LocalRepository.open(userId)
 const sync = await LocalSyncStore.open(userId)
@@ -46,7 +48,27 @@ const testFetch = (async (input: RequestInfo | URL, options?: RequestInit) => {
   if (!online) throw new Error("Fixture network is offline")
   const headers = new Headers(options?.headers)
   headers.set("x-sync-test-run", fixture.runId)
-  return fetch(input, { ...options, headers })
+  const response = await fetch(input, { ...options, headers })
+  if (
+    response.ok &&
+    (protocolMode === "missing" ||
+      protocolMode === "future" ||
+      (protocolMode === "future-pull" &&
+        String(input).startsWith("/api/sync/changes")))
+  ) {
+    const receivedHeaders = new Headers(response.headers)
+    if (protocolMode === "missing") receivedHeaders.delete(syncProtocolHeader)
+    else
+      receivedHeaders.set(
+        syncProtocolHeader,
+        JSON.stringify({ minimum: 2, maximum: 2 })
+      )
+    return new Response(response.body, {
+      status: response.status,
+      headers: receivedHeaders,
+    })
+  }
+  return response
 }) as typeof fetch
 async function readShadows() {
   const database = await openLocalDatabase(userId)
@@ -75,6 +97,7 @@ async function readShadows() {
 const transport = createHttpSyncTransport(
   userId,
   async (input) => {
+    if (protocolMode === "future-push") return { status: "update_required" }
     if (expireOnPush) {
       expireOnPush = false
       sessionActive = false
@@ -120,6 +143,9 @@ window.addEventListener("message", (event) => {
     switch (input.type) {
       case "network":
         online = input.online
+        return true
+      case "protocol":
+        protocolMode = input.mode
         return true
       case "session":
         sessionActive = input.active

@@ -928,3 +928,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 
 
 13b1b1: identidad/pull anuncian rango min/max por x-dalis-sync-protocol sin modificar bodyidentity existente. Nuevo cliente exige header válido <=128bytes con rango quecontieneprotocol1; ausencia/corrupto/incompatible pausa update_required antesdeleerbody/claim/cursor. Schedulerpausa yUI indica cerrar/reabrir conconexión, pendientes conservados; sinreloadautomático. Rango estricto Zod1..1000000/min<=max; noPII. Clientesanteriores sinhandshake noobtienenprotección retroactiva. 209pass/30skip/4670aserciones/lint310files/tipos/build30recursos y12escenariosMongoaprobados; ownresourceslimpios. Próxima13b1b2 guarda incompatibilidad enpush yprueba mixeddeployment.
+
+### 13b1b2 — Incompatibilidad durante envío y despliegue mixto
+
+- Objetivo previo: resultado update_required delpush sin ningún efecto remoto yprueba deausencia/incompatibilidad delhandshake antesdedescarga. Entrada43%/35%, int/secuencial/reserva10%; depende13b1b1.
+- `target_paths`: `src/schemas/{remote-sync,sync-browser-test}.ts`, `src/features/sync/{push-batch,coordinator}.ts` ytests, `test/browser/{sync-device,sync-devices}.ts`, `plan/{master,iterations,iteration-log,offline-and-sync,sync-test-environment}.md`.
+- Aceptación: envelope futuro estrictovalidado/acotado distingue incompatibilidad deinputmalformado; sesión/cuenta sevalidan antesdeexecutor yningún prefijo es aplicado sialguna versión es incompatible. Coordinador update_required libera lease/conserva UUID/payload/dependientes/cursor, noACK. Fixturemissing/future/futurepull/futurepush pausa conservando datos yrestaurar compatibilidad/recargar converge sin duplicados.
+- Validación: unit protocolgate/auth/invalid/prefix/lease, escena integradaMongo/2origins; suite/lint/tipos/build/diff/referencias/cleanup. Commit/pushint/HEAD/cuotas. Sin cambiar DB ni trabajadores, no heurísticas deerrorNext nidarporprobadoGoogle real.
+
+
+13b1b2: envelope Zodacotado/estricto verifica identidad/versión/duplicados/payloadsize antes deejecutar, batch conversiónfutura devuelupdate_required sinprefijoaplicado; auth/cuenta precedenexecutor. Coordinador libera lease yconservaUUID/payloadsinACK. TreceescenariosMongo: missing/future/futurepull conservan snapshotexacto; futurepush deja pending/lease0/attempt1; reload compatibleconverge una revisión1 enambosdispositivos. 211pass/30skip/4685aserciones/lint310files/tipos/build30recursos, ownrunnerexit0/cleanup. Próxima13b2a comprobaciónactualización segura.
