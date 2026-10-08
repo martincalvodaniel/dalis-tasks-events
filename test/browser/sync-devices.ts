@@ -6,6 +6,7 @@ import {
   syncBrowserSnapshotSchema,
 } from "@/schemas/sync-browser-test"
 import type { CalendarItem } from "@/types/calendar-item"
+import type { SyncIncidentSnapshot } from "@/types/sync-incident"
 
 const runId = new URLSearchParams(location.search).get("run")
 const fixture = syncBrowserFixtureSchema.parse(
@@ -110,7 +111,14 @@ async function equalDevices() {
   const second = await snapshot(1)
   const items = await remote()
   assert(
-    first.summary.pending === 0 && second.summary.pending === 0,
+    [first.summary, second.summary].every(
+      (summary) =>
+        summary.pending +
+          summary.sending +
+          summary.conflicts +
+          summary.rejected ===
+        0
+    ),
     "confirmed operations excluded from pending count"
   )
   assert(
@@ -122,6 +130,28 @@ async function equalDevices() {
     "second projection matches MongoDB"
   )
   assert(first.cursor.after === second.cursor.after, "device cursors match")
+}
+function resolution(
+  expected: SyncIncidentSnapshot,
+  choice: "adopt_remote" | "retry_local"
+) {
+  return {
+    userId: fixture.userId,
+    expected,
+    choice,
+    resolutionId: crypto.randomUUID(),
+    operationId: choice === "retry_local" ? crypto.randomUUID() : null,
+    createdAt: new Date().toISOString(),
+  }
+}
+async function refused(work: () => Promise<unknown>) {
+  let failed = false
+  try {
+    await work()
+  } catch {
+    failed = true
+  }
+  assert(failed, "unsafe resolution refused")
 }
 const itemId = crypto.randomUUID()
 const independentId = crypto.randomUUID()
@@ -359,9 +389,191 @@ button.onclick = async () => {
         )
       }
     )
+    await check(
+      "Reintento explícito con cadena, respuesta perdida y recarga converge sin duplicados",
+      async () => {
+        const firstIncident = (await snapshot(0)).incidents[0]
+        assert(firstIncident?.local, "preserved incident before resolution")
+        const conflictId = firstIncident.local.id
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "task.set-status",
+            itemId: conflictId,
+            occurrenceId: null,
+            status: "in_progress",
+          },
+        })
+        const incident = (await snapshot(0)).incidents[0]
+        assert(
+          incident.intentions.length === 2 && incident.remote?.revision === 2,
+          "complete reviewed chain"
+        )
+        const request = resolution(incident, "retry_local")
+        await call(0, { type: "resolve", request })
+        const after = await snapshot(0)
+        assert(
+          after.entries.filter((entry) => entry.state === "superseded")
+            .length === 2 && after.summary.ready === 1,
+          "superseded originals with one fresh intent"
+        )
+        assert(
+          after.entries.at(-1)?.operation.baseRevision === 2,
+          "new remote CAS base"
+        )
+        await call(0, { type: "drop-response" })
+        await pass(0, "retry_later")
+        assert(
+          (await remote()).find((item) => item.id === conflictId)?.revision ===
+            3,
+          "replacement committed once"
+        )
+        const queueBeforeReplay = JSON.stringify((await snapshot(0)).entries)
+        await call(0, { type: "resolve", request })
+        assert(
+          JSON.stringify((await snapshot(0)).entries) === queueBeforeReplay,
+          "resolution replay retains uncertain send"
+        )
+        await load(0)
+        await pass(0)
+        await pass(1)
+        await equalDevices()
+        const item = (await remote()).find((item) => item.id === conflictId)
+        assert(
+          item?.kind === "task" &&
+            item.title === "Borrador local" &&
+            item.status === "in_progress" &&
+            item.revision === 3,
+          "chosen full draft converged once"
+        )
+        const local = await snapshot(0)
+        assert(
+          local.entries.find(
+            (entry) =>
+              entry.operation.operationId ===
+              incident.entry.operation.operationId
+          )?.state === "superseded",
+          "original conflict never acknowledged"
+        )
+        assert(
+          local.entries.find(
+            (entry) => entry.operation.operationId === request.operationId
+          )?.state === "acknowledged",
+          "only replacement acknowledged"
+        )
+      }
+    )
+    await check(
+      "Elección obsoleta se rechaza; adoptar remoto no escribe servidor y converge",
+      async () => {
+        const current = (await remote()).find(
+          (item) => item.id !== itemId && item.id !== independentId
+        )
+        assert(current, "conflict item remains")
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "item.update",
+            itemId: current.id,
+            input: { ...draft, title: "Otra edición local" },
+          },
+        })
+        await call(1, {
+          type: "commit",
+          command: {
+            type: "item.update",
+            itemId: current.id,
+            input: { ...draft, title: "Remoto elegido" },
+          },
+        })
+        await pass(1)
+        await pass(0)
+        const old = (await snapshot(0)).incidents[0]
+        const obsolete = resolution(old, "adopt_remote")
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "task.set-status",
+            itemId: current.id,
+            occurrenceId: null,
+            status: "completed",
+          },
+        })
+        const beforeRefusal = JSON.stringify(await snapshot(0))
+        await refused(() => call(0, { type: "resolve", request: obsolete }))
+        assert(
+          JSON.stringify(await snapshot(0)) === beforeRefusal,
+          "stale refusal preserves every local record"
+        )
+        const incident = (await snapshot(0)).incidents[0]
+        const remoteBefore = ordered(await remote())
+        const cursorBefore = (await snapshot(0)).cursor.after
+        await call(0, {
+          type: "resolve",
+          request: resolution(incident, "adopt_remote"),
+        })
+        await load(0)
+        await pass(0)
+        await pass(1)
+        await equalDevices()
+        assert(
+          ordered(await remote()) === remoteBefore &&
+            (await snapshot(0)).cursor.after === cursorBefore,
+          "adoption creates no remote revision or journal event"
+        )
+      }
+    )
+    await check(
+      "Tombstone remoto impide resurrección y adopción mantiene ambos dispositivos coherentes",
+      async () => {
+        const current = (await remote()).find(
+          (item) => item.id !== itemId && item.id !== independentId
+        )
+        assert(current, "test item before deletion")
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "item.update",
+            itemId: current.id,
+            input: { ...draft, title: "Borrador conservado ante borrado" },
+          },
+        })
+        await call(1, {
+          type: "commit",
+          command: { type: "item.delete", itemId: current.id },
+        })
+        await pass(1)
+        await pass(0)
+        const incident = (await snapshot(0)).incidents[0]
+        assert(incident.remote?.deletedAt, "known remote tombstone")
+        const before = JSON.stringify(await snapshot(0))
+        await refused(() =>
+          call(0, {
+            type: "resolve",
+            request: resolution(incident, "retry_local"),
+          })
+        )
+        assert(
+          JSON.stringify(await snapshot(0)) === before,
+          "no identity resurrection or discarded draft"
+        )
+        await call(0, {
+          type: "resolve",
+          request: resolution(incident, "adopt_remote"),
+        })
+        await pass(0)
+        await pass(1)
+        await equalDevices()
+        assert(
+          (await remote()).find((item) => item.id === current.id)?.revision ===
+            current.revision + 1,
+          "only explicit remote delete increments revision"
+        )
+      }
+    )
     passed = true
     statusElement.textContent =
-      "Seis escenarios integrados correctos; limpiando recursos propios"
+      "Nueve escenarios integrados correctos; limpiando recursos propios"
   } catch (error) {
     statusElement.textContent = `Prueba fallida: ${error instanceof Error ? error.message : "error"}`
   } finally {

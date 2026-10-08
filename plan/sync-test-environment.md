@@ -72,3 +72,6 @@ Seis checks browser pasan: offline simulado/recarga, convergencia de tareas simp
 
 
 13a2b1: `bun run scripts/browser-test-server.ts sync-resolution` valida executor local con datos/respuestas ficticias en IndexedDB real. Ocho escenarios+recarga: stale, rollback de adopción/retry/contador/notificación, payload/outcome intactos, superseded nunca ACK, pull posterior, replay tras edición, nuevo conflicto, externos/tombstones/cuenta. Recursos propios limpiados. Todavía no prueba de convergencia remota de resoluciones; próxima13a2b1a amplía entorno dos dispositivos/Mongo.
+
+
+13a2b1a amplía `bun run test:sync-browser` a nueve escenarios: retry explícito con cadena de dos operaciones, respuesta perdida/replay de decisión/recarga; adopción sin cambio de revisión/journal tras rechazo de snapshot local obsoleto; tombstone rechaza resurrección y converge por adopción. Ambas proyecciones/cursors comparadas con Mongo; pending/sending/conflicts/rejected0 requeridos para declarar convergencia. Originales permanecen superseded y solo replacement ACK. Runnerexit0 y limpieza de particiones/cookies/tabs/proxy/container/tmpfs propios verificados. Ninguna conexión a DB del usuario; Google/RPCNext reales todavía pendientes.

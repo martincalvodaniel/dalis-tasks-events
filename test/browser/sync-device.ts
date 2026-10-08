@@ -1,4 +1,5 @@
 import { createHttpSyncTransport } from "@/features/sync/http-transport"
+import { resolveSyncIncident } from "@/features/sync/local-incidents"
 import { openLocalSyncRuntime } from "@/features/sync/local-runtime"
 import {
   activatePreparedAccount,
@@ -122,6 +123,11 @@ window.addEventListener("message", (event) => {
       }
       case "run":
         return runtime.run()
+      case "resolve":
+        return resolveSyncIncident(
+          { userId, epoch: control.epoch },
+          input.request
+        )
       case "snapshot":
         return {
           summary: await sync.readQueueSummary(),
@@ -129,6 +135,7 @@ window.addEventListener("message", (event) => {
           entries: await outbox.listEntries(),
           shadows: await readShadows(),
           cursor: await sync.readPullCursor(),
+          incidents: await sync.readIncidents(),
         }
       case "cleanup": {
         const current = await readAccountControl()

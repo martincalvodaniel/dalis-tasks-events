@@ -7,7 +7,9 @@ import {
 } from "@/schemas/local-sync"
 import { entityIdSchema } from "@/schemas/primitives"
 import { syncCommandSchema } from "@/schemas/sync"
+import { syncIncidentSnapshotSchema } from "@/schemas/sync-incident"
 import { syncQueueSummarySchema } from "@/schemas/sync-queue"
+import { syncResolutionRequestSchema } from "@/schemas/sync-resolution"
 
 const loopbackOrigin = z.url().regex(/^http:\/\/127\.0\.0\.1:[1-9]\d{3,4}$/)
 export const syncBrowserFixtureSchema = z
@@ -32,6 +34,10 @@ export const syncBrowserCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("network"), online: z.boolean() }),
   z.strictObject({ type: z.literal("drop-response") }),
   z.strictObject({ type: z.literal("commit"), command: syncCommandSchema }),
+  z.strictObject({
+    type: z.literal("resolve"),
+    request: syncResolutionRequestSchema,
+  }),
 ])
 
 export const syncBrowserSnapshotSchema = z.strictObject({
@@ -40,4 +46,5 @@ export const syncBrowserSnapshotSchema = z.strictObject({
   entries: z.array(outboxEntrySchema),
   shadows: z.array(remoteShadowSchema),
   cursor: localPullCursorSchema,
+  incidents: z.array(syncIncidentSnapshotSchema),
 })
