@@ -1766,3 +1766,6 @@ Cierre11c3c2b: snapshot/export portable2 e importación de ambos formatos probad
 
 
 Cierre11c3c2c: readers/incidentes mixtos y comparaciones compactas personales comprobados, resolución item preserva grafo completo.11c3c3a puede integrar y probar su writer preparatorio; todavía sin negociación/activación transporte2.
+
+
+Cierre11c3c3a: módulo standalone y pruebas reales de atomicidad aprobados tras guardias de partición/stores. No activado en LocalSyncStore/coordinador. Dependencias de reader item2 y cola histórica con placements pendientes explícitas antes de pull/activación; no manufacturar ACK para progresar.

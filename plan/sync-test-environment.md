@@ -214,3 +214,8 @@ Fixtures propios en loopback4179/4188: backup cinco checks más recarga conserva
 ### 11c3c2c — Lectura de incidentes mixtos y resolución item compatible
 
 Fixture sync-incidents: cinco checks más dos tras reload, item2 + conflicto personal con shadow/base más nuevos que replay, snapshot local0/tombstone y dependiente cruzado bloqueado. Corrupción futura rechaza ambos readers sin snapshot parcial, cuenta/época impiden exponer datos. Fixture sync-resolution vigente: ocho checks más reload, decisiones/replay/copia/rollback y externos retenidos siguen funcionando con reader compatible. Cleanup propios/servidor confirmados; estos fixtures no prueban ACK personal remoto ni convergencia. Render puro verifica personalcard compacta con detalles en español y sin botones/choices.
+
+
+### 11c3c3a — ACK personal standalone en IndexedDB
+
+Runner propio4191, dos particiones UUID sin control real: diez checks completos prueban compactación/rebase por clave y revisión independiente, ACK final reconcilia cachedshadow más nuevo sin cambiar replay, conflictos/rechazos/unsupported preservan cadenas, leases/intención/cuenta, vista sin modificar contenido, guardia de nombre de DB incluso con filas ajenas contaminadas, store unsupported antes de TX, evidencia futura de otro registro, fallo outcome tardío rollback completo y fila10001 sin truncar/ACK. Recursos propios limpiados y servidor detenido. Resultado sintético local: no prueba executor remoto ni convergencia de dos clientes.
