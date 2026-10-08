@@ -147,3 +147,12 @@ Repo server-only propio/session/singleton poractor+itemId, claveMongo compuesta 
 Worker solointegrationtest/runner; rootrepositorio/schema/registry/plan. RunnerMongoDBpropio exit0:25pass/0fail/215aserciones en6archivos; cuatro pruebas nuevas/47aserciones deaislamiento conUUIDigual, metadata/propiedad, CAS/conservar/quitarcategoría/tombstone, corrupción yrollback múltiple/duplicado ensession. Contenedor/tmpfs propios eliminados; pinned8.2.11amd64 revalidado, noDBusuario ni secrets/hosting. Normal255pass/44opt-in skip/0fail/5002aserciones, lint364archivos, tipos/build34recursos/diff-check aprobados.
 
 Próxima11c2b0: concretar contrato deatomicidad/recibos/journal ydependencias decompatibilidad antes deimplementar ejecutor multirregistro. Preferencias aún sin sincronización activada; task.move/settings/series/compartidos posteriores.
+
+
+### Resultado15a0 — Preproducción autenticada
+
+Usuario completó autenticación en pestaña integrada36 yworkspace real quedó accesible. EnAjustes, revisión automática pasa deSincronizando aÚltima revisión terminada/Sin cambios locales pendientes. Pulsación manualSincronizar ahora repite transición yrecupera botón; recarga conserva sesión, cuatroelementos existentes yestado preparado, yotra revisión automática termina. No se cambian contenidos/tareas/categorías ni se crean registros de prueba, no se accede aDBdirectamente, no se registranidentidad/tokens. Pestaña visible conservada parausuario.
+
+Evidencia limitada: sesión real, shell/preparación yrevisión/descarga concola vacía funcionando enint protegido. Coordinador llama pull ysolo push al seleccionar intención ([coordinator.ts:105](../src/features/sync/coordinator.ts:105), [coordinator.ts:159](../src/features/sync/coordinator.ts:159)); por tanto **no demuestra ServerActionpush con escritura/ACK ni convergencia real entre dispositivos**. Piloto siguiente debe crear únicamente elementos propios identificados de prueba, comprobar ACK durable/recarga ylimpiar conborrado normal, conpresupuesto suficiente; no ampliar15a0 alestado delusuario. No pruebaoffline completo ni logout/login multicliente.
+
+Documentación/refs/coherencia/diff aprobados; código/build anterior vigente, commitpushint ycuotas alcierre. Entrada12%/15%, solo dospuntos5h sobre reserva10: no abrirmutación ylimpieza ni repararproblemas nuevos. Próxima implementación sigue11c2b1; piloto escritura real pendiente15a1.

@@ -272,3 +272,8 @@ CAS/creación/borrado/movimiento conefectos completos yrevisión propia preparad
 ### 11c1b2b — Vista personal preparada
 
 Asignar/cambiar/quitar categoría conCAS propio, sin alterar contenido ysinactivar envío, comprobado. Próxima11c2a0 proteger registro deíndices latentes antes delrepo propio personal.
+
+
+### Piloto mínimo preproductivo15a0
+
+Sesión activa delusuario en navegadorintegrado, revisión automática/manual concola vacía yrecarga comprobadas enint. Datos existentes conservados, sesión/pestaña abiertas. No se declaraServerActionpush/ACK deescritura ni convergencia multicliente real; piloto15a1 requierepresupuesto paraelementos propios de prueba ysu limpieza. Registro en [sync-test-environment](sync-test-environment.md). Implementación siguiente11c2b1 conservaorden delplan.

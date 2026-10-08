@@ -1260,3 +1260,19 @@ Próxima11c2b0: concretar contrato deatomicidad/recibos/journal ydependencias de
 Documento preference-transactions.md concreta envolturas/resultados/recibos/journal versionados, adaptación readonly dehistoria item yfingerprint deintenciónv1 conservado. Comparte contador/receiptidentities vigentes, conjuntos multirregistro atómicos yautorización decontenido previa aview. Límite512KiB cubre envolturaUTF8, no solo DTO interno. Hipótesis decontador común para coherencia devecinos yviewfrente adelete queda explícitamente pendiente de prueba conbarreras/Mongo; no seintroduce lock ni seafirma garantía sinprueba.
 
 Separa11c2b1 contrato puro,11c2b2 ejecutor/atomicidad,11c2b3 carreras con snapshots solapados, luego compatibilidad/ACK/pull/backup/dosdispositivos antes deactivar. Header depreferencias actualizado yrefs/coherencia/diff comprobados. Sin código/DB/secretos/hosting ni nuevoACK; builds/pruebas anteriores vigentes. Cierre del lote: último código d65048a comprobado, todo concommit/push. Entrada15%/15%; últimos cortes de repos consumieron7/5puntos5h, conuso compartido incierto; no iniciar otra implementación conpruebas/reparación/cierre quepueda cruzarreserva10. Reanudar desde11c2b1 conlectura vigente.
+
+
+## 15a0 — Piloto real mínimo de sesión y revisión
+
+- Solicitud explícita del usuario trasautenticar en navegadorintegrado; entrada12%5h/15%7d, reserva10. Scope acotado readonly: verificar sesión activa y revisión manual/recarga en preproducción int. No comenzar create/edit/delete o prueba multicliente cuyo cierre/limpieza podría cruzarreserva.
+- `target_paths`: `plan/{master,iterations,iteration-log,sync-test-environment}.md`; navegador pestaña36 usuario autenticada. Preservar todos sus registros ysesión; no logging tokens/PII, archivos ni accesoDBdirecto/secretos/hosting.
+- Aceptación: estado UI verificado después derevisión manual yrecarga, distinguir sesión/descarga deServerAction push yconvergencia; registro preciso dequé no seprobó. Validación documental refs/coherencia/diff, commitpushint/HEAD/cuotas.
+
+
+### Resultado15a0 — Preproducción autenticada
+
+Usuario completó autenticación en pestaña integrada36 yworkspace real quedó accesible. EnAjustes, revisión automática pasa deSincronizando aÚltima revisión terminada/Sin cambios locales pendientes. Pulsación manualSincronizar ahora repite transición yrecupera botón; recarga conserva sesión, cuatroelementos existentes yestado preparado, yotra revisión automática termina. No se cambian contenidos/tareas/categorías ni se crean registros de prueba, no se accede aDBdirectamente, no se registranidentidad/tokens. Pestaña visible conservada parausuario.
+
+Evidencia limitada: sesión real, shell/preparación yrevisión/descarga concola vacía funcionando enint protegido. Coordinador llama pull ysolo push al seleccionar intención ([coordinator.ts:105](../src/features/sync/coordinator.ts:105), [coordinator.ts:159](../src/features/sync/coordinator.ts:159)); por tanto **no demuestra ServerActionpush con escritura/ACK ni convergencia real entre dispositivos**. Piloto siguiente debe crear únicamente elementos propios identificados de prueba, comprobar ACK durable/recarga ylimpiar conborrado normal, conpresupuesto suficiente; no ampliar15a0 alestado delusuario. No pruebaoffline completo ni logout/login multicliente.
+
+Documentación/refs/coherencia/diff aprobados; código/build anterior vigente, commitpushint ycuotas alcierre. Entrada12%/15%, solo dospuntos5h sobre reserva10: no abrirmutación ylimpieza ni repararproblemas nuevos. Próxima implementación sigue11c2b1; piloto escritura real pendiente15a1.
