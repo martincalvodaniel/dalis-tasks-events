@@ -192,3 +192,6 @@ Próxima11c2b2b: mutaciones multirregistro propias + contador compartido + journ
 
 
 11c2b3a: nuevo archivo `remote-preference-races.integration.test.ts` en runner; Mongo42pass/412aserciones/0fail,10archivos. Barreras de promesas/spies readonly en tests fuerzan snapshots solapados frente a commits create/delete de vecinos, item/tag delete y colisión NFKC. Relecturas, tombstones y ledger sin efectos parciales comprobados; recursos propios y mocks limpios. No browser/convergencia ni activation nuevos.
+
+
+11c3a2: runner incorpora reader mixto; Mongo46pass/475aserciones/0fail,11archivos. Historia de executors item/tag/view, checkpoint congelado/tombstones, fixtures de corrupción/restauración/permiso ausente y paginación UTF8 de28tareas completas. Fixtures grandes creadas transaccionalmente en DB propia para probar límites del reader, no como prueba de ACK. Contenedor/tmpfs eliminados. Sin piloto nuevo de navegador ni activación.
