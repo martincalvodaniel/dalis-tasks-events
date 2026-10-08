@@ -908,3 +908,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 
 
 13a2c3: Ajustes ofrece Crear copia de mi borrador solo para local vivo frentearemoto tombstone, conidentidad/operación/timestamp estables yconfirmación decontenido completo, originalborrado, sincategoría/orden ypending. Tests guardiaslocalmissing/deleted ySSR; normal205pass/30skip/4628aserciones, lint304files/tipos/build30recursos aprobados. FixtureUI móvil390/dialog358/buttons48 sinoverflow: cancelar sincambios, confirmar/reload origentombstone+copyrev0+createbase0/entityKeynuevo/2superseded/1pending/sinACK; limpieza propia. Próxima13b1 recuperación/transporte según dependencias.
+
+### 13b1a — Sesión y cierre durante envío, prueba integrada
+
+- Objetivo previo: verificar conservación ante sesión remota ausente/caducada y cierre después de commit, con recuperación de lease expirada tras recarga. Entrada50%/36%, int/secuencial/reserva10%; depende13a2c3.
+- `target_paths`: `src/schemas/sync-browser-test.ts`, `test/browser/{sync-device,sync-devices}.ts`, `plan/{master,iterations,iteration-log,sync-test-environment}.md`.
+- Aceptación: identidad ausente no reclama ni altera cola; sesión que caduca alpush libera lease pero no ACK ni modifica operación. Cierre trascommit remoto sinACKlocal conserva UUID y replay converge una solarevisión. Leaseexpirada recuperable trasrecarga, ambos dispositivos/Mongo coherentes. Fallos de auth se simulan solo en fixture, nunca atribuirlos aGoogle/RPCNext.
+- Validación: escenas nuevas conruntime/IndexedDB/Mongo aislado, assertions exactas operación/state/revisión/cursor; suite/lint/tipos/build/diff/referencias ycleanup propios. Commit/pushint/HEAD/cuotas. Compatibilidad deprotocolo siguiente corte13b1b.
+
+
+13b1a: doce escenarios reales dos dispositivos/IndexedDB/Mongo aprueban sesiónausente(no claim), sesióncaducada alpush(release sinACK yUUID/payload intacto), cierre después decommitremoto(release pending) yleaseexpirada durable/recarga/replay único. Ambosdispositivos/cursors convergen conMongo, revisiones1 sin duplicados; normal205pass/30skip/4628aserciones/lint304files/tipos/build30recursos. Auth simulado soloenfixture; Google/RPCNext siguepiloto. Cleanup ownrunnerexit0. Próxima13b1b compatibilidad deprotocolo.

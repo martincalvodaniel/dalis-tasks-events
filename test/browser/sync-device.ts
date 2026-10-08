@@ -25,6 +25,9 @@ const fixture = syncBrowserFixtureSchema.parse(
 const { userId } = fixture
 let online = true
 let dropResponse = false
+let sessionActive = true
+let expireOnPush = false
+let stopAfterCommit = false
 const outbox = await LocalOutbox.open(userId)
 const repository = await LocalRepository.open(userId)
 const sync = await LocalSyncStore.open(userId)
@@ -38,6 +41,8 @@ if (control.userId === null && !control.logoutPending)
 if (control.userId !== userId || control.logoutPending)
   throw new Error("Browser fixture account is not active")
 const testFetch = (async (input: RequestInfo | URL, options?: RequestInit) => {
+  if (!sessionActive && String(input).startsWith("/api/sync/identity"))
+    return new Response(null, { status: 401 })
   if (!online) throw new Error("Fixture network is offline")
   const headers = new Headers(options?.headers)
   headers.set("x-sync-test-run", fixture.runId)
@@ -70,6 +75,11 @@ async function readShadows() {
 const transport = createHttpSyncTransport(
   userId,
   async (input) => {
+    if (expireOnPush) {
+      expireOnPush = false
+      sessionActive = false
+      return { status: "unauthorized" }
+    }
     const response = await testFetch("/fixture-push", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -77,6 +87,10 @@ const transport = createHttpSyncTransport(
     })
     if (!response.ok) throw new Error("Fixture push request failed")
     const result: unknown = await response.json()
+    if (stopAfterCommit) {
+      stopAfterCommit = false
+      void runtime.close()
+    }
     if (dropResponse) {
       dropResponse = false
       throw new Error("Fixture response lost after remote commit")
@@ -107,6 +121,20 @@ window.addEventListener("message", (event) => {
       case "network":
         online = input.online
         return true
+      case "session":
+        sessionActive = input.active
+        expireOnPush = input.expireOnPush
+        return true
+      case "stop-after-commit":
+        stopAfterCommit = true
+        return true
+      case "expire-lease":
+        return outbox.claim(
+          input.operationId,
+          crypto.randomUUID(),
+          new Date(Date.now() - 120000),
+          1000
+        )
       case "drop-response":
         dropResponse = true
         return true

@@ -33,6 +33,16 @@ export const syncBrowserCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("cleanup") }),
   z.strictObject({ type: z.literal("network"), online: z.boolean() }),
   z.strictObject({ type: z.literal("drop-response") }),
+  z.strictObject({
+    type: z.literal("session"),
+    active: z.boolean(),
+    expireOnPush: z.boolean(),
+  }),
+  z.strictObject({ type: z.literal("stop-after-commit") }),
+  z.strictObject({
+    type: z.literal("expire-lease"),
+    operationId: entityIdSchema,
+  }),
   z.strictObject({ type: z.literal("commit"), command: syncCommandSchema }),
   z.strictObject({
     type: z.literal("resolve"),

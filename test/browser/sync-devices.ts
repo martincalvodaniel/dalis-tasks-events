@@ -661,9 +661,122 @@ button.onclick = async () => {
         )
       }
     )
+    await check(
+      "Sesión ausente o caducada conserva cola sin ACK y permite reintento",
+      async () => {
+        const id = crypto.randomUUID()
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "item.create",
+            itemId: id,
+            input: { ...draft, title: "Recuperar sesión sin perder cambios" },
+          },
+        })
+        const before = await snapshot(0)
+        const entry = before.entries.find((e) => e.entityKey === `item:${id}`)
+        assert(entry, "new pending entry exists")
+        await call(0, { type: "session", active: false, expireOnPush: false })
+        await pass(0, "unauthorized")
+        assert(
+          JSON.stringify((await snapshot(0)).entries) ===
+            JSON.stringify(before.entries),
+          "absent identity does not alter queue"
+        )
+        await call(0, { type: "session", active: true, expireOnPush: true })
+        await pass(0, "unauthorized")
+        const preserved = (await snapshot(0)).entries.find(
+          (e) => e.operation.operationId === entry.operation.operationId
+        )
+        assert(
+          preserved?.state === "pending" &&
+            preserved.lease === null &&
+            preserved.attempts === 1,
+          "expired session releases claim without ACK"
+        )
+        assert(
+          JSON.stringify(preserved.operation) ===
+            JSON.stringify(entry.operation),
+          "frozen operation preserved"
+        )
+        assert(
+          !(await remote()).some((e) => e.id === id),
+          "expired session never commits"
+        )
+        await load(0)
+        await pass(0)
+        await pass(1)
+        await equalDevices()
+        assert(
+          (await remote()).find((e) => e.id === id)?.revision === 1,
+          "retry creates exactly once"
+        )
+      }
+    )
+    await check(
+      "Cierre tras commit y lease expirada recuperan UUID y convergen tras recarga",
+      async () => {
+        const id = crypto.randomUUID()
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "item.create",
+            itemId: id,
+            input: { ...draft, title: "Cerrar después del commit" },
+          },
+        })
+        const entry = (await snapshot(0)).entries.find(
+          (e) => e.entityKey === `item:${id}`
+        )
+        assert(entry, "entry to stop exists")
+        await call(0, { type: "stop-after-commit" })
+        await pass(0, "stopped")
+        const stopped = (await snapshot(0)).entries.find(
+          (e) => e.operation.operationId === entry.operation.operationId
+        )
+        assert(
+          stopped?.state === "pending" && stopped.lease === null,
+          "close preserves pending instead of ACK"
+        )
+        assert(
+          (await remote()).find((e) => e.id === id)?.revision === 1,
+          "remote commit succeeded before stop"
+        )
+        await load(0)
+        await call(0, {
+          type: "expire-lease",
+          operationId: entry.operation.operationId,
+        })
+        const expired = (await snapshot(0)).entries.find(
+          (e) => e.operation.operationId === entry.operation.operationId
+        )
+        assert(
+          expired?.state === "sending" &&
+            expired.lease &&
+            Date.parse(expired.lease.expiresAt) < Date.now(),
+          "expired sending lease is durable"
+        )
+        await load(0)
+        await pass(0)
+        await pass(1)
+        await equalDevices()
+        const ack = (await snapshot(0)).entries.find(
+          (e) => e.operation.operationId === entry.operation.operationId
+        )
+        assert(
+          ack?.state === "acknowledged" &&
+            JSON.stringify(ack.operation) === JSON.stringify(entry.operation),
+          "recovered receipt confirms same UUID and payload"
+        )
+        assert(
+          (await remote()).find((e) => e.id === id)?.revision === 1,
+          "replay after close and expired lease does not duplicate"
+        )
+      }
+    )
     passed = true
     statusElement.textContent =
-      "Diez escenarios integrados correctos; limpiando recursos propios"
+      "Doce escenarios integrados correctos; limpiando recursos propios"
   } catch (error) {
     statusElement.textContent = `Prueba fallida: ${error instanceof Error ? error.message : "error"}`
   } finally {
