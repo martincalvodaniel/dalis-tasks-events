@@ -1,6 +1,6 @@
 # Sincronización de preferencias personales
 
-Estado11c2b0: DTO, reductores yplanners puros entregados; repositorios propios decategorías/vistas conCAS yMongoDB real comprobados. Sus índices centrales requieren activación explícita. Ejecutor personal, wire nuevo yreconciliación local siguen pendientes: [contrato transaccional](preference-transactions.md). Resultados versionados yadaptación readonly entregados11c2b1a; recibos versión2 entregados11c2b1b; journal versión2 entregado11c2b1c; próximoejecutor atómico11c2b2. Tareas/eventos simples usan protocolo vigente; no anunciar preferencias sincronizadas.
+Estado11c2b0: DTO, reductores yplanners puros entregados; repositorios propios decategorías/vistas conCAS yMongoDB real comprobados. Sus índices centrales requieren activación explícita. Ejecutor personal, wire nuevo yreconciliación local siguen pendientes: [contrato transaccional](preference-transactions.md). Resultados versionados yadaptación readonly entregados11c2b1a; recibos versión2 entregados11c2b1b; journal versión2 entregado11c2b1c; lectura común derecibos entregada11c2b2a; próximo11c2b2b ejecutor atómico. Tareas/eventos simples usan protocolo vigente; no anunciar preferencias sincronizadas.
 
 ## Por qué hace falta otro tramo
 

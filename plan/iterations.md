@@ -1365,3 +1365,21 @@ Schema puro versión2 discriminado item/preference conserva recipientUserId/oper
 Tres pruebas/27aserciones: historial mixto secuencias1/2 ytopkeys intactos, dos efectos/un tombstone, independencia, IDs/owners/sequence/extra/ambiguo/futuro, DTO válido cuyojournal excede porenvoltura. Suite265pass/44opt-in skip/0fail/5121aserciones; lint376archivos, tipos/build34recursos/diff-check aprobados. No DB/IO/escritor/ruta/wire/ACK/pull activo nuevo; adaptación individual no implementa paginación ni garantiza convergencia por sí sola.
 
 11c2b1a–c completan contratos preparatorios separados deactivación. Siguiente11c2b2: ejecutar conjuntos deefectos, contador/journal/recibo conmisma sesión yautorización vigente, replay/CAS/fallos tardíos conMongo propio; dividir antes deabrir segúncuota yconservarreserva10.
+
+
+## 11c2b2a — Lectura común de recibos en MongoDB
+
+- Entrada91%5h/12%7d trasc12a18a, secuencial/reserva10. Se divide ejecutor11c2b2 antes deabrir: lectura común(a), mutaciones/recibo/journal atómicos(b) yfallos/carreras segúncoste posterior.
+- `target_paths`: `src/lib/db/remote-operation-receipts{,.integration.test}.ts`, `scripts/sync-db-test-runner.ts`, `plan/{master,iterations,iteration-log,preference-transactions,preference-sync,sync-test-environment}.md`.
+- Objetivo: función server-only readRemoteOperationReceipt(actorInput,operationIdInput,session?) desde colección vigente/singleton, normaliza legacy/v2 enmemoria condecoder11c2b1b. Queryactor+op yaindexado/implementado: noíndice nuevo ni alteración bootstrap/DBreal.
+- Aceptación: leer recibo propio completo/null, op/request yresultado coherentes, cuenta validada ysin fugas; quitar sólo_id interno, rechazar corrupción/futuro envez deretornar parcial. PropagaClientSession para replay atómico futuro; no escritores/ACK/envíos/ejecutor nuevo.
+- Validación: MongoDBpropio sameoperationId dosactores, legacy/personalversion2, corrupción op/resultado/cuenta, snapshot-sessionvisibility/rollback defixture yrequests inválidos. Runnerowncleanup, normal/lint/tipos/build/diff/plan/commitpushHEAD/cuotas.
+
+
+### Resultado 11c2b2a — Lectura común de recibos
+
+Función server-only poractor+operationId validados, colección vigente/singleton yClientSession opcional. Quita únicamente_id yreutiliza decoder legacy/v2, valida coherencia ydevuelve clones/null sin IOextra/escrituras. Consulta ya cubierta por índice único actorUserId/operationId vigente; no requiere índice nuevo yno activa colecciones personales. No callers productivos nuevos ni cambio deejecutor/wire/ACK.
+
+MongoDB propio runner28pass/0fail/231aserciones en7archivos; tres nuevaspruebas: mismoUUID entreactores/legacy+personal/independencia/requests inválidos; corrupción/futuro rechaza yfixture restaurada; receipt visible sólo dentro desession yrollback intacto. Runner revalida disponibilidad medianteimagen fijada/guards, contenedor/tmpfs propios eliminados; noDBusuario/secrets/hosting. Fixtures ajustan_id string ydiscriminantes literales a tipado deldriver. Normal265pass/49opt-in skip/0fail/5121aserciones, lint378archivos, tipos/build34recursos/diff-check aprobados.
+
+Próxima11c2b2b: mutaciones multirregistro propias + contador compartido + journal/recibo enmisma sesión, replay/CAS/fallos tardíos ypruebasMongo;11c2b3 probará carreras conbarreras antes deactivar. Este lector no verifica digest contraintención por sísolo: futuroexecutor debe comparar fingerprint yautorización vigente. Elegir siguientecorte trascuotas, reservando margen de reparación/cierre ysin equiparar porcentajes deventanas.
