@@ -209,3 +209,8 @@ Próxima11c2b2b: mutaciones multirregistro propias + contador compartido + journ
 ### 11c3c2b — Backup e importación reales con historia mixta
 
 Fixtures propios en loopback4179/4188: backup cinco checks más recarga conservan once stores, cola/tombstones, snapshots personales local0/base5/conflict2 y shadow item2 sin cambio de datos. Import once checks más recarga comprueba source2 y archivo legacy, outcome personal/counter/tail/conflict/shadow preexistentes intactos, fuente JSON byteexacta, replay/rollback final/carrera y cuenta/época. Comparación del registro bruto IDB prueba que importar no reescribe el outcome personal; comparación del snapshot validado conserva representación lógica. Evidencia sintética sólo en partición browser-test propia, no resultado remoto ni convergencia. Cleanup de todas las particiones/control propios confirmado; servidores y pestañas de fixture cerrados.
+
+
+### 11c3c2c — Lectura de incidentes mixtos y resolución item compatible
+
+Fixture sync-incidents: cinco checks más dos tras reload, item2 + conflicto personal con shadow/base más nuevos que replay, snapshot local0/tombstone y dependiente cruzado bloqueado. Corrupción futura rechaza ambos readers sin snapshot parcial, cuenta/época impiden exponer datos. Fixture sync-resolution vigente: ocho checks más reload, decisiones/replay/copia/rollback y externos retenidos siguen funcionando con reader compatible. Cleanup propios/servidor confirmados; estos fixtures no prueban ACK personal remoto ni convergencia. Render puro verifica personalcard compacta con detalles en español y sin botones/choices.

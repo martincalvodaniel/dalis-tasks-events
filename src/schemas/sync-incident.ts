@@ -3,8 +3,8 @@ import { calendarItemSchema } from "@/schemas/calendar-item"
 import {
   localOperationOutcomeSchema,
   outboxEntrySchema,
-  remoteShadowSchema,
 } from "@/schemas/local-sync"
+import { itemViewSchema, tagSchema } from "@/schemas/preferences"
 import { userIdSchema } from "@/schemas/primitives"
 
 export const syncIncidentProjectionSchema = z.strictObject({
@@ -19,9 +19,15 @@ export const syncIncidentSnapshotInputSchema = z.strictObject({
   userId: userIdSchema,
   entries: z.array(outboxEntrySchema),
   items: z.array(calendarItemSchema),
-  shadows: z.array(remoteShadowSchema),
-  outcomes: z.array(localOperationOutcomeSchema),
+  shadows: z.array(z.unknown()),
+  outcomes: z.array(z.unknown()),
 })
+
+export const syncIncidentOverviewInputSchema =
+  syncIncidentSnapshotInputSchema.extend({
+    tags: z.array(tagSchema),
+    itemViews: z.array(itemViewSchema),
+  })
 
 export const syncIncidentSnapshotSchema = z.strictObject({
   entry: outboxEntrySchema,

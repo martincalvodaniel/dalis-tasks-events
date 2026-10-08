@@ -3,7 +3,10 @@
 import { openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalChangesPage } from "@/lib/local-db/pull-changes"
 import { readLocalSyncQueueSummary } from "@/lib/local-db/queue-summary"
-import { readLocalSyncIncidents } from "@/lib/local-db/sync-incidents"
+import {
+  readLocalSyncIncidentOverview,
+  readLocalSyncIncidents,
+} from "@/lib/local-db/sync-incidents"
 import { notifyLocalOutboxChange } from "@/lib/local-db/sync-notifications"
 import { resolveLocalSyncIncident } from "@/lib/local-db/sync-resolution"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
@@ -67,6 +70,10 @@ export class LocalSyncStore {
 
   readIncidents() {
     return readLocalSyncIncidents(this.database, this.userId)
+  }
+
+  readIncidentOverview() {
+    return readLocalSyncIncidentOverview(this.database, this.userId)
   }
 
   resolveIncident(input: unknown) {

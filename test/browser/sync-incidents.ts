@@ -9,8 +9,12 @@ import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import { LocalSyncStore } from "@/lib/local-db/sync-store"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { decodeLocalOperationOutcome } from "@/lib/sync/local-operation-outcome-v2"
+import { decodeRemoteShadow } from "@/lib/sync/remote-shadow-v2"
 import { taskDraftSchema } from "@/schemas/calendar-item"
 import { entityIdSchema } from "@/schemas/primitives"
+import type { LocalPreferenceOutcomeV2 } from "@/types/local-operation-outcome-v2"
+import type { OutboxEntry } from "@/types/local-sync"
 
 const query = new URLSearchParams(location.search)
 const runId = entityIdSchema.parse(query.get("run") ?? crypto.randomUUID())
@@ -101,7 +105,9 @@ async function run() {
         "Snapshot conserva borrador borrado, remoto e intención dependiente",
         async () => {
           const before = JSON.stringify(await outbox.listEntries())
-          const [incident] = await readSyncIncidents(account)
+          const [overview] = await readSyncIncidents(account)
+          assert(overview.kind === "item")
+          const incident = overview.incident
           assert(incident.local?.deletedAt && incident.remote?.deletedAt)
           assert(
             incident.intentions.length === 2 &&
@@ -175,23 +181,189 @@ async function run() {
           assert((await sync.readIncidents()).length === 2)
         }
       )
+      await check(
+        "Evidencia mixta conserva conflicto personal y adapta item 2 sin ocultar dependencias",
+        async () => {
+          const entries = await outbox.listEntries()
+          const tagId = crypto.randomUUID()
+          const sequence =
+            Math.max(...entries.map((entry) => entry.sequence)) + 1
+          const personal: OutboxEntry = {
+            userId,
+            entityKey: `tag:${tagId}`,
+            sequence,
+            operation: {
+              protocolVersion: 1,
+              operationId: crypto.randomUUID(),
+              baseRevision: 1,
+              command: {
+                type: "tag.save",
+                tagId,
+                input: {
+                  name: "Local category",
+                  color: "#123456",
+                  position: 4096,
+                },
+              },
+            },
+            dependencies: [sent.operation.operationId],
+            state: "conflict",
+            attempts: 1,
+            createdAt: now,
+            lease: null,
+          }
+          const tag = {
+            id: tagId,
+            userId,
+            name: "Local category",
+            normalizedName: "local category",
+            color: "#123456",
+            position: 4096,
+            revision: 0,
+            createdAt: now,
+            updatedAt: now,
+            deletedAt: null,
+          }
+          const current = {
+            ...tag,
+            name: "Remote category",
+            normalizedName: "remote category",
+            position: 1024,
+            revision: 2,
+          }
+          const known = { ...current, revision: 3, deletedAt: now }
+          const outcome: LocalPreferenceOutcomeV2 = {
+            version: 2,
+            kind: "preference",
+            key: `operation-outcome:${personal.operation.operationId}`,
+            operation: personal.operation,
+            result: {
+              kind: "preference",
+              outcome: {
+                status: "conflict",
+                operationId: personal.operation.operationId,
+                current: { store: "tags", record: current },
+              },
+            },
+            local: [
+              {
+                entityKey: personal.entityKey,
+                record: { store: "tags", record: tag },
+              },
+            ],
+            base: [
+              {
+                entityKey: personal.entityKey,
+                record: { store: "tags", record: known },
+              },
+            ],
+          }
+          await runLocalTransaction(
+            database,
+            ["tags", "outbox", "remoteShadows", "syncMetadata"],
+            "readwrite",
+            (context) => {
+              context.transaction.objectStore("tags").put(tag)
+              context.transaction.objectStore("outbox").put(personal)
+              const shadows = context.transaction.objectStore("remoteShadows")
+              shadows.put({
+                version: 2,
+                kind: "preference",
+                entityKey: personal.entityKey,
+                record: { store: "tags", record: known },
+              })
+              const shadowRequest = shadows.get(created.entityKey)
+              shadowRequest.onsuccess = () => {
+                try {
+                  shadows.put(decodeRemoteShadow(shadowRequest.result, userId))
+                } catch (error) {
+                  context.fail(error)
+                }
+              }
+              const metadata = context.transaction.objectStore("syncMetadata")
+              metadata.put(outcome)
+              metadata.put({ key: "outbox-sequence", value: sequence })
+              metadata.put({
+                key: "preference-tail",
+                operationId: personal.operation.operationId,
+              })
+              const oldOutcome = metadata.get(
+                `operation-outcome:${sent.operation.operationId}`
+              )
+              oldOutcome.onsuccess = () => {
+                try {
+                  metadata.put(
+                    decodeLocalOperationOutcome(oldOutcome.result, userId)
+                  )
+                } catch (error) {
+                  context.fail(error)
+                }
+              }
+              context.setResult(undefined)
+            }
+          )
+          const before = JSON.stringify(await outbox.listEntries())
+          const overview = await readSyncIncidents(account)
+          assert(overview.length === 3)
+          assert(
+            overview[0].kind === "item" &&
+              overview[0].incident.blockedByRelatedIntentions
+          )
+          assert(overview[2].kind === "preference")
+          assert(
+            overview[2].incident.local[0].record?.record.revision === 0 &&
+              overview[2].incident.remote[0].record?.record.revision === 3 &&
+              overview[2].incident.remote[0].record?.record.deletedAt === now
+          )
+          assert((await sync.readIncidents()).length === 2)
+          assert(JSON.stringify(await outbox.listEntries()) === before)
+          const corrupted = { ...outcome, version: 3 }
+          await runLocalTransaction(
+            database,
+            ["syncMetadata"],
+            "readwrite",
+            (context) => {
+              context.transaction.objectStore("syncMetadata").put(corrupted)
+              context.setResult(undefined)
+            }
+          )
+          try {
+            await rejects(() => sync.readIncidentOverview())
+            await rejects(() => sync.readIncidents())
+          } finally {
+            await runLocalTransaction(
+              database,
+              ["syncMetadata"],
+              "readwrite",
+              (context) => {
+                context.transaction.objectStore("syncMetadata").put(outcome)
+                context.setResult(undefined)
+              }
+            )
+          }
+          assert(JSON.stringify(await outbox.listEntries()) === before)
+        }
+      )
     } else
       await check(
         "Recarga conserva conflictos, rechazos, tombstones y dependientes",
         async () => {
           const incidents = await readSyncIncidents(account)
           assert(
-            incidents.length === 2 &&
-              incidents[0].intentions.length === 2 &&
-              incidents[0].local?.deletedAt
+            incidents.length === 3 &&
+              incidents[0].kind === "item" &&
+              incidents[0].incident.intentions.length === 2 &&
+              incidents[0].incident.local?.deletedAt &&
+              incidents[2].kind === "preference" &&
+              incidents[2].incident.remote[0].record?.record.deletedAt === now
           )
         }
       )
     await check(
       "Cambio de época durante la lectura impide exponer datos",
       async () => {
-        const original = LocalSyncStore.prototype.readIncidents
-        LocalSyncStore.prototype.readIncidents = async function () {
+        const original = LocalSyncStore.prototype.readIncidentOverview
+        LocalSyncStore.prototype.readIncidentOverview = async function () {
           const data = await original.call(this)
           await hideLocalAccount()
           return data
@@ -199,7 +371,7 @@ async function run() {
         try {
           await rejects(() => readSyncIncidents(account))
         } finally {
-          LocalSyncStore.prototype.readIncidents = original
+          LocalSyncStore.prototype.readIncidentOverview = original
         }
         await rejects(() => readSyncIncidents(account))
       }

@@ -1763,3 +1763,6 @@ Objetivo y aceptación: tags/vistas sólo, submission propio válido, intención
 
 
 Cierre11c3c2b: snapshot/export portable2 e importación de ambos formatos probados con IndexedDB real, lectura/recarga/conservación byteexacta/rollback/guardias.11c3c2c sigue antes de integración de writer11c3c3a.
+
+
+Cierre11c3c2c: readers/incidentes mixtos y comparaciones compactas personales comprobados, resolución item preserva grafo completo.11c3c3a puede integrar y probar su writer preparatorio; todavía sin negociación/activación transporte2.

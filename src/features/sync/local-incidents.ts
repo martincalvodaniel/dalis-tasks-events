@@ -11,7 +11,7 @@ export async function readSyncIncidents(
   await requireActiveAccount(account)
   const store = await LocalSyncStore.open(account.userId)
   try {
-    const incidents = await store.readIncidents()
+    const incidents = await store.readIncidentOverview()
     await requireActiveAccount(account)
     return incidents
   } finally {

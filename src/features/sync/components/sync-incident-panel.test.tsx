@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server"
 import { SyncIncidentPanel } from "@/features/sync/components/sync-incident-panel"
 import { SyncIncidentResolutionDialog } from "@/features/sync/components/sync-incident-resolution-dialog"
 import { projectSyncIncident } from "@/lib/sync/incident-projection"
+import { projectSyncIncidentOverview } from "@/lib/sync/incident-snapshot"
 import type { Task } from "@/types/calendar-item"
 import type { OutboxEntry } from "@/types/local-sync"
 
@@ -191,4 +192,110 @@ test("copy recovery displays a complete draft and explains the new identity with
     "historial",
   ])
     expect(dialog).toContain(text)
+})
+
+test("personal comparisons stay compact, preserve all observed versions and offer no resolution choices", () => {
+  const item = fixture()
+  const tagId = crypto.randomUUID()
+  const entry: OutboxEntry = {
+    ...item.entry,
+    entityKey: `tag:${tagId}`,
+    operation: {
+      ...item.entry.operation,
+      command: {
+        type: "tag.save",
+        tagId,
+        input: { name: "Local category", color: "#123456", position: 4096 },
+      },
+    },
+  }
+  const tag = {
+    id: tagId,
+    userId: item.userId,
+    name: "Local category",
+    normalizedName: "local category",
+    color: "#123456",
+    position: 4096,
+    revision: 0,
+    createdAt: item.local.createdAt,
+    updatedAt: item.local.updatedAt,
+    deletedAt: null,
+  }
+  const remote = {
+    ...tag,
+    name: "Remote category",
+    normalizedName: "remote category",
+    position: 1024,
+    revision: 2,
+    deletedAt: item.local.updatedAt,
+  }
+  const incidents = projectSyncIncidentOverview({
+    userId: item.userId,
+    entries: [entry],
+    items: [],
+    tags: [tag],
+    itemViews: [],
+    shadows: [
+      {
+        version: 2,
+        kind: "preference",
+        entityKey: entry.entityKey,
+        record: { store: "tags", record: remote },
+      },
+    ],
+    outcomes: [
+      {
+        version: 2,
+        kind: "preference",
+        key: `operation-outcome:${entry.operation.operationId}`,
+        operation: entry.operation,
+        result: {
+          kind: "preference",
+          outcome: {
+            status: "conflict",
+            operationId: entry.operation.operationId,
+            current: { store: "tags", record: remote },
+          },
+        },
+        local: [
+          {
+            entityKey: entry.entityKey,
+            record: { store: "tags", record: tag },
+          },
+        ],
+        base: [
+          {
+            entityKey: entry.entityKey,
+            record: { store: "tags", record: remote },
+          },
+        ],
+      },
+    ],
+  })
+  const html = renderToStaticMarkup(
+    <SyncIncidentPanel
+      incidents={incidents}
+      error={false}
+      account={{ userId: item.userId, epoch: crypto.randomUUID() }}
+    />
+  )
+  for (const text of [
+    "Local category",
+    "Remote category",
+    "Conflicto de preferencias",
+    "Tu estado actual",
+    "Eliminada",
+    "revisión 0",
+    "posición 4096",
+    "Estado local al recibir",
+    "Remoto observado al recibir",
+    "1 intención personal sin confirmar",
+    "resolución de preferencias todavía no está disponible",
+  ])
+    expect(html).toContain(text)
+  expect(html).toContain("text-sm")
+  expect(html).toContain("min-h-11")
+  expect(html).not.toContain("<button")
+  expect(html).not.toContain("Usar remoto conocido")
+  expect(html).not.toContain(entry.operation.operationId)
 })
