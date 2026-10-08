@@ -1699,3 +1699,22 @@ Schema/type de submission intención1/senderUUID/resultado v2, relación operati
 Tres pruebas/20aserciones: multiefecto y clones, cuentas/objetivos/familias/UUID/versiones/extras incoherentes, estados de error de ambas familias preservados. Suite293pass/86opt-in skip/0fail/5413aserciones; lint411archivos sin ruido, tipos/build34recursos/diff aprobados. Contrato sin IO, no repetir Mongo. Petición de una iteración adicional completada con commit/push/HEAD/cuotas y reserva vigente10%5h/1%7d.
 
 Próxima candidata11c3c1b2: outcome mixto durable con snapshots exactos, legacy readonly y replay previo al shadow actual; después backup/ACK/pull compatibles. No ampliar esta entrega al executor local ni activar preferencias.
+
+
+## 11c3c1b2a — Outcome item versionado readonly
+
+- Entrada27%5h/2%7d trasf2a5458; petición adicional de una iteración si cabe, reserva semanal1% ya vigente. Secuencial/reserva10%5h/1%7d.
+- Objetivo: dividir outcome mixto; preparar variante item2 y decoder de outcome legacy readonly antes de la variante personal y del lector común.
+- `target_paths`: `src/schemas/local-item-outcome-v2.ts`, `src/types/local-item-outcome-v2.ts`, `src/lib/sync/local-item-outcome-v2{,.test}.ts`, `plan/{master,iterations,iteration-log,preference-sync,local-preference-evidence}.md`.
+- Dependencias: outcome legacy, resultados item y verificador push mixto vigentes. Sin IO, writer, backup, cambios de outbox/ACK o consumidores activos.
+- Aceptación: envoltura2/item y resultado item/v2, key/operationId/cuenta/objetivo coherentes; snapshots local/base propios y de misma identidad, sin exigir ancestro ni comparar su revisión contra replay histórico. Legacy conserva intención, resultado, tombstones, revisiones y clones, sin reescritura. Futuro/extra/familia/cuenta/objetivo corruptos rechazan íntegros.
+- Validación: legacy conflict anterior al shadow observado, estado aplicado/tombstone y errores, clones, dueño/objetivo/IDs/key/futuro/extra. Suite/lint/tipos/build/diff/plan/commitpush/HEAD/cuotas. Una sola entrega; variante personal/verificador común pendientes.
+
+
+### Resultado 11c3c1b2a — Outcome item versionado readonly
+
+Variante explícita2/item con resultado item/v2; schema/type y decoder/verificador puros. Key e operationId exactos, correspondencia de cuenta/familia/objetivo reutilizada, snapshots local/base propios y de la misma identidad. Legacy se adapta sólo en memoria conservando intención, resultado, revisión/tombstone y clones. Replay anterior al shadow observado se admite sin fabricar ancestro, actualizar resultado ni retroceder datos. Desconocido/extra/ambiguo/identidad o cuenta ajena rechaza íntegro.
+
+Tres pruebas/22aserciones: conflicto revision2 frente a shadow observado5/local0, clones, applied con tombstone y cuatro rechazos preservados, key/IDs/snapshots/resultado ajenos y versiones/familias/extras inválidos. Suite296pass/86opt-in skip/0fail/5435aserciones; lint415archivos, tipos/build34recursos/diff aprobados. Contrato sin IO no requiere repetir Mongo. Sin lector común, writer, backup, ACK, outbox o caller activo nuevo.
+
+Petición de una iteración adicional cerrada con reserva10%5h/1%7d ya vigente. Próxima candidata11c3c1b2b: variante outcome personal con snapshots exactos y decoder común, antes de backup/ACK/pull. No abrir persistencia personal como ampliación de este corte. CommitpushHEAD/cuotas al cierre.
