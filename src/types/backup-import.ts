@@ -32,6 +32,10 @@ export type BackupImportPreview = {
 
 export type BackupImportRequest = z.infer<typeof backupImportRequestSchema>
 export type BackupImportRecord = z.infer<typeof backupImportRecordSchema>
+export type LocalBackupImportResult = {
+  status: "applied" | "replayed"
+  record: BackupImportRecord
+}
 export type BackupImportPlan = {
   request: BackupImportRequest
   sourceJson: string

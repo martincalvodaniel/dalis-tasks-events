@@ -6,58 +6,72 @@ import {
   validateLocalBackup,
 } from "@/lib/backup/local-backup"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
+import type { LocalTransactionContext } from "@/lib/local-db/transaction"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { timestampSchema, userIdSchema } from "@/schemas/primitives"
 import type { LocalBackup } from "@/types/local-backup"
 
-export function readLocalBackup(
+export function queueLocalBackupSnapshot(
+  context: Pick<LocalTransactionContext<unknown>, "transaction" | "fail">,
   database: IDBDatabase,
   userIdInput: string,
-  exportedAtInput: string
-): Promise<LocalBackup> {
+  exportedAtInput: string,
+  onSnapshot: (backup: LocalBackup) => void
+): void {
   const userId = userIdSchema.parse(userIdInput)
   const exportedAt = timestampSchema.parse(exportedAtInput)
   if (database.name !== localDatabaseName(userId))
-    return Promise.reject(
-      new Error("Backup belongs to another account partition")
-    )
+    throw new Error("Backup belongs to another account partition")
+  const stores: Partial<
+    Record<(typeof localBackupStoreNames)[number], unknown[]>
+  > = {}
+  let remaining = localBackupStoreNames.length
+  for (const name of localBackupStoreNames) {
+    const request = context.transaction
+      .objectStore(name)
+      .getAll(undefined, 10001)
+    request.onsuccess = () => {
+      stores[name] = request.result
+      if (--remaining) return
+      try {
+        const backup = validateLocalBackup(
+          {
+            format: "dalis-local-backup",
+            version: 1,
+            protocolVersion: 1,
+            databaseVersion: database.version,
+            userId,
+            exportedAt,
+            stores,
+          },
+          userId
+        )
+        encodeLocalBackup(backup, userId)
+        onSnapshot(backup)
+      } catch (error) {
+        context.fail(error)
+      }
+    }
+  }
+}
+
+export function readLocalBackup(
+  database: IDBDatabase,
+  userId: string,
+  exportedAt: string
+): Promise<LocalBackup> {
   return runLocalTransaction(
     database,
     [...localBackupStoreNames],
     "readonly",
     (context) => {
-      const stores: Partial<
-        Record<(typeof localBackupStoreNames)[number], unknown[]>
-      > = {}
-      let remaining = localBackupStoreNames.length
-      for (const name of localBackupStoreNames) {
-        const request = context.transaction
-          .objectStore(name)
-          .getAll(undefined, 10001)
-        request.onsuccess = () => {
-          stores[name] = request.result
-          if (--remaining) return
-          try {
-            const backup = validateLocalBackup(
-              {
-                format: "dalis-local-backup",
-                version: 1,
-                protocolVersion: 1,
-                databaseVersion: database.version,
-                userId,
-                exportedAt,
-                stores,
-              },
-              userId
-            )
-            // Enforce the portable byte limit before returning any snapshot.
-            encodeLocalBackup(backup, userId)
-            context.setResult(backup)
-          } catch (error) {
-            context.fail(error)
-          }
-        }
-      }
+      queueLocalBackupSnapshot(
+        context,
+        database,
+        userId,
+        exportedAt,
+        context.setResult
+      )
     }
   )
 }

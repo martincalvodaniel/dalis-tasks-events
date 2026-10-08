@@ -1051,3 +1051,22 @@ Cinco pruebas/41 aserciones y suite231pass/30opt-in skip/0fail/4845aserciones; l
 Registro local `backup-import:<UUID>` añadido al contrato de metadata existente, sin tabla nueva ni migración. Conserva cuenta/fecha/archivo original y selecciones ligadas al payload exacto de las operaciones preservadas; no concede ACK ni permisos. Archivo archivado acotado y validado estructuralmente, ownership completo, identidad de fuentes única y selección de contenido vivo simple, batch512KiB, payload/fecha idénticos al historial. Archivos dentro de archivos históricos se preservan como evidencia opaca, sin recursión ni restauración. Formato portable1 mantiene rechazo íntegro de metadata desconocida en lectores antiguos.
 
 Ownership extraído a helper único compartido para evitar duplicar su validación. Tres pruebas/14 aserciones y regresión234pass/30opt-in skip/0fail/4859aserciones, lint336archivos, tipos/build30recursos aprobados. Aún no se escribe ningún recibo ni se ofrece importación UI. Próxima `13c2c2`: crear items/outbox/contador/recibo en una transacción propia, rechazo stale, rollback y replay tras recarga sin sobrescribir ediciones posteriores.
+
+
+## 13c2c2 — Importación local atómica y replay
+
+- Entrada87%/27% tras `8e78cd2`, int/secuencial/reserva10%.
+- Objetivo: guardar copias/cola/contador/recibo en una única transacción, preservando originales y pendientes; replay durable sin duplicar ni sobrescribir ediciones posteriores.
+- `target_paths`: `src/lib/local-db/{backup,backup-import}.ts`, `src/types/backup-import.ts`, `scripts/backup-import-test-server.ts`, `test/browser/backup-import.ts`, `plan/{master,iterations,iteration-log,backup-recovery,sync-test-environment}.md`.
+- Dependencias: planner y recibo, `13c2b–13c2c1`. Leer instrucciones de local-db y guía use-client instalada.
+- Aceptación: partición/cuenta/DBversion válidas; helper compartido de snapshot acotado en la misma transacción. Primera ejecución requiere comparación vigente e IDs libres, cola pending nueva y contador seguro; recibo exacto permite replay con snapshot antiguo sin reescribir items/colas. Reutilización de importId con otro archivo/selección/fecha falla. Backup posterior validado y acotado antes de escribir. Resolve solo tras complete, rollback tardío de todos los cambios; notificación solo postcommit. Sin red, secretos, nuevaDBtabla o UI de confirmación.
+- Validación: fixture UUID/origen loopback propio con IndexedDB real: preservación/multicopia/counter, replay+recarga/edición, stale/cuenta/collision, fallo tardío y recovery; limpieza exclusiva de recursos propios. Suite/lint/tipos/build/diff/rutas/commit/push/HEAD/cuotas. Guardias de cuenta/época a nivel workspace y UI en corte posterior.
+
+
+### Resultado 13c2c2
+
+Importador client-only guarda nuevas copias, intenciones pending, contador y recibo en una sola transacción de los once stores. El lector de snapshot acotado se comparte con exportación y se invoca dentro de la misma transacción; valida partición, versión y post-state portable completo antes de escribir. Conserva originales, preferencias y cola existente; add/contador seguros y resultado únicamente tras complete. Notificación postcommit no invalida guardado. Recibo exacto permite replay sin exigir el snapshot antiguo vigente y sin reescribir copias editadas; misma importId con archivo/selección/fecha distintos rechaza.
+
+Fixture propia de loopback4188 e IndexedDB real: seis checks de multicopia/preservación, replay/progreso, reutilización/stale/collision, cuenta/partición, fallo tardío con rollback y concurrencia una sola copia. Séptimo check tras recarga verifica snapshot/cola/recibo exactos y replay sin escrituras. Se corrigió la fixture porque getAll de outbox está ordenado por UUID, no por secuencia; ahora encuentra por identidad y ordena secuencias explícitamente. Ambas ejecuciones limpiaron exclusivamente particiones UUID propias; pestaña y servidor cerrados.
+
+Normal234pass/30opt-in skip/0fail/4859aserciones, lint339archivos, tipos ybuild30recursos aprobados; sin DB remota ni falsa declaración de ACK/convergencia nueva. Próxima `13c2c3`: guardias de cuenta/época y preparación de confirmación a nivel workspace, luego UI compacta y prueba de envío de copias con dos dispositivos/Mongo aislado.
