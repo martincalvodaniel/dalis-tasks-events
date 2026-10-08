@@ -1018,3 +1018,20 @@ El 8 de octubre el usuario autoriza un intento mínimo con aproximadamente 8% de
 La vista previa pura valida el archivo y el snapshot actual completos para la cuenta activa; clasifica registros por identidad en los once stores sin IO, nuevas operaciones ni restauración de ACK, cursores, leases o permisos. Conserva contenido e historia en objetos independientes. Los tipos sin ejecutor quedan explícitos; igualdad exacta incluye metadatos y no establece precedencia remota. Se indexa cada store con Map y se ordena por clave: O(n log n) por ordenación, sin búsquedas cuadráticas ni mezcla por títulos. Cuatro pruebas/55 aserciones cubren stores, independencia, cambios, tombstones, orden determinista, tipos incompatibles y rechazo íntegro. Suite 226 pass / 30 opt-in skip / 0 fail / 4804 aserciones, lint 329 archivos, tipos y build de 30 recursos neutros aprobados. Próximo corte `13c2b`: contrato puro de selecciones e intenciones nuevas antes de ejecutor o UI.
 
 El usuario confirma que `13b2b` funciona en preproducción. La comprobación del navegador aislado termina en login de Vercel; falta sesión y cuenta de piloto, por lo que no se declara probado Google/RPC Next real ni convergencia en preproducción. No se modifica la DB del usuario.
+
+
+## 13c2b — Contrato puro de importación como copias
+
+- Entrada: 95% de 5h / 28% de 7d después de `5a1ef70`, remoto verificado; continuar secuencialmente con reserva del 10%.
+- Objetivo: transformar selecciones explícitas de tareas/eventos propios vivos sin repetición en nuevas intenciones `item.create`, sin IO ni confirmación UI. Copiar a identidad nueva evita resucitar tombstones o reemplazar trabajo existente.
+- `target_paths`: `src/schemas/backup-import.ts`, `src/types/backup-import.ts`, `src/lib/backup/import-plan{,.test}.ts`, `plan/{master,iterations,iteration-log,backup-recovery}.md`.
+- Dependencias: vista previa `13c2a`.
+- Aceptación: petición estricta con cuenta, UUID/fecha estables, snapshot esperado y entre 1 y 50 selecciones únicas; cuenta/versión/bytes íntegros, comparación actual no obsoleta, IDs nuevos y distintos respecto al archivo/snapshot/historia. Selecciones solo de items simples vivos; archivo original y evidencia preservados en el plan, sin copiar permisos/categorías/orden/ACK/cursor/leases/revisión. Crear contenido con revisión/base0 y nuevas fechas locales, mantener progreso/checklist; completedAt nuevo se deriva del estado y evidencia original se conserva. Batch <=512KiB; archivos omitidos/no soportados sin escrituras.
+- Validación: copies/duplicados/tombstone destino, revisión y progreso, stale comparison, IDs históricos y repetidos, tipos no soportados, cuenta ajena, límites del batch, independencia y entrada intacta. Suite, lint, tipos, build, plan/diff/rutas; commit/push/HEAD y cuotas.
+
+
+### Resultado 13c2b
+
+Contrato puro de selecciones e intenciones nuevas entregado. Cada copia es una tarea/evento propio vivo sin repetición, con UUID nuevo distinto del archivo, dispositivo e historia, operación nueva y base/revisión0. No modifica originales ni restaura permisos/preferencias/ACK/cursor/leases. Snapshot esperado validado e igualdad exacta de stores; exportedAt no determina antigüedad y puede variar al leer. Se conserva el JSON original literal y el snapshot revisado como evidencia del plan. Progreso/checklist copiados; fecha de finalización de una copia completada se establece en la nueva creación, conservando original en el archivo. Entre1–50 selecciones distintas y512KiB de intenciones, sin IO ni UI de confirmación.
+
+Cinco pruebas/41 aserciones y suite231pass/30opt-in skip/0fail/4845aserciones; lint332archivos, tipos ybuild30recursos aprobados. Se corrigió la fixture del límite de bytes para exceder realmente512KiB con UTF8 multibyte; no se relajó el límite. Próxima `13c2c1`: recibo durable de importación compatible con backup, sin ejecutar todavía; después ejecutor atómico, replay/rollback/recarga y UI.

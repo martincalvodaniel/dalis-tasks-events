@@ -1,4 +1,8 @@
+import type { z } from "zod"
+import type { backupImportRequestSchema } from "@/schemas/backup-import"
+import type { CalendarItem } from "@/types/calendar-item"
 import type { LocalBackup } from "@/types/local-backup"
+import type { SyncOperation } from "@/types/sync"
 
 export type BackupStoreName = keyof LocalBackup["stores"]
 export type BackupRecord = LocalBackup["stores"][BackupStoreName][number]
@@ -23,4 +27,15 @@ export type BackupImportPreview = {
   sourceExportedAt: string
   currentExportedAt: string
   stores: Record<BackupStoreName, BackupImportRow[]>
+}
+
+export type BackupImportRequest = z.infer<typeof backupImportRequestSchema>
+export type BackupImportPlan = {
+  request: BackupImportRequest
+  sourceJson: string
+  copies: {
+    sourceItemId: string
+    item: CalendarItem
+    operation: SyncOperation
+  }[]
 }
