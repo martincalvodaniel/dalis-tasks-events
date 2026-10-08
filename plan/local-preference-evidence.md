@@ -80,3 +80,6 @@ Transporte11c4a3t preparado: [HTTP2](../src/features/sync/http-transport-v2.ts) 
 
 
 Wrapper11c4a3s [LocalMixedSyncStore](../src/lib/local-db/mixed-sync-store.ts) prepara snapshotreadonly atómico items+cola completo, límites10001 y grafo/cuenta validados; dispatch resultados2 reutiliza ACKitem vigente y writerpersonalstandalone; receiptmixto usa TXmultistore. Seis checksIndexedDB de historia/recarga/bounds/actor/dependencias/dispatch/leases/replay/pull/partial-open/close comprobados. Callerfuturo debe verificar época: nombre de DB no es autorización.
+
+
+Runtime11c4a3r [aislado](../src/features/sync/local-runtime-v2.ts) verifica cuenta/época inicial y después de abrir recursos; puertos de lectura y efectos guardados. Cleanup de lease permite liberar sender propio de partición anterior después de stop/cambio de cuenta. Close idempotente espera pasada y libera conexiones, sin activarhooks. Seis checks browser reales con control ficticio/épocas/pullpush diferidos/recarga muestran noACK tras cuenta perdida y durableACK posterior; no sustituye piloto Mongo conjunto.

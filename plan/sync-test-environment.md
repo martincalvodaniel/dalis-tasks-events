@@ -239,3 +239,8 @@ Runner sync-pull-v2-test-server en4192 y fixture sync-pull-v2 restringida a loop
 ### 11c4a3s — Wrapper mixto en navegador
 
 Runner `bun scripts/mixed-sync-store-test-server.ts` imprime origen efímero loopback/capability; botón ejecuta seis checks de snapshot/historia/recarga/grafo/actor/10001/dispatch/ACK/replay/pull/partialopen/close. Índiceuniquesequence rechaza seed duplicado con rollback, no se puede sembrar fila inválida así. Toda DBficticia y conexiones/pestaña/servidor propiaslimpias y exit0. Son resultados locales sintéticos; no prueba remota de coordinator/runtime.
+
+
+### 11c4a3r — Control de cuenta y vida del runtime
+
+`bun scripts/runtime-pilot-v2-test-server.ts` imprime origen/capability efímeros; botón ejecuta seis checks con guardias realesaccount-control y puertosremotos diferidos sintéticos. Cuenta inactiva, singleflight/close, cambioepoch durantepull/push, release/intenciónexacta sinACK, cierre/reopen y confirmaciónposterior durable+cursor. Controlficticio/partición/servidor/pestaña propios limpios y exit0. No nuevos permisos, cuentaGoogle ni Mongo parafixtureguardias. Piloto remoto conjunto pendiente11c4a4p.
