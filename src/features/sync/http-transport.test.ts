@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test"
 import { randomUUID } from "node:crypto"
+import { syncProtocolHeader } from "@/config/sync-protocol"
 import { createHttpSyncTransport } from "@/features/sync/http-transport"
 import { SyncTransportError } from "@/features/sync/transport-error"
+import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
 
 const cursor = { key: "pull-cursor" as const, after: 2, through: 5 }
 function input() {
@@ -20,7 +22,11 @@ function input() {
 function fakeFetch(
   handle: (input: string, options?: RequestInit) => Promise<Response>
 ): typeof fetch {
-  return handle as unknown as typeof fetch
+  return (async (input, options) => {
+    const response = await handle(String(input), options)
+    response.headers.set(syncProtocolHeader, encodeSyncProtocolRange())
+    return response
+  }) as typeof fetch
 }
 
 describe("private HTTP sync transport", () => {
@@ -194,4 +200,39 @@ describe("private HTTP sync transport", () => {
     )
     await expect(skipped.pull(cursor)).rejects.toThrow()
   })
+})
+
+test("missing or incompatible protocol pauses before interpreting identity or journal data", async () => {
+  for (const announcement of [null, "invalid", '{"minimum":2,"maximum":2}']) {
+    let bodyReads = 0
+    const request = (async () => {
+      const response = Response.json(
+        { invalid: true },
+        { headers: announcement ? { [syncProtocolHeader]: announcement } : {} }
+      )
+      response.json = async () => {
+        bodyReads++
+        throw new Error("Incompatible body must not be read")
+      }
+      return response
+    }) as unknown as typeof fetch
+    const transport = createHttpSyncTransport(
+      "test-actor",
+      async () => null,
+      request
+    )
+    for (const run of [
+      () => transport.readIdentity(),
+      () => transport.pull(cursor),
+    ]) {
+      let reason: string | undefined
+      try {
+        await run()
+      } catch (error) {
+        reason = error instanceof SyncTransportError ? error.reason : undefined
+      }
+      expect(reason).toBe("update_required")
+    }
+    expect(bodyReads).toBe(0)
+  }
 })

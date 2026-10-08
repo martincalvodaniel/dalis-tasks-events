@@ -12,7 +12,8 @@ export function SyncIssueNotice() {
   const paused =
     status === "unauthorized" ||
     status === "account_changed" ||
-    status === "recovery_required"
+    status === "recovery_required" ||
+    status === "update_required"
   if (count === 0 && !paused) return null
   const settings = workspaceDestinations.find(
     (destination) => destination.id === "settings"

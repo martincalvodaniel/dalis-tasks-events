@@ -45,6 +45,7 @@ test("authorization or recovery problems expose a compact paused notice", () => 
     "unauthorized",
     "account_changed",
     "recovery_required",
+    "update_required",
   ] as const)
     expect(render(0, status)).toContain("Sincronización pausada.")
 })

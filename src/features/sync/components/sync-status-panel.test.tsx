@@ -58,3 +58,20 @@ test("unknown or unreadable queues cannot start a manual pass", () => {
     expect(html).not.toContain("Sin cambios locales pendientes.")
   }
 })
+
+test("incompatible deployments explain updating while preserving local changes", () => {
+  const html = renderToStaticMarkup(
+    <SyncStatusPanel
+      summary={{ ...empty, pending: 2 }}
+      error={false}
+      busy={false}
+      result={{ status: "update_required", uploaded: 0, downloaded: 0 }}
+      onSync={() => undefined}
+    />
+  )
+  expect(html).toContain("2 pendientes")
+  expect(html).toContain("no son compatibles")
+  expect(html).toContain("cierra todas las pestañas")
+  expect(html).toContain("Tus cambios locales se conservan")
+  expect(html).not.toContain("Iniciar sesión con Google")
+})

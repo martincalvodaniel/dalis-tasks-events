@@ -1,7 +1,9 @@
 "use client"
 
+import { syncProtocolHeader } from "@/config/sync-protocol"
 import type { SyncCoordinatorPorts } from "@/features/sync/coordinator"
 import { SyncTransportError } from "@/features/sync/transport-error"
+import { acceptsSyncProtocolRange } from "@/lib/sync/sync-protocol"
 import { localChangesPageInputSchema } from "@/schemas/local-sync"
 import { userIdSchema } from "@/schemas/primitives"
 import {
@@ -57,6 +59,8 @@ export function createHttpSyncTransport(
       )
     }
     if (!response.ok) throw new SyncTransportError("retry_later")
+    if (!acceptsSyncProtocolRange(response.headers.get(syncProtocolHeader)))
+      throw new SyncTransportError("update_required")
   }
   async function send(input: unknown): Promise<unknown> {
     let timer: ReturnType<typeof setTimeout> | undefined

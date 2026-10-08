@@ -1,8 +1,10 @@
 import "server-only"
 
 import { describe, expect, test } from "bun:test"
+import { syncProtocolHeader } from "@/config/sync-protocol"
 import { getSyncChangesResponse } from "@/features/sync/pull-response"
 import { RemoteCursorAheadError } from "@/lib/db/remote-changes"
+import { acceptsSyncProtocolRange } from "@/lib/sync/sync-protocol"
 
 const empty = { changes: [], nextAfter: 0, through: 0, hasMore: false }
 
@@ -34,6 +36,9 @@ describe("private sync download", () => {
       }
     )
     expect(response.status).toBe(401)
+    expect(
+      acceptsSyncProtocolRange(response.headers.get(syncProtocolHeader))
+    ).toBe(true)
     expect(response.headers.get("Cache-Control")).toBe("private, no-store")
   })
   test("rejects duplicate, unknown, fractional and excessive query inputs before reading", async () => {

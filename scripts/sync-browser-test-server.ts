@@ -1,10 +1,12 @@
 import { getSyncDatabaseTestConfig } from "@/config/env"
+import { syncProtocolHeader } from "@/config/sync-protocol"
 import { getSyncChangesResponse } from "@/features/sync/pull-response"
 import { pushSyncBatch } from "@/features/sync/push-batch"
 import { closeDatabaseConnection, getDatabase } from "@/lib/db/client"
 import { readRemoteChanges } from "@/lib/db/remote-changes"
 import { executeRemoteItemOperation } from "@/lib/db/remote-item-commands"
 import { RemoteItemRepository } from "@/lib/db/remote-items"
+import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
 import { remotePushInputSchema } from "@/schemas/remote-sync"
 import { syncBrowserFixtureSchema } from "@/schemas/sync-browser-test"
 
@@ -90,7 +92,15 @@ async function respond(request: Request): Promise<Response> {
       headers: { ...headers, "Content-Type": "text/css" },
     })
   if (request.method === "GET" && url.pathname === "/api/sync/identity")
-    return Response.json({ userId }, { headers })
+    return Response.json(
+      { userId },
+      {
+        headers: {
+          ...headers,
+          [syncProtocolHeader]: encodeSyncProtocolRange(),
+        },
+      }
+    )
   if (request.method === "GET" && url.pathname === "/api/sync/changes")
     return getSyncChangesResponse(request, {
       readActor: async () => userId,

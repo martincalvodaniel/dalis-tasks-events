@@ -3,6 +3,7 @@ export class SyncTransportError extends Error {
     readonly reason:
       | "unauthorized"
       | "account_changed"
+      | "update_required"
       | "recovery_required"
       | "retry_later"
   ) {

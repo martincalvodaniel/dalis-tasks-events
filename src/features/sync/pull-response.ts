@@ -1,6 +1,8 @@
 import "server-only"
 
+import { syncProtocolHeader } from "@/config/sync-protocol"
 import { RemoteCursorAheadError } from "@/lib/db/remote-changes"
+import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
 import { remotePullRequestSchema } from "@/schemas/remote-sync"
 import type { RemoteChangesPage } from "@/types/remote-sync"
 
@@ -16,7 +18,10 @@ export async function getSyncChangesResponse(
   const respond = (body: unknown, status: number) =>
     Response.json(body, {
       status,
-      headers: { "Cache-Control": "private, no-store" },
+      headers: {
+        "Cache-Control": "private, no-store",
+        [syncProtocolHeader]: encodeSyncProtocolRange(),
+      },
     })
   const actor = await dependencies.readActor()
   if (!actor) return respond({ error: "Authentication required" }, 401)

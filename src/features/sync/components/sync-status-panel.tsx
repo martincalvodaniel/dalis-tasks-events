@@ -18,6 +18,8 @@ const messages: Record<SyncPassResult["status"], string> = {
   retry_later:
     "No se pudo terminar. Comprueba la conexión y vuelve a intentarlo; tus cambios se conservan.",
   stopped: "Sincronización detenida. Tus cambios locales se conservan.",
+  update_required:
+    "La versión local y el servidor no son compatibles. Guarda lo que tengas abierto, cierra todas las pestañas de Dalis y vuelve a abrir la aplicación con conexión. Tus cambios locales se conservan.",
   recovery_required:
     "La sincronización necesita revisión. Tus cambios locales se conservan.",
 }

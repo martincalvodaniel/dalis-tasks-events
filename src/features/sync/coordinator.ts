@@ -41,6 +41,7 @@ export interface SyncPassResult {
     | "account_changed"
     | "retry_later"
     | "stopped"
+    | "update_required"
     | "recovery_required"
   uploaded: number
   downloaded: number

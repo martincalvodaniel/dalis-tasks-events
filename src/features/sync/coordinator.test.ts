@@ -157,6 +157,7 @@ describe("bounded sync coordinator", () => {
       "unauthorized",
       "account_changed",
       "recovery_required",
+      "update_required",
     ] as const) {
       const value = fixture()
       const entry = value.add(1)

@@ -124,6 +124,7 @@ test("authorization and recovery pauses require an explicit request", async () =
     "unauthorized",
     "account_changed",
     "recovery_required",
+    "update_required",
     "stopped",
   ] as const) {
     let next = result(status)
