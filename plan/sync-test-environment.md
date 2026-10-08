@@ -234,3 +234,8 @@ Runner sync-pull-v2-test-server en4192 y fixture sync-pull-v2 restringida a loop
 ### 11c3c4b1 — Dos orígenes, ACK y descarga mixta con Mongo real
 
 `bun scripts/sync-db-test-runner.ts browser-mixed` consume descriptor propio y levanta dos orígenes loopback efímeros con capability run; abrir URL impresa y pulsar Ejecutar prueba mixta integrada. Ocho escenarios reales cubren offline/reload, bootstrap paginado, ACK personal/item y rebalance, pérdida de respuesta con replay UUID y receipt único, tombstone/desasignación explícita, cursor compartido, conflicto con dependientes y task.move histórico unsupported sin ACK. Comparación de ambas particiones con DAL/journal Mongo sólo donde no hay blockers. Cleanup de todas las bases UUID y recursos runner propios confirmado, exit0. No control de cuenta real ni nuevas rutas públicas/transportes activos. La prueba anterior de descarga standalone sigue siendo evidencia local complementaria.
+
+
+### 11c4a3s — Wrapper mixto en navegador
+
+Runner `bun scripts/mixed-sync-store-test-server.ts` imprime origen efímero loopback/capability; botón ejecuta seis checks de snapshot/historia/recarga/grafo/actor/10001/dispatch/ACK/replay/pull/partialopen/close. Índiceuniquesequence rechaza seed duplicado con rollback, no se puede sembrar fila inválida así. Toda DBficticia y conexiones/pestaña/servidor propiaslimpias y exit0. Son resultados locales sintéticos; no prueba remota de coordinator/runtime.

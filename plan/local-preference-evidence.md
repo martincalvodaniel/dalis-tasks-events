@@ -77,3 +77,6 @@ Guardia previa a activación: la cadena personal incluye colocaciones aún sin e
 
 
 Transporte11c4a3t preparado: [HTTP2](../src/features/sync/http-transport-v2.ts) exige handshake2 explícito, conserva cookies same-origin/no-store y consulta completa, valida page/result contra actor/request capturados. Anuncio activo sigue1, ninguna ruta/caller cambia. Timeout de acción no cancela commit remoto ni descarta intención de replay.
+
+
+Wrapper11c4a3s [LocalMixedSyncStore](../src/lib/local-db/mixed-sync-store.ts) prepara snapshotreadonly atómico items+cola completo, límites10001 y grafo/cuenta validados; dispatch resultados2 reutiliza ACKitem vigente y writerpersonalstandalone; receiptmixto usa TXmultistore. Seis checksIndexedDB de historia/recarga/bounds/actor/dependencias/dispatch/leases/replay/pull/partial-open/close comprobados. Callerfuturo debe verificar época: nombre de DB no es autorización.
