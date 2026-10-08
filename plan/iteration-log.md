@@ -1153,3 +1153,10 @@ Petición de una iteración adicional cerrada con reserva10%5h/1%7d ya vigente. 
 Lote renovado autorizado por usuario100%/100%; primera lectura posterior a trabajo paralelo83%/97%, sin inferir consumo exacto entre agentes. Reserva vigente10%5h/1%7d y commit/push/cuotas por corte. Outcome2/preference conserva resultado completo y snapshots exactos del objetivo más todos los efectos, incluidos compactación, ausencias y tombstones. Local admite0; base exige revisión remota positiva, sin ancestralidad ni ordenar replay frente a shadow. Decoder común adapta item legacy sólo en memoria y verifica cuenta/familia/objetivo; límites UTF8 individuales y global5MiB, sin truncar.
 
 Ocho pruebas específicas/95aserciones. Validación global con proyección paralela terminada:314pass/86opt-in skip/0fail/5636aserciones, lint422archivos/tipos/build/diff aprobados. Sin IO/ACK/writer/migración/caller/activación nuevos; Mongo no se repite para contratos puros. Siguiente11c3c2a backup mixto; proyección11c3c3p se cierra separadamente como preparación adelantada.
+
+
+### Resultado11c3c3p — Proyección personal preparatoria paralela
+
+Adelanto independiente sobre contratos cerrados:10pruebas/106aserciones de revisión propia por documento, replay viejo, contradicción igual revisión incluso con pendientes, toda cadena personal pending/sending/conflict/rejected, dependiente tras supersesión, reconciliación desde shadows con incoming null, local-only/ausencias/tombstones/clones y guards10k/2MiB. Validación completa de outbox propia/dependencias incluso para intención item no bloqueante; settings y stores futuros no representables rechazan íntegro. Sin IO/ACK/writer ni consumers nuevos.
+
+Mismo estado de código validado centralmente antes de separar commits:314pass/86skip/0fail/5636aserciones, lint422archivos/tipos/build/diff aprobados; no repetir checks sin cambios o dudas nuevos. `34dcb55` outcomes publicado y quota79%/97%; proyección conserva reserva10%/1%. Siguiente11c3c2a portable mixto puro antes de exportación/lectores y writers.
