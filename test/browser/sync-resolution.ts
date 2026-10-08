@@ -371,6 +371,75 @@ async function run() {
         }
       )
       await check(
+        "Copia nueva conserva tombstone, rechaza colisiones y revierte ambos elementos al fallar",
+        async () => {
+          const source = await seed(true)
+          const copy = {
+            ...request(source.incident, "retry_local"),
+            choice: "copy_local",
+            copyItemId: crypto.randomUUID(),
+          }
+          const before = await raw()
+          await rejects(() =>
+            sync.resolveIncident({ ...copy, copyItemId: first.itemId })
+          )
+          assert((await raw()) === before)
+          const originalAdd = IDBObjectStore.prototype.add
+          IDBObjectStore.prototype.add = function (
+            value: unknown,
+            key?: IDBValidKey
+          ) {
+            if (
+              this.transaction.db.name === localDatabaseName(userId) &&
+              this.name === "syncMetadata"
+            )
+              throw new Error("Forced copy evidence failure")
+            return originalAdd.call(this, value, key)
+          }
+          try {
+            await rejects(() => sync.resolveIncident(copy))
+          } finally {
+            IDBObjectStore.prototype.add = originalAdd
+          }
+          assert(
+            (await raw()) === before &&
+              (await repository.get("items", copy.copyItemId)) === null
+          )
+          const result = await sync.resolveIncident(copy)
+          assert(
+            result.record.copy?.id === copy.copyItemId &&
+              result.record.local.deletedAt === now
+          )
+          assert(
+            (await repository.get("items", source.itemId))?.deletedAt === now
+          )
+          const fresh = await repository.get("items", copy.copyItemId)
+          assert(
+            fresh?.kind === "task" &&
+              fresh.status === "in_progress" &&
+              fresh.revision === 0 &&
+              fresh.deletedAt === null
+          )
+          const entry = (await outbox.listEntries()).find(
+            (entry) => entry.operation.operationId === copy.operationId
+          )
+          assert(
+            entry?.entityKey === `item:${copy.copyItemId}` &&
+              entry.state === "pending" &&
+              entry.dependencies.length === 0
+          )
+          await outbox.commitItemCommand({
+            type: "task.set-status",
+            itemId: copy.copyItemId,
+            occurrenceId: null,
+            status: "completed",
+          })
+          const edited = await raw()
+          assert((await sync.resolveIncident(copy)).status === "replayed")
+          assert((await raw()) === edited)
+        }
+      )
+      await check(
         "Cuenta cambiada impide una nueva elección sin escrituras",
         async () => {
           const incident = (await sync.readIncidents())[0]

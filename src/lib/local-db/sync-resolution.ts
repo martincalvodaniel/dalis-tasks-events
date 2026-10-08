@@ -24,8 +24,6 @@ export function resolveLocalSyncIncident(
   const request = syncResolutionRequestSchema.parse(input)
   if (request.userId !== userId)
     throw new Error("Resolution belongs to another account")
-  if (request.choice === "copy_local")
-    throw new Error("Copy recovery requires its dedicated local executor")
   const key = `incident-resolution:${request.resolutionId}`
   return runLocalTransaction(
     database,
@@ -50,13 +48,18 @@ export function resolveLocalSyncIncident(
           const priorOutcome = request.operationId
             ? metadata.get(`operation-outcome:${request.operationId}`)
             : null
+          const copyTarget = request.copyItemId
+            ? context.transaction.objectStore("items").get(request.copyItemId)
+            : null
+          let copyReady = copyTarget === null
           let sequenceReady = false
           let outcomeReady = priorOutcome === null
           let snapshot: Parameters<
             Parameters<typeof queueLocalSyncIncidents>[2]
           > | null = null
           const finish = () => {
-            if (!sequenceReady || !outcomeReady || !snapshot) return
+            if (!sequenceReady || !outcomeReady || !copyReady || !snapshot)
+              return
             try {
               const [incidents, entries] = snapshot
               const incident = incidents.find(
@@ -72,6 +75,14 @@ export function resolveLocalSyncIncident(
               )
               if (
                 byId.has(request.resolutionId) ||
+                (request.copyItemId &&
+                  (copyTarget?.result !== undefined ||
+                    byId.has(request.copyItemId) ||
+                    entries.some(
+                      (entry) =>
+                        "itemId" in entry.operation.command &&
+                        entry.operation.command.itemId === request.copyItemId
+                    ))) ||
                 (request.operationId &&
                   (byId.has(request.operationId) ||
                     priorOutcome?.result !== undefined))
@@ -115,7 +126,14 @@ export function resolveLocalSyncIncident(
                   })
                 )
               context.transaction.objectStore("items").put(record.local)
+              if (record.copy)
+                context.transaction.objectStore("items").add(record.copy)
               if (record.replacement) {
+                const replacementCommand = record.replacement.command
+                if (!("itemId" in replacementCommand))
+                  throw new Error(
+                    "Resolution replacement requires an item identity"
+                  )
                 const nextSequence = outboxSequenceSchema.parse({
                   key: "outbox-sequence",
                   value: counter.value + 1,
@@ -123,7 +141,7 @@ export function resolveLocalSyncIncident(
                 outbox.add(
                   outboxEntrySchema.parse({
                     userId,
-                    entityKey: incident.entry.entityKey,
+                    entityKey: `item:${replacementCommand.itemId}`,
                     operation: record.replacement,
                     sequence: nextSequence.value,
                     dependencies: [],
@@ -145,6 +163,11 @@ export function resolveLocalSyncIncident(
             sequenceReady = true
             finish()
           }
+          if (copyTarget)
+            copyTarget.onsuccess = () => {
+              copyReady = true
+              finish()
+            }
           if (priorOutcome)
             priorOutcome.onsuccess = () => {
               outcomeReady = true

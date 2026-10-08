@@ -78,3 +78,6 @@ Seis checks browser pasan: offline simulado/recarga, convergencia de tareas simp
 
 
 13a2b2: fixture UI soporta `?choice=retry` o`?choice=adopt`, confirma estados/historial ycleanup. Ruta `/edit?run=<UUID>` simula edición desde otra pestaña de misma partición ficticia, guardando estado completed sin cambiar cuenta/época ni limpiar recursos de la pestaña principal. Cancelación no muta, snapshot congelado rechazado tras edición, elección revisada crea3superseded/1pending; adopción2superseded/0pending. Móvil390 sinoverflow/dialog358px/buttons48px yrecarga verificados. Nueve escenariosMongo revalidadosdespués de guardiascompartidas, exit0/cleanup.
+
+
+13a2c2: copia y original tombstone guardados junto con cola/contador/evidencia en cuatro stores; nuevo ID libre frente a registros/historial/tombstones, entityKey del nuevo elemento. Rollback tardío deja ambos elementos y cola intactos; replay no sobrescribe copia editada. IndexedDB nueve checks+recarga y diez escenarios reales dos dispositivos/Mongo aprobados; lostresponse produce una sola copia revision1 y original tombstone revision2 intacto. Recursos propios limpios. Normal203pass/30skip/4618aserciones, lint304files/tipos/build30recursos aprobados. Próxima13a2c3 UI de copia, sin categorías/orden duplicados ni ACK local.

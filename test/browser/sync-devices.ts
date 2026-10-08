@@ -572,9 +572,98 @@ button.onclick = async () => {
         )
       }
     )
+    await check(
+      "Copia explícita nueva converge sin resucitar original ni duplicarse tras pérdida de respuesta",
+      async () => {
+        const copySourceId = crypto.randomUUID()
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "item.create",
+            itemId: copySourceId,
+            input: { ...draft, title: "Original para recuperar" },
+          },
+        })
+        await pass(0)
+        await pass(1)
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "item.update",
+            itemId: copySourceId,
+            input: {
+              ...draft,
+              title: "Borrador recuperado como copia",
+              status: "in_progress",
+            },
+          },
+        })
+        await call(1, {
+          type: "commit",
+          command: { type: "item.delete", itemId: copySourceId },
+        })
+        await pass(1)
+        await pass(0)
+        const incident = (await snapshot(0)).incidents[0]
+        assert(incident?.remote?.deletedAt, "copy source remote tombstone")
+        const copyItemId = crypto.randomUUID()
+        const request = {
+          ...resolution(incident, "retry_local"),
+          choice: "copy_local" as const,
+          copyItemId,
+        }
+        await call(0, { type: "resolve", request })
+        await call(0, { type: "drop-response" })
+        await pass(0, "retry_later")
+        const queueBefore = JSON.stringify((await snapshot(0)).entries)
+        await call(0, { type: "resolve", request })
+        assert(
+          JSON.stringify((await snapshot(0)).entries) === queueBefore,
+          "copy replay preserves uncertain send"
+        )
+        await load(0)
+        await pass(0)
+        await pass(1)
+        await equalDevices()
+        const items = await remote()
+        const original = items.find((item) => item.id === copySourceId)
+        const copy = items.find((item) => item.id === copyItemId)
+        assert(
+          original?.deletedAt && original.revision === 2,
+          "original tombstone revision unchanged"
+        )
+        assert(
+          copy?.kind === "task" &&
+            copy.title === "Borrador recuperado como copia" &&
+            copy.status === "in_progress" &&
+            copy.revision === 1 &&
+            copy.deletedAt === null,
+          "new copy confirmed once"
+        )
+        assert(
+          items.filter((item) => item.id === copyItemId).length === 1,
+          "one new item"
+        )
+        const local = await snapshot(0)
+        assert(
+          local.entries.find(
+            (entry) =>
+              entry.operation.operationId ===
+              incident.entry.operation.operationId
+          )?.state === "superseded",
+          "original not acknowledged by copying"
+        )
+        assert(
+          local.entries.find(
+            (entry) => entry.operation.operationId === request.operationId
+          )?.state === "acknowledged",
+          "new identity received a real ACK"
+        )
+      }
+    )
     passed = true
     statusElement.textContent =
-      "Nueve escenarios integrados correctos; limpiando recursos propios"
+      "Diez escenarios integrados correctos; limpiando recursos propios"
   } catch (error) {
     statusElement.textContent = `Prueba fallida: ${error instanceof Error ? error.message : "error"}`
   } finally {

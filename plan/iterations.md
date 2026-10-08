@@ -887,3 +887,14 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación: tests freshIDs/payload/tombstones/collisions/localdeleted/remotealive/defaultslegacy; lint/tipos/suite/build/diff/referencias, commit/pushint/HEAD/cuotas.
 
 - Resultado13a2c1: contrato copy_local producecreate/base0/UUID nuevos y conserva tombstone original; record.copy separado deproyección original, nullabledefaults para compatibilidad. Tres tests nuevos yguardias freshIDs/remotovivo/localborrado. Executor rechaza explícitamentecopy hasta siguiente corte, UI noofrecebotón. Normal203pass/30skip/4618aserciones, lint304files/tipos/build30recursos aprobados. Próximo13a2c2 atomicidad/copiacolision/rollback/replay yprueba dosdispositivos; despuésUI.
+
+
+### 13a2c2 — Copia atómica y convergencia real
+
+- Objetivo previo: persistir original tombstone/copia/cola/evidencia en misma transacción y probar dos dispositivos antes de botón. Entrada59%/37%, int/secuencial/reserva10%; depende13a2c1.
+- `target_paths`: `src/lib/local-db/sync-resolution.ts`, `test/browser/{sync-resolution,sync-devices}.ts`, `plan/{master,iterations,iteration-log,conflict-recovery,sync-test-environment}.md`.
+- Aceptación: nuevo copyID libre incluso frente a tombstones/historial local; nunca overwrite ni reutilizar ID deoperación. Old record conserva tombstone, new item se añade, entry.entityKey corresponde alcopyID, secuencia/registro/originales juntos. Rollback tardío revierte ambos elementos/cola/counter/decision; replay no sobreescribe copia editada. Subida ydosdispositivos convergen nuevoitemrevision1 yviejo tombstone sin cambiarrevision, lostresponse/recarga sinduplicados.
+- Validación: IndexedDB real collision/rollback/replay/status/newpending; nueva escena integradaMongo; suite/lint/tipos/build/diff/referencias ycleanup propios. Commit/pushint/HEAD/cuotas; UI13a2c3posterior.
+
+
+13a2c2: copia y original tombstone guardados junto con cola/contador/evidencia en cuatro stores; nuevo ID libre frente a registros/historial/tombstones, entityKey del nuevo elemento. Rollback tardío deja ambos elementos y cola intactos; replay no sobrescribe copia editada. IndexedDB nueve checks+recarga y diez escenarios reales dos dispositivos/Mongo aprobados; lostresponse produce una sola copia revision1 y original tombstone revision2 intacto. Recursos propios limpios. Normal203pass/30skip/4618aserciones, lint304files/tipos/build30recursos aprobados. Próxima13a2c3 UI de copia, sin categorías/orden duplicados ni ACK local.
