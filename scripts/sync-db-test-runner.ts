@@ -182,6 +182,7 @@ try {
           "src/lib/db/remote-item-views.integration.test.ts",
           "src/lib/db/remote-operation-receipts.integration.test.ts",
           "src/lib/db/remote-tag-commands.integration.test.ts",
+          "src/lib/db/remote-item-view-commands.integration.test.ts",
           "src/lib/db/remote-item-commands.integration.test.ts",
           "src/lib/db/remote-changes.integration.test.ts",
         ]

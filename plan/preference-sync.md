@@ -150,3 +150,6 @@ Próxima11c2b0: concretar contrato deatomicidad/recibos/journal ydependencias de
 
 
 11c2b2b1 entrega executor preparatorio de categorías y pruebas de atomicidad/replay/rollback con Mongo propio. No activado: antes deben completarse vistas11c2b2b2, carreras11c2b3 y compatibilidad/ACK/pull. Reserva actual10%5h/5%7d por solicitud humana, con comprobación tras commit/push.
+
+
+11c2b2b2 prepara asignación de categorías propia para tareas/eventos simples con autorización transaccional, CAS/rollback y ledger común; sin activación. Próxima11c2b3 exige carreras deterministas con snapshots solapados antes de compatibilidad/ACK/pull. Política vigente10%5h/2%7d por petición posterior del usuario.

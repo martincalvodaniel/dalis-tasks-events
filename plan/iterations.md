@@ -1421,3 +1421,25 @@ Executor server-only valida actor/intención antes de IO y usa replay común con
 Cuatro escenarios nuevos Mongo: entrega duplicada concurrente produce un solo efecto/recibo/journal; replay exacto e identidad reutilizada; CAS/tombstones/nombres NFKC/aislamiento/unsupported; compactación de tres revisiones y fallo después del recibo que revierte efectos, contador, journal y recibo; historial mixto item/category/item conserva secuencias1/2/3 y registros legacy intactos. No equivalen a barreras de snapshots solapados de11c2b3. Total Mongo33pass/0fail/305aserciones en8archivos, recursos propios eliminados. Normal265pass/56opt-in skip/0fail/5121aserciones; lint381archivos, tipos/build34recursos/diff aprobados. Tipos de_id y refinamiento de fixtures corregidos antes del cierre.
 
 Reserva vigente actualizada por solicitud humana:10%5h y5%7d, evaluadas por margen y coste propios. Próxima11c2b2b2: executor de vista personal con autorización de item/tag dentro de la misma transacción; después11c2b3 carreras de catálogo y autorización con barreras. Antes de activar cualquier writer personal deben existir lectores/handshake/ACK/pull compatibles.
+
+
+## 11c2b2b2 — Vista personal con autorización transaccional
+
+- Entrada77%5h/10%7d tras19c15dc publicado/verificado. Reserva10%5h/5%7d, secuencial.
+- Objetivo: item-view.set para item propio simple activo, tag propio activo/null y CAS de vista personal dentro de snapshot/majority. Reutilizar contador/journal/recibo/retry en helper común con categorías para evitar dos implementaciones de invariantes.
+- `target_paths`: `src/lib/db/remote-preference-transactions.ts`, `src/lib/db/remote-tag-commands.ts`, `src/lib/db/remote-item-view-commands{,.integration.test}.ts`, `scripts/sync-db-test-runner.ts`, `plan/{master,iterations,iteration-log,preference-transactions,preference-sync,sync-test-environment}.md`.
+- Dependencias: planner/repos de vista/item/tag, contratos v2, lector/replay y executor tag11c2b2b1. Helper sólo DB server-only, APIs actuales conservadas; índices centrales ya cubren consultas, explícitos sólo en prueba.
+- Aceptación: validar actor/intención antes de IO; sin contenido ajeno/deleted ni series/birthday. Vista no altera item/progreso; categoría ajena/deleted rechaza. Nuevos efectos, contador, journal y recibo atomizan juntos. Replay histórico conserva resultado/digest sin repetir efectos ni conceder acceso al contenido; stage no es ACK y wrapper responde tras commit. Sin callers/wire/pull/activación nuevos.
+- Validación: Mongo propio asignar/cambiar/quitar categoría, CAS, contenido sin modificación, aislamiento y contexto eliminado/unsupported, duplicados/replay/UUID reutilizado, rollback tras recibo. Regresión íntegra de categorías y suite/lint/tipos/build/diff, plan/commitpush/HEAD/cuotas. Carreras de autorización con snapshots solapados se prueban posteriormente en11c2b3.
+
+
+Durante11c2b2b2, el usuario reduce de nuevo la reserva semanal al2%; 5h mantiene10%. Actualización de AGENTS/workflow en el mismo commit de implementación. No equiparar porcentajes ni iniciar cortes que puedan cruzar el margen vigente.
+
+
+### Resultado11c2b2b2 — Vista personal atómica preparada
+
+item-view.set lee item/vista/tag propios dentro de la sesión, limita contexto a contenido simple activo y aplica CAS sin editar el contenido/progreso. Tag ajeno o eliminado rechaza; vista propia de un item ajeno no concede permiso. Contador/journal/recibo/retry extraídos a helper server-only reutilizado con categorías; guardias de transacción, contratos/bytes y comportamiento de categorías conservados. Wrapper responde tras commit; stage no es ACK. Replay histórico conserva resultado/fingerprint exactos sin reescribir estado o conferir acceso a contenido. Unsupported de cumpleaños/series conserva recibo sin efectos ni sequence; tipos de comando fuera del executor no escriben. Sin callers, wire/pull/ACK ni índices productivos nuevos.
+
+Cuatro escenarios nuevos: asignar/cambiar/quitar y stale-CAS, entrega duplicada/replay y contenido intacto; aislamiento mediante item/tag ajenos y eliminados; fallo después del recibo revierte vista/contador/journal/recibo; evento simple soportado y cumpleaños/serie conservados como unsupported. Regresión real de categorías también aprobada. Mongo aislado37pass/0fail/363aserciones en9archivos, recursos propios eliminados. Normal265pass/62opt-in skip/0fail/5121aserciones, lint384archivos, tipos/build34recursos/diff aprobados.
+
+Petición humana durante esta entrega reduce reserva semanal5→2%; 5h sigue10%. AGENTS/workflow actualizados en este commit, entradas históricas conservadas. Tras commit/push y HEAD/cuotas, próxima11c2b3: barreras para snapshots solapados, coherencia de vecinos/create/delete/nombres y autorización de vista frente a delete. Pruebas secuenciales de acceso no demuestran todavía ese aislamiento concurrente. Compatibilidad/handshake/ACK/pull siguen obligatorios antes de activar.

@@ -186,3 +186,6 @@ Próxima11c2b2b: mutaciones multirregistro propias + contador compartido + journ
 
 
 11c2b2b1: runner incluye `remote-tag-commands.integration.test.ts`; Mongo propio33pass/305aserciones/0fail en8archivos. Commit/replay, CAS/tombstone/nombres, compactación de tres efectos con rollback tras recibo e historial mixto item/tag probados. Sin callers reales; no prueba nueva de navegador ni de convergencia. Índices personales explícitos sólo en DB propia; contenedor/tmpfs limpiados. Carreras con barreras11c2b3 pendientes.
+
+
+11c2b2b2: runner incorpora pruebas de comandos de vistas; Mongo aislado37pass/363aserciones/0fail, nueve archivos. Validaciones de cuenta/contexto, asignar/cambiar/quitar/CAS, duplicados/replay, contenido intacto, rollback tardío y exclusión de series/birthday. Regresión de categorías al extraer helper común. Recursos propios eliminados. No prueba nueva de UI real ni carreras con barreras;11c2b3 pendiente.

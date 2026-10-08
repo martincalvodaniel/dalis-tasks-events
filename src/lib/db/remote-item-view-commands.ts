@@ -1,6 +1,8 @@
 import "server-only"
 
 import type { ClientSession } from "mongodb"
+import { RemoteItemViewRepository } from "@/lib/db/remote-item-views"
+import { RemoteItemRepository } from "@/lib/db/remote-items"
 import { readRemoteOperationReplay } from "@/lib/db/remote-operation-receipts"
 import {
   PreferenceCompareAndSwapError,
@@ -9,13 +11,13 @@ import {
   stagePreferenceReceipt,
 } from "@/lib/db/remote-preference-transactions"
 import { RemoteTagRepository } from "@/lib/db/remote-tags"
-import { planRemoteTagOperation } from "@/lib/preferences/remote-tag-plan"
+import { planRemoteItemViewOperation } from "@/lib/preferences/remote-item-view-plan"
 import { timestampSchema, userIdSchema } from "@/schemas/primitives"
 import { syncOperationSchema } from "@/schemas/sync"
 import type { RemoteOperationResultV2 } from "@/types/remote-operation-result-v2"
 
-// This stage is not an ACK: only its transaction owner can confirm a committed result.
-export async function stageRemoteTagOperation(
+// A staged result is not an ACK; the owner must commit the complete transaction.
+export async function stageRemoteItemViewOperation(
   actorInput: unknown,
   operationInput: unknown,
   timestampInput: unknown,
@@ -25,39 +27,45 @@ export async function stageRemoteTagOperation(
   const operation = syncOperationSchema.parse(operationInput)
   const now = timestampSchema.parse(timestampInput)
   if (!session.inTransaction())
-    throw new Error("Category operations require an active transaction")
+    throw new Error("Item view operations require an active transaction")
   const replay = await readRemoteOperationReplay(actor, operation, session)
   if (replay) return replay
   const command = operation.command
-  const rejected = (
-    status: "unsupported" | "unavailable" | "invalid_command"
-  ): RemoteOperationResultV2 => ({
-    kind: "preference",
-    outcome: { operationId: operation.operationId, status },
-  })
-  if (!["tag.save", "tag.delete", "tag.move"].includes(command.type))
-    return rejected("unsupported")
-  const repository = await RemoteTagRepository.open(actor, session)
-  const tags = await repository.catalog()
-  const planned = planRemoteTagOperation({
+  if (command.type !== "item-view.set")
+    return {
+      kind: "preference",
+      outcome: { operationId: operation.operationId, status: "unsupported" },
+    }
+  const repository = await RemoteItemViewRepository.open(actor, session)
+  const item = await (await RemoteItemRepository.open(actor, session)).read(
+    command.itemId
+  )
+  const current = await repository.read(command.itemId)
+  const tag =
+    command.primaryTagId === null
+      ? null
+      : await (await RemoteTagRepository.open(actor, session)).read(
+          command.primaryTagId
+        )
+  const planned = planRemoteItemViewOperation({
     userId: actor,
     timestamp: now,
     operation,
-    tags,
+    item,
+    current,
+    tag,
   })
   let result: RemoteOperationResultV2
   if (planned.status === "changes") {
-    const previous = new Map(tags.map((tag) => [tag.id, tag]))
     for (const effect of planned.effects) {
-      if (effect.store !== "tags")
-        throw new Error("Category plan contains a foreign effect")
-      const base = previous.get(effect.record.id)
-      const written = base
-        ? await repository.replace(base.revision, effect.record)
+      if (effect.store !== "itemViews")
+        throw new Error("Item view plan contains a foreign effect")
+      const written = current
+        ? await repository.replace(current.revision, effect.record)
         : await repository.insert(effect.record)
       if (!written)
         throw new PreferenceCompareAndSwapError(
-          "Remote category changed during the transaction"
+          "Remote item view changed during the transaction"
         )
     }
     result = await stagePreferenceJournal(
@@ -66,27 +74,31 @@ export async function stageRemoteTagOperation(
       planned.effects,
       session
     )
-  } else if (planned.status === "conflict") {
+  } else if (planned.status === "conflict")
     result = {
       kind: "preference",
       outcome: {
         operationId: operation.operationId,
         status: "conflict",
-        current: { store: "tags", record: planned.current },
+        current: { store: "itemViews", record: planned.current },
       },
     }
-  } else result = rejected(planned.status)
+  else
+    result = {
+      kind: "preference",
+      outcome: { operationId: operation.operationId, status: planned.status },
+    }
   return stagePreferenceReceipt(actor, operation, result, now, session)
 }
 
-// Only an authenticated service may supply the actor; this preparatory executor has no product callers.
-export async function executeRemoteTagOperation(
+// Actor identity must come from an authenticated service. No production callers yet.
+export function executeRemoteItemViewOperation(
   actorInput: unknown,
   operationInput: unknown
 ): Promise<RemoteOperationResultV2> {
   return runPreferenceTransaction(
     actorInput,
     operationInput,
-    stageRemoteTagOperation
+    stageRemoteItemViewOperation
   )
 }
