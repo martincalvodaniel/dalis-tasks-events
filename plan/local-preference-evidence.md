@@ -1,6 +1,6 @@
 # Evidencia local para preferencias sincronizadas
 
-Estado: contrato de transición `11c3c0`, todavía sin schemas, escritores o lectores locales nuevos. El servicio y los executors mixtos preparados están probados con MongoDB; el producto mantiene transporte 1 y sincroniza únicamente tareas/eventos propios simples.
+Estado: contrato de transición `11c3c0`; shadow/decoder puros preparados en `11c3c1a1`. Todavía sin consumidores activos, snapshots/outcomes/backup nuevos ni escritores locales. El servicio y los executors mixtos preparados están probados con MongoDB; el producto mantiene transporte 1 y sincroniza únicamente tareas/eventos propios simples.
 
 ## Punto de partida comprobado
 
@@ -50,7 +50,8 @@ Backup 2: ownership recursivo, claves únicas, dependencia/tail/sequence exactos
 
 | Corte | Rutas y evidencia requerida |
 | --- | --- |
-| `11c3c1a` | Schemas/types/decoders puros de shadow 2 y snapshot personal, verificador de claves/cuenta; legacy readonly, clones, futuro/extra/tombstones y revisión por documento. Sin writer ni callers activos. |
+| `11c3c1a1` | Shadow 2/decoder puro entregado y probado, sin consumidores activos. [Schema](../src/schemas/remote-shadow-v2.ts), [decoder](../src/lib/sync/remote-shadow-v2.ts). |
+| `11c3c1a2` | Snapshot personal por clave/ausencia observada y conjuntos de evidencia; cuenta, claves únicas/completas, efectos multirregistro, clones/futuro/extra/tombstones. Sin writer ni callers activos. |
 | `11c3c1b` | Outcome/input ACK mixtos puros y correspondencia intención/lease/familia/efectos/snapshots. Replay viejo no es ancestro; errores sin documento no conceden permisos. |
 | `11c3c2` | Backup 2, lector/exportador/import preview y verificadores de ownership/evidencia para ambas historias. Fixtures de dependencia/tail/decisiones, UTF8 y snapshot readonly real; todos los lectores listos antes de writers. |
 | `11c3c3` | ACK y proyección personal atómicos con IndexedDB propio: compactación multiefecto, replay/rollback tardío, pendientes/dependientes y reconciliación al terminar cadena. |

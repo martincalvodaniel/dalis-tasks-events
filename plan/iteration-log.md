@@ -1110,3 +1110,12 @@ Nuevo contrato `local-preference-evidence.md` basado en schemas/ACK/pull/backup/
 Formatos legacy siguen readonly/clonados, desconocido/corrupto rechaza sin borrado ni cursor; importación/resolución local no fabrica ACK o permisos. Cortes11c3c1a–4 definidos con rutas/evidencias antes de coordinador/dos dispositivos/activación. Ningún schema/writer/runtime nuevo en esta entrega documental; estado preparatorio y limitaciones separados del producto activo.
 
 Referencias locales y coherencia/diff comprobados; sin repetir lint/tipos/build del código íntegro validado en corte anterior. Próxima candidata11c3c1a: shadow/snapshot personal puros, sólo si cuota posterior y cierre caben; dividir antes de abrir si hace falta. Reserva10%5h/1%7d vigente; commitpushHEAD/cuotas al cierre.
+
+
+### Resultado 11c3c1a1 — Shadow mixto puro
+
+Schema/type explícitos version2/kind item/preference y decoder/verificador puros. Legacy item estricto se adapta sólo en memoria conservando entidad/revisión/tombstone y sin modificar historia. Preferencia individual usa claves tag/item-view/placement canónico/settings por identidad; store, documento, clave y cuenta externa coherentes. Clones y rechazo futuro/extra/ambiguo/corrupto. Reconocer settings/placements como evidencia no implementa sus productores o aplicación; parse no demuestra commit, permiso, ACK ni ancestro.
+
+Cuatro pruebas/39aserciones: legacy/tombstone, familias personales e independencia, scope/fecha de aparición/sentinel overdue, claves cruzadas/cuenta/futuro/extra/corrupción. Tipos de fixtures discriminadas corregidos antes de cierre. Suite285pass/86opt-in skip/0fail/5370aserciones; lint403archivos, tipos/build34recursos/diff aprobados. Contrato sin IO no requiere repetir Mongo. Ningún consumidor/writer/backup activo o migración cambiado.
+
+Próxima candidata11c3c1a2: snapshot personal puro por clave con ausencia observada y sets de evidencia, antes de outcome/backup/ACK/pull. Evaluar cuota posterior contra coste alto observado y reparación/cierre; no abrir si puede cruzar reserva10%5h/1%7d. Repo coherente, protocolo activo1 y preferencias aún preparatorias. CommitpushHEAD/cuotas al cierre.
