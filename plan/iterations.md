@@ -1462,3 +1462,22 @@ Cinco carreras deterministas en MongoDB propio, mediante spies de lectura y barr
 La hipótesis del contador compartido queda demostrada para los contextos propios activos ensayados, incluyendo efectos en documentos disjuntos y permiso frente a borrado; la unicidad de nombres se prueba por separado y no sustituye el contador. No se introducen locks, hooks productivos ni temporizadores para ordenar commits. No extender la evidencia a permisos compartidos o series, aún no soportados.
 
 Mongo42pass/0fail/412aserciones en10archivos; recursos propios eliminados. Normal265pass/69opt-in skip/0fail/5121aserciones, lint385archivos, tipos/build34recursos/diff aprobados. Sin código productivo nuevo ni activación. Próxima11c3a: contrato mixto de transporte/descarga y compatibilidad, antes de readers/ACK/pull/backup/dos dispositivos y provisionamiento explícito. Commit/push/HEAD/cuotas al cierre, reserva10%5h/2%7d vigente.
+
+
+## 11c3a1 — Contrato puro de descarga mixta
+
+- Entrada71%5h/9%7d tras87088f2, secuencial/reserva10%5h/2%7d.
+- Objetivo: página explícita versión2 con cambios item/preference v2 normalizados, límites por página y verificación externa de actor/query/cursor. Una secuencia propia completa, sin filtrar preferencias.
+- `target_paths`: `src/schemas/remote-changes-page-v2.ts`, `src/types/remote-changes-page-v2.ts`, `src/lib/sync/remote-changes-page-v2{,.test}.ts`, `plan/{master,iterations,iteration-log,preference-sync,preference-transactions}.md`.
+- Dependencias: journal v211c2b1c, query puro vigente y races11c2b3a; sin IO, Next, DB, cursor/ACK ni callers activos.
+- Aceptación: propiedades estrictas, versión2, hasta100 cambios con secuencias consecutivas/operationIDs únicos, último igual nextAfter, hasMore/checkpoint coherentes. Verificador expectedUserId/query externo exige primer after+1, número<=limit, through congelado exacto si solicitado; página vacía no avanza ni deja hueco. Salida independiente. Límite2MiB UTF8 de página completa (cada journal<=512KiB), permite al futuro reader emitir menos que limit pero nunca truncar un registro. Legacy página/futuro rechazados; futuro reader adaptará registros legacy íntegros a item/v2 antes de producir la página.
+- Validación: mezcla normalizada y tombstones, clones, páginas inicial/continuación/vacía, cuenta/query/saltos/duplicados/checkpoint/extras/futuro, máximo100 y UTF8; límite global que supera sumando registros individualmente válidos. Suite/lint/tipos/build/diff/plan/commitpush/HEAD/cuotas. Contrato no negocia compatibilidad ni concede permisos/convergencia.
+
+
+### Resultado11c3a1 — Descarga mixta validada
+
+Schema/type/verificador puros para página explícita versión2 con journal item/preference normalizado íntegro. Hasta100 registros, secuencias consecutivas y operationIDs distintos; nextAfter/checkpoint/hasMore coherentes. ExpectedUserId y query externos comprueban cada receptor, after+1, limit y through congelado. Página vacía no avanza ni oculta huecos. Salida clonada, futuro/extra/legacy página rechazan; adaptación readonly de registros legacy sigue siendo tarea del futuro reader antes de crear el envelope. No IO, wire/ACK/cursor/DB ni callers activos nuevos.
+
+Guard2MiB UTF8 para página completa, separado de512KiB por journal. Permite futura paginación de menos registros que limit, nunca truncar contenido; cabe cualquier primer registro admitido con metadata. Cuatro pruebas/58aserciones nuevas cubren mezcla/tombstones/clones, continuación/checkpoint/vacío, dueño/query/saltos/duplicados/extra/futuro/100máximo y página Unicode que excede bytes aun siendo válidos todos sus registros individuales. Fixture de duplicados corregida para reutilizar realmente el UUID del primer registro. Suite269pass/69opt-in skip/0fail/5179aserciones, lint389archivos, tipos/build34recursos/diff aprobados; sin repetir Mongo por este contrato puro.
+
+Próxima11c3a2: reader Mongo propio mixto con snapshot/cursor/byte-paginación sin filtrar historia, seguido de handshake/transporte y ACK/pull/backup compatibles antes de activar. Contrato puro no negocia compatibilidad, concede permisos ni prueba convergencia. Reserva10%5h/2%7d; commitpushHEAD/cuotas al cierre.

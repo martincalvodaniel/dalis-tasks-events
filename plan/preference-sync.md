@@ -1,6 +1,6 @@
 # Sincronización de preferencias personales
 
-Estado11c2b0: DTO, reductores yplanners puros entregados; repositorios propios decategorías/vistas conCAS yMongoDB real comprobados. Sus índices centrales requieren activación explícita. Ejecutor personal, wire nuevo yreconciliación local siguen pendientes: [contrato transaccional](preference-transactions.md). Resultados versionados yadaptación readonly entregados11c2b1a; recibos versión2 entregados11c2b1b; journal versión2 entregado11c2b1c; lectura común derecibos entregada11c2b2a; próximo11c2b2b ejecutor atómico. Tareas/eventos simples usan protocolo vigente; no anunciar preferencias sincronizadas.
+Estado11c3a1: DTO y contratos versionados, planners y repositorios propios preparados; executors tag/view atómicos y carreras Mongo con barreras comprobados. Sus índices centrales requieren activación explícita. Contrato de página mixta2 preparado, reader Mongo11c3a2 siguiente. Wire nuevo, ACK/pull/backup locales y activación siguen pendientes: [contrato transaccional](preference-transactions.md). Tareas/eventos simples mantienen protocolo vigente; no anunciar preferencias sincronizadas.
 
 ## Por qué hace falta otro tramo
 
@@ -156,3 +156,12 @@ Próxima11c2b0: concretar contrato deatomicidad/recibos/journal ydependencias de
 
 
 11c2b3a demuestra con cinco carreras Mongo de snapshots solapados la coherencia de vecinos, autorización propia frente a delete y unicidad NFKC. Retry observa contexto nuevo y conserva ausencia de efectos/journal del perdedor. No locks productivos. Próxima11c3a, contrato mixto/compatibilidad previo a lectores y ACK/pull; no activar por estas pruebas aisladas.
+
+
+### Resultado11c3a1 — Descarga mixta validada
+
+Schema/type/verificador puros para página explícita versión2 con journal item/preference normalizado íntegro. Hasta100 registros, secuencias consecutivas y operationIDs distintos; nextAfter/checkpoint/hasMore coherentes. ExpectedUserId y query externos comprueban cada receptor, after+1, limit y through congelado. Página vacía no avanza ni oculta huecos. Salida clonada, futuro/extra/legacy página rechazan; adaptación readonly de registros legacy sigue siendo tarea del futuro reader antes de crear el envelope. No IO, wire/ACK/cursor/DB ni callers activos nuevos.
+
+Guard2MiB UTF8 para página completa, separado de512KiB por journal. Permite futura paginación de menos registros que limit, nunca truncar contenido; cabe cualquier primer registro admitido con metadata. Cuatro pruebas/58aserciones nuevas cubren mezcla/tombstones/clones, continuación/checkpoint/vacío, dueño/query/saltos/duplicados/extra/futuro/100máximo y página Unicode que excede bytes aun siendo válidos todos sus registros individuales. Fixture de duplicados corregida para reutilizar realmente el UUID del primer registro. Suite269pass/69opt-in skip/0fail/5179aserciones, lint389archivos, tipos/build34recursos/diff aprobados; sin repetir Mongo por este contrato puro.
+
+Próxima11c3a2: reader Mongo propio mixto con snapshot/cursor/byte-paginación sin filtrar historia, seguido de handshake/transporte y ACK/pull/backup compatibles antes de activar. Contrato puro no negocia compatibilidad, concede permisos ni prueba convergencia. Reserva10%5h/2%7d; commitpushHEAD/cuotas al cierre.
