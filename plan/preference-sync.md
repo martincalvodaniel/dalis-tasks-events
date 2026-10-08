@@ -1,6 +1,6 @@
 # Sincronización de preferencias personales
 
-Estado11c3c1a1: DTO y contratos versionados, planners y repositorios propios preparados; executors tag/view atómicos y carreras Mongo con barreras comprobados. Sus índices centrales requieren activación explícita. Contrato y reader Mongo mixto preparados; contrato push mixto y compatibilidad separados preparados; replay común en executor item comprobado; dispatcher mixto comprobado; servicio batch preparado; integración Mongo comprobada; transición de metadata local definida; shadow mixto puro preparado; snapshot personal11c3c1a2 siguiente. Wire nuevo, ACK/pull/backup locales y activación siguen pendientes: [contrato transaccional](preference-transactions.md). Tareas/eventos simples mantienen protocolo vigente; no anunciar preferencias sincronizadas.
+Estado11c3c1a2: DTO y contratos versionados, planners y repositorios propios preparados; executors tag/view atómicos y carreras Mongo con barreras comprobados. Sus índices centrales requieren activación explícita. Contrato y reader Mongo mixto preparados; contrato push mixto y compatibilidad separados preparados; replay común en executor item comprobado; dispatcher mixto comprobado; servicio batch preparado; integración Mongo comprobada; transición de metadata local definida; shadow mixto puro preparado; snapshot personal puro preparado; outcome/submission mixtos11c3c1b siguientes. Wire nuevo, ACK/pull/backup locales y activación siguen pendientes: [contrato transaccional](preference-transactions.md). Tareas/eventos simples mantienen protocolo vigente; no anunciar preferencias sincronizadas.
 
 ## Por qué hace falta otro tramo
 
@@ -252,3 +252,12 @@ Schema/type explícitos version2/kind item/preference y decoder/verificador puro
 Cuatro pruebas/39aserciones: legacy/tombstone, familias personales e independencia, scope/fecha de aparición/sentinel overdue, claves cruzadas/cuenta/futuro/extra/corrupción. Tipos de fixtures discriminadas corregidos antes de cierre. Suite285pass/86opt-in skip/0fail/5370aserciones; lint403archivos, tipos/build34recursos/diff aprobados. Contrato sin IO no requiere repetir Mongo. Ningún consumidor/writer/backup activo o migración cambiado.
 
 Próxima candidata11c3c1a2: snapshot personal puro por clave con ausencia observada y sets de evidencia, antes de outcome/backup/ACK/pull. Evaluar cuota posterior contra coste alto observado y reparación/cierre; no abrir si puede cruzar reserva10%5h/1%7d. Repo coherente, protocolo activo1 y preferencias aún preparatorias. CommitpushHEAD/cuotas al cierre.
+
+
+### Resultado 11c3c1a2 — Snapshot personal puro
+
+Snapshot por clave con registro personal local o ausencia null, conjunto externo exacto y propietario de partición. Claves únicas<=10000/canónicas, revisión0 local admitida, tombstones y clones; settings ausente exige clave de la misma cuenta. Guard2MiBUTF8 para conjunto íntegro, no sólo registros. Overdue conserva sentinel en clave y documento, sin normalizar silenciosamente fecha observada. Formato local separado de efectos remotos positivos: creación optimista actual usa revisión0 en preference-command.ts.
+
+Cinco pruebas/23aserciones: revisión0/ausencia/tombstones/clones, conjuntos vacíos/exactos/incompletos/extra/duplicados, dueño/settings-null, shapes futuros/extra/claves corruptas,7000categorías individualmente válidas que exceden bytes y coherencia civil overdue. Aviso optional-chain corregido antes de cierre; lint sin ruido. Suite290pass/86opt-in skip/0fail/5393aserciones; lint407archivos, tipos/build34recursos/diff aprobados. Contrato sin IO, no repetir Mongo; no writer/migración/backup/ACK/pull/caller activo nuevo.
+
+Próxima candidata11c3c1b: outcome/submission mixtos y relación intención/familia/cuenta/efectos/snapshots exactos. Requiere margen para contratos y fixtures multiefecto/replay viejo; no abrir si cuota posterior menos coste alto observado y reparación/cierre puede cruzar1%7d/10%5h. Repo cerrado, preferencias siguen preparatorias y protocolo activo1. CommitpushHEAD/cuotas al cierre.

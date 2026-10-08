@@ -1,8 +1,28 @@
 import { z } from "zod"
 import { calendarItemSchema } from "@/schemas/calendar-item"
-import { itemEntityKeySchema } from "@/schemas/local-sync"
-import { taskPlacementEntityKey } from "@/schemas/ordering"
+import {
+  itemEntityKeySchema,
+  personalEntityKeySchema,
+} from "@/schemas/local-sync"
+import {
+  taskPlacementEntityKey,
+  taskPlacementEntityKeySchema,
+} from "@/schemas/ordering"
 import { preferenceEffectSchema } from "@/schemas/preference-effects"
+import { userIdSchema } from "@/schemas/primitives"
+
+export const personalShadowEntityKeySchema = z.union([
+  personalEntityKeySchema,
+  taskPlacementEntityKeySchema,
+  z
+    .string()
+    .refine(
+      (value) =>
+        value.startsWith("settings:") &&
+        userIdSchema.safeParse(value.slice(9)).success,
+      "Invalid settings shadow key"
+    ),
+])
 
 export function personalShadowEntityKey(
   effect: z.infer<typeof preferenceEffectSchema>
@@ -39,7 +59,7 @@ export const remoteShadowV2Schema = z.discriminatedUnion("kind", [
     .strictObject({
       version: z.literal(2),
       kind: z.literal("preference"),
-      entityKey: z.string().min(1).max(512),
+      entityKey: personalShadowEntityKeySchema,
       record: preferenceEffectSchema,
     })
     .refine(
