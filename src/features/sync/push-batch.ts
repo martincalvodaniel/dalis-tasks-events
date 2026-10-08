@@ -1,6 +1,6 @@
 import "server-only"
 
-import { syncProtocolVersion } from "@/config/sync-protocol"
+import { syncOperationVersion } from "@/config/sync-protocol"
 import { OperationIdentityReuseError } from "@/lib/db/remote-item-commands"
 import { userIdSchema } from "@/schemas/primitives"
 import {
@@ -35,7 +35,7 @@ export async function pushSyncBatch(
     return { status: "account_changed" }
   if (
     envelope.data.operations.some(
-      (operation) => operation.protocolVersion !== syncProtocolVersion
+      (operation) => operation.protocolVersion !== syncOperationVersion
     )
   )
     return { status: "update_required" }
