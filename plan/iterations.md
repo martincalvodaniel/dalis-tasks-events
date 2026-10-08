@@ -1769,3 +1769,12 @@ Cierre11c3c2c: readers/incidentes mixtos y comparaciones compactas personales co
 
 
 Cierre11c3c3a: módulo standalone y pruebas reales de atomicidad aprobados tras guardias de partición/stores. No activado en LocalSyncStore/coordinador. Dependencias de reader item2 y cola histórica con placements pendientes explícitas antes de pull/activación; no manufacturar ACK para progresar.
+
+### 11c3c2d — Readers item legacy/versionados compatibles
+
+Entrada28%5h/89%7d tras753c944, secuencial y reserva10%/1%. Objetivo adaptar readonly en memoria shadow/outcome item2 a las APIs item vigentes antes de pull mixto; sin activar transporte ni escribir nuevos formatos. target_paths root: src/lib/sync/item-evidence.ts, src/lib/local-db/outbox.ts, src/lib/local-db/sync-store.ts, src/lib/local-db/pull-changes.ts, test/browser/sync-results.ts, test/browser/sync-pull.ts. Dependencias: decoders item2/shadow y readers/backup cerrados. Aceptación: misma cuenta/key/familia estrictas, getters/replay acknowledged/ACK nuevo/pull admiten ambas generaciones, resultado durable exacto e intención conservados; personal/futuro/corrupto no se convierten a item. Escrituras siguen formato vigente cuando correspondan a mutación real; simple getter/replay no reescribe evidencia. Browser fixtures deben persistir item2, confirmar getter/replay readonly y ACK/pull con snapshot2, recarga/cursor/rollback vigentes. Lint/tipos/suite/build/diff/plan/commit/push/cuotas antes de cierre. No nuevo API de envío ni migración; si reparación amenaza reserva, limitar el corte antes de abrir pull/coordinador.
+
+Fixture compartida adicional root: test/browser/item-evidence-fixture.ts encapsula versionado sintético de evidencia y lectura bruta sólo en partición browser-test/loopback, usada por sync-results y sync-pull. No añadir helpers de producción sólo para fixtures ni simular resultados remotos desde decoder.
+
+
+Cierre11c3c2d: readers item compatibles verificados con evidencia2 realmente persistida, getter/replay readonly y ACK/pull vigentes. Próxima11c3c4a requiere contrato local y cursor mixtos, desconocidos no filtrados; separar contrato de transacción antes de abrir si margen limitado.

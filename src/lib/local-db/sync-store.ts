@@ -10,6 +10,7 @@ import {
 import { notifyLocalOutboxChange } from "@/lib/local-db/sync-notifications"
 import { resolveLocalSyncIncident } from "@/lib/local-db/sync-resolution"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { readItemOutcome, readItemShadow } from "@/lib/sync/item-evidence"
 import { planRemoteItemProjection } from "@/lib/sync/item-projection"
 import { calendarItemSchema } from "@/schemas/calendar-item"
 import {
@@ -144,8 +145,9 @@ export class LocalSyncStore {
             if (JSON.stringify(entry.operation) !== JSON.stringify(operation))
               throw new Error("Submitted operation changed before its result")
             if (entry.state === "acknowledged") {
-              const outcome = localOperationOutcomeSchema.parse(
-                outcomeRequest.result
+              const outcome = readItemOutcome(
+                outcomeRequest.result,
+                this.userId
               )
               if (
                 JSON.stringify(outcome.operation) !==
@@ -165,7 +167,7 @@ export class LocalSyncStore {
               shadowRequest.result === undefined
                 ? null
                 : this.ownRecord(
-                    remoteShadowSchema.parse(shadowRequest.result).record
+                    readItemShadow(shadowRequest.result, this.userId).record
                   )
             const entries = entriesRequest.result.map((value) =>
               this.ownEntry(value)

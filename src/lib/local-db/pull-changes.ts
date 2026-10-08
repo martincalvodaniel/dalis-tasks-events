@@ -1,6 +1,7 @@
 "use client"
 
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { readItemShadow } from "@/lib/sync/item-evidence"
 import { planRemoteItemProjection } from "@/lib/sync/item-projection"
 import { calendarItemSchema } from "@/schemas/calendar-item"
 import {
@@ -113,7 +114,7 @@ export function applyLocalChangesPage(
                 const shadow =
                   shadowRequest.result === undefined
                     ? null
-                    : own(remoteShadowSchema.parse(shadowRequest.result).record)
+                    : own(readItemShadow(shadowRequest.result, userId).record)
                 const projection = planRemoteItemProjection({
                   userId,
                   local: own(itemRequest.result),

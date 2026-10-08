@@ -6,6 +6,10 @@ import { taskDraftSchema } from "@/schemas/calendar-item"
 import { entityIdSchema } from "@/schemas/primitives"
 import type { OutboxEntry } from "@/types/local-sync"
 import type { RemoteOperationResult } from "@/types/remote-sync"
+import {
+  readStoredItemEvidence,
+  versionStoredItemEvidence,
+} from "./item-evidence-fixture"
 
 const query = new URLSearchParams(location.search)
 const runId = entityIdSchema.parse(query.get("run") ?? crypto.randomUUID())
@@ -160,7 +164,7 @@ async function runChecks() {
         }
       )
       await check(
-        "ACK de creación conserva edición posterior y prepara revisión dependiente",
+        "ACK conserva edición; getter y replay item2 no reescriben evidencia",
         async () => {
           assert(
             (await sync.applyOperationResult({
@@ -182,6 +186,18 @@ async function runChecks() {
               entries[1].operation.baseRevision === 1 &&
               entries[1].attempts === 0
           )
+          await versionStoredItemEvidence(
+            userId,
+            firstId,
+            claimed.operation.operationId
+          )
+          const storedEvidence = JSON.stringify(
+            await readStoredItemEvidence(
+              userId,
+              firstId,
+              claimed.operation.operationId
+            )
+          )
           assert((await outbox.getShadow(firstId))?.record.revision === 1)
           assert(
             (await sync.applyOperationResult({
@@ -189,6 +205,15 @@ async function runChecks() {
               senderId,
               result: response,
             })) === "replayed"
+          )
+          assert(
+            JSON.stringify(
+              await readStoredItemEvidence(
+                userId,
+                firstId,
+                claimed.operation.operationId
+              )
+            ) === storedEvidence
           )
           assert(response.status === "applied")
           await rejects(() =>

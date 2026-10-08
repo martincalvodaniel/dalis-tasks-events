@@ -5,6 +5,10 @@ import { LocalSyncStore } from "@/lib/local-db/sync-store"
 import { taskDraftSchema } from "@/schemas/calendar-item"
 import { entityIdSchema } from "@/schemas/primitives"
 import type { CalendarItem, Task } from "@/types/calendar-item"
+import {
+  readStoredItemEvidence,
+  versionStoredItemEvidence,
+} from "./item-evidence-fixture"
 
 const query = new URLSearchParams(location.search)
 const runId = entityIdSchema.parse(query.get("run") ?? crypto.randomUUID())
@@ -157,9 +161,21 @@ async function runChecks() {
           assert((await sync.readPullCursor()).after === 2)
         }
       )
+      await versionStoredItemEvidence(userId, firstId)
+      await versionStoredItemEvidence(userId, secondId)
+      const storedEvidence = JSON.stringify(
+        await readStoredItemEvidence(userId, firstId)
+      )
+      assert(
+        (await outbox.getShadow(firstId))?.record.revision === first.revision
+      )
+      assert(
+        JSON.stringify(await readStoredItemEvidence(userId, firstId)) ===
+          storedEvidence
+      )
       const tombstone = { ...second, revision: 3, deletedAt: now }
       await check(
-        "Una página pliega versiones y borrados, y páginas viejas no regresan",
+        "Pull admite shadow item2, pliega borrados y nunca regresa por páginas viejas",
         async () => {
           await sync.applyChangesPage({
             after: 2,

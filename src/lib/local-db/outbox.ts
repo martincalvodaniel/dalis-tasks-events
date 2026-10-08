@@ -7,13 +7,10 @@ import { commitLocalPreferenceCommand } from "@/lib/local-db/preference-outbox"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import { notifyLocalOutboxChange } from "@/lib/local-db/sync-notifications"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { readItemShadow } from "@/lib/sync/item-evidence"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import { calendarItemSchema } from "@/schemas/calendar-item"
-import {
-  outboxEntrySchema,
-  outboxSequenceSchema,
-  remoteShadowSchema,
-} from "@/schemas/local-sync"
+import { outboxEntrySchema, outboxSequenceSchema } from "@/schemas/local-sync"
 import {
   entityIdSchema,
   timestampSchema,
@@ -283,7 +280,7 @@ export class LocalOutbox {
             context.setResult(
               request.result === undefined
                 ? null
-                : remoteShadowSchema.parse(request.result)
+                : readItemShadow(request.result, this.userId)
             )
           } catch (error) {
             context.fail(error)

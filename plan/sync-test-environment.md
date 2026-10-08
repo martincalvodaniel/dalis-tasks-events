@@ -219,3 +219,8 @@ Fixture sync-incidents: cinco checks más dos tras reload, item2 + conflicto per
 ### 11c3c3a — ACK personal standalone en IndexedDB
 
 Runner propio4191, dos particiones UUID sin control real: diez checks completos prueban compactación/rebase por clave y revisión independiente, ACK final reconcilia cachedshadow más nuevo sin cambiar replay, conflictos/rechazos/unsupported preservan cadenas, leases/intención/cuenta, vista sin modificar contenido, guardia de nombre de DB incluso con filas ajenas contaminadas, store unsupported antes de TX, evidencia futura de otro registro, fallo outcome tardío rollback completo y fila10001 sin truncar/ACK. Recursos propios limpiados y servidor detenido. Resultado sintético local: no prueba executor remoto ni convergencia de dos clientes.
+
+
+### 11c3c2d — Readers item2 sobre flujo vigente
+
+Sync-results siete checks+reload preservan getter y replay acknowledged brutos con outcome/shadow item2; ACK siguiente aplica frente a shadow2. Sync-pull seis checks+reload conserva pendiente/cursor y acepta shadow2 al plegar tombstones/versiones, rollback/carrera/historia vieja. Helper de fixture restringido a browser-test loopback; no cambia filas reales ni simula convergencia. Cleanup y servidor propios cerrados.
