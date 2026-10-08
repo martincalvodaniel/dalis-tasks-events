@@ -1680,3 +1680,22 @@ Snapshot por clave con registro personal local o ausencia null, conjunto externo
 Cinco pruebas/23aserciones: revisión0/ausencia/tombstones/clones, conjuntos vacíos/exactos/incompletos/extra/duplicados, dueño/settings-null, shapes futuros/extra/claves corruptas,7000categorías individualmente válidas que exceden bytes y coherencia civil overdue. Aviso optional-chain corregido antes de cierre; lint sin ruido. Suite290pass/86opt-in skip/0fail/5393aserciones; lint407archivos, tipos/build34recursos/diff aprobados. Contrato sin IO, no repetir Mongo; no writer/migración/backup/ACK/pull/caller activo nuevo.
 
 Próxima candidata11c3c1b: outcome/submission mixtos y relación intención/familia/cuenta/efectos/snapshots exactos. Requiere margen para contratos y fixtures multiefecto/replay viejo; no abrir si cuota posterior menos coste alto observado y reparación/cierre puede cruzar1%7d/10%5h. Repo cerrado, preferencias siguen preparatorias y protocolo activo1. CommitpushHEAD/cuotas al cierre.
+
+
+## 11c3c1b1 — Recepción mixta pura
+
+- Entrada30%5h/2%7d tras455432d; el usuario solicita una iteración adicional. Secuencial, reserva10%5h/1%7d conservada; dividir outcome/submission y entregar sólo submission.
+- Objetivo: contrato puro de intención enviada/sender/resultado v2 y verificador externo de cuenta/familia/objetivo mediante verificador mixto existente.
+- `target_paths`: `src/schemas/local-sync-result-v2.ts`, `src/types/local-sync-result-v2.ts`, `src/lib/sync/local-sync-result-v2{,.test}.ts`, `plan/{master,iterations,iteration-log,preference-sync,local-preference-evidence}.md`.
+- Dependencias: resultados/verificador push v2; intención1 y sender UUID vigentes. Sin IO, metadata/outcome durable, writer, ACK, backup ni consumidores activos.
+- Aceptación: relación operationId exacta, sender válido, schema strict y resultado clonado; cuenta, familia y objetivo comprobados; multiefecto completo conserva revisiones independientes. Futuro/extra/identidad ajena rechaza; validación no demuestra lease vigente/commit/ACK.
+- Validación: pruebas puras item/preference/errores, multiefecto, clones y cuenta/familia/objetivo/UUID/futuro/extra; suite/lint/tipos/build/diff/plan/commitpush/HEAD/cuotas. No ampliar a outcome/ACK durante esta petición de una iteración.
+
+
+### Resultado 11c3c1b1 — Recepción mixta pura
+
+Schema/type de submission intención1/senderUUID/resultado v2, relación operationId exacta y verificador puro de cuenta/familia/objetivo reutilizando correspondencia push mixta. Devuelve clones y conserva multiefecto con revisiones independientes; futuro/extra/identidad/cuenta ajena rechazan. Sender UUID no acredita lease vigente; validación no escribe ACK ni demuestra commit/acceso/ancestro. Sin callers, outcome durable, writer, backup o protocolo activo nuevos.
+
+Tres pruebas/20aserciones: multiefecto y clones, cuentas/objetivos/familias/UUID/versiones/extras incoherentes, estados de error de ambas familias preservados. Suite293pass/86opt-in skip/0fail/5413aserciones; lint411archivos sin ruido, tipos/build34recursos/diff aprobados. Contrato sin IO, no repetir Mongo. Petición de una iteración adicional completada con commit/push/HEAD/cuotas y reserva vigente10%5h/1%7d.
+
+Próxima candidata11c3c1b2: outcome mixto durable con snapshots exactos, legacy readonly y replay previo al shadow actual; después backup/ACK/pull compatibles. No ampliar esta entrega al executor local ni activar preferencias.

@@ -1,6 +1,6 @@
 # Sincronización de preferencias personales
 
-Estado11c3c1a2: DTO y contratos versionados, planners y repositorios propios preparados; executors tag/view atómicos y carreras Mongo con barreras comprobados. Sus índices centrales requieren activación explícita. Contrato y reader Mongo mixto preparados; contrato push mixto y compatibilidad separados preparados; replay común en executor item comprobado; dispatcher mixto comprobado; servicio batch preparado; integración Mongo comprobada; transición de metadata local definida; shadow mixto puro preparado; snapshot personal puro preparado; outcome/submission mixtos11c3c1b siguientes. Wire nuevo, ACK/pull/backup locales y activación siguen pendientes: [contrato transaccional](preference-transactions.md). Tareas/eventos simples mantienen protocolo vigente; no anunciar preferencias sincronizadas.
+Estado11c3c1b1: DTO y contratos versionados, planners y repositorios propios preparados; executors tag/view atómicos y carreras Mongo con barreras comprobados. Sus índices centrales requieren activación explícita. Contrato y reader Mongo mixto preparados; contrato push mixto y compatibilidad separados preparados; replay común en executor item comprobado; dispatcher mixto comprobado; servicio batch preparado; integración Mongo comprobada; transición de metadata local definida; shadow mixto puro preparado; snapshot personal puro preparado; recepción mixta pura preparada; outcome durable11c3c1b2 siguiente. Wire nuevo, ACK/pull/backup locales y activación siguen pendientes: [contrato transaccional](preference-transactions.md). Tareas/eventos simples mantienen protocolo vigente; no anunciar preferencias sincronizadas.
 
 ## Por qué hace falta otro tramo
 
@@ -261,3 +261,12 @@ Snapshot por clave con registro personal local o ausencia null, conjunto externo
 Cinco pruebas/23aserciones: revisión0/ausencia/tombstones/clones, conjuntos vacíos/exactos/incompletos/extra/duplicados, dueño/settings-null, shapes futuros/extra/claves corruptas,7000categorías individualmente válidas que exceden bytes y coherencia civil overdue. Aviso optional-chain corregido antes de cierre; lint sin ruido. Suite290pass/86opt-in skip/0fail/5393aserciones; lint407archivos, tipos/build34recursos/diff aprobados. Contrato sin IO, no repetir Mongo; no writer/migración/backup/ACK/pull/caller activo nuevo.
 
 Próxima candidata11c3c1b: outcome/submission mixtos y relación intención/familia/cuenta/efectos/snapshots exactos. Requiere margen para contratos y fixtures multiefecto/replay viejo; no abrir si cuota posterior menos coste alto observado y reparación/cierre puede cruzar1%7d/10%5h. Repo cerrado, preferencias siguen preparatorias y protocolo activo1. CommitpushHEAD/cuotas al cierre.
+
+
+### Resultado 11c3c1b1 — Recepción mixta pura
+
+Schema/type de submission intención1/senderUUID/resultado v2, relación operationId exacta y verificador puro de cuenta/familia/objetivo reutilizando correspondencia push mixta. Devuelve clones y conserva multiefecto con revisiones independientes; futuro/extra/identidad/cuenta ajena rechazan. Sender UUID no acredita lease vigente; validación no escribe ACK ni demuestra commit/acceso/ancestro. Sin callers, outcome durable, writer, backup o protocolo activo nuevos.
+
+Tres pruebas/20aserciones: multiefecto y clones, cuentas/objetivos/familias/UUID/versiones/extras incoherentes, estados de error de ambas familias preservados. Suite293pass/86opt-in skip/0fail/5413aserciones; lint411archivos sin ruido, tipos/build34recursos/diff aprobados. Contrato sin IO, no repetir Mongo. Petición de una iteración adicional completada con commit/push/HEAD/cuotas y reserva vigente10%5h/1%7d.
+
+Próxima candidata11c3c1b2: outcome mixto durable con snapshots exactos, legacy readonly y replay previo al shadow actual; después backup/ACK/pull compatibles. No ampliar esta entrega al executor local ni activar preferencias.
