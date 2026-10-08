@@ -51,3 +51,6 @@ La intención histórica 1 no conserva timestamp de encolado. `command.date` de 
 
 
 La descarga privada preparatoria `11c4a6p` exige cuenta esperada y readiness antes del journal, y valida la página mixta completa. El anuncio 2 vive sólo en ese servicio aislado; conectar la ruta requiere completar también el envío, cliente y matriz de transición.
+
+
+La guardia de envío preparatoria `11c4a6s` delega validaciones al batch y observa readiness antes del primer executor. No reemplaza sesión/autorización del dispatcher ni la provisión explícita de índices; un fallo conserva las intenciones para reintento. Próximo corte `11c4a7p`: conectar estos servicios a una frontera autenticada preparatoria y probar la matriz en aislamiento antes de la activación conjunta.

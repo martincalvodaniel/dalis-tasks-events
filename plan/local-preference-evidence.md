@@ -98,3 +98,6 @@ Readiness11c4a5i [server-only](../src/lib/db/mixed-sync-index-readiness.ts) insp
 
 
 Descarga `11c4a6p` [preparada](../src/features/sync/pull-response-v2.ts): cuenta esperada obligatoria, guardia de readiness, consulta estricta capturada y validación íntegra de página antes de responder. Privada/no-store con anuncio 2 propio; no altera la API activa. Auth/query/cuenta fallan antes de índices/journal y los errores internos no revelan datos. Ocho tests nuevos; siguiente guardia de envío antes de activación conjunta.
+
+
+Envío `11c4a6s` [preparado](../src/features/sync/guarded-push-batch-v2.ts): reutiliza el batch validado y observa readiness sólo antes del primer executor. Fallos de readiness conservan UUID/intención sin ACK; fallos posteriores conservan el prefijo durable. Sin caché entre invocaciones, provisión, acción pública ni cambio de protocolo activo. Seis tests nuevos.
