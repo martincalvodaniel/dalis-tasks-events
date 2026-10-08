@@ -317,3 +317,8 @@ Confirmacióncongela preview ycantidad decambios; edición enotra pestaña inval
 
 
 13b2a: Ajustes ofreceComprobaractualización anteupdate_required, registroexistente/online ywaiting/installing/current/offline/unavailable, sinregister/skipWaiting/reload. Observador conecta instalaciónyaencurso ydisposequitalisteners; avisoesperacompacto. 214pass/30skip/4702aserciones/lint314files/tipos/build30recursos. FixtureReact/IndexedDB/workerdeproductoreal con2versionesownloopback: v1activo/v2waiting mantienedatos/colaexactos, cerrar/reabriractivav2yconservaUUID/payload/estado, cleanupownreg/caches/partición/baseline. Móvil390sin overflow/checkbutton44px. Próxima13c1a backupcontractportable; import/exportUIposteriores. Google/RPCNextrequierepiloto.
+
+
+### Ampliación de preferencias11c0
+
+[preference-sync](preference-sync.md) recoge identidad personal, efectos multirregistro, compatibilidad y próximos cortes. El protocolo operativo sigue1 y solo contenido simple. Wire2/intención durable1 es una propuesta para conservar UUID/fingerprints existentes, no activada. Ningún filtro/coordinador debe enviar preferencias hasta disponer de executor, recibos/journal, ACK/pull/backup y prueba de dos dispositivos completos.
