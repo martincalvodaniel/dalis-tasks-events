@@ -1778,3 +1778,16 @@ Fixture compartida adicional root: test/browser/item-evidence-fixture.ts encapsu
 
 
 Cierre11c3c2d: readers item compatibles verificados con evidencia2 realmente persistida, getter/replay readonly y ACK/pull vigentes. Próxima11c3c4a requiere contrato local y cursor mixtos, desconocidos no filtrados; separar contrato de transacción antes de abrir si margen limitado.
+
+### 11c3c4a1 — Recepción de página local mixta, contrato puro
+
+Entrada24%5h/88%7d tras224eb66. Corte mínimo secuencial antes de TX: target_paths src/schemas/local-changes-page-v2.ts, src/lib/sync/local-changes-page-v2.ts y su test. Dependencias remote page/query v2 y readers/ACK locales cerrados. Envoltorio estricto conserva query completa (after/through/limit, normalizada por schema remoto existente) más page2; verificar relación consulta/cuenta/checkpoint/límites y todos los stores antes de cualquier futura escritura. Sólo items propios simples task/event con revisión positiva y tags/vistas; settings/placements/series/birthday no se filtran, reject whole. Item repetido en página exige revisiones ascendentes como reader vigente; revisiones personales independientes no se convierten en cursor. No IO/ACK/rebase/cursor/caller/writer nuevo. Tests puros: mixto íntegro/clones, consultas congeladas/rango/cuenta/futuro/corrupción/extra, efecto sin soporte al final, revisiones item y formatos admitidos. FullDoD/plan/commit/push/cuotas. Transacción futura11c3c4a2 se abrirá en ventana con margen suficiente para browser/rollback/dos dispositivos.
+
+
+### Resultado 11c3c4a1 — Recepción local de páginas mixtas
+
+Contrato puro estricto conserva la consulta completa normalizada por el schema remoto existente (after/through/limit) junto con página2. Reutiliza verificador remoto de cuenta, continuidad, rango, tamaño y checkpoint congelado; verifica todos los efectos antes de retornar. Sólo propios simples task/event con revisión positiva y tags/vistas. Settings/placements, series/cumpleaños y formatos futuros rechazan íntegros; no filtrar efectos válidos para aceptar parte de una entrada. Items repetidos exigen revisión ascendente dentro de página, mientras revisiones personales permanecen independientes del cursor. Resultado clonado, sin IO/ACK/rebase/cursor ni caller nuevo.
+
+Cuatro pruebas específicas/26 aserciones. DoD global: 334 pass/86 opt-in skip/0 fail/5849 aserciones; lint435 archivos, tipos/build34 recursos/diff aprobados. Contrato puro sin persistencia: no repetir Mongo o navegador ni declarar convergencia. Entrada24%5h/88%7d tras224eb66, secuencial con reserva10%/1%. Commit/push/HEAD y ambas cuotas determinan cierre del lote; no abrir transacción mixta con margen insuficiente para pruebas, reparación y publicación.
+
+Siguiente11c3c4a2: validar la página entera antes de abrir/aplicar cambios, guardar items/tags/vistas/shadows/cursor en una TX propia con lectura de outbox completa; conservar intenciones, dependientes, outcomes y tombstones. Sin ACK o rebase por descarga. Probar checkpoint/carrera/página antigua, cuentas/épocas, stores sin soporte, revisión independiente y fallo tardío de cursor que revierta todos los efectos. Preparar writer aislado antes de capacidades/coordinador; no activar transporte2 sin guardia de cadena personal histórica y evidencia de dos particiones.

@@ -61,7 +61,8 @@ Backup 2: ownership recursivo, claves únicas, dependencia/tail/sequence exactos
 | `11c3c3p` | Adelanto puro entregado: [proyección](../src/lib/sync/preference-projection.ts), cuentas/stores/cadena completa/contradicción por revisión, ausencia y tombstones. No writers/ACK ni avance de dependencias. |
 | `11c3c3a` | Entregado: [writer personal preparatorio](../src/lib/local-db/preference-sync-results.ts), [plan puro](../src/lib/sync/preference-result-plan.ts); commit/rollback/replay/lease/rebase/partición/bounds probados, sin caller productivo. |
 | `11c3c2d` | Entregado: [adapter item readonly](../src/lib/sync/item-evidence.ts) para getter/outcome replay/ACK/pull vigentes; persistencia nueva sólo en mutación real, sin activar transporte. Browser getter/replay byteexact, ACK/pull/rollback/cursor/recarga aprobados. |
-| `11c3c4` | Pull mixto/cursor y routing de incidentes compatibles, cuenta/época/cierre, unknown-store sin avance y tombstones. No elecciones personales prematuras. |
+| `11c3c4a1` | Entregado: [recepción local mixta](../src/lib/sync/local-changes-page-v2.ts) y [schema](../src/schemas/local-changes-page-v2.ts) conservan consulta completa y verifican cuenta/checkpoint/rango/stores. Sólo propios simples y tags/vistas; reject íntegro antes de IO, sin cursor ni ACK. |
+| `11c3c4a2` | Siguiente: descarga mixta atómica y cursor, cuenta/época/cierre, unknown-store sin avance y tombstones. Pruebas IndexedDB de rollback tardío, página antigua y dos particiones antes de caller/activación. |
 | `11c4a–b` | Coordinador/capacidades y conflictos personales, dos particiones con Mongo, clientes mixtos y piloto autorizado; sólo después índices personales explícitos y activación wire 2. |
 
 Partir cada corte antes de implementarlo si su evidencia no cabe en el presupuesto. Mantener commit/push y cuotas por iteración, reserva vigente 10% en 5h y 1% en 7d; esta propuesta no autoriza producción, nuevas dependencias ni pérdida de datos.
