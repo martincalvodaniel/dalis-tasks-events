@@ -817,3 +817,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Objetivo y scope previos: cierre documental después de `f4ba680`, solo `plan/{master,workflow,iterations,iteration-log}.md`. Lectura 12%/44%. El siguiente `13a1b` necesita IO y navegador; los dos puntos sobre la reserva del 10% no cubren pruebas, reparaciones y cierre. Los últimos cortes de código consumieron 5–8 puntos entre lecturas, que pueden incluir uso compartido.
 - Aceptación: código validado y publicado, sin archivos abiertos; siguiente candidata y límites precisos. Heartbeat actual pausado; revisión de las 05:18 de Madrid preservada con reinicio real 1791429393 y continuación desde el último HEAD completo. Sin cadena extra ni créditos o reinicios de cuota.
 - Validación documental: referencias, consistencia y diff; commit, push a int, HEAD remoto y cuotas finales. No repetir build por Markdown.
+
+
+### 13a1b — Snapshot consistente de incidentes locales
+
+- Objetivo previo: leer evidencias y todas las intenciones sin ACK del elemento desde una única transacción readonly de items/outbox/shadows/metadata. Entrada 100%/43%, int/secuencial, reserva 10%; dependencia 13a1a.
+- `target_paths`: `src/{schemas,types}/sync-incident.ts`, `src/lib/sync/{incident-snapshot,incident-snapshot.test}.ts`, `src/lib/local-db/{sync-incidents,sync-store}.ts`, `src/features/sync/local-incidents.ts`, `test/browser/sync-incidents.ts`, `scripts/browser-test-server.ts`, `plan/{master,workflow,iterations,iteration-log,conflict-recovery,sync-test-environment}.md`.
+- Aceptación: snapshot íntegro o error, orden estable por secuencia, borradores posteriores y tombstones conservados, intenciones dependientes incluidas con payload exacto; aislamiento por usuario y época antes/después y conexiones propias cerradas. Sin ACK, red ni elección de versión.
+- Validación: proyección pura con corrupción/cuenta/duplicados/evidencia ausente; navegador IndexedDB real con conflicto, rechazo, dependientes, tombstones, recarga y cuenta cambiada; lint, tipos, suite, build, diff/referencias. Commit y push int con HEAD remoto comprobado, cuotas tras commit.
+
+- Resultado 13a1b: snapshot readonly de cuatro stores, proyección íntegra y orden estable; conserva todas las intenciones sin ACK de cada elemento y tombstones. Wrapper exige usuario/época antes y después y cierra conexión. Tres tests nuevos; 187 pass/30 opt-in skip/0 fail/4526 aserciones, lint 285 archivos, tipos/build aprobados. Navegador valida conflicto+rechazo+dependiente, outcome ausente, recarga y cambio de época. Fixture corregida para completar su logout ficticio antes de nueva preparación; datos propios limpiados y servidor cerrado. Próxima 13a1c.

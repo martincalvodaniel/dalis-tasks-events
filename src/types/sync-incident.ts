@@ -10,3 +10,7 @@ export interface SyncIncident {
   shadowAtOutcome: CalendarItem | null
   remote: CalendarItem | null
 }
+
+export interface SyncIncidentSnapshot extends SyncIncident {
+  intentions: OutboxEntry[]
+}

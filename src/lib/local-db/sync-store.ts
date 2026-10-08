@@ -3,6 +3,7 @@
 import { openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalChangesPage } from "@/lib/local-db/pull-changes"
 import { readLocalSyncQueueSummary } from "@/lib/local-db/queue-summary"
+import { readLocalSyncIncidents } from "@/lib/local-db/sync-incidents"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { planRemoteItemProjection } from "@/lib/sync/item-projection"
 import { calendarItemSchema } from "@/schemas/calendar-item"
@@ -60,6 +61,10 @@ export class LocalSyncStore {
 
   readQueueSummary() {
     return readLocalSyncQueueSummary(this.database, this.userId)
+  }
+
+  readIncidents() {
+    return readLocalSyncIncidents(this.database, this.userId)
   }
 
   close() {

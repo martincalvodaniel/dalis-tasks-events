@@ -6,6 +6,7 @@ if (
   suite !== "outbox" &&
   suite !== "sync-results" &&
   suite !== "sync-pull" &&
+  suite !== "sync-incidents" &&
   suite !== "preferences" &&
   suite !== "ordering" &&
   suite !== "task-ordering" &&

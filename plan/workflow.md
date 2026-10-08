@@ -6,6 +6,8 @@ El usuario autoriza continuar desatendidamente desde00:16 y una revisión poster
 
 Lectura al renovar:100%/58%; siguiente reset5h publicado1791429393, **8oct05:16:33 Madrid**. Revisión puntual adicional creada para05:18, con ambas cuotas y continuación desde último commit cerrado. No comparar consumo5h con la ventana anterior a través del reinicio. No preguntar porcentajes durante este lote ni deducir renovación solo del reloj.
 
+Revisión posterior autorizada ejecutada el 8 de octubre a las 05:18 Madrid: cuota real 100%/43%, reinicio 5h siguiente publicado **1791447514**. Partir de `94117a0` cerrado y publicado; continuar secuencialmente con reserva 10% en ambas ventanas. Esta es la segunda y última revisión autorizada: no programar otra cadena y pausar la automatización al cerrar.
+
 ## Reglas permanentes
 
 - Cada iteración o subiteración es una entrega pequeña, comprobable y cerrada mediante **commit en la rama actual**. No crear o cambiar rama por iniciativa propia. No hacer push, merge o despliegue sin que formen parte de una solicitud autorizada.
