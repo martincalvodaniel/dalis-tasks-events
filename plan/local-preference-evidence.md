@@ -95,3 +95,6 @@ Resumen11c4a5s [puro](../src/lib/sync/queue-summary-v2.ts) reutiliza diagnóstic
 
 
 Readiness11c4a5i [server-only](../src/lib/db/mixed-sync-index-readiness.ts) inspecciona tres índices centrales de tags/vistas: nombre, orden de claves, unicidad, filtro y opciones compatibles. Ausentes/incompatibles impiden ready; sólo NamespaceNotFound26 se clasifica missing y otros errores se propagan. Ninguna provisión personal desde helper; usa singleton con su bootstrap automático vigente. Diez tests mock y una prueba real del descriptor propio con listIndexes intactos. Sin caller/DB real alterada.
+
+
+Descarga `11c4a6p` [preparada](../src/features/sync/pull-response-v2.ts): cuenta esperada obligatoria, guardia de readiness, consulta estricta capturada y validación íntegra de página antes de responder. Privada/no-store con anuncio 2 propio; no altera la API activa. Auth/query/cuenta fallan antes de índices/journal y los errores internos no revelan datos. Ocho tests nuevos; siguiente guardia de envío antes de activación conjunta.

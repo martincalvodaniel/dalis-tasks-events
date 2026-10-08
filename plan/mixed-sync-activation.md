@@ -48,3 +48,6 @@ No anunciar un rango 1–2 para permitir al cliente antiguo saltarse efectos per
 `11c5a1p` extrae el núcleo de ranking sin cambiar el comportamiento local. El executor de colocaciones exige después catálogo por cuenta/ámbito/fecha, autorización del contexto y vecinos, CAS por cada efecto y commit conjunto con vista, recibo y journal. ACK y pull locales deberán admitir placements antes de habilitarlo.
 
 La intención histórica 1 no conserva timestamp de encolado. `command.date` de atrasadas es contexto civil y la fecha almacenada usa el sentinel `0001-01-01`. El reloj remoto actual no puede reemplazar ese contexto ni justificar rechazar automáticamente un movimiento offline. Cerrar esa política como decisión explícita antes de implementar el planner remoto; no inventar una fecha de intención.
+
+
+La descarga privada preparatoria `11c4a6p` exige cuenta esperada y readiness antes del journal, y valida la página mixta completa. El anuncio 2 vive sólo en ese servicio aislado; conectar la ruta requiere completar también el envío, cliente y matriz de transición.
