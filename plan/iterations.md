@@ -1443,3 +1443,22 @@ item-view.set lee item/vista/tag propios dentro de la sesión, limita contexto a
 Cuatro escenarios nuevos: asignar/cambiar/quitar y stale-CAS, entrega duplicada/replay y contenido intacto; aislamiento mediante item/tag ajenos y eliminados; fallo después del recibo revierte vista/contador/journal/recibo; evento simple soportado y cumpleaños/serie conservados como unsupported. Regresión real de categorías también aprobada. Mongo aislado37pass/0fail/363aserciones en9archivos, recursos propios eliminados. Normal265pass/62opt-in skip/0fail/5121aserciones, lint384archivos, tipos/build34recursos/diff aprobados.
 
 Petición humana durante esta entrega reduce reserva semanal5→2%; 5h sigue10%. AGENTS/workflow actualizados en este commit, entradas históricas conservadas. Tras commit/push y HEAD/cuotas, próxima11c2b3: barreras para snapshots solapados, coherencia de vecinos/create/delete/nombres y autorización de vista frente a delete. Pruebas secuenciales de acceso no demuestran todavía ese aislamiento concurrente. Compatibilidad/handshake/ACK/pull siguen obligatorios antes de activar.
+
+
+## 11c2b3a — Carreras deterministas sobre contexto leído
+
+- Entrada74%5h/9%7d tras0694e49 publicado. Secuencial, reserva10%5h/2%7d.
+- Objetivo: probar la hipótesis del contador compartido con snapshots realmente solapados, sin hooks productivos: barreras de tests en lecturas de catálogo/item/tag antes de un commit concurrente.
+- `target_paths`: `src/lib/db/remote-preference-races.integration.test.ts`, `scripts/sync-db-test-runner.ts`, `plan/{master,iterations,iteration-log,preference-transactions,preference-sync,sync-test-environment}.md`. Si evidencia muestra bug, abrir reparación acotada antes de cerrar; no activar writers.
+- Dependencias: executors tag/view/common ledger11c2b2b1/2 y executor item vigente; Mongo aislado e índices registrados explícitos sólo allí.
+- Aceptación: movimiento que leyó vecinos frente a creación/borrado relee catálogo y no aplica orden inválido; vista que leyó item activo frente a delete y categoría activa frente a delete relee autorización y no deja efectos/counter/journal aplicados. Nombres NFKC concurrentes producen un solo activo y rechazo durable del perdedor. Demostrar lecturas repetidas y secuencias/recibos coherentes, sin añadir locks al producto ni usar temporizadores para decidir el orden.
+- Validación: barreras y cleanup de spies/sesiones propios incluso al fallar, pruebas Mongo completas, suite/lint/tipos/build/diff y plan/commitpush/HEAD/cuotas. No declarar convergencia ni activación; compatibilidad/ACK/pull posteriores.
+
+
+### Resultado11c2b3a — Snapshots solapados comprobados
+
+Cinco carreras deterministas en MongoDB propio, mediante spies de lectura y barreras de promesas exclusivamente en tests. Movimiento pausa catálogo vigente; create/delete de vecino confirma primero; al reanudar, target no comparte escritura con el vecino pero contador común provoca retry/relectura y invalid_command durable sin efectos del movimiento. Vista pausa lectura de item/tag activo; delete confirma primero; retry observa tombstone y responde unavailable/invalid_command sin vista ni journal/sequence applied. Colisión de nombre NFKC pausa catálogo antiguo, ganador confirma; inserción perdedora aborta por unicidad y reclasifica sobre snapshot fresco. Se comprueban lectura repetida/tombstone observado, revisiones del target intactas, secuencias sin huecos, recibos durables y ausencia de journal del perdedor. Barreras/spies restaurados y operaciones drenadas incluso al fallar.
+
+La hipótesis del contador compartido queda demostrada para los contextos propios activos ensayados, incluyendo efectos en documentos disjuntos y permiso frente a borrado; la unicidad de nombres se prueba por separado y no sustituye el contador. No se introducen locks, hooks productivos ni temporizadores para ordenar commits. No extender la evidencia a permisos compartidos o series, aún no soportados.
+
+Mongo42pass/0fail/412aserciones en10archivos; recursos propios eliminados. Normal265pass/69opt-in skip/0fail/5121aserciones, lint385archivos, tipos/build34recursos/diff aprobados. Sin código productivo nuevo ni activación. Próxima11c3a: contrato mixto de transporte/descarga y compatibilidad, antes de readers/ACK/pull/backup/dos dispositivos y provisionamiento explícito. Commit/push/HEAD/cuotas al cierre, reserva10%5h/2%7d vigente.

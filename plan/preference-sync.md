@@ -153,3 +153,6 @@ Próxima11c2b0: concretar contrato deatomicidad/recibos/journal ydependencias de
 
 
 11c2b2b2 prepara asignación de categorías propia para tareas/eventos simples con autorización transaccional, CAS/rollback y ledger común; sin activación. Próxima11c2b3 exige carreras deterministas con snapshots solapados antes de compatibilidad/ACK/pull. Política vigente10%5h/2%7d por petición posterior del usuario.
+
+
+11c2b3a demuestra con cinco carreras Mongo de snapshots solapados la coherencia de vecinos, autorización propia frente a delete y unicidad NFKC. Retry observa contexto nuevo y conserva ausencia de efectos/journal del perdedor. No locks productivos. Próxima11c3a, contrato mixto/compatibilidad previo a lectores y ACK/pull; no activar por estas pruebas aisladas.
