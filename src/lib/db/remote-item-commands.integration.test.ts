@@ -5,11 +5,13 @@ import { randomUUID } from "node:crypto"
 import { getSyncDatabaseTestConfig } from "@/config/env"
 import { closeDatabaseConnection, getDatabase } from "@/lib/db/client"
 import { COLLECTION_NAMES, getCollection } from "@/lib/db/collections"
+import { ensureIndexes, INDEX_SPECS } from "@/lib/db/ensure-indexes"
 import {
   executeRemoteItemOperation,
   OperationIdentityReuseError,
 } from "@/lib/db/remote-item-commands"
 import { RemoteItemRepository } from "@/lib/db/remote-items"
+import { executeRemoteTagOperation } from "@/lib/db/remote-tag-commands"
 import type { CalendarItemDraft } from "@/types/calendar-item"
 import type { SyncCommand, SyncOperation } from "@/types/sync"
 
@@ -379,5 +381,113 @@ describe.skipIf(!config)("atomic remote item commands", () => {
       sequence: 1,
     })
     expect((await records(owner)).receipts).toBe(1)
+  }, 30000)
+
+  test("replays versioned item receipts without rewriting history and rejects corrupt envelopes", async () => {
+    const owner = randomUUID()
+    const first = create()
+    const saved = await executeRemoteItemOperation(owner, first)
+    if (saved.status !== "applied") throw new Error("Expected applied creation")
+    const receipts = await getCollection<{
+      _id: string
+      [key: string]: unknown
+    }>(COLLECTION_NAMES.syncOperations)
+    const stored = await receipts.findOne({
+      actorUserId: owner,
+      operationId: first.operationId,
+    })
+    if (!stored) throw new Error("Expected durable receipt")
+    const { _id, ...legacy } = stored
+    const versioned = {
+      ...legacy,
+      version: 2,
+      result: { kind: "item", outcome: saved },
+    }
+    await receipts.replaceOne({ _id }, versioned)
+    try {
+      expect(await executeRemoteItemOperation(owner, first)).toEqual(saved)
+      await executeRemoteItemOperation(
+        owner,
+        operation({ type: "item.delete", itemId: saved.item.id }, 1)
+      )
+      const history = await records(owner)
+      const replay = await executeRemoteItemOperation(owner, first)
+      expect(replay).toEqual(saved)
+      if (replay.status !== "applied")
+        throw new Error("Expected applied replay")
+      replay.item.title = "Mutated returned value"
+      expect(await executeRemoteItemOperation(owner, first)).toEqual(saved)
+      expect(await records(owner)).toEqual(history)
+      expect(await receipts.findOne({ _id })).toEqual({ _id, ...versioned })
+      for (const corruption of [
+        { version: 3 },
+        { "result.outcome.item.ownerId": randomUUID() },
+      ]) {
+        await receipts.updateOne({ _id }, { $set: corruption })
+        try {
+          await expect(
+            executeRemoteItemOperation(owner, first)
+          ).rejects.toThrow()
+          expect(await records(owner)).toEqual(history)
+        } finally {
+          await receipts.replaceOne({ _id }, versioned)
+        }
+      }
+    } finally {
+      await receipts.replaceOne({ _id }, legacy)
+    }
+    expect(await receipts.findOne({ _id })).toEqual(stored)
+  }, 30000)
+
+  test("personal receipt identity is checked before legacy outcome compatibility without new effects", async () => {
+    const database = await getDatabase()
+    await ensureIndexes(
+      database,
+      INDEX_SPECS.filter((spec) => spec.collection === COLLECTION_NAMES.tags)
+    )
+    const owner = randomUUID()
+    const tag = operation({
+      type: "tag.save",
+      tagId: randomUUID(),
+      input: { name: "Receipt category", color: "#123456", position: 1024 },
+    })
+    expect((await executeRemoteTagOperation(owner, tag)).kind).toBe(
+      "preference"
+    )
+    const history = await records(owner)
+    const receipts = await getCollection<{
+      _id: string
+      [key: string]: unknown
+    }>(COLLECTION_NAMES.syncOperations)
+    const stored = await receipts.findOne({
+      actorUserId: owner,
+      operationId: tag.operationId,
+    })
+    expect(stored?.version).toBe(2)
+    const reused = { ...create(), operationId: tag.operationId }
+    await expect(
+      executeRemoteItemOperation(owner, reused)
+    ).rejects.toBeInstanceOf(OperationIdentityReuseError)
+    await expect(executeRemoteItemOperation(owner, tag)).rejects.toThrow(
+      "Stored receipt is incompatible with the item executor"
+    )
+    expect(await records(owner)).toEqual(history)
+    expect(
+      await receipts.findOne({
+        actorUserId: owner,
+        operationId: tag.operationId,
+      })
+    ).toEqual(stored)
+    if (reused.command.type !== "item.create")
+      throw new Error("Expected creation")
+    expect(
+      await (await RemoteItemRepository.open(owner)).read(reused.command.itemId)
+    ).toBeNull()
+    const other = randomUUID()
+    expect(await executeRemoteItemOperation(other, reused)).toMatchObject({
+      status: "applied",
+      sequence: 1,
+    })
+    expect(await records(owner)).toEqual(history)
   }, 30000)
 })

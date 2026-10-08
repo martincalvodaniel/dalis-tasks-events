@@ -7,8 +7,8 @@ import { applyItemCommand } from "@/lib/calendar/item-command"
 import { getDatabase } from "@/lib/db/client"
 import { COLLECTION_NAMES, getCollection } from "@/lib/db/collections"
 import { RemoteItemRepository } from "@/lib/db/remote-items"
+import { readRemoteOperationReplay } from "@/lib/db/remote-operation-receipts"
 import { syncOperationFingerprint } from "@/lib/sync/operation-fingerprint"
-import { OperationIdentityReuseError } from "@/lib/sync/operation-identity-reuse"
 import { eventInputSchema } from "@/schemas/event-input"
 import { revisionSchema, userIdSchema } from "@/schemas/primitives"
 import {
@@ -68,16 +68,11 @@ export async function executeRemoteItemOperation(
   async function transact(
     session: ClientSession
   ): Promise<RemoteOperationResult> {
-    const stored = await receipts.findOne(
-      { actorUserId: actor, operationId: operation.operationId },
-      { session }
-    )
-    if (stored) {
-      const { _id, ...value } = stored
-      const receipt = remoteOperationReceiptSchema.parse(value)
-      if (receipt.fingerprint !== fingerprint)
-        throw new OperationIdentityReuseError()
-      return receipt.result
+    const replay = await readRemoteOperationReplay(actor, operation, session)
+    if (replay) {
+      if (replay.kind !== "item")
+        throw new Error("Stored receipt is incompatible with the item executor")
+      return remoteOperationResultSchema.parse(replay.outcome)
     }
     const command = operation.command
     const result = (

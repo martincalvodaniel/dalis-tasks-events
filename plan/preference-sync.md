@@ -1,6 +1,6 @@
 # Sincronización de preferencias personales
 
-Estado11c3b1b: DTO y contratos versionados, planners y repositorios propios preparados; executors tag/view atómicos y carreras Mongo con barreras comprobados. Sus índices centrales requieren activación explícita. Contrato y reader Mongo mixto preparados; contrato push mixto y compatibilidad separados preparados; replay común en executor item11c3b2a siguiente. Wire nuevo, ACK/pull/backup locales y activación siguen pendientes: [contrato transaccional](preference-transactions.md). Tareas/eventos simples mantienen protocolo vigente; no anunciar preferencias sincronizadas.
+Estado11c3b2a: DTO y contratos versionados, planners y repositorios propios preparados; executors tag/view atómicos y carreras Mongo con barreras comprobados. Sus índices centrales requieren activación explícita. Contrato y reader Mongo mixto preparados; contrato push mixto y compatibilidad separados preparados; replay común en executor item comprobado; dispatcher11c3b2b siguiente. Wire nuevo, ACK/pull/backup locales y activación siguen pendientes: [contrato transaccional](preference-transactions.md). Tareas/eventos simples mantienen protocolo vigente; no anunciar preferencias sincronizadas.
 
 ## Por qué hace falta otro tramo
 
@@ -194,3 +194,12 @@ La versión durable de operación conserva1 y el transporte activo conserva1, ah
 Prueba nueva de23aserciones cubre direcciones incompatibles, versión válida/explícita y valores inválidos. Suite275pass/75opt-in skip/0fail/5272aserciones; lint395archivos, tipos/build34recursos/diff aprobados. Contrato puro no requiere repetir Mongo. Por petición humana durante esta entrega, reserva semanal2→1%; reserva5h10% conservada, AGENTS/workflow actualizados en este mismo commit. Las entradas históricas mantienen su política original.
 
 Próxima candidata11c3b2a: lectura común fingerprint-bound en executor item para clasificar UUID reutilizado frente a recibos personales/versionados, conservando resultado activo legacy y escrituras actuales. Después dispatcher/servicio mixto y metadata/ACK/pull/backup compatibles antes de activar. Commit/push/HEAD/cuotas al cierre, reserva10%5h/1%7d vigente.
+
+
+### Resultado 11c3b2a — Replay item compatible con recibos mixtos
+
+Executor item usa replay común dentro de su transacción snapshot y compara fingerprint canónico antes de interpretar la familia. Recibos legacy/v2 item devuelven outcome legacy independiente; recibo personal exacto rechaza por incompatibilidad sin convertirlo en ACK item. UUID reutilizado con payload/familia diferente lanza identidad reutilizada sin efectos. Escritores/journal/resultado activo1 y autorización propios conservados; índices actor+operationId vigentes, sin rutas o activación personal.
+
+Dos pruebas Mongo nuevas: fixture de recibo item legacy adaptado a v2, replay tras tombstone, independencia de salida/historia, corrupción de dueño/futuro y restauración; recibo de categoría producido por executor real, UUID reutilizado/familia incompatible sin item/journal/counter nuevos y mismo UUID permitido a otro actor. Mongo48pass/0fail/494aserciones en11archivos, contenedor/tmpfs propios eliminados. Suite275pass/77opt-in skip/0fail/5272aserciones; lint395archivos, tipos/build34recursos/diff aprobados.
+
+Próxima candidata11c3b2b: dispatcher preparatorio para delegar por familia a executors reales, conservando validación antes de IO, replay/unsupported y resultado v2 sin activar wire2. Después servicio autenticado y metadata/ACK/pull/backup compatibles antes de preferencias remotas activas. Reserva10%5h/1%7d vigente; commit/push/HEAD/cuotas al cierre.

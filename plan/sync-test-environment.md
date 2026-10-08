@@ -195,3 +195,6 @@ Próxima11c2b2b: mutaciones multirregistro propias + contador compartido + journ
 
 
 11c3a2: runner incorpora reader mixto; Mongo46pass/475aserciones/0fail,11archivos. Historia de executors item/tag/view, checkpoint congelado/tombstones, fixtures de corrupción/restauración/permiso ausente y paginación UTF8 de28tareas completas. Fixtures grandes creadas transaccionalmente en DB propia para probar límites del reader, no como prueba de ACK. Contenedor/tmpfs eliminados. Sin piloto nuevo de navegador ni activación.
+
+
+11c3b2a: runner vigente11archivos, Mongo48pass/494aserciones/0fail; replay item v2 tras tombstone sin reescritura, corrupción/restauración y UUID personal reutilizado frente al executor item probados. Índices de categoría registrados sólo en DB propia; recursos propios eliminados. Sin activación ni piloto nuevo.
