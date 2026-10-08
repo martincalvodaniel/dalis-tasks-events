@@ -165,3 +165,8 @@ Lectura real al reanudar: 100% de 5h / 29% de 7d, reinicio publicado 1791470291.
 ### Paralelismo autorizado en13c2d1
 
 El usuario pide adelantar lo posible en paralelo. Se asignan rutas disjuntas: rootUI/helper/fixture4189/plan, agente únicamente fixtures de dos dispositivos/Mongo. Una integración y commit por corte; ningún recurso ni archivo de otro agente se limpia o revierte. Reserva10% en ambas ventanas, consulta después del commit/push, sin nuevas automatizaciones.
+
+
+### Reanudación tras piloto real, 8 de octubre
+
+Elusuario comunica nueva ventana ypideAdelante. Lectura real100%5h/13%7d, reset5h publicado1791489092; la renovación corta no renueva semanal. Continúa autorización decommitpushint yconsultaautomática poriteración conreserva10ambas; peticiones extraordinarias bajo10 de15a0b/15a1 no seextienden aeste lote. División11c2b1a/b/c, secuencial para mantenercierreconsemanaescasa; no crearautomatizaciones ni consumircréditos/reinicios.
