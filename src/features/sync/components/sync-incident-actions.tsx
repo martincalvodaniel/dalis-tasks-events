@@ -42,7 +42,9 @@ export function SyncIncidentActions({
       choice: selection.choice,
       resolutionId,
       operationId:
-        selection.choice === "retry_local" ? crypto.randomUUID() : null,
+        selection.choice === "adopt_remote" ? null : crypto.randomUUID(),
+      copyItemId:
+        selection.choice === "copy_local" ? crypto.randomUUID() : null,
       createdAt: new Date().toISOString(),
     })
     setBusy(true)
@@ -78,6 +80,15 @@ export function SyncIncidentActions({
           >
             Usar remoto conocido
           </button>
+          {choices.includes("copy_local") ? (
+            <button
+              type="button"
+              className="min-h-11 rounded-lg bg-emerald-700 px-3 font-medium text-white"
+              onClick={() => choose("copy_local")}
+            >
+              Crear copia de mi borrador
+            </button>
+          ) : null}
           {choices.includes("retry_local") ? (
             <button
               type="button"

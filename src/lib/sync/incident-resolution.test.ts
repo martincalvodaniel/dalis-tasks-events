@@ -260,7 +260,7 @@ test("UI choices follow the executor contract for tombstones, related intentions
       ...current,
       remote: { ...current.remote, deletedAt: now },
     })
-  ).toEqual(["adopt_remote"])
+  ).toEqual(["adopt_remote", "copy_local"])
   const blocked = { ...current, blockedByRelatedIntentions: true }
   expect(availableSyncIncidentResolutionChoices(blocked)).toEqual([])
   expect(() =>
@@ -275,6 +275,16 @@ test("UI choices follow the executor contract for tombstones, related intentions
       reason: "unavailable",
     })
   ).toEqual([])
+})
+
+test("copy is not offered for missing or deleted local drafts", () => {
+  const { current, now } = fixture()
+  const remote = { ...current.remote, deletedAt: now }
+  for (const local of [null, { ...current.local, deletedAt: now }]) {
+    expect(
+      availableSyncIncidentResolutionChoices({ ...current, remote, local })
+    ).toEqual(["adopt_remote"])
+  }
 })
 
 test("explicit copy uses a fresh item and operation while preserving the original remote tombstone", () => {

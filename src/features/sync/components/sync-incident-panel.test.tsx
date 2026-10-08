@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test"
 import { renderToStaticMarkup } from "react-dom/server"
 import { SyncIncidentPanel } from "@/features/sync/components/sync-incident-panel"
+import { SyncIncidentResolutionDialog } from "@/features/sync/components/sync-incident-resolution-dialog"
 import { projectSyncIncident } from "@/lib/sync/incident-projection"
 import type { Task } from "@/types/calendar-item"
 import type { OutboxEntry } from "@/types/local-sync"
@@ -152,4 +153,42 @@ test("settings offer proven choices while remote tombstones and related chains l
   const blocked = render({ ...incident, blockedByRelatedIntentions: true })
   expect(blocked).toContain("cambios relacionados fuera")
   expect(blocked).not.toContain("Usar remoto conocido")
+})
+
+test("copy recovery displays a complete draft and explains the new identity without claiming confirmation", () => {
+  const input = fixture()
+  const incident = {
+    ...projectSyncIncident(input),
+    intentions: [input.entry],
+    blockedByRelatedIntentions: false,
+    local: { ...input.local, deletedAt: null },
+    remote: { ...input.remote, deletedAt: input.local.updatedAt },
+  }
+  const html = renderToStaticMarkup(
+    <SyncIncidentPanel
+      incidents={[incident]}
+      error={false}
+      account={{ userId: input.userId, epoch: crypto.randomUUID() }}
+    />
+  )
+  expect(html).toContain("Crear copia de mi borrador")
+  expect(html).not.toContain("Enviar mi borrador")
+  const dialog = renderToStaticMarkup(
+    <SyncIncidentResolutionDialog
+      incident={incident}
+      choice="copy_local"
+      busy={false}
+      onConfirm={async () => {}}
+      onClose={() => {}}
+    />
+  )
+  for (const text of [
+    "¿Crear una copia",
+    "Local draft",
+    "original seguirá eliminado",
+    "sin copiar categoría ni orden",
+    "pendiente de confirmación",
+    "historial",
+  ])
+    expect(dialog).toContain(text)
 })

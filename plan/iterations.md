@@ -898,3 +898,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 
 
 13a2c2: copia y original tombstone guardados junto con cola/contador/evidencia en cuatro stores; nuevo ID libre frente a registros/historial/tombstones, entityKey del nuevo elemento. Rollback tardío deja ambos elementos y cola intactos; replay no sobrescribe copia editada. IndexedDB nueve checks+recarga y diez escenarios reales dos dispositivos/Mongo aprobados; lostresponse produce una sola copia revision1 y original tombstone revision2 intacto. Recursos propios limpios. Normal203pass/30skip/4618aserciones, lint304files/tipos/build30recursos aprobados. Próxima13a2c3 UI de copia, sin categorías/orden duplicados ni ACK local.
+
+### 13a2c3 — Copia explícita desde Ajustes
+
+- Objetivo previo: ofrecer copia nueva solo cuando local vivo y remoto borrado, tras persistencia/convergencia13a2c2. Entrada53%/36%, int/secuencial/reserva10%.
+- `target_paths`: `src/lib/sync/{incident-resolution,incident-resolution.test}.ts`, `src/features/sync/components/{sync-incident-actions,sync-incident-resolution-dialog,sync-incident-panel.test}.tsx`, `test/browser/sync-incident-ui.tsx`, `plan/{master,iterations,iteration-log,conflict-recovery,sync-test-environment}.md`.
+- Aceptación: opciones cumplen contrato, copia requiere nueva identidad y operación estables durante reintento; preview exacta y confirmación indican original borrado, categorías/orden no copiados y cola pendiente, sin ACK. Cancelar no cambia nada; recarga conserva original tombstone/copia/cola e historial. Móvil compacto sin overflow, botones utilizables; sin nuevo destino de navegación.
+- Validación: tests disponibilidad (local borrado/no local bloquean copia), SSR label/confirmación, UIreal cancelación/confirmación/reload/IDs/estados/copy sinACK; suite/lint/tipos/build/diff/referencias. Commit/pushint/HEAD/cuotas.
+
+
+13a2c3: Ajustes ofrece Crear copia de mi borrador solo para local vivo frentearemoto tombstone, conidentidad/operación/timestamp estables yconfirmación decontenido completo, originalborrado, sincategoría/orden ypending. Tests guardiaslocalmissing/deleted ySSR; normal205pass/30skip/4628aserciones, lint304files/tipos/build30recursos aprobados. FixtureUI móvil390/dialog358/buttons48 sinoverflow: cancelar sincambios, confirmar/reload origentombstone+copyrev0+createbase0/entityKeynuevo/2superseded/1pending/sinACK; limpieza propia. Próxima13b1 recuperación/transporte según dependencias.

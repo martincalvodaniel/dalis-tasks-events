@@ -9,7 +9,10 @@ import {
 } from "@/schemas/sync-resolution"
 import type { CalendarItem } from "@/types/calendar-item"
 import type { SyncOperation } from "@/types/sync"
-import type { SyncResolutionRecord } from "@/types/sync-resolution"
+import type {
+  SyncResolutionRecord,
+  SyncResolutionRequest,
+} from "@/types/sync-resolution"
 
 function validateResolutionSnapshot(input: unknown, userId: string) {
   const current = syncIncidentSnapshotSchema.parse(input)
@@ -80,16 +83,17 @@ function validateResolutionSnapshot(input: unknown, userId: string) {
 
 export function availableSyncIncidentResolutionChoices(
   input: unknown
-): ("adopt_remote" | "retry_local")[] {
+): SyncResolutionRequest["choice"][] {
   try {
     const parsed = syncIncidentSnapshotSchema.parse(input)
     const { local, remote } = validateResolutionSnapshot(
       parsed,
       parsed.entry.userId
     )
-    return local && !remote.deletedAt
-      ? ["adopt_remote", "retry_local"]
-      : ["adopt_remote"]
+    if (local && !remote.deletedAt) return ["adopt_remote", "retry_local"]
+    if (local && !local.deletedAt && remote.deletedAt)
+      return ["adopt_remote", "copy_local"]
+    return ["adopt_remote"]
   } catch {
     return []
   }

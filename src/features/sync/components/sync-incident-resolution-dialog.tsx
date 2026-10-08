@@ -17,22 +17,27 @@ export function SyncIncidentResolutionDialog({
   onClose(): void
 }) {
   const adopt = choice === "adopt_remote"
+  const copying = choice === "copy_local"
   const deleting = !adopt && Boolean(incident.local?.deletedAt)
   return (
     <ConfirmationDialog
       heading={
         adopt
           ? "¿Usar la versión remota conocida?"
-          : deleting
-            ? "¿Enviar el borrado local?"
-            : "¿Enviar todo tu borrador?"
+          : copying
+            ? "¿Crear una copia de tu borrador?"
+            : deleting
+              ? "¿Enviar el borrado local?"
+              : "¿Enviar todo tu borrador?"
       }
       confirmLabel={
         adopt
           ? "Usar versión remota"
-          : deleting
-            ? "Guardar borrado para enviar"
-            : "Guardar para enviar"
+          : copying
+            ? "Crear copia para enviar"
+            : deleting
+              ? "Guardar borrado para enviar"
+              : "Guardar para enviar"
       }
       pendingLabel="Guardando…"
       confirmTone="primary"
@@ -57,9 +62,11 @@ export function SyncIncidentResolutionDialog({
         <p>
           {adopt
             ? "Tu borrador dejará de mostrarse. La versión remota es la última conocida aquí y puede haber cambios más recientes."
-            : deleting
-              ? "Se enviará una nueva intención de borrado. Quedará pendiente de confirmación cuando haya conexión y puede aparecer otro conflicto."
-              : "Se enviará toda esta versión, incluidos estado y checklist; no se fusionará automáticamente con el remoto. Quedará pendiente de confirmación cuando haya conexión y puede aparecer otro conflicto."}
+            : copying
+              ? "El original seguirá eliminado. Se creará otro elemento con tu contenido, estado, checklist y fecha, sin copiar categoría ni orden. La copia quedará pendiente de confirmación cuando haya conexión."
+              : deleting
+                ? "Se enviará una nueva intención de borrado. Quedará pendiente de confirmación cuando haya conexión y puede aparecer otro conflicto."
+                : "Se enviará toda esta versión, incluidos estado y checklist; no se fusionará automáticamente con el remoto. Quedará pendiente de confirmación cuando haya conexión y puede aparecer otro conflicto."}
         </p>
         <p className="text-zinc-500">Puedes cancelar para seguir revisando.</p>
       </div>

@@ -9,6 +9,7 @@ import {
 } from "@/lib/local-db/account-control"
 import { localDatabaseName } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
+import { LocalRepository } from "@/lib/local-db/repository"
 import { LocalSyncStore } from "@/lib/local-db/sync-store"
 import { entityIdSchema } from "@/schemas/primitives"
 
@@ -74,7 +75,7 @@ if (query.get("phase") !== "reload") {
         revision: 1,
         createdAt: now,
         updatedAt: now,
-        deletedAt: null,
+        deletedAt: query.get("choice") === "copy" ? now : null,
         completedAt: null,
       },
     },
@@ -123,7 +124,7 @@ actions.append(button)
 button.onclick = async () => {
   const after = await outbox.listEntries()
   if (query.get("choice")) {
-    const expectedPending = query.get("choice") === "retry" ? 1 : 0
+    const expectedPending = query.get("choice") === "adopt" ? 0 : 1
     if (
       after.filter((entry) => entry.state === "pending").length !==
         expectedPending ||
@@ -131,6 +132,40 @@ button.onclick = async () => {
       after.some((entry) => entry.state === "acknowledged")
     )
       throw new Error("Resolution produced incorrect local states")
+    if (query.get("choice") === "copy") {
+      const repository = await LocalRepository.open(userId)
+      try {
+        const items = await repository.list("items", { includeDeleted: true })
+        const copyEntry = after.find((entry) => entry.state === "pending")
+        const command = copyEntry?.operation.command
+        const originalId = after.find((entry) => entry.state === "superseded")
+          ?.operation.command
+        if (
+          command?.type !== "item.create" ||
+          !originalId ||
+          !("itemId" in originalId)
+        )
+          throw new Error("Copy queue is incomplete")
+        const copy = items.find((item) => item.id === command.itemId)
+        const old = items.find((item) => item.id === originalId.itemId)
+        if (
+          items.length !== 2 ||
+          !old?.deletedAt ||
+          !copy ||
+          copy.deletedAt ||
+          copy.revision !== 0 ||
+          copy.id === old.id ||
+          copy.kind !== "task" ||
+          copy.status !== "in_progress" ||
+          copy.checklist.length !== 1 ||
+          copyEntry?.entityKey !== `item:${copy.id}` ||
+          copyEntry.operation.baseRevision !== 0
+        )
+          throw new Error("Copy or original projection is incorrect")
+      } finally {
+        repository.close()
+      }
+    }
     for (const original of entries.filter(
       (entry) => entry.state === "conflict"
     )) {
