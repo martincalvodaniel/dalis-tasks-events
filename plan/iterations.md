@@ -1000,3 +1000,21 @@ El 8 de octubre el usuario autoriza un intento mínimo con aproximadamente 8% de
 - Aceptación: solicitudes de precache con `credentials: "same-origin"`; mantener rechazo de respuestas redirigidas, URL inesperada y shell sin marcador neutro, y eliminación de caché fallida. APIs, autenticación y contenido personalizado siguen fuera del precache.
 - Validación: worker de producto compilado y ejecutado en sandbox de pruebas con gate de autenticación simulado; tres pruebas cubren opciones de cada recurso, redirección SSO y HTML sin marcador. El simulador representa explícitamente opciones del navegador porque Bun normaliza `same-origin` a `include`. Suite 222 pass / 30 opt-in skip / 0 fail, 4749 aserciones; lint 326 archivos y tipos aprobados. Build aprobado: `/workspace` estático y worker preparado con 30 recursos neutros; diff y rutas comprobados para el cierre.
 - Límite: no se ha reproducido el acceso SSO en el dominio real de Vercel; el usuario debe recargar el preview publicado y verificar preparación. No borrar IndexedDB ni trabajo local. La siguiente candidata de producto continúa siendo `13c2a`; piloto real Google/RPC Next pendiente.
+
+
+## 13c2a — Vista previa pura de importación
+
+- Entrada: 100% de 5h y 29% de 7d; usuario autoriza continuar y consultar ambas cuotas tras cada commit/push para escoger el siguiente corte. Trabajo secuencial en `int`, reserva base del 10% y cortes pequeños.
+- Objetivo: comparar un archivo de backup íntegro con un snapshot propio actual antes de introducir ejecutor o UI de confirmación.
+- `target_paths`: `src/lib/backup/import-preview.ts`, su test, `src/types/backup-import.ts`, `plan/{master,workflow,iterations,iteration-log,backup-recovery,offline-and-sync}.md`.
+- Dependencias: contrato portable `13c1d`, snapshot readonly y fix de preview `13b2b`.
+- Aceptación: validar íntegramente ambos snapshots y su cuenta/versión/bytes; comparar por identidad de cada store, clasificar nuevos, idénticos, cambiados y tombstones de origen/destino; conservar contenido no admitido e historia como evidencia, sin restaurar permisos/ACK/leases/cursor ni generar intenciones o escribir. Igualdad exacta del registro validado, incluidos metadatos; no deduplicar por título ni inferir cuál versión es más nueva. Indexación lineal y ordenación O(n log n), salida determinista por clave.
+- Validación: casos mixtos en once stores, tombstones en ambos lados, mismos títulos con identidades distintas, tipo no soportado, entrada ajena/incompatible/corrupta/acotada; entradas sin mutación y salida independiente; suite, lint, tipos, build, diff/rutas/plan.
+- Piloto: el usuario confirma que el fix funciona en preproducción. El navegador aislado de Codex requiere login de Vercel; no tiene la sesión del usuario y no se ha realizado prueba de Google/RPC Next ni escritura en DB remota. Se continúa trabajo puro independiente.
+
+
+### Resultado 13c2a
+
+La vista previa pura valida el archivo y el snapshot actual completos para la cuenta activa; clasifica registros por identidad en los once stores sin IO, nuevas operaciones ni restauración de ACK, cursores, leases o permisos. Conserva contenido e historia en objetos independientes. Los tipos sin ejecutor quedan explícitos; igualdad exacta incluye metadatos y no establece precedencia remota. Se indexa cada store con Map y se ordena por clave: O(n log n) por ordenación, sin búsquedas cuadráticas ni mezcla por títulos. Cuatro pruebas/55 aserciones cubren stores, independencia, cambios, tombstones, orden determinista, tipos incompatibles y rechazo íntegro. Suite 226 pass / 30 opt-in skip / 0 fail / 4804 aserciones, lint 329 archivos, tipos y build de 30 recursos neutros aprobados. Próximo corte `13c2b`: contrato puro de selecciones e intenciones nuevas antes de ejecutor o UI.
+
+El usuario confirma que `13b2b` funciona en preproducción. La comprobación del navegador aislado termina en login de Vercel; falta sesión y cuenta de piloto, por lo que no se declara probado Google/RPC Next real ni convergencia en preproducción. No se modifica la DB del usuario.

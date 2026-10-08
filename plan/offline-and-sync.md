@@ -167,7 +167,7 @@ Prueba reproducible: `bun run scripts/browser-test-server.ts outbox`, abrir la m
 
 ### Implementación y prueba de `04a`
 
-`bun run build` ejecuta Next y compila después el worker TypeScript con el build ID y una lista de recursos locales: shell prerenderizado, todos los chunks/CSS/fuentes de `.next/static`, manifest e iconos. Se cachean recursos neutros con solicitudes sin credenciales, sin seguir redirects; el HTML debe llevar el marcador del shell. APIs, auth, HTML personalizado, RSC y POST no se interceptan. La activación normal espera que no haya clientes del worker anterior; no se fuerza `skipWaiting`.
+`bun run build` ejecuta Next y compila después el worker TypeScript con el build ID y una lista de recursos locales: shell prerenderizado, todos los chunks/CSS/fuentes de `.next/static`, manifest e iconos. Se cachean recursos neutros con credenciales del mismo origen para admitir previews protegidos (`13b2b`), rechazando respuestas redirigidas; el HTML debe llevar el marcador del shell. APIs, auth, HTML personalizado, RSC y POST no se interceptan. La activación normal espera que no haya clientes del worker anterior; no se fuerza `skipWaiting`.
 
 `/api/sync/identity` se adelanta de `12a` porque la preparación necesita un ID autorizado y estable; verifica sesión DB vigente y responde `private, no-store`. El shell no contiene identidad en el HTML y recuerda solo una cuenta previamente preparada. `04b` añade cierre de sesión/cambio de cuenta entre pestañas y actualización controlada. Los iconos PNG proceden del SVG local; el script utiliza `sharp`, ya instalado transitivamente por Next, sin añadir dependencias.
 

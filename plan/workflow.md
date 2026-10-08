@@ -155,3 +155,8 @@ El piloto de Google y RPC de Next real sigue pendiente. Preferencias, series, cu
 ### Excepción puntual para el fix de preproducción
 
 El usuario autoriza «Haz un intento mínimo» tras conocer que ejecutar el fix con aproximadamente 8% restante de 5h consume la reserva del 10%. Esta autorización cubre únicamente `13b2b`, pruebas y commit/push en `int`. Cerrar después, sin otro corte ni automatización. No modifica permanentemente la reserva. La última lectura automática previa fue 9% de 5h y 29% de 7d; las cifras pueden incluir uso de otros chats. Volver al protocolo normal de ambas cuotas al cerrar.
+
+
+### Continuación autorizada tras renovación del 8 de octubre
+
+Lectura real al reanudar: 100% de 5h / 29% de 7d, reinicio publicado 1791470291. «Adelante» y la instrucción posterior autorizan commit y push por iteración, consulta automática de ambas ventanas y siguiente corte si todavía hay margen. Trabajo secuencial con reserva base del 10% en ambas ventanas, sin automatizaciones nuevas ni créditos. El menor margen semanal limita el alcance aunque la ventana de 5h esté renovada. Antes de cada corte usar coste observado más reparación/cierre. `13c2a` es puro; piloto real necesita sesión de Vercel/Google en los navegadores de prueba y no bloquea este trabajo independiente.

@@ -18,3 +18,12 @@ Importación aún no disponible. Cortes posteriores deben mostrar contenido/dupl
 
 
 13c1d: outcome.local/base/current/applieditem deben coincidirconcommand.itemId; replacement exacto contra operaciónpreservada, sinaceptarevidenciamanipulada. Dos tests identity/payload/actornested/counter/shadowduplicado; 219pass/30skip/4734aserciones/lint325files/tipos/build30recursos aprobados. Fixture usa operaciónclonada separada de decisiónpara quealterar una pruebe realmenterechazo. Sin nuevaUI/IO/migración. Código cerrado, próxima13c2apreviewimportación.
+
+
+## 13c2a — Comparación antes de importar
+
+`previewLocalBackupImport` acepta el JSON y un snapshot local íntegro de la misma cuenta; valida versiones, estructura, historia y bytes de ambos antes de devolver filas. La identidad usa la clave de cada store (incluidas colocaciones y membresías compuestas). No une títulos iguales con IDs distintos. Las filas representan registros del archivo; registros existentes exclusivamente en el dispositivo quedan intactos.
+
+Clasificaciones: new, identical, changed, source_deleted, current_deleted y both_deleted. Los borrados tienen prioridad sobre igualdad. La comparación exacta incluye timestamps/revisión y nunca deduce antigüedad remota de exportedAt. Simple_item identifica contenido de tarea/evento sin repetición; no significa que exista todavía ejecutor. Preferencias/series/apariciones/cumpleaños siguen unsupported; outbox/shadows/metadata/permisos/invitaciones quedan evidence_only, conservados íntegramente para revisión. No se generan operaciones ni se acepta un ACK del archivo como resultado local. Salida por clave determinista O(n log n), con snapshots independientes y sin IO.
+
+Próxima `13c2b`: contrato validado de selecciones, identidades y operaciones nuevas. El ejecutor deberá revalidar cuenta/época y snapshot actual, preservar historia y pendientes, asegurar atomicidad/replay y rechazar elecciones obsoletas; solo después se ofrecerá confirmación UI.
