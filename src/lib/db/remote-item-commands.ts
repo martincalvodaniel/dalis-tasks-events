@@ -8,6 +8,7 @@ import { getDatabase } from "@/lib/db/client"
 import { COLLECTION_NAMES, getCollection } from "@/lib/db/collections"
 import { RemoteItemRepository } from "@/lib/db/remote-items"
 import { syncOperationFingerprint } from "@/lib/sync/operation-fingerprint"
+import { OperationIdentityReuseError } from "@/lib/sync/operation-identity-reuse"
 import { eventInputSchema } from "@/schemas/event-input"
 import { revisionSchema, userIdSchema } from "@/schemas/primitives"
 import {
@@ -41,11 +42,8 @@ function isSimpleItem(item: CalendarItem | CalendarItemDraft): boolean {
 }
 
 class ItemCompareAndSwapError extends Error {}
-export class OperationIdentityReuseError extends Error {
-  constructor() {
-    super("Operation identity was reused with a different payload")
-  }
-}
+
+export { OperationIdentityReuseError } from "@/lib/sync/operation-identity-reuse"
 
 // Only an authenticated server service may supply actorInput; payloads contain no actor.
 export async function executeRemoteItemOperation(

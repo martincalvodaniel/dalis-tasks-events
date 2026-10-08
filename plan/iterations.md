@@ -1383,3 +1383,22 @@ Función server-only poractor+operationId validados, colección vigente/singleto
 MongoDB propio runner28pass/0fail/231aserciones en7archivos; tres nuevaspruebas: mismoUUID entreactores/legacy+personal/independencia/requests inválidos; corrupción/futuro rechaza yfixture restaurada; receipt visible sólo dentro desession yrollback intacto. Runner revalida disponibilidad medianteimagen fijada/guards, contenedor/tmpfs propios eliminados; noDBusuario/secrets/hosting. Fixtures ajustan_id string ydiscriminantes literales a tipado deldriver. Normal265pass/49opt-in skip/0fail/5121aserciones, lint378archivos, tipos/build34recursos/diff-check aprobados.
 
 Próxima11c2b2b: mutaciones multirregistro propias + contador compartido + journal/recibo enmisma sesión, replay/CAS/fallos tardíos ypruebasMongo;11c2b3 probará carreras conbarreras antes deactivar. Este lector no verifica digest contraintención por sísolo: futuroexecutor debe comparar fingerprint yautorización vigente. Elegir siguientecorte trascuotas, reservando margen de reparación/cierre ysin equiparar porcentajes deventanas.
+
+
+## 11c2b2a2 — Replay común ligado a la intención
+
+- Entrada 85% de 5h / 11% semanal; petición «Siguiente», secuencial y reserva 10% en ambas ventanas. Corte mínimo previo al ejecutor, sin abrir mutaciones personales.
+- Objetivo: comprobar el fingerprint canónico de la intención v1 contra el recibo propio legacy/v2; replay devuelve el resultado durable normalizado o null, y reutilizar UUID con otro contenido lanza el error compartido de identidad.
+- `target_paths`: `src/lib/db/remote-operation-receipts{,.integration.test}.ts`, `src/lib/sync/operation-identity-reuse.ts`, reexport compatible en `src/lib/db/remote-item-commands.ts`, `plan/{master,iterations,iteration-log,preference-transactions}.md`.
+- Dependencias: lector 11c2b2a, fingerprint vigente, schemas v1/v2; consulta existente actor+operationId ya indexada. No nuevos índices, escritores, callers, wire ni ACK.
+- Aceptación: intención validada antes de IO, actor externo validado, comparación de digest calculado en servidor sin aceptar digest del cliente; error de clase idéntica al executor vigente. Propagar sesión, conservar historia y no conceder autorización por el recibo.
+- Validación: Mongo propio, replay legacy/v2, orden de propiedades equivalente, cambios de base/payload/familia con mismo UUID rechazados, aislamiento por actor, invalid input, historia intacta y visibilidad transaccional/rollback. Suite normal, lint/tipos/build/diff, commit+push int/HEAD y cuotas.
+
+
+### Resultado 11c2b2a2 — Replay ligado a la intención
+
+`readRemoteOperationReplay` valida actor e intención antes de IO, calcula el fingerprint v1 canónico en servidor y compara contra el recibo propio legacy/v2 leído en la sesión suministrada. Devuelve resultado normalizado/null; UUID reutilizado con otra base, contenido o familia lanza `OperationIdentityReuseError`. Clase extraída a módulo server-only compartido y reexportada desde el executor item, conservando compatibilidad y comportamiento activo. No acepta digest del cliente, no escribe ni concede autorización/ACK por el recibo; el servicio futuro debe aplicar su política de acceso. Query ya cubierta por índice actor+operationId, sin nuevos índices ni callers productivos.
+
+MongoDB aislado: 29 pruebas, 249 aserciones, cero fallos; legacy/personal, orden de propiedades equivalente, aislamiento por actor, reutilización de identidad, input inválido, historia intacta y visibilidad de sesión/rollback. Contenedor y almacenamiento propios eliminados. Suite normal 265 pass/50 opt-in skip/0 fail/5121 aserciones; lint 379 archivos, tipos y build con 34 recursos neutrales aprobados. Se corrigió únicamente el literal discriminante de una fixture tras detectar el error de tipos. Diff comprobado; commit y push a int con verificación de HEAD remoto y lectura de cuotas al cierre.
+
+Próxima candidata 11c2b2b: aplicar efectos, contador compartido, journal y recibo en una transacción; conservar pruebas de fallo tardío/replay/CAS y carreras 11c2b3 antes de activar preferencias remotas. El helper entregado es preparatorio y no activa su sincronización.

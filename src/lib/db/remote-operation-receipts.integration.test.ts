@@ -4,7 +4,12 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test"
 import { getSyncDatabaseTestConfig } from "@/config/env"
 import { closeDatabaseConnection, getDatabase } from "@/lib/db/client"
 import { COLLECTION_NAMES, getCollection } from "@/lib/db/collections"
-import { readRemoteOperationReceipt } from "@/lib/db/remote-operation-receipts"
+import {
+  readRemoteOperationReceipt,
+  readRemoteOperationReplay,
+} from "@/lib/db/remote-operation-receipts"
+import { syncOperationFingerprint } from "@/lib/sync/operation-fingerprint"
+import { OperationIdentityReuseError } from "@/lib/sync/operation-identity-reuse"
 
 const config = getSyncDatabaseTestConfig()
 const actorPrefix = `receipt-reader-${config?.runId}-`
@@ -143,6 +148,13 @@ describe.skipIf(!config)("owned remote receipt reader", () => {
   test("uses the supplied snapshot session and leaves no receipt after fixture rollback", async () => {
     const database = await ownedDatabase()
     const next = personal(`${actorPrefix}session`)
+    const operation = {
+      protocolVersion: 1,
+      operationId: next.operationId,
+      baseRevision: 1,
+      command: { type: "tag.delete", tagId: crypto.randomUUID() },
+    }
+    next.fingerprint = syncOperationFingerprint(operation)
     const receipts = await getCollection<{
       _id: string
       [key: string]: unknown
@@ -164,6 +176,16 @@ describe.skipIf(!config)("owned remote receipt reader", () => {
           expect(
             await readRemoteOperationReceipt(next.actorUserId, next.operationId)
           ).toBeNull()
+          expect(
+            await readRemoteOperationReplay(
+              next.actorUserId,
+              operation,
+              session
+            )
+          ).toEqual(next.result)
+          expect(
+            await readRemoteOperationReplay(next.actorUserId, operation)
+          ).toBeNull()
           throw new Error("Intentional receipt fixture rollback")
         })
       )
@@ -171,5 +193,73 @@ describe.skipIf(!config)("owned remote receipt reader", () => {
     expect(
       await readRemoteOperationReceipt(next.actorUserId, next.operationId)
     ).toBeNull()
+  }, 30000)
+
+  test("replays exact intentions across both histories and rejects UUID payload reuse", async () => {
+    const actor = `${actorPrefix}replay`
+    const receipts = await getCollection<{
+      _id: string
+      [key: string]: unknown
+    }>(COLLECTION_NAMES.syncOperations)
+    for (const legacy of [false, true]) {
+      const operation = {
+        protocolVersion: 1,
+        operationId: crypto.randomUUID(),
+        baseRevision: 1,
+        command: { type: "tag.delete", tagId: crypto.randomUUID() },
+      }
+      const next = personal(actor, operation.operationId)
+      next.fingerprint = syncOperationFingerprint(operation)
+      const oldResult = {
+        operationId: operation.operationId,
+        status: "unsupported" as const,
+      }
+      const stored = legacy
+        ? {
+            actorUserId: actor,
+            operationId: operation.operationId,
+            fingerprint: next.fingerprint,
+            createdAt: timestamp,
+            result: oldResult,
+          }
+        : next
+      const document = { ...stored, _id: crypto.randomUUID() }
+      await receipts.insertOne(document)
+      const expected = legacy
+        ? { kind: "item" as const, outcome: oldResult }
+        : next.result
+      expect(await readRemoteOperationReplay(actor, operation)).toEqual(
+        expected
+      )
+      expect(
+        await readRemoteOperationReplay(actor, {
+          command: { tagId: operation.command.tagId, type: "tag.delete" },
+          baseRevision: 1,
+          operationId: operation.operationId,
+          protocolVersion: 1,
+        })
+      ).toEqual(expected)
+      for (const changed of [
+        { ...operation, baseRevision: 2 },
+        {
+          ...operation,
+          command: { ...operation.command, tagId: crypto.randomUUID() },
+        },
+        {
+          ...operation,
+          command: { type: "item.delete", itemId: crypto.randomUUID() },
+        },
+      ])
+        await expect(
+          readRemoteOperationReplay(actor, changed)
+        ).rejects.toBeInstanceOf(OperationIdentityReuseError)
+      expect(
+        await readRemoteOperationReplay(`${actorPrefix}absent`, operation)
+      ).toBeNull()
+      await expect(
+        readRemoteOperationReplay(actor, { ...operation, unexpected: true })
+      ).rejects.toThrow()
+      expect(await receipts.findOne({ _id: document._id })).toEqual(document)
+    }
   }, 30000)
 })

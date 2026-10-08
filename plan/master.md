@@ -277,3 +277,8 @@ Asignar/cambiar/quitar categoría conCAS propio, sin alterar contenido ysinactiv
 ### Piloto mínimo preproductivo15a0
 
 Sesión activa delusuario en navegadorintegrado, revisión automática/manual concola vacía yrecarga comprobadas enint. Datos existentes conservados, sesión/pestaña abiertas. No se declaraServerActionpush/ACK deescritura ni convergencia multicliente real; piloto15a1 requierepresupuesto paraelementos propios de prueba ysu limpieza. Registro en [sync-test-environment](sync-test-environment.md). Implementación siguiente11c2b1 conservaorden delplan.
+
+
+### 11c2b2a2 — Replay verificado
+
+Lector común de recibos legacy/v2 ahora dispone de comprobación del fingerprint de intención v1: mismo UUID con otra base/payload/familia se rechaza, sin escrituras ni nuevos permisos. MongoDB aislado demuestra aislamiento, sesión y conservación de historia; pruebas/tipos/lint/build aprobados. Continúa preparatoria la ampliación personal. Siguiente 11c2b2b: efectos y contador/journal/recibo atómicos, después carreras 11c2b3.
