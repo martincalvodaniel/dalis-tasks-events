@@ -940,3 +940,14 @@ Documentación/refs/coherencia/diff aprobados; código/build anterior vigente, c
 Preproducción autenticada conviewport390x844 temporal: calendario octubre2026 muestra cuatroelementos el8oct yunevento quecontinúa el9oct. Cambiar aldía9 muestraese únicoevento ysin tareas; Hoy vuelve aldía8 yrestaura1tarea/3eventos. No nombres/identidades delusuario en registro. DOMreadonly: innerWidth390/scrollWidth390, enlacesdenavegación75x64px, Crear56x56px ycontroles mes>=48pxalto; no overflowhorizontal. Crear abre diálogoTarea/Evento, fecha9oct seleccionada; Cancelar cierra sin guardar. No acciones deprogreso/edit/delete ni nuevasoperaciones de prueba.
 
 AvisoActualización disponible aparece trasdeployment: no se fuerza activación/skipWaiting nireinicio. Viewportrestaurado, pestaña/sesiónabiertas encalendariohoy. No pruebaRPCpush/ACK/2dispositivos nueva ni validaciónoffline adicional. Scopeextraordinario pedido con9%5h finalizado; noamplíareserva delplan permanentemente. Referencias/coherencia/diff aprobados ycommitpushint/HEAD/cuotas; códigoanterior vigente.
+
+
+### Resultado15a1 — Create y delete reales
+
+Lectura inicial real6%5h/14%7d, excepción puntual solicitada con7. Enint protegido con sesión real/navegadorintegrado: Crear desdecalendario8oct, títuloexclusivo `Codex sync pilot 15a1`, guardar tarea simple. Calendario pasa4→5elementos; Ajustes5guardados, revisiónautomática termina ycola visible sinpendientes. Recarga conserva sesión/5elementos; Mi espacio muestra la tarea exacta despuésderecarga. No seam defixture: UI/coordinador/transporte delproducto real.
+
+Limpieza únicamente deesa tarea: abrir susdetalles, Eliminar yconfirmar diálogo normal. Elemento desaparece, Ajustes vuelve4guardados; se observa1pendiente→Sin cambios locales pendientes/Última revisión terminada. Captura visual delestado limpio/revisado tomada; pestaña/sesión abierta enAjustes. Cuatroelementosprevios conservados, sin editar/progreso/categorías delusuario ni accesodirectoDB/tokens/secrets. El borrado conserva tombstone/historia normal: no purge. Aviso deactualización disponible permanece sin forzarworker/reinicio.
+
+La evidencia deUI confirma recorrido real deescritura+envío/revisión yborrado confirmado porelproducto, conpersistencia trasrecarga. ACK se infiere del estado durablevisible sinpendientes; no se inspeccionó reciboMongo/registroACK directamente. No demuestra convergencia dedosdispositivos reales, pérdida derespuesta o conflictos; evidenciaaislada previa sigue separada. Piloto multicliente15a2 pendiente ycontratos11c2b1 siguientes conpresupuesto nuevo.
+
+Validación documental coherencia/diff ycommitpushint/HEAD/cuotas; código/build previo vigente. Excepción deesta petición finalizada, sin abrir reparaciones ni ampliarla indefinidamente.
