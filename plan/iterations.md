@@ -1124,3 +1124,21 @@ Suite235pass/30opt-in skip/0fail/4865aserciones; lint347archivos, tipos/build34r
 Diseño de preferencias personales basado en comandos/reductores/cola/wire reales, con referencias a fuente y secuencia enpreference-sync.md. El explorador de solo lectura confirma base por documento, tail personal/dependencias de contenido, replay, ranks numéricos, sentinel atrasadas, efectos multirregistro de compactación y vista de serie, y ausencia de productor settings. Root revisa journal/cursor/receipts/protocol. No se activan comandos ni cambia transporte1, ni se ejecutan índices/migraciones.
 
 Transición propuesta wire2/intención1 requiere nuevas pruebas, adapters históricos, ACK/pull/backup compatibles y rechazo de bundles mixtos antes de avanzar cursores. No reescribir payloads/fingerprints1, inventar timestamps de movimientos overnight ni dar ACK para desbloquear pendientes. Cortes acotados definidos; siguiente11c1a DTO puro de efectos dispersos propios con claves/bytes/revisiones/duplicados. Documentación validada por referencias/consistencia/diff; código sin cambios, build anterior vigente.
+
+
+## 11c1a — DTO puro de efectos personales
+
+- Entrada45%5h/20%7d tras36c41fb, int/secuencial/reserva10%.
+- Objetivo: representar efectos dispersos de una operación remota personal sin modificar wire/cola ni autorizar un ejecutor.
+- `target_paths`: `src/schemas/preference-effects.ts`, `src/types/preference-effects.ts`, `src/lib/sync/preference-effects{,.test}.ts`, `plan/{preference-sync,master,iterations,iteration-log}.md`. Dependencia11c0.
+- Aceptación: versiónDTO1, actor/operationUUID/sequence positivos,1–10000 registros discriminados tags/itemViews/taskPlacements/settings reutilizando schemas existentes con revisión>=1. Propiedad uniforme y esperada, claves canónicas con actor/store eidentidadcompuesta, únicas sin deduplicar nombres. Settings solo representación preparatoria, sin mutación. Límite512KiB UTF8, no truncado. Salida clonada porvalidación; sinframework/IO/env/Mongo ni cambio de protocolo activo.
+- Validación: oráculos independientes de claves/bytes, efectos mixtos/tombstones/settings, IDs iguales enstores/cuentas diferentes, Unicode/duplicados/revisiones/cuenta/futuro/campos extra/10000límite/512KiB. Suite/lint/tipos/build/diff/plan/commit+push/HEAD/cuotas.
+
+
+### Resultado11c1a — Efectos personales validados
+
+DTO preparatorio versión1 para efectos dispersos en tags/itemViews/taskPlacements/settings; reutiliza schemas de dominio con revisión remota positiva, actor/operationUUID/sequence válidos. Clave documental JSON incluye store, userId eidentidad original (placement incluye referencia/scope/date, no tagId). Identidades únicas, settings único, referencias de tarea/aparición y sentinel overdue canónicos. Propiedad uniforme y esperado actor, registros completos/tombstones, salida clonada; hasta10000 registros y512KiB UTF8 de DTO validado, rechazo íntegro sin truncado. Settings representa evolución posterior, no añade productor.
+
+Cuatro pruebas/39aserciones cubren oráculo de claves, IDs iguales entrestores/cuentas, misma colocación cambiando tagId, fechas distintas, tombstones/independencia, cuenta ajena, revisiones0, referencia/sentinel inválidos, normalización, futuro/campos extra/conteo y byteguard Unicode. Se ajustó el tamaño de la fixture para demostrar caracteres por debajo de512KiB pero bytes por encima, sin relajar límite. Suite239pass/30opt-in skip/0fail/4904aserciones; lint351archivos, tipos ybuild34recursos aprobados. Sin framework/IO/env/driver, índices, ACK, writes o cambio de protocolo activo.
+
+Siguiente11c1b1: extraer el reductor personal existente a módulo puro compartido, equivalencia local y sin activar envío; después11c1b2 añade planning remoto/CAS/efectos completos. Mantener payloads ybase locales, historia ytipos no soportados.

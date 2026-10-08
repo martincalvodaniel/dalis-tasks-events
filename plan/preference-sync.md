@@ -1,6 +1,6 @@
 # Sincronización de preferencias personales
 
-Estado11c0: diseño a partir del código vigente, sin nuevo ejecutor, envío, índice o migración. Próximo11c1a: DTO puro de efectos dispersos, propiedad e identidades. Tareas/eventos simples siguen usando el protocolo vigente hasta cerrar compatibilidad, persistencia remota y reconciliación local. No anunciar convergencia completa del espacio.
+Estado11c0/11c1a: diseño yDTO puro de efectos entregados, sin nuevo ejecutor, envío, índice o migración. Próximo11c1b1: reductor compartido con equivalencia local. Tareas/eventos simples siguen usando el protocolo vigente hasta cerrar compatibilidad, persistencia remota y reconciliación local. No anunciar convergencia completa del espacio.
 
 ## Por qué hace falta otro tramo
 
@@ -76,3 +76,12 @@ Cada entrega conserva commit/push/cuotas y definición de terminado. Cambios de 
 Ranks numéricos pueden ser negativos/fraccionarios; conservar payloads y orden position/id, usando el adaptador legado sin sustituirlo automáticamente. Vecinos deben ser adyacentes tras retirar destino; reequilibrio modifica toda la lista pertinente sin cambiar revisiones remotas locales. [rank.ts](../src/lib/ordering/rank.ts), [legacy-rank-key.ts](../src/lib/ordering/legacy-rank-key.ts).
 
 Day task.move permite aparición de serie con identidad original aunque se reprograme; categoría cambia el view de la serie y puede afectar varios placements. Overdue actual solo soporta tareas no recurrentes y exige sentinel/settings/día actual local; mantener la clave alternativa histórica de ocurrencias admitida por schema hasta migración específica. [day-task-move.ts:99](../src/lib/local-db/day-task-move.ts:99), [task-move-mutation.ts:45](../src/lib/local-db/task-move-mutation.ts:45). No habilitar recurrencia remota por aceptar un DTO personal genérico.
+
+
+### Resultado11c1a — Efectos personales validados
+
+DTO preparatorio versión1 para efectos dispersos en tags/itemViews/taskPlacements/settings; reutiliza schemas de dominio con revisión remota positiva, actor/operationUUID/sequence válidos. Clave documental JSON incluye store, userId eidentidad original (placement incluye referencia/scope/date, no tagId). Identidades únicas, settings único, referencias de tarea/aparición y sentinel overdue canónicos. Propiedad uniforme y esperado actor, registros completos/tombstones, salida clonada; hasta10000 registros y512KiB UTF8 de DTO validado, rechazo íntegro sin truncado. Settings representa evolución posterior, no añade productor.
+
+Cuatro pruebas/39aserciones cubren oráculo de claves, IDs iguales entrestores/cuentas, misma colocación cambiando tagId, fechas distintas, tombstones/independencia, cuenta ajena, revisiones0, referencia/sentinel inválidos, normalización, futuro/campos extra/conteo y byteguard Unicode. Se ajustó el tamaño de la fixture para demostrar caracteres por debajo de512KiB pero bytes por encima, sin relajar límite. Suite239pass/30opt-in skip/0fail/4904aserciones; lint351archivos, tipos ybuild34recursos aprobados. Sin framework/IO/env/driver, índices, ACK, writes o cambio de protocolo activo.
+
+Siguiente11c1b1: extraer el reductor personal existente a módulo puro compartido, equivalencia local y sin activar envío; después11c1b2 añade planning remoto/CAS/efectos completos. Mantener payloads ybase locales, historia ytipos no soportados.
