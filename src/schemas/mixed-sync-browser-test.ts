@@ -9,6 +9,7 @@ export const mixedSyncBrowserCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("snapshot") }),
   z.strictObject({ type: z.literal("send") }),
   z.strictObject({ type: z.literal("pull") }),
+  z.strictObject({ type: z.literal("coordinate") }),
   z.strictObject({ type: z.literal("cleanup") }),
   z.strictObject({ type: z.literal("drop-response") }),
   z.strictObject({ type: z.literal("network"), online: z.boolean() }),

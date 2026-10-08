@@ -1,3 +1,14 @@
+import { createHttpSyncTransportV2 } from "@/features/sync/http-transport-v2"
+import {
+  type LocalSyncRuntimeV2,
+  openLocalSyncRuntimeV2,
+} from "@/features/sync/local-runtime-v2"
+import {
+  ACCOUNT_CONTROL_DATABASE,
+  activatePreparedAccount,
+  hideLocalAccount,
+  readAccountControl,
+} from "@/lib/local-db/account-control"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import { applyLocalPreferenceResult } from "@/lib/local-db/preference-sync-results"
@@ -29,6 +40,9 @@ const sync = await LocalSyncStore.open(userId)
 let online = true
 let dropResponse = false
 const senderId = crypto.randomUUID()
+let activeRuntime: LocalSyncRuntimeV2 | null = null
+let usedControl = false
+const controlMarker = `mixed-sync-control:${fixture.runId}`
 
 async function snapshot() {
   return runLocalTransaction(
@@ -187,16 +201,95 @@ async function pull() {
   throw new Error("Mixed fixture exceeded its page budget")
 }
 
-async function cleanup() {
-  outbox.close()
-  sync.close()
-  database.close()
-  await new Promise<void>((resolve, reject) => {
-    const request = indexedDB.deleteDatabase(localDatabaseName(userId))
+async function coordinate() {
+  let control = await readAccountControl()
+  if (control.userId === null && !control.logoutPending)
+    control = await activatePreparedAccount(
+      userId,
+      new Date().toISOString(),
+      control.epoch
+    )
+  if (control.userId !== userId || control.logoutPending)
+    throw new Error("Mixed coordinator fixture account is not active")
+  usedControl = true
+  sessionStorage.setItem(controlMarker, "prepared")
+  const fixtureFetch = (async (
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ) => {
+    if (!online) throw new Error("Fixture network is offline")
+    const url = new URL(
+      input instanceof Request ? input.url : String(input),
+      location.origin
+    )
+    if (url.origin !== location.origin)
+      throw new Error("Mixed fixture transport requires its own origin")
+    if (url.pathname === "/api/sync/identity")
+      url.pathname = "/fixture-identity"
+    else if (url.pathname === "/api/sync/changes")
+      url.pathname = "/fixture-changes-v2"
+    else throw new Error("Mixed fixture transport path is not supported")
+    const headers = new Headers(init?.headers)
+    headers.set("x-sync-test-run", fixture.runId)
+    return fetch(url, { ...init, headers })
+  }) as typeof fetch
+  const transport = createHttpSyncTransportV2(
+    userId,
+    async (input) => {
+      const result = await request("/fixture-push-v2", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      })
+      if (dropResponse) {
+        dropResponse = false
+        throw new Error("Fixture response lost after remote commit")
+      }
+      return result
+    },
+    fixtureFetch
+  )
+  const runtime = await openLocalSyncRuntimeV2(
+    { userId, epoch: control.epoch },
+    transport
+  )
+  activeRuntime = runtime
+  try {
+    return await runtime.run()
+  } finally {
+    await runtime.close()
+    if (activeRuntime === runtime) activeRuntime = null
+  }
+}
+
+function deleteFixtureDatabase(name: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(name)
     request.onsuccess = () => resolve()
     request.onerror = () => reject(request.error)
     request.onblocked = () => reject(new Error("Mixed cleanup is blocked"))
   })
+}
+
+async function cleanup() {
+  await activeRuntime?.close()
+  activeRuntime = null
+  outbox.close()
+  sync.close()
+  database.close()
+  await deleteFixtureDatabase(localDatabaseName(userId))
+  if (usedControl || sessionStorage.getItem(controlMarker) === "prepared") {
+    const control = await readAccountControl()
+    if (control.userId !== null && control.userId !== userId)
+      throw new Error("Mixed fixture cleanup account changed")
+    if (control.userId === userId) await hideLocalAccount()
+    if ((await readAccountControl()).userId !== null)
+      throw new Error("Mixed fixture control changed before cleanup")
+    await deleteFixtureDatabase(ACCOUNT_CONTROL_DATABASE)
+    sessionStorage.removeItem(controlMarker)
+    usedControl = false
+  }
   return true
 }
 
@@ -225,6 +318,8 @@ window.addEventListener("message", (event) => {
         return send()
       case "pull":
         return pull()
+      case "coordinate":
+        return coordinate()
       case "cleanup":
         return cleanup()
       case "commit":
@@ -255,6 +350,7 @@ window.addEventListener("message", (event) => {
     .finally(() => port.close())
 })
 window.addEventListener("pagehide", () => {
+  void activeRuntime?.close()
   outbox.close()
   sync.close()
   database.close()

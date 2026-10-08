@@ -244,3 +244,8 @@ Runner `bun scripts/mixed-sync-store-test-server.ts` imprime origen efímero loo
 ### 11c4a3r — Control de cuenta y vida del runtime
 
 `bun scripts/runtime-pilot-v2-test-server.ts` imprime origen/capability efímeros; botón ejecuta seis checks con guardias realesaccount-control y puertosremotos diferidos sintéticos. Cuenta inactiva, singleflight/close, cambioepoch durantepull/push, release/intenciónexacta sinACK, cierre/reopen y confirmaciónposterior durable+cursor. Controlficticio/partición/servidor/pestaña propios limpios y exit0. No nuevos permisos, cuentaGoogle ni Mongo parafixtureguardias. Piloto remoto conjunto pendiente11c4a4p.
+
+
+### 11c4a4p — Coordinador/runtime/HTTP con Mongo
+
+Runner browser-mixed ahora diezescenarios. Ademásde8anteriores, comando coordinate abre runtimereal con accountcontrolficticio y transporteHTTP2, remapeando sólo rutas al mismo loopback, sin inyectarhandshakecliente. Servidorfixture anuncia2, propioMongoexecute/services validados. Respuestaperdida de create antesACK, replay y categoría/vista dependientes confirman tresintenciones únicas y convergenciadosparticionesMongo; recarga/idleoutcomesliteral. Runtime también conserva move/conflictopersonal y permitecontenidoindependiente. Cleanupowncontrol/particiones/conexiones/container/tmpfs/pestaña/server y exit0 confirmados. NoGoogle/prod/activaciónpersonal, ni convergenciadecolasbloqueadas.

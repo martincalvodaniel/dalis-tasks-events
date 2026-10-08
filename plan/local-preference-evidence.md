@@ -83,3 +83,6 @@ Wrapper11c4a3s [LocalMixedSyncStore](../src/lib/local-db/mixed-sync-store.ts) pr
 
 
 Runtime11c4a3r [aislado](../src/features/sync/local-runtime-v2.ts) verifica cuenta/época inicial y después de abrir recursos; puertos de lectura y efectos guardados. Cleanup de lease permite liberar sender propio de partición anterior después de stop/cambio de cuenta. Close idempotente espera pasada y libera conexiones, sin activarhooks. Seis checks browser reales con control ficticio/épocas/pullpush diferidos/recarga muestran noACK tras cuenta perdida y durableACK posterior; no sustituye piloto Mongo conjunto.
+
+
+Piloto11c4a4p completo con transporteHTTP2, runtime/coordinador reales y executorsMongo propios:10escenarios (ocho anteriores+replay runtime create/tag/view y progreso de contenidoindependiente con bloqueo histórico). Ambasparticiones convergen contraMongo sólo para escenariossoportadossinblockers; diagsettled conserva truepersonalProjectionBlocked cuandohaymove/conflicto. Control/particiones/conexiones/servidores/container propioslimpios. Producto permanecewire1; activación exige guardia clientesmixtos/indexprovisioning explícito y resumenvisible deblockers, no falsasupersesión.

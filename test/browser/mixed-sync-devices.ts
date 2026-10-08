@@ -1,4 +1,5 @@
 import type { z } from "zod"
+import type { SyncPassResultV2 } from "@/features/sync/coordinator-v2"
 import { taskDraftSchema } from "@/schemas/calendar-item"
 import {
   mixedSyncBrowserCommandSchema,
@@ -116,6 +117,14 @@ async function pull(index: number) {
     pages?: number
   }
   assert(result.status === "complete", "completed mixed pull")
+  return result
+}
+async function coordinate(index: number, expected = "settled") {
+  const result = (await call(index, { type: "coordinate" })) as SyncPassResultV2
+  assert(
+    result.status === expected,
+    `coordinator ${expected}, received ${result.status}`
+  )
   return result
 }
 function ordered(records: readonly unknown[]) {
@@ -460,6 +469,91 @@ button.onclick = async () => {
       }
     )
     await check(
+      "Runtime y HTTP reales sincronizan tarea, categoría y asignación tras perder una respuesta",
+      async () => {
+        const coordinatedItemId = crypto.randomUUID()
+        const coordinatedTagId = crypto.randomUUID()
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "item.create",
+            itemId: coordinatedItemId,
+            input: { ...draft, title: "Tarea coordinada" },
+          },
+        })
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "tag.save",
+            tagId: coordinatedTagId,
+            input: { name: "Coordinación", color: "#234567", position: 8192 },
+          },
+        })
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "item-view.set",
+            itemId: coordinatedItemId,
+            primaryTagId: coordinatedTagId,
+          },
+        })
+        const before = await snapshot(0)
+        const creations = before.entries.slice(-3)
+        await call(0, { type: "drop-response" })
+        const lost = await coordinate(0, "retry_later")
+        assert(lost.uploaded === 0, "lost response cannot count an ACK")
+        const pending = (await snapshot(0)).entries.find(
+          (entry) =>
+            entry.operation.operationId === creations[0].operation.operationId
+        )
+        assert(
+          pending?.state === "pending" &&
+            pending.lease === null &&
+            JSON.stringify(pending.operation) ===
+              JSON.stringify(creations[0].operation),
+          "runtime loss preserves exact intention and releases lease"
+        )
+        assert(
+          (await remote()).items.some((item) => item.id === coordinatedItemId),
+          "remote commit survived the lost response"
+        )
+        const recovered = await coordinate(0)
+        assert(
+          recovered.uploaded === 3 &&
+            recovered.diagnostics?.personalProjectionBlocked === false,
+          "fresh ACK snapshots unblock all three commands"
+        )
+        await coordinate(1)
+        await equalDevices()
+        const authoritative = await remote()
+        for (const entry of creations)
+          assert(
+            authoritative.page.changes.filter(
+              (change) => change.operationId === entry.operation.operationId
+            ).length === 1,
+            "runtime replay journals each intention once"
+          )
+        assert(
+          authoritative.views.find((view) => view.itemId === coordinatedItemId)
+            ?.primaryTagId === coordinatedTagId,
+          "coordinated assignment reached MongoDB"
+        )
+        await load(0)
+        await load(1)
+        const stable = await snapshot(0)
+        assert(
+          (await coordinate(0)).uploaded === 0,
+          "reopened runtime has no false uploads"
+        )
+        await coordinate(1)
+        assert(
+          JSON.stringify(await snapshot(0)) === JSON.stringify(stable),
+          "idle runtime preserves durable outcome history literally"
+        )
+        await equalDevices()
+      }
+    )
+    await check(
       "Conflicto personal preserva borrador, dependientes y evidencia tras recargar",
       async () => {
         const tag = (await snapshot(0)).tags.find(
@@ -644,9 +738,76 @@ button.onclick = async () => {
         )
       }
     )
+    await check(
+      "La coordinación conserva bloqueos personales y avanza con contenido independiente",
+      async () => {
+        const before = await snapshot(1)
+        const unresolved = before.entries.filter(
+          (entry) => entry.state !== "acknowledged"
+        )
+        const independentId = crypto.randomUUID()
+        await call(1, {
+          type: "commit",
+          command: {
+            type: "item.create",
+            itemId: independentId,
+            input: { ...draft, title: "Contenido independiente" },
+          },
+        })
+        const result = await coordinate(1)
+        assert(
+          result.uploaded === 1 &&
+            result.diagnostics?.personalProjectionBlocked === true,
+          "settled pass reports a preserved personal blockade"
+        )
+        assert(
+          result.diagnostics.unsupported.some(
+            (value) => value.entry.operation.command.type === "task.move"
+          ) &&
+            result.diagnostics.blocked.some(
+              (value) => value.entry.operation.command.type === "tag.save"
+            ),
+          "unsupported parent and blocked descendant remain distinct"
+        )
+        const after = await snapshot(1)
+        for (const entry of unresolved)
+          assert(
+            JSON.stringify(
+              after.entries.find(
+                (value) =>
+                  value.operation.operationId === entry.operation.operationId
+              )
+            ) === JSON.stringify(entry),
+            "runtime never claims, ACKs or supersedes blocked history"
+          )
+        const authoritative = await remote()
+        const accepted = authoritative.items.find(
+          (item) => item.id === independentId
+        )
+        assert(
+          accepted && ordered(after.items) === ordered(authoritative.items),
+          "independent content converged on sender and MongoDB"
+        )
+        const other = await coordinate(0)
+        assert(
+          other.diagnostics?.personalProjectionBlocked === true,
+          "other device retains its explicit conflict"
+        )
+        assert(
+          ordered((await snapshot(0)).items) === ordered(authoritative.items),
+          "independent content reached the conflicted device"
+        )
+        await load(1)
+        assert(
+          JSON.stringify((await snapshot(1)).entries) ===
+            JSON.stringify(after.entries),
+          "blocked and accepted history survives reopen"
+        )
+      }
+    )
     passed = true
     statusElement.textContent =
-      "Ocho escenarios mixtos integrados correctos; limpiando recursos propios"
+      "Diez escenarios mixtos integrados correctos; limpiando recursos propios"
   } catch (error) {
     statusElement.textContent = `Prueba fallida: ${error instanceof Error ? error.message : "error"}`
   } finally {

@@ -1,4 +1,5 @@
 import { getSyncDatabaseTestConfig } from "@/config/env"
+import { syncProtocolHeader } from "@/config/sync-protocol"
 import { pushSyncBatchV2 } from "@/features/sync/push-batch-v2"
 import { closeDatabaseConnection, getDatabase } from "@/lib/db/client"
 import { ensureIndexes, INDEX_SPECS } from "@/lib/db/ensure-indexes"
@@ -7,7 +8,9 @@ import { RemoteItemViewRepository } from "@/lib/db/remote-item-views"
 import { RemoteItemRepository } from "@/lib/db/remote-items"
 import { executeRemoteOperationV2 } from "@/lib/db/remote-operation-commands"
 import { RemoteTagRepository } from "@/lib/db/remote-tags"
+import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
 import { mixedSyncBrowserRemoteSchema } from "@/schemas/mixed-sync-browser-test"
+import { userIdSchema } from "@/schemas/primitives"
 import { remotePushInputV2Schema } from "@/schemas/remote-push-v2"
 import { remotePullQuerySchema } from "@/schemas/remote-sync"
 import { syncBrowserFixtureSchema } from "@/schemas/sync-browser-test"
@@ -46,7 +49,10 @@ let finish: (passed: boolean) => void = () => undefined
 const finished = new Promise<boolean>((resolve) => {
   finish = resolve
 })
-const headers = { "Cache-Control": "private, no-store" }
+const headers = {
+  "Cache-Control": "private, no-store",
+  [syncProtocolHeader]: encodeSyncProtocolRange(2),
+}
 async function respond(request: Request): Promise<Response> {
   const url = new URL(request.url)
   if (closing)
@@ -66,6 +72,8 @@ async function respond(request: Request): Promise<Response> {
     })
   if (request.method === "GET" && url.pathname === "/fixture-config")
     return Response.json(fixture, { headers })
+  if (request.method === "GET" && url.pathname === "/fixture-identity")
+    return Response.json({ userId }, { headers })
   if (request.method === "POST" && url.pathname === "/fixture-push-v2") {
     const input = remotePushInputV2Schema.safeParse(
       await request.json().catch(() => null)
@@ -84,6 +92,16 @@ async function respond(request: Request): Promise<Response> {
     )
   }
   if (request.method === "GET" && url.pathname === "/fixture-changes-v2") {
+    const expectedUserId = url.searchParams.get("expectedUserId")
+    if (
+      expectedUserId !== null &&
+      (!userIdSchema.safeParse(expectedUserId).success ||
+        expectedUserId !== userId)
+    )
+      return Response.json(
+        { error: "Fixture account changed", code: "account_changed" },
+        { status: 409, headers }
+      )
     const query = remotePullQuerySchema.safeParse({
       after: url.searchParams.get("after") ?? undefined,
       through: url.searchParams.get("through"),
