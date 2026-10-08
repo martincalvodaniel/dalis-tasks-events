@@ -1581,3 +1581,24 @@ executeRemoteOperationV2 valida actor/intención antes de IO y delega a executor
 Cuatro escenarios nuevos Mongo: mezcla item/tag/view con secuencias1/2/3 y replay tardío tras delete sin reescritura; UUID reutilizado en ambas direcciones y actor aislado; unsupported e inputs futuros/extra/inválidos sin efectos y UUID reutilizado incluso para unsupported; fixture de familia incompatible rechaza y se restaura. Runner52pass/0fail/520aserciones en12archivos, contenedor/tmpfs propios eliminados. Normal275pass/83opt-in skip/0fail/5272aserciones; lint397archivos, tipos/build34recursos/diff aprobados.
 
 Próxima candidata11c3b2c1: envelope de clasificación transport2/intención1 y servicio batch mixto preparatorio autenticado por actor externo, prefijos/retry/identidad/bounds sin publicar nueva acción. Separar pruebas puras de política de integración Mongo si margen lo requiere; no conectar wire2 antes de metadata/ACK/pull/backup compatibles. Reserva10%5h/1%7d; commitpushHEAD/cuotas al cierre.
+
+
+## 11c3b2c1 — Política de batch mixto preparatoria
+
+- Entrada45%5h/5%7d tras3456b0f publicado, secuencial/reserva10%5h/1%7d; separar servicio puro de integración Mongo/acción activa.
+- Objetivo: envelope compartido de clasificación y servicio server-only con dependencias de sesión/ejecución; transport2/intención1, lote completo validado antes de efectos, prefijo sequential/retry y resultados ligados a intención/cuenta/familia/objetivo.
+- `target_paths`: `src/schemas/remote-push-v2.ts`, `src/features/sync/push-batch-v2{,.test}.ts`, `plan/{master,iterations,iteration-log,preference-sync,preference-transactions}.md`.
+- Dependencias: contratos/verificador v2 y dispatcher preparado. ReadActor debe aplicar política de sesión vigente; no confiar en actor del input. Ninguna acción pública/config transporte activa modificada.
+- Aceptación: sesión ausente o cambiada sin execute; legado/futuro transporte o intención requieren actualización antes de ejecutar prefijo; inválido/inyección/duplicado/tamaño completo rechazan. Outcomes strict/versionados/propios y correspondencia verificada; identity_reuse explícito conserva familia y continúa; fallo transitorio/outcome inválido devuelve prefijo válido sin ejecutar posteriores. Antes de acumular outcome, validar respuesta completa o retry con metadata<=2MiB; si no cabe devolver prefijo previo y retry de la operación ejecutada, sin negar su posible commit durable ni perder intención/replay.
+- Validación: pruebas de política con executors simulados, sesión/negociación/lote entero/secuencialidad/errores/familias y tamaño UTF8 con outcomes individuales válidos. Suite/lint/tipos/build/diff/plan/commitpush/HEAD/cuotas. Integración real servicio+dispatcher en corte posterior, no nueva prueba de convergencia todavía.
+
+
+### Resultado 11c3b2c1 — Batch mixto preparatorio
+
+Envelope strict compartido reconoce transporte ausente/1/futuro e intención futura como update_required antes de interpretar comandos, tras política de actor/cuenta; inputs inválidos, inyección/duplicados/count/UTF8 rechazan antes de execute. Servicio server-only usa dependencias de sesión confiable y executor, sin acción pública ni caller activo. Execute secuencial; resultados vinculados a cuenta, orden, IDs, familia y objetivo mediante verificador puro; identidad reutilizada se devuelve con familia correcta y continúa. Fallo transitorio/outcome incoherente conserva prefijo válido y detiene posteriores.
+
+Cada candidato incluye metadata de continuación y guard2MiB antes de acumularse; si no cabe, devuelve prefijo anterior y retry de operación ya ejecutada. Su posible commit durable no se niega: siguiente intento debe replay con UUID/fingerprint intactos, sin falso ACK ni truncamiento de outcome. Sin activar wire2, DB/índices/cola/ACK/pull actuales intactos.
+
+Seis pruebas/59aserciones de política con executor simulado: sesión/cuenta, negociación, validación completa, secuencialidad/identidad por familia, fallo/familia/ID/owner/target incoherentes y respuesta Unicode con16outcomes individuales válidos que corta antes de2MiB sin ejecutar posteriores. Fixture unión discriminada ajustada antes del cierre. Suite281pass/83opt-in skip/0fail/5331aserciones; lint399archivos, tipos/build34recursos/diff aprobados. No repetir Mongo para política pura; prueba de servicio+executor real queda en11c3b2c2.
+
+Próxima candidata11c3b2c2: integración del batch con dispatcher Mongo, pérdida de respuesta/replay/prefijo y clasificación de acceso/identidad, sin nueva ruta. Después metadata/ACK/pull/backup locales compatibles antes de activación. Reserva10%5h/1%7d; commitpushHEAD/cuotas al cierre.

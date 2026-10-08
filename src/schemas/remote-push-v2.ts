@@ -1,10 +1,20 @@
 import { z } from "zod"
 import { entityIdSchema } from "@/schemas/primitives"
 import { remoteOperationResultV2Schema } from "@/schemas/remote-operation-result-v2"
-import { remotePushInputSchema } from "@/schemas/remote-sync"
+import {
+  remotePushInputSchema,
+  remotePushProtocolEnvelopeSchema,
+} from "@/schemas/remote-sync"
+import { syncProtocolVersionSchema } from "@/schemas/sync-protocol"
 
 export const maximumRemotePushInputV2Bytes = 512 * 1024
 export const maximumRemotePushResultV2Bytes = 2 * 1024 * 1024
+
+// Missing transport metadata identifies legacy input, without accepting its commands.
+export const remotePushProtocolEnvelopeV2Schema =
+  remotePushProtocolEnvelopeSchema.safeExtend({
+    transportVersion: syncProtocolVersionSchema.optional(),
+  })
 
 export const remotePushInputV2Schema = remotePushInputSchema
   .safeExtend({ transportVersion: z.literal(2) })
