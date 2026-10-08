@@ -933,3 +933,10 @@ Usuario completó autenticación en pestaña integrada36 yworkspace real quedó 
 Evidencia limitada: sesión real, shell/preparación yrevisión/descarga concola vacía funcionando enint protegido. Coordinador llama pull ysolo push al seleccionar intención ([coordinator.ts:105](../src/features/sync/coordinator.ts:105), [coordinator.ts:159](../src/features/sync/coordinator.ts:159)); por tanto **no demuestra ServerActionpush con escritura/ACK ni convergencia real entre dispositivos**. Piloto siguiente debe crear únicamente elementos propios identificados de prueba, comprobar ACK durable/recarga ylimpiar conborrado normal, conpresupuesto suficiente; no ampliar15a0 alestado delusuario. No pruebaoffline completo ni logout/login multicliente.
 
 Documentación/refs/coherencia/diff aprobados; código/build anterior vigente, commitpushint ycuotas alcierre. Entrada12%/15%, solo dospuntos5h sobre reserva10: no abrirmutación ylimpieza ni repararproblemas nuevos. Próxima implementación sigue11c2b1; piloto escritura real pendiente15a1.
+
+
+### Resultado15a0b — Móvil real sin mutaciones
+
+Preproducción autenticada conviewport390x844 temporal: calendario octubre2026 muestra cuatroelementos el8oct yunevento quecontinúa el9oct. Cambiar aldía9 muestraese únicoevento ysin tareas; Hoy vuelve aldía8 yrestaura1tarea/3eventos. No nombres/identidades delusuario en registro. DOMreadonly: innerWidth390/scrollWidth390, enlacesdenavegación75x64px, Crear56x56px ycontroles mes>=48pxalto; no overflowhorizontal. Crear abre diálogoTarea/Evento, fecha9oct seleccionada; Cancelar cierra sin guardar. No acciones deprogreso/edit/delete ni nuevasoperaciones de prueba.
+
+AvisoActualización disponible aparece trasdeployment: no se fuerza activación/skipWaiting nireinicio. Viewportrestaurado, pestaña/sesiónabiertas encalendariohoy. No pruebaRPCpush/ACK/2dispositivos nueva ni validaciónoffline adicional. Scopeextraordinario pedido con9%5h finalizado; noamplíareserva delplan permanentemente. Referencias/coherencia/diff aprobados ycommitpushint/HEAD/cuotas; códigoanterior vigente.
