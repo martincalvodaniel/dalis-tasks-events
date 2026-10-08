@@ -86,3 +86,6 @@ Runtime11c4a3r [aislado](../src/features/sync/local-runtime-v2.ts) verifica cuen
 
 
 Piloto11c4a4p completo con transporteHTTP2, runtime/coordinador reales y executorsMongo propios:10escenarios (ocho anteriores+replay runtime create/tag/view y progreso de contenidoindependiente con bloqueo histórico). Ambasparticiones convergen contraMongo sólo para escenariossoportadossinblockers; diagsettled conserva truepersonalProjectionBlocked cuandohaymove/conflicto. Control/particiones/conexiones/servidores/container propioslimpios. Producto permanecewire1; activación exige guardia clientesmixtos/indexprovisioning explícito y resumenvisible deblockers, no falsasupersesión.
+
+
+El orden concreto de activación está en [mixed-sync-activation.md](mixed-sync-activation.md): resumen/readiness, provisión explícita autorizada de entorno, frontera autenticada y cambio conjunto del cliente, matriz1/2 y pilotoNext/Google. Anuncio2 no bloquea por sí solo una acciónlegacy que aún acepta intención1. La autorización desatendida no cubre DB/índices del usuario; completar preparación y pruebas propias antes de ese paso externo.
