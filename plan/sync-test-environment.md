@@ -224,3 +224,8 @@ Runner propio4191, dos particiones UUID sin control real: diez checks completos 
 ### 11c3c2d — Readers item2 sobre flujo vigente
 
 Sync-results siete checks+reload preservan getter y replay acknowledged brutos con outcome/shadow item2; ACK siguiente aplica frente a shadow2. Sync-pull seis checks+reload conserva pendiente/cursor y acepta shadow2 al plegar tombstones/versiones, rollback/carrera/historia vieja. Helper de fixture restringido a browser-test loopback; no cambia filas reales ni simula convergencia. Cleanup y servidor propios cerrados.
+
+
+### 11c3c4a2 — Descarga mixta local aislada
+
+Runner sync-pull-v2-test-server en4192 y fixture sync-pull-v2 restringida a loopback/browser-test UUID. Ocho escenarios IndexedDB comprobados: multiefectos+item/view/shadows/cursor y reopen, replay readonly, pendientes/historia, checkpoint/contradicción, late cursor rollback/retry, cuenta/store antes de TX, fila10001, paginación/tombstones y corrupción futura incluso página ignorada. Particiones y pestaña/servidor propios limpiados; no control ni datos de despliegue real. Falta11c3c4b1: convergencia con dos particiones/executors Mongo reales; esta prueba sintética local no la sustituye.

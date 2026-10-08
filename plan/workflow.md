@@ -177,3 +177,7 @@ Elusuario comunica nueva ventana ypideAdelante. Lectura real100%5h/13%7d, reset5
 
 
 El 8 de octubre el usuario comunica reinicio de ambas ventanas y autoriza ambición/paralelismo. Lectura real100%5h/100%7d desdeb77c7d6. Continuación con cuotas automáticas por commit/push y reservas10%5h/1%7d. Trabajo paralelo sólo con ownership disjunto elegido eniterations.md, integración/plan/commits centralizados; no comparar coste con la ventana agotada ni activar writers sin lectores compatibles.
+
+### Continuación puntual con reserva4% en 5h
+
+El usuario autoriza aprovechar el margen restante y seguir hasta conservar4%5h; lectura al abrir12%5h/86%7d. Esta instrucción sustituye10% sólo para esta continuación; semanal permanece1%. Cortes secuenciales pequeños con pruebas/reparación/commitpush/HEAD/cuotas; no abrir trabajo cuyo cierre razonablemente cruce4%. No créditos/reinicios/automatizaciones ni cambios productivos. No implica activar sincronización personal antes de pruebas integradas.
