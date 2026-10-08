@@ -272,3 +272,51 @@ describe("category movement", () => {
     ).toEqual(equal.toSorted(compareRank).map((record) => record.id))
   })
 })
+
+test("category compaction returns every affected record while preserving remote metadata", () => {
+  const ids = [
+    "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+    "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+  ]
+  const records = ids.map((id, index) => ({
+    ...tag,
+    id,
+    name: `Category ${index}`,
+    normalizedName: `category ${index}`,
+    revision: index + 1,
+    position: index === 2 ? 1024 : 0,
+  }))
+  const tombstone = {
+    ...tag,
+    id: crypto.randomUUID(),
+    deletedAt: now,
+    position: 0,
+    revision: 9,
+  }
+  const input = [...records, tombstone]
+  const original = JSON.stringify(input)
+  const result = applyLocalTagMoveCommand(
+    input,
+    { type: "tag.move", tagId: ids[2], beforeId: ids[1], afterId: ids[0] },
+    userId,
+    now
+  )
+  expect(result).toHaveLength(3)
+  expect(result.toSorted(compareRank).map((record) => record.id)).toEqual([
+    ids[0],
+    ids[2],
+    ids[1],
+  ])
+  expect(result.map((record) => record.position).sort((a, b) => a - b)).toEqual(
+    [-1024, 0, 1024]
+  )
+  for (const record of result) {
+    const previous = records.find((value) => value.id === record.id)
+    expect(previous).toBeDefined()
+    if (!previous) throw new Error("Compaction produced an unknown category")
+    expect({ ...record, position: previous.position }).toEqual(previous)
+  }
+  expect(result.some((record) => record.id === tombstone.id)).toBe(false)
+  expect(JSON.stringify(input)).toBe(original)
+})
