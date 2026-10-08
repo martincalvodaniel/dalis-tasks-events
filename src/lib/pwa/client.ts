@@ -77,6 +77,7 @@ export function observeOfflineUpdates(onWaiting: () => void): () => void {
         registration = value
         inspect()
         registration.addEventListener("updatefound", onUpdate)
+        onUpdate()
         if (navigator.onLine) void registration.update().catch(() => {})
       })
       .catch(() => {})
@@ -86,4 +87,18 @@ export function observeOfflineUpdates(onWaiting: () => void): () => void {
     registration?.removeEventListener("updatefound", onUpdate)
     installing?.removeEventListener("statechange", inspect)
   }
+}
+
+export async function checkOfflineUpdate(): Promise<
+  "waiting" | "installing" | "current" | "offline" | "unavailable"
+> {
+  if (!("serviceWorker" in navigator)) return "unavailable"
+  if (!navigator.onLine) return "offline"
+  const registration =
+    await navigator.serviceWorker.getRegistration("/workspace")
+  if (!registration?.active) return "unavailable"
+  await registration.update()
+  if (registration.waiting) return "waiting"
+  if (registration.installing) return "installing"
+  return "current"
 }

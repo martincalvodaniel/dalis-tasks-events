@@ -938,3 +938,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 
 
 13b1b2: envelope Zodacotado/estricto verifica identidad/versión/duplicados/payloadsize antes deejecutar, batch conversiónfutura devuelupdate_required sinprefijoaplicado; auth/cuenta precedenexecutor. Coordinador libera lease yconservaUUID/payloadsinACK. TreceescenariosMongo: missing/future/futurepull conservan snapshotexacto; futurepush deja pending/lease0/attempt1; reload compatibleconverge una revisión1 enambosdispositivos. 211pass/30skip/4685aserciones/lint310files/tipos/build30recursos, ownrunnerexit0/cleanup. Próxima13b2a comprobaciónactualización segura.
+
+### 13b2a — Comprobar actualización sin interrumpir escrituras
+
+- Objetivo previo: permitir revisar worker desde incompatibilidad en Ajustes, ydetectar instalación yaencurso almontar aviso. Entrada40%/34%, int/secuencial/reserva10%; depende13b1b2.
+- `target_paths`: `src/lib/pwa/{client,client.test}.ts`, `src/features/workspace/components/{offline-update-check,update-notice}.tsx`, `src/features/sync/components/sync-status-panel.tsx`, `test/browser/pwa-update.tsx`, `scripts/pwa-update-test-server.ts`, `plan/{master,iterations,iteration-log,offline-and-sync,sync-test-environment}.md`.
+- Aceptación: check solo registroexistente/online, no instalar si falta ni skipWaiting/reload/delete; resultado distingue waiting/installing/current/offline/unavailable. Observador conecta installing existente yse desconecta aldispose. UI44px/compacta indica conservaciónde pendientes yguardarformularios/cerrarpestañas antesdeactualizar. Workerreal cache neutral versionesfixture1/2 sobreloopbackpropio demuestra waitingconcola intacta, activación naturalal cerrar/reabrir conserva datos. Limpiar solo recursospropios.
+- Validación: estados/helper/dispose conpuertosnativosficticios yfixture React/IndexedDB/SWreal, lint/tipos/suite/build/diff/referencias. Commit/pushint/HEAD/cuotas. No modifica protocolo niDBschema/producción.
+
+
+13b2a: Ajustes ofreceComprobaractualización anteupdate_required, registroexistente/online ywaiting/installing/current/offline/unavailable, sinregister/skipWaiting/reload. Observador conecta instalaciónyaencurso ydisposequitalisteners; avisoesperacompacto. 214pass/30skip/4702aserciones/lint314files/tipos/build30recursos. FixtureReact/IndexedDB/workerdeproductoreal con2versionesownloopback: v1activo/v2waiting mantienedatos/colaexactos, cerrar/reabriractivav2yconservaUUID/payload/estado, cleanupownreg/caches/partición/baseline. Móvil390sin overflow/checkbutton44px. Próxima13c1a backupcontractportable; import/exportUIposteriores. Google/RPCNextrequierepiloto.

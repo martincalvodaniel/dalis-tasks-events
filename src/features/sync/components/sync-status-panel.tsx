@@ -1,4 +1,5 @@
 import type { SyncPassResult } from "@/features/sync/coordinator"
+import { OfflineUpdateCheck } from "@/features/workspace/components/offline-update-check"
 import type { SyncQueueSummary } from "@/lib/sync/queue-summary"
 
 interface SyncStatusPanelProps {
@@ -102,6 +103,7 @@ export function SyncStatusPanel({
         )}
         {result ? <p className="mt-1">{messages[result.status]}</p> : null}
       </div>
+      {result?.status === "update_required" ? <OfflineUpdateCheck /> : null}
       {result?.status === "unauthorized" ? (
         <a
           className="mt-2 inline-flex min-h-11 items-center font-medium text-emerald-700 underline dark:text-emerald-400"

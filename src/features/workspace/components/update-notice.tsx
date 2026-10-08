@@ -9,7 +9,7 @@ export function UpdateNotice() {
   if (!waiting) return null
   return (
     <aside
-      className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950"
+      className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950"
       role="status"
     >
       <p className="font-semibold">Actualización disponible</p>
