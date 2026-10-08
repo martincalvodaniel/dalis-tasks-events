@@ -89,3 +89,6 @@ Piloto11c4a4p completo con transporteHTTP2, runtime/coordinador reales y executo
 
 
 El orden concreto de activación está en [mixed-sync-activation.md](mixed-sync-activation.md): resumen/readiness, provisión explícita autorizada de entorno, frontera autenticada y cambio conjunto del cliente, matriz1/2 y pilotoNext/Google. Anuncio2 no bloquea por sí solo una acciónlegacy que aún acepta intención1. La autorización desatendida no cubre DB/índices del usuario; completar preparación y pruebas propias antes de ese paso externo.
+
+
+Resumen11c4a5s [puro](../src/lib/sync/queue-summary-v2.ts) reutiliza diagnóstico/capacidades completos y schema de counts vigente. Categorías pending exclusivas, estados sending/conflict/rejected separados y total personal no resuelto con bandera conservadora. No IO, ACK ni permiso; no conectado al resumen activo de transporte1.
