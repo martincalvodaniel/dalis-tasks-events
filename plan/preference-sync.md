@@ -1,6 +1,6 @@
 # Sincronización de preferencias personales
 
-Estado11c0/11c1a: diseño yDTO puro de efectos entregados, sin nuevo ejecutor, envío, índice o migración. Reductor compartido entregado11c1b1; planning de categorías entregado11c1b2a; vista personal simple entregada11c1b2b; próximo11c2a0: staged indexes explícitos. Tareas/eventos simples siguen usando el protocolo vigente hasta cerrar compatibilidad, persistencia remota y reconciliación local. No anunciar convergencia completa del espacio.
+Estado11c2b0: DTO, reductores yplanners puros entregados; repositorios propios decategorías/vistas conCAS yMongoDB real comprobados. Sus índices centrales requieren activación explícita. Ejecutor personal, wire nuevo yreconciliación local siguen pendientes: [contrato transaccional](preference-transactions.md). Próximo11c2b1: resultados/recibos/journal versionados puros yadaptación readonly dehistoria. Tareas/eventos simples usan protocolo vigente; no anunciar preferencias sincronizadas.
 
 ## Por qué hace falta otro tramo
 

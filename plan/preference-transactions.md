@@ -1,0 +1,39 @@
+# Transacciones remotas de preferencias
+
+Estado11c2b0: contrato de implementación siguiente; no ejecutor personal activo. Repositorios y planners están probados por separado. Esta propuesta exige las pruebas siguientes antes de declarar atomicidad personal o activar envío.
+
+## Historia y resultados
+
+Reutilizar las colecciones de recibos y journal existentes. La identidad durable sigue siendo actor+operationId; una colección separada permitiría reutilizar un UUID entre familias sin detectar otro payload. El fingerprint sigue calculándose sobre la intenciónv1 exacta mediante [operation-fingerprint.ts](../src/lib/sync/operation-fingerprint.ts); cambiar transporte no cambia intención ni digest.
+
+Primer corte11c2b1: schemas/types puros de resultado, recibo y cambio versionados, con decodificador de historia. Recibo nuevo explícitamente versión2; resultado discriminado item/preference. Personal applied contiene el DTO completo de efectos de11c1a; conflict conserva un efecto validado del documento objetivo, sin llamar aplicado al planner. Validar actor, operationId y sequence coherentes entre envoltura/resultado/efectos. El límite512KiB debe cubrir la envoltura serializada UTF8 completa: el guard del DTO interno por sí solo no basta.
+
+Recibos y cambios antiguos sin versión siguen pasando su schema actual y se adaptan únicamente en memoria a la variante item. No reescribir la DB ni cambiar fingerprints. Versiones desconocidas, propiedades extra, dueño/identidad/sequence inconsistentes y registro ambiguo rechazan íntegramente. Un resultado conflict/rejected no asigna secuencia aplicada; unsupported sigue conservándose sin ACK ni desbloqueo artificial.
+
+El journal nuevo personal representa todos los efectos de una operación en una sola entrada y una sola sequence. No guardar una entrada por tag compactado, ni usar revisión de un documento como checkpoint. El contador y el journal existentes permanecen únicos por receptor; [remote-changes.ts:55](../src/lib/db/remote-changes.ts:55) requiere secuencias contiguas. Antes de escribir una variante nueva, deben existir lectores/handshake que detengan clientes antiguos antes de avanzar cursor; nunca omitir entradas personales.
+
+## Unidad atómica propuesta
+
+Segundo corte11c2b2: ejecutor server-only preparatorio, sin callers productivos ni activación de índices. Actor suministrado por servicio autenticado; intención validada antes de IO. Una misma sesión snapshot/majority contiene:
+
+1. Lectura del recibo propio y comparación de fingerprint. Replay devuelve el resultado durable exacto sin escribir revisiones, contador ni journal.
+2. Lecturas de categorías completas o vista/item/tag propios vigentes. Para vistas, contenido activo simple y categoría activa/null; no conceder compartidos por tener una vista propia.
+3. Planner puro, CAS de cada efecto respecto a su documento leído y revisión siguiente propia. Compactación escribe el conjunto completo; cualquier CAS fallido aborta toda la transacción.
+4. Incremento del contador común, validación del DTO y envoltura con la sequence real, inserción del journal íntegro y del recibo. Resultado applied solo tras commit.
+
+El patrón vigente está en [remote-item-commands.ts:147](../src/lib/db/remote-item-commands.ts:147): contenido ya escribe ese contador en la misma transacción. Propuesta: todos los cambios personales applied también lo escriben. Dos transacciones snapshot con efectos disjuntos deben competir por ese documento común, provocar retry con snapshot fresco y conservar coherencia del catálogo y autorización. Esto evita introducir otro lock/contador; **es una hipótesis de implementación pendiente de prueba Mongo real**, no garantía derivada del CAS individual.
+
+Probar específicamente un movimiento que leyó vecinos antes de crear/borrar otro tag y una vista que leyó contenido antes de una eliminación concurrente. La unicidad de nombres evita duplicados activos, pero no demuestra por sí sola coherencia de vecinos ni permiso vigente. No activar si el contador compartido no fuerza la relectura necesaria. El contador no sustituye las revisiones independientes de los documentos.
+
+Errores de duplicado abortan la transacción; nunca capturarlos para continuar escribiendo en esa sesión. Reiniciar con sesión/snapshot nuevo y límite acotado, como [remote-item-commands.ts:177](../src/lib/db/remote-item-commands.ts:177). Distinguir identidad/recibo, nombre activo y CAS: una colisión de nombre debe volver a clasificarse por el planner sobre catálogo fresco; agotamiento/transitorio no se convierte en ACK o rechazo definitivo falso. Mantener ahora fuera task.move/settings/series/cumpleaños/compartidos.
+
+## Aceptación posterior
+
+| Corte | Evidencia necesaria |
+| --- | --- |
+|11c2b1|Schemas estrictos puros; legacy exacto adaptado sin mutación; applied/conflict por familia; actor/identidades/sequence/UTF8/futuro; wire e historia almacenada actuales sin cambios.|
+|11c2b2|Mongo propio: CAS multirregistro, fallo después del último efecto/counter/journal con rollback íntegro; mismas operaciones concurrentes un recibo/journal; replay perdido exacto e identidad reutilizada rechazada.|
+|11c2b3|Barreras en tests para snapshots solapados: catálogo/vecinos frente a create/delete, nombres NFKC concurrentes y autorización de vista frente a item.delete; demostrar contador común, retry y ausencia de efectos parciales.|
+|11c3a–4b|Handshake/lectores de ambas historias, ACK/pull/backup atómicos, conflictos visibles y dos dispositivos; solo después provisionamiento/activación explícitos.|
+
+Estos cortes actualizan plan y registro, pruebas/lint/tipos/build, commit+push enint y consulta de ambas cuotas. Las pruebas de repositorios11c2a1/2 no sustituyen las pruebas de recibo/journal/autorización del ejecutor.

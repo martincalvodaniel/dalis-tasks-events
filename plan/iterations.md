@@ -1244,3 +1244,19 @@ Repo server-only propio/session/singleton poractor+itemId, claveMongo compuesta 
 Worker solointegrationtest/runner; rootrepositorio/schema/registry/plan. RunnerMongoDBpropio exit0:25pass/0fail/215aserciones en6archivos; cuatro pruebas nuevas/47aserciones deaislamiento conUUIDigual, metadata/propiedad, CAS/conservar/quitarcategoría/tombstone, corrupción yrollback múltiple/duplicado ensession. Contenedor/tmpfs propios eliminados; pinned8.2.11amd64 revalidado, noDBusuario ni secrets/hosting. Normal255pass/44opt-in skip/0fail/5002aserciones, lint364archivos, tipos/build34recursos/diff-check aprobados.
 
 Próxima11c2b0: concretar contrato deatomicidad/recibos/journal ydependencias decompatibilidad antes deimplementar ejecutor multirregistro. Preferencias aún sin sincronización activada; task.move/settings/series/compartidos posteriores.
+
+
+## 11c2b0 — Contrato de transacciones personales
+
+- Entrada15%5h/15%7d trasd65048a; secuencial/documental/int/reserva10%. Últimos repositorios consumieron7 y5 puntos5h entrecierres, sinatribución exclusiva; otrocódigo+reparación podría cruzarreserva.
+- `target_paths`: `plan/{preference-transactions,preference-sync,master,iterations,iteration-log}.md`.
+- Objetivo: concretar resultados/recibos/journal versionados, historia ycontador compartidos, autorización ypruebas deconcurrencia antes del ejecutor. Dependencias repos11c2a1/2 yDTO/planners previos.
+- Aceptación: no nuevas colecciones/locks, activarjournal ni cambiarwire; propuesta explícita decompatibilidad/adaptación readonly yreserva debyteguard deenvoltura; races decontador/multirregistro/permisos/replay identificadas sin declararlas probadas. Cortes siguientes conaceptación ydependencias, no ACK sincommit remoto.
+- Validación: referencias locales exactas, coherencia/candidata/diff; commitpush/HEAD/cuotas. Código yDB sin cambios; no repetirbuild porMarkdown.
+
+
+### Resultado11c2b0 — Contrato transaccional siguiente
+
+Documento preference-transactions.md concreta envolturas/resultados/recibos/journal versionados, adaptación readonly dehistoria item yfingerprint deintenciónv1 conservado. Comparte contador/receiptidentities vigentes, conjuntos multirregistro atómicos yautorización decontenido previa aview. Límite512KiB cubre envolturaUTF8, no solo DTO interno. Hipótesis decontador común para coherencia devecinos yviewfrente adelete queda explícitamente pendiente de prueba conbarreras/Mongo; no seintroduce lock ni seafirma garantía sinprueba.
+
+Separa11c2b1 contrato puro,11c2b2 ejecutor/atomicidad,11c2b3 carreras con snapshots solapados, luego compatibilidad/ACK/pull/backup/dosdispositivos antes deactivar. Header depreferencias actualizado yrefs/coherencia/diff comprobados. Sin código/DB/secretos/hosting ni nuevoACK; builds/pruebas anteriores vigentes. Cierre del lote: último código d65048a comprobado, todo concommit/push. Entrada15%/15%; últimos cortes de repos consumieron7/5puntos5h, conuso compartido incierto; no iniciar otra implementación conpruebas/reparación/cierre quepueda cruzarreserva10. Reanudar desde11c2b1 conlectura vigente.
