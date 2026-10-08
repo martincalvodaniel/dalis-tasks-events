@@ -1176,3 +1176,21 @@ Familia tag.save/delete/move convertida porplanner puro a changes/conflict/unava
 Movimientos devuelven todos los efectos decompactación; vecinos obsoletos ycolisiones NFKC produceninvalid_command sin cambios. Borrado mantiene tombstone yno toca referencias personales. DTO deefectos sevalida reservando el tamaño deMAX_SAFE_INTEGER de secuencia; no se asigna un número dejournal ni se declara recibo. Límite512KiB rechaza uncompactado grande sin truncarlo.
 
 Seis pruebas/39aserciones yregresión246pass/30opt-in skip/0fail/4954aserciones; lint356archivos, tipos/build34recursos/diff-check aprobados. Fuente yentrada independientes, conflicto clonado, cuentas/futuro/normalización/bases/overflow/compactación comprobados. Próxima11c1b2b: planner puro deitem-view.set para elementos propios simples, conservación decontenido yCAS propio; series/movimientos/settings requieren sus cortes posteriores. DB yprotocolo todavía sin ampliación.
+
+
+## 11c1b2b — Planner puro de vista personal
+
+- Entrada37%5h/19%7d tras4a5b11d; int/reserva10%. Root secuencial enplanner; explorador read-only prepara preguntas concretas de repositorios/indexado, sin escritura/IO/servicios ni tocar env.
+- `target_paths`: root `src/schemas/remote-item-view-planning.ts`, `src/types/remote-item-view-planning.ts`, `src/lib/preferences/remote-item-view-plan{,.test}.ts`, `plan/{master,iterations,iteration-log,preference-sync}.md`. Explorador lectura lib/db/config únicamente.
+- Objetivo: planning deitem-view.set propio simple conCAS propio, categoría activa ymantenimiento decontenido. Dependencia11c1b1/DTO11c1a; no autorización de compartidos.
+- Aceptación: snapshot contexto propio validado, identities referencia coherentes, CAS view/base0 nueva, tombstone no restorable; item activo ysimple, tag activo/null; inválidosin cambios. Efecto soloitemView conrevisión siguiente/createdAt preservado yDTO byteguard conreservasecuencia máxima, sinIO/wire/ACK. Tipos sin ejecutor quedanunsupported. Overflow/corrupción rechaza íntegro.
+- Validación: asignar/cambiar/quitar categoría, no alterar estado/checklist/contenido, cuenta/contexto/IDs/tipos/tombstone/bases/overflow/categoría inválida; suite/lint/tipos/build/diff/plan/commit/push/HEAD/cuotas.
+
+
+### Resultado11c1b2b — Planning de vista personal
+
+item-view.set depropios simples convierte contexto remoto validado enefecto deúnica vista oconflicto/invalid/unavailable/unsupported. Contexto íntegro propio yreferenciascoherentes, revisiónpositiva detag/view/item, CAS debase0 nueva/actual ydeltombstone sinresurrección. Itemactivo ycategoríaactiva/null; reusa transformaciones, createdAt preservado yrevisión siguiente, límiteDTO conreservasecuencia máxima sinasignarjournal. Estado/checklist/descr./fechas delcontenido permanecen intactos; series/cumpleaños/settingsfamilia no seactivan.
+
+Cuatropruebas/34aserciones: asignar/cambiar/quitar categoría, contextosajenos/identidadesincongruentes/base0stored/overflow, faltas/tombstones/CAS, clones ycontenido intacto, evento simple yrecurrencia/otra familiaunsupported. Se corrigió fixture derepetición al contratoend vigente; no cambio deschema. Suite250pass/30opt-in skip/0fail/4988aserciones; lint360archivos, tipos/build34recursos/diff-check aprobados.
+
+Explorador sololectura confirma quegetDatabase/auth ejecutanINDEX_SPECS automáticamente. Próxima11c2a0 protegeíndices staged medianteprovisionamiento explícito central, antes deregistrar colecciones personales: no crear índices deproducto latenteporlogin enint. Luego11c2a1 repositorio decategorías/CAS yMongoDB propio, separado deexecutor/wire/ACK. No servicios/DB/envsecrets enesta investigación.
