@@ -187,3 +187,12 @@ Tres escenarios nuevos conectan servicio preparatorio y dispatcher con Mongo pro
 Mongo55pass/0fail/618aserciones en12archivos; recursos propios eliminados. Normal281pass/86opt-in skip/0fail/5331aserciones; lint399archivos, tipos/build34recursos/diff aprobados. Sólo pruebas/plan nuevos; no rutas/protocolo activo/índices productivos ni activación personal.
 
 Próxima candidata11c3c0: contrato de transición de metadata local item/personal y backup, antes de schemas/ACK/pull/recuperación compatibles. Debe conservar intención1, chains/tombstones, historial legacy, propiedad/época, replay más antiguo y rechazar futuro/corrupto sin borrar ni avanzar. Servicio/reader preparados siguen sin callers activos. Elegir corte con cuota posterior, reserva10%5h/1%7d y margen de reparación/cierre.
+
+
+### Resultado 11c3c0 — Transición local definida
+
+Nuevo contrato `local-preference-evidence.md` basado en schemas/ACK/pull/backup/incident reader reales. Separa intención1, transporte2, evidencia2, backup2 e IndexedDB2 si stores/keys no cambian. Shadows personales por documento; outcome multiefecto con snapshots de ausencia observada, sin inventar ancestro. Lectores estrictos/backup/routing antes de writers, proyección conservadora con cadena personal y reconciliación final, ACK/pull/cursor/rollback atómicos, CAS independiente por efecto y bases enviadas inmutables.
+
+Formatos legacy siguen readonly/clonados, desconocido/corrupto rechaza sin borrado ni cursor; importación/resolución local no fabrica ACK o permisos. Cortes11c3c1a–4 definidos con rutas/evidencias antes de coordinador/dos dispositivos/activación. Ningún schema/writer/runtime nuevo en esta entrega documental; estado preparatorio y limitaciones separados del producto activo.
+
+Referencias locales y coherencia/diff comprobados; sin repetir lint/tipos/build del código íntegro validado en corte anterior. Próxima candidata11c3c1a: shadow/snapshot personal puros, sólo si cuota posterior y cierre caben; dividir antes de abrir si hace falta. Reserva10%5h/1%7d vigente; commitpushHEAD/cuotas al cierre.
