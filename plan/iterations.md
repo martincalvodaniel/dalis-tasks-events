@@ -1502,3 +1502,22 @@ Item exige pertenencia actual incluso para historia; categorías exigen registro
 Cuatro escenarios nuevos Mongo: journal mixto producido por executors reales y checkpoint/incremental tras deletes; aislamiento/cursor/input inválido; huecos/futuro/corrupción/settings no soportado/item con owner cambiado/vista ausente, fixtures restauradas;28tareas grandes en fixtures transaccionales propias, dos páginas por UTF8 con28secuencias y checklist completo en todas. Esta última fixture prueba reader/bounds, no ACK de escritura real. Mongo46pass/0fail/475aserciones en11archivos; recursos propios eliminados. Normal269pass/75opt-in skip/0fail/5179aserciones, lint391archivos, tipos/build34recursos/diff aprobados.
 
 Próxima11c3b1: contrato de respuesta push mixta/versionada y compatibilidad transporte2/intención1, sin activar todavía. Después servicios/handshake, metadata/ACK/pull/backup y prueba de dos dispositivos antes de activar preferencias. Reserva10%5h/2%7d vigente, commitpushHEAD/cuotas al cierre.
+
+
+## 11c3b1a — Contrato push mixto e intención intacta
+
+- Entrada63%5h/8%7d tras28e6874 publicado, secuencial/reserva10%5h/2%7d. Se separa contrato puro del handshake/servicio/activación.
+- Objetivo: input explícito transportVersion2 con intenciones durables1 sin reescribir payload/UUID; respuesta status/version2 con resultados item/preference y prefijo retry. Verificador relaciona request/cuenta/orden/familia/outcomes, sin ACK/IO.
+- `target_paths`: `src/schemas/remote-push-v2.ts`, `src/types/remote-push-v2.ts`, `src/lib/sync/remote-push-v2{,.test}.ts`, `plan/{master,iterations,iteration-log,preference-sync,preference-transactions}.md`.
+- Dependencias: input/operaciones actuales, resultados v2 y reader mixto; ningún cambio de config activa/ServerAction/cola/DB.
+- Aceptación: input estricto transport2, versión de operación1 conservada; UUIDs únicos y envoltura completa<=512KiB UTF8. Response completa o prefijo retry_later exacto según request, failedOperationId coincide siguiente intención, orden/IDs/familias/propietarios verificados. Rechazos generales sin resultados; results<=50/49 y respuesta completa<=2MiB, no truncar un outcome. Transport1/futuro/extras/incoherencia rechazados sin conceder ACK ni compatibilidad.
+- Validación: mezcla/errores/complete/retry vacíos/parciales/clones, input2+intención1exacta, futuro/legacy/duplicados/cuenta/familia/op/desorden/truncado, request/responseUTF8 independientes. Suite/lint/tipos/build/diff/plan/commitpush/HEAD/cuotas. Si response preparada excede2MiB, futuro batch responderá un prefijo completo y pedirá retry de la siguiente intención, preservando replay aunque su commit ya exista.
+
+
+### Resultado11c3b1a — Push mixto preparatorio
+
+Input explícito transportVersion2 reutiliza schema de intenciones durables1, UUIDs/operaciones intactos y fingerprint v1 sin cambios. Guard512KiB incluye envoltura completa además del batch interior. Respuesta versión2 discriminada complete/retry_later/rechazos generales, resultados item/preference strict<=50/49, operación distinta por resultado y guard2MiB completo. Verificador exige actor/request, orden/IDs/familia, resultado completo o prefijo retry exacto/failedOperationId siguiente. Dueño de datos y objetivo principal de applied/conflict coinciden con el comando; efectos multirregistro conservados. Validación no concede ACK ni negocia compatibilidad; no IO/wire/config/ServerAction/metadata/DB activos modificados.
+
+Cinco pruebas/70aserciones: digest exacto y clones/mezcla/errores, prefijos incluidos vacío/parcial, truncado/desorden/duplicados/versiones/cuenta/familia/objetivo ajeno, batch interior válido justo512KiB cuya envoltura excede, respuestaUnicode que excede2MiB con outcomes individuales válidos y prefijo menor intacto. Tupla Zod y literales/tipo de fixtures ajustados antes del cierre; lint sin ruido. Suite274pass/75opt-in skip/0fail/5249aserciones, lint395archivos, tipos/build34recursos/diff aprobados. No repetir Mongo por contrato puro.
+
+Próxima11c3b1b: separar versión de transporte de la intención1 en compatibilidad/config preparatoria, conservando transporte activo1 y probando negociación2/1 en ambas direcciones. Servicio mixto/metadata/ACK/pull/backup/dos dispositivos siguen antes de activar. Si response futura excede límite, conservar prefijo completo y pedir retry de siguiente intención, incluso si el commit durable ya existe: replay lo preserva, no falso fallo ni pérdida de intención. Reserva10%5h/2%7d, commitpushHEAD/cuotas al cierre.
