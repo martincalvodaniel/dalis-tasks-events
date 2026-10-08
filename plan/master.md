@@ -314,3 +314,6 @@ Reader propio adapta historia legacy sin reescribirla, mantiene checkpoint/autor
 ### 11c3b1a — Intención1 y transporte2 preparados
 
 Contrato push versionado conserva UUID/payload/fingerprint durables1; verifica actor, prefijo completo, familia/objetivo y límitesUTF8. Sin negociación ni ACK/config activa nuevos. Siguiente11c3b1b, separación de versiones y compatibilidad preparada antes de servicios ymetadata/pull personales.
+
+
+Cierre del lote del 9 de octubre: última entrega de código 4f0dc93; 407 pruebas correctas, tipos/lint/build aprobados. Próxima revisión automática confirmada para las 05:27 Europe/Madrid, tras el reset publicado 05:25:13. Continuación desde 11c4a7p y la preparación concreta de [activación personal](mixed-sync-activation.md), con cuota real y último HEAD completo. Las categorías aún no están activadas en la aplicación.

@@ -54,3 +54,12 @@ La descarga privada preparatoria `11c4a6p` exige cuenta esperada y readiness ant
 
 
 La guardia de envío preparatoria `11c4a6s` delega validaciones al batch y observa readiness antes del primer executor. No reemplaza sesión/autorización del dispatcher ni la provisión explícita de índices; un fallo conserva las intenciones para reintento. Próximo corte `11c4a7p`: conectar estos servicios a una frontera autenticada preparatoria y probar la matriz en aislamiento antes de la activación conjunta.
+
+
+## Preparación concreta de la próxima frontera
+
+`11c4a7p` comienza por un adapter server-only de descarga autenticada y una acción de envío 2 independiente, todavía sin conectar la ruta, el hook, la identidad ni el anuncio activo. Rutas candidatas: `src/features/sync/authenticated-pull-v2.ts`, `src/features/sync/actions-v2.ts` y tests acotados de frontera; la integración y plan tienen un solo dueño. Reusar [la sesión persistida](../src/lib/auth/session.ts), [descarga privada](../src/features/sync/pull-response-v2.ts), [envío guardado](../src/features/sync/guarded-push-batch-v2.ts), readiness central y executors/DAL existentes. No aceptar actor del cliente ni omitir allowlist; la sesión debe seguir usando disableCookieCache/disableRefresh. Toda entrada sigue validada por schemas compartidos antes de ejecución.
+
+Aceptación del primer corte: actor sólo desde headers/sesión real; cuenta esperada, transporte/intención y readiness antes del dispatcher; sin sesión/cuenta cambiada/envelope antiguo/índice ausente no hay escrituras ni ACK. No cambiar actions legacy o config1 hasta que el cliente 2 y los índices estén preparados conjuntamente. Validar por puertos las llamadas y ausencia de efectos; esta prueba no se presenta como RPC real. Corte posterior: runner Next/Server Action autenticado en recursos propios, que cubra la matriz anterior y pérdida de respuesta. El piloto Google de preproducción requiere sus prerrequisitos y sesión vigente.
+
+Antes de activar en el entorno del usuario, preparar una ejecución explícita de los tres índices registrados con destino verificable, inspección previa y sin cambios ajenos; no ejecutar esa actuación con la autorización actual, que excluye la DB del usuario. Los módulos preparados permiten seguir trabajo útil independiente en la próxima ventana. El orden manual conserva su dependencia de política civil y recepción de placements.
