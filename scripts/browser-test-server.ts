@@ -3,6 +3,7 @@ import { resolve } from "node:path"
 const suite = process.argv[2] ?? "local-db"
 if (
   suite !== "local-db" &&
+  suite !== "backup" &&
   suite !== "outbox" &&
   suite !== "sync-results" &&
   suite !== "sync-pull" &&

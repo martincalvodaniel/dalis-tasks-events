@@ -1,0 +1,79 @@
+"use client"
+
+import {
+  encodeLocalBackup,
+  localBackupStoreNames,
+  validateLocalBackup,
+} from "@/lib/backup/local-backup"
+import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
+import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { timestampSchema, userIdSchema } from "@/schemas/primitives"
+import type { LocalBackup } from "@/types/local-backup"
+
+export function readLocalBackup(
+  database: IDBDatabase,
+  userIdInput: string,
+  exportedAtInput: string
+): Promise<LocalBackup> {
+  const userId = userIdSchema.parse(userIdInput)
+  const exportedAt = timestampSchema.parse(exportedAtInput)
+  if (database.name !== localDatabaseName(userId))
+    return Promise.reject(
+      new Error("Backup belongs to another account partition")
+    )
+  return runLocalTransaction(
+    database,
+    [...localBackupStoreNames],
+    "readonly",
+    (context) => {
+      const stores: Partial<
+        Record<(typeof localBackupStoreNames)[number], unknown[]>
+      > = {}
+      let remaining = localBackupStoreNames.length
+      for (const name of localBackupStoreNames) {
+        const request = context.transaction
+          .objectStore(name)
+          .getAll(undefined, 10001)
+        request.onsuccess = () => {
+          stores[name] = request.result
+          if (--remaining) return
+          try {
+            const backup = validateLocalBackup(
+              {
+                format: "dalis-local-backup",
+                version: 1,
+                protocolVersion: 1,
+                databaseVersion: database.version,
+                userId,
+                exportedAt,
+                stores,
+              },
+              userId
+            )
+            // Enforce the portable byte limit before returning any snapshot.
+            encodeLocalBackup(backup, userId)
+            context.setResult(backup)
+          } catch (error) {
+            context.fail(error)
+          }
+        }
+      }
+    }
+  )
+}
+export class LocalBackupReader {
+  private constructor(
+    readonly userId: string,
+    private readonly database: IDBDatabase
+  ) {}
+  static async open(userIdInput: string): Promise<LocalBackupReader> {
+    const userId = userIdSchema.parse(userIdInput)
+    return new LocalBackupReader(userId, await openLocalDatabase(userId))
+  }
+  read(): Promise<LocalBackup> {
+    return readLocalBackup(this.database, this.userId, new Date().toISOString())
+  }
+  close(): void {
+    this.database.close()
+  }
+}

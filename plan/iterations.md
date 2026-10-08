@@ -958,3 +958,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 
 
 13c1a: backup estricto completo de11stores, cuentaspropias ymetadata validada, tombstones/leases/outcomes/resolutions/Superseded intactos, clavesúnicas/sequence/dependencias/counter/evidencia. UTF8<=16MiB/records<=10000, nofiltrar registros/secretos/control de cuenta. Tres tests roundtrip/invalidactor/version/duplicates/historicalmissing/size/unknownmetadata; 217pass/30skip/4727aserciones, lint318files/tipos/build30recursos aprobados. Contrato puro, noDB/UI/importación; próxima13c1b snapshotreadonly. Backupnoautoriza ni restauraACK/leases/cursors, compartidos/versionesfuturas requierennuevocontrato.
+
+### 13c1b — Snapshot completo readonly con cuenta vigente
+
+- Objetivo previo: leer los once stores en misma transacción, validar backup íntegro y cerrar recursos antes de entregar datos a UI. Entrada25%/32%, int/secuencial/reserva10%; depende13c1a.
+- target_paths: src/lib/local-db/backup.ts, src/features/workspace/local-backup.ts, test/browser/backup.ts, scripts/browser-test-server.ts, plan/{master,iterations,iteration-log,backup-recovery,sync-test-environment}.md.
+- Aceptación: getAll enmisma transacciónreadonly sin awaits, límite10001detecta excedente sintruncar. Wrapper comprueba usuario/época antes y después, fecha/exportmetadata desde runtime ydb.version, closes siempre. Ninguna escritura/ACK/notification/counter; datosinválidos/actorcambiado producenerror sinpartial. Snapshot coherente bajo escritura posterior, recarga yJSONroundtrip conpendientes/tombstones.
+- Validación: IndexedDBfixture real coherence/corrupt/account/epoch/reload exact/cleanup, lint/tipos/suite/build/diff/referencias. Commit/pushint/HEAD/cuotas. DescargaUI13c1c después si margen sobre10%.
+
+
+13c1b: lector getAlllimit10001 de11stores enmisma txreadonly, ownershippartición/DBversion/fecha/byteguard sintruncate, wrapperactor/epochantesdespués yclosefinally. IndexedDB4checks+reload: snapshot completo/colaexacta/tombstone/preferencias/roundtrip, snapshotprecedewritecoherente, unknownmetadatarechaza sin cambios, wrongpartition/epoch yepochcambiada durantelectura noentregadatos/closeexacto. Owncleanupnormal217pass/30skip/4727aserciones/lint321files/tipos/build30recursos. Próxima13c1cdescargaUI si margen, importación siguependiente.
