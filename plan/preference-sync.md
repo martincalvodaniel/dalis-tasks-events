@@ -279,3 +279,8 @@ Variante explícita2/item con resultado item/v2; schema/type y decoder/verificad
 Tres pruebas/22aserciones: conflicto revision2 frente a shadow observado5/local0, clones, applied con tombstone y cuatro rechazos preservados, key/IDs/snapshots/resultado ajenos y versiones/familias/extras inválidos. Suite296pass/86opt-in skip/0fail/5435aserciones; lint415archivos, tipos/build34recursos/diff aprobados. Contrato sin IO no requiere repetir Mongo. Sin lector común, writer, backup, ACK, outbox o caller activo nuevo.
 
 Petición de una iteración adicional cerrada con reserva10%5h/1%7d ya vigente. Próxima candidata11c3c1b2b: variante outcome personal con snapshots exactos y decoder común, antes de backup/ACK/pull. No abrir persistencia personal como ampliación de este corte. CommitpushHEAD/cuotas al cierre.
+
+
+### Núcleo de colocaciones reutilizable, 11c5a1p
+
+[task-placement-command.ts](../src/lib/preferences/task-placement-command.ts) contiene ahora el algoritmo puro `planTaskPlacements`, sin frontera cliente ni import de persistencia. El adapter local conserva exports y callers. La extracción mantiene exactamente el cuerpo del algoritmo: ranks implícitos, compactación multiefecto, sentinel de atrasadas, ocurrencias, tombstones y revisiones locales. No añade validación, autorización, reloj remoto ni ACK. Seis tests directos y regresiones task-move/day aprobados. El executor remoto sigue pendiente de política civil diferida y catálogo/CAS/recepción de placements.
