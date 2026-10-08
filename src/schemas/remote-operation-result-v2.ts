@@ -57,3 +57,19 @@ export const remoteOperationResultV2Schema = z
       maximumRemoteOperationResultBytes,
     "Remote operation result exceeds its byte limit"
   )
+
+export function remoteOperationResultOwner(
+  result: z.infer<typeof remoteOperationResultV2Schema>
+): string | undefined {
+  if (result.kind === "item") {
+    if (result.outcome.status === "applied") return result.outcome.item.ownerId
+    if (result.outcome.status === "conflict")
+      return result.outcome.current.ownerId
+  } else {
+    if (result.outcome.status === "applied")
+      return result.outcome.effects.userId
+    if (result.outcome.status === "conflict")
+      return result.outcome.current.record.userId
+  }
+  return undefined
+}
