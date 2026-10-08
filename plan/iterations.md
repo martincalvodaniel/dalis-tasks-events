@@ -1741,3 +1741,8 @@ Aceptación: validación de propiedad/claves/familia/objetivo mediante decoders 
 
 
 Cierre11c3c3p: proyección preparatoria entregada y probada independientemente del outcome nuevo; no altera orden de activación.11c3c2a sigue candidata de integración. Actor/outbox completos se validan antes de preservar/reconciliar; union shadows<=10k y snapshot de salida<=2MiB.
+
+Integración paralela11c3c2a: root asume únicamente src/lib/backup/import-preview.test.ts y src/lib/backup/import-plan.test.ts para matriz source1/current2 y source2/current1, evidencia personal completa sin selección ni ACK importado, comparación exacta de stores sin normalización. Contratos/aliases compartidos siguen propiedad del worker de backup. La entrega se integra y valida junta antes de commit.
+
+
+Cierre11c3c2a: contrato/verificador portable mixto y matriz import pura entregados.11c3c2b integra snapshot readonly y fixtures reales antes de writers. Adaptación estricta de metadata/shadow sólo en memoria; export aún1.

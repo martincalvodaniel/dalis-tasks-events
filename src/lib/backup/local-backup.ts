@@ -1,5 +1,7 @@
 import { assertBackupOwnership } from "@/lib/backup/backup-ownership"
 import { validateBackupImportEvidence } from "@/lib/backup/import-record"
+import { decodeLocalOperationOutcome } from "@/lib/sync/local-operation-outcome-v2"
+import { decodeRemoteShadow } from "@/lib/sync/remote-shadow-v2"
 import { localBackupSchema } from "@/schemas/local-backup"
 import { userIdSchema } from "@/schemas/primitives"
 import type { LocalBackup } from "@/types/local-backup"
@@ -75,6 +77,7 @@ export function validateLocalBackup(
     s.outbox.map((record) => record.sequence),
     "operation sequences"
   )
+  for (const shadow of s.remoteShadows) decodeRemoteShadow(shadow, actor)
   const entries = new Map(
     s.outbox.map((entry) => [entry.operation.operationId, entry])
   )
@@ -95,9 +98,16 @@ export function validateLocalBackup(
   )
     throw new Error("Backup sequence is behind its durable queue")
   const outcomes = new Map(
-    s.syncMetadata
-      .filter((record) => "result" in record)
-      .map((record) => [record.operation.operationId, record])
+    s.syncMetadata.flatMap((record) =>
+      "result" in record
+        ? [
+            [
+              record.operation.operationId,
+              decodeLocalOperationOutcome(record, actor),
+            ] as const,
+          ]
+        : []
+    )
   )
   const superseded = new Set<string>()
   for (const record of s.syncMetadata) {
@@ -110,20 +120,6 @@ export function validateLocalBackup(
         JSON.stringify(entry.operation) !== JSON.stringify(record.operation)
       )
         throw new Error("Backup outcome does not match its preserved operation")
-      const command = record.operation.command
-      const resultItem =
-        record.result.status === "applied"
-          ? record.result.item
-          : record.result.status === "conflict"
-            ? record.result.current
-            : null
-      if (
-        "itemId" in command &&
-        [record.local, record.base, resultItem].some(
-          (item) => item !== null && item.id !== command.itemId
-        )
-      )
-        throw new Error("Backup outcome belongs to another item")
     }
     if ("resolutionId" in record) {
       for (const id of record.supersededOperationIds) {
@@ -139,7 +135,7 @@ export function validateLocalBackup(
           throw new Error(
             "Backup decision is missing its superseded intentions"
           )
-        const preservedOutcome = outcomes.get(id)?.result.status
+        const preservedOutcome = outcomes.get(id)?.result.outcome.status
         if (
           (reviewed.state === "conflict" && preservedOutcome !== "conflict") ||
           (reviewed.state === "rejected" &&
@@ -171,12 +167,13 @@ export function validateLocalBackup(
     const outcome = outcomes.get(entry.operation.operationId)
     if (
       (entry.state === "acknowledged" &&
-        outcome?.result.status !== "applied") ||
-      (entry.state === "conflict" && outcome?.result.status !== "conflict") ||
+        outcome?.result.outcome.status !== "applied") ||
+      (entry.state === "conflict" &&
+        outcome?.result.outcome.status !== "conflict") ||
       (entry.state === "rejected" &&
         (!outcome ||
           !["unavailable", "invalid_command", "identity_reuse"].includes(
-            outcome.result.status
+            outcome.result.outcome.status
           ))) ||
       (entry.state === "superseded" &&
         !superseded.has(entry.operation.operationId))

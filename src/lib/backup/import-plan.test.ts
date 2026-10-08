@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test"
 import { planLocalBackupImport } from "@/lib/backup/import-plan"
+import { validateLocalBackup } from "@/lib/backup/local-backup"
 import { applyItemCommand } from "@/lib/calendar/item-command"
 import type { BackupImportRequest } from "@/types/backup-import"
 import type { LocalBackup } from "@/types/local-backup"
@@ -261,4 +262,71 @@ test("import planning limits selections and the size of new intentions", () => {
       current
     )
   ).toThrow()
+})
+
+test("cross-generation import retains personal evidence and creates only fresh item intentions", () => {
+  const legacy = fixture()
+  const tag = {
+    id: crypto.randomUUID(),
+    userId,
+    name: "Preserved category",
+    normalizedName: "preserved category",
+    color: "#00aa99",
+    position: 0,
+    revision: 8,
+    createdAt: originalDate,
+    updatedAt: now,
+    deletedAt: now,
+  }
+  const versioned = validateLocalBackup(
+    {
+      ...structuredClone(legacy),
+      version: 2,
+      stores: {
+        ...structuredClone(legacy.stores),
+        tags: [tag],
+        remoteShadows: [
+          {
+            version: 2,
+            kind: "preference",
+            entityKey: `tag:${tag.id}`,
+            record: { store: "tags", record: tag },
+          },
+        ],
+      },
+    },
+    userId
+  )
+  for (const [source, current] of [
+    [legacy, versioned],
+    [versioned, legacy],
+  ] as const) {
+    const sourceJson = JSON.stringify(source, null, 2)
+    const before = JSON.stringify(current)
+    const input = request(source, current)
+    const plan = planLocalBackupImport(input, sourceJson, current)
+    expect(plan.sourceJson).toBe(sourceJson)
+    expect(plan.request.expected).toEqual(current)
+    expect(plan.copies).toHaveLength(source.stores.items.length)
+    for (const copy of plan.copies) {
+      expect(copy.operation.protocolVersion).toBe(1)
+      expect(copy.operation.baseRevision).toBe(0)
+      expect(copy.operation.command.type).toBe("item.create")
+      expect(copy.item.revision).toBe(0)
+    }
+    expect(JSON.stringify(current)).toBe(before)
+  }
+  const input = request(legacy, versioned)
+  const changed = structuredClone(versioned)
+  const shadow = changed.stores.remoteShadows[0]
+  if (
+    !("kind" in shadow) ||
+    shadow.kind !== "preference" ||
+    shadow.record.store !== "tags"
+  )
+    throw new Error("Personal shadow fixture missing")
+  shadow.record.record.position = 1
+  expect(() =>
+    planLocalBackupImport(input, JSON.stringify(legacy), changed)
+  ).toThrow("comparison changed")
 })

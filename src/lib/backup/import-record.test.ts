@@ -7,12 +7,12 @@ import {
   validateLocalBackup,
 } from "@/lib/backup/local-backup"
 import { applyItemCommand } from "@/lib/calendar/item-command"
-import type { LocalBackup } from "@/types/local-backup"
+import type { LocalBackupV1 } from "@/types/local-backup"
 
 const userId = "backup-import-record-test"
 const now = "2026-10-08T00:00:00.000Z"
-function fixture(): LocalBackup {
-  const source: LocalBackup = {
+function fixture(): LocalBackupV1 {
+  const source: LocalBackupV1 = {
     format: "dalis-local-backup",
     version: 1,
     protocolVersion: 1,
@@ -158,4 +158,52 @@ test("receipt evidence rejects foreign archived records even if the archive acco
   archive.stores.items[0].ownerId = "other"
   record.sourceJson = JSON.stringify(archive)
   expect(() => validateLocalBackup(backup, userId)).toThrow("another account")
+})
+
+test("an archived portable two source retains its exact bytes and is never restored as live recursive evidence", () => {
+  const backup = fixture()
+  const record = backup.stores.syncMetadata.find((entry) => "importId" in entry)
+  if (!record || !("importId" in record))
+    throw new Error("Expected import receipt")
+  const archive = JSON.parse(record.sourceJson)
+  archive.version = 2
+  const tagId = crypto.randomUUID()
+  archive.stores.remoteShadows.push({
+    version: 2,
+    kind: "preference",
+    entityKey: `tag:${tagId}`,
+    record: {
+      store: "tags",
+      record: {
+        id: tagId,
+        userId,
+        name: "Archived",
+        normalizedName: "archived",
+        color: "#123456",
+        position: 1024,
+        revision: 9,
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: now,
+      },
+    },
+  })
+  // Historical archives are structural evidence, not replayable live queue state.
+  archive.stores.syncMetadata.push({
+    key: "preference-tail",
+    operationId: crypto.randomUUID(),
+  })
+  record.sourceJson = `\n${JSON.stringify(archive, null, "\t")}\n`
+  const before = record.sourceJson
+  expect(() => validateLocalBackup(archive, userId)).toThrow("preference tail")
+  const result = decodeLocalBackup(encodeLocalBackup(backup, userId), userId)
+  const stored = result.stores.syncMetadata.find((entry) => "importId" in entry)
+  if (!stored || !("importId" in stored))
+    throw new Error("Expected archived receipt")
+  expect(stored.sourceJson).toBe(before)
+  expect(result.stores.outbox).toEqual(backup.stores.outbox)
+  expect(result.stores.remoteShadows).toEqual([])
+  expect(result.stores.tags).toEqual([])
+  expect(result.version).toBe(1)
+  expect(record.sourceJson).toBe(before)
 })

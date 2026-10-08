@@ -1,6 +1,8 @@
 import { z } from "zod"
 import { backupImportRecordSchema } from "@/schemas/backup-import-record"
 import { calendarItemSchema } from "@/schemas/calendar-item"
+import { localItemOutcomeV2Schema } from "@/schemas/local-item-outcome-v2"
+import { localPreferenceOutcomeV2Schema } from "@/schemas/local-preference-outcome-v2"
 import {
   localOperationOutcomeSchema,
   localPullCursorSchema,
@@ -17,6 +19,7 @@ import {
   userSettingsSchema,
 } from "@/schemas/preferences"
 import { timestampSchema, userIdSchema } from "@/schemas/primitives"
+import { remoteShadowV2Schema } from "@/schemas/remote-shadow-v2"
 import { itemMembershipSchema, shareInvitationSchema } from "@/schemas/sharing"
 import { syncResolutionRecordSchema } from "@/schemas/sync-resolution"
 
@@ -41,7 +44,7 @@ export const localBackupStoresSchema = z.strictObject({
   remoteShadows: z.array(remoteShadowSchema).max(10000),
   syncMetadata: z.array(localBackupMetadataSchema).max(10000),
 })
-export const localBackupSchema = z.strictObject({
+export const localBackupV1Schema = z.strictObject({
   format: z.literal("dalis-local-backup"),
   version: z.literal(1),
   protocolVersion: z.literal(1),
@@ -50,3 +53,25 @@ export const localBackupSchema = z.strictObject({
   exportedAt: timestampSchema,
   stores: localBackupStoresSchema,
 })
+
+export const localBackupMetadataV2Schema = z.union([
+  localBackupMetadataSchema,
+  localItemOutcomeV2Schema,
+  localPreferenceOutcomeV2Schema,
+])
+export const localBackupStoresV2Schema = localBackupStoresSchema.extend({
+  remoteShadows: z
+    .array(z.union([remoteShadowSchema, remoteShadowV2Schema]))
+    .max(10000),
+  syncMetadata: z.array(localBackupMetadataV2Schema).max(10000),
+})
+export const localBackupV2Schema = localBackupV1Schema.extend({
+  version: z.literal(2),
+  stores: localBackupStoresV2Schema,
+})
+
+// Portable evidence versions are independent of the durable intention protocol.
+export const localBackupSchema = z.discriminatedUnion("version", [
+  localBackupV1Schema,
+  localBackupV2Schema,
+])

@@ -1,6 +1,9 @@
 import { expect, test } from "bun:test"
 import { previewLocalBackupImport } from "@/lib/backup/import-preview"
-import { maximumBackupBytes } from "@/lib/backup/local-backup"
+import {
+  maximumBackupBytes,
+  validateLocalBackup,
+} from "@/lib/backup/local-backup"
 import { applyItemCommand } from "@/lib/calendar/item-command"
 import type { CalendarItem } from "@/types/calendar-item"
 import type { LocalBackup } from "@/types/local-backup"
@@ -307,4 +310,71 @@ test("preview rejects invalid accounts, versions, duplicates, histories and byte
     ).toThrow()
     expect(() => previewLocalBackupImport(json, invalid, userId)).toThrow()
   }
+})
+
+test("portable generations compare exact mixed evidence without promoting it to selectable content", () => {
+  const legacy = fixture()
+  const item = legacy.stores.items[0]
+  const tag = { ...legacy.stores.tags[0], revision: 7, deletedAt: now }
+  const versioned = validateLocalBackup(
+    {
+      ...structuredClone(legacy),
+      version: 2,
+      stores: {
+        ...structuredClone(legacy.stores),
+        remoteShadows: [
+          ...structuredClone(legacy.stores.remoteShadows),
+          {
+            version: 2,
+            kind: "preference",
+            entityKey: `tag:${tag.id}`,
+            record: { store: "tags", record: tag },
+          },
+          {
+            version: 2,
+            kind: "preference",
+            entityKey: `item-view:${item.id}`,
+            record: {
+              store: "itemViews",
+              record: {
+                ...legacy.stores.itemViews[0],
+                revision: 3,
+              },
+            },
+          },
+        ],
+      },
+    },
+    userId
+  )
+  for (const [source, current] of [
+    [legacy, versioned],
+    [versioned, legacy],
+  ] as const) {
+    const sourceJson = JSON.stringify(source, null, 2)
+    const before = JSON.stringify(current)
+    const preview = previewLocalBackupImport(sourceJson, current, userId)
+    expect(preview.stores.items[0].support).toBe("simple_item")
+    expect(
+      preview.stores.remoteShadows.every(
+        (row) => row.support === "evidence_only"
+      )
+    ).toBe(true)
+    expect(preview.stores.remoteShadows).toHaveLength(
+      source.stores.remoteShadows.length
+    )
+    expect(JSON.stringify(current)).toBe(before)
+    expect(JSON.stringify(source, null, 2)).toBe(sourceJson)
+  }
+  const preview = previewLocalBackupImport(
+    JSON.stringify(versioned),
+    legacy,
+    userId
+  )
+  const personal = preview.stores.remoteShadows.find(
+    (row) => row.key === `tag:${tag.id}`
+  )
+  expect(personal?.classification).toBe("new")
+  expect(personal?.source).toEqual(versioned.stores.remoteShadows[1])
+  expect(personal?.current).toBeNull()
 })
