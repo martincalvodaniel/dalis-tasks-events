@@ -948,3 +948,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 
 
 13b2a: Ajustes ofreceComprobaractualización anteupdate_required, registroexistente/online ywaiting/installing/current/offline/unavailable, sinregister/skipWaiting/reload. Observador conecta instalaciónyaencurso ydisposequitalisteners; avisoesperacompacto. 214pass/30skip/4702aserciones/lint314files/tipos/build30recursos. FixtureReact/IndexedDB/workerdeproductoreal con2versionesownloopback: v1activo/v2waiting mantienedatos/colaexactos, cerrar/reabriractivav2yconservaUUID/payload/estado, cleanupownreg/caches/partición/baseline. Móvil390sin overflow/checkbutton44px. Próxima13c1a backupcontractportable; import/exportUIposteriores. Google/RPCNextrequierepiloto.
+
+### 13c1a — Contrato de backup portable completo
+
+- Objetivo previo: validar backup local versionado de todos los stores de partición propia, pendientes y evidencias incluidas, sin importar ni escribir. Entrada33%/33%, int/secuencial/reserva10%; depende13b2a.
+- target_paths: src/{schemas,types}/local-backup.ts, src/lib/backup/{local-backup,local-backup.test}.ts, plan/{master,iterations,iteration-log,backup-recovery}.md.
+- Aceptación: format/version/protocol/databaseversion/actor/timestamp estrictos; 11stores completos con records válidos/tombstones/Superseded/outcomes/resolutions. Sin secretos/cookies/controlcuenta, sin filtrado parcial. Propiedad propia o error, claves únicas/sequence/counter/dependencias/evidencia consistentes; backups futuros sin soporte rechazan. Entrada UTF8 <=16MiB/<=10000records porstore, conserva leases como evidencia pero no restaurables. Codificador valida antes de producir JSON, lector no cambia entrada. Compartidos futuros requieren contrato nuevo; backup no otorga permisos. Importación posterior genera nuevas intenciones explícitas y jamás restaura ACK/cursors/leases.
+- Validación: roundtripmultistore con intenciones/metadata, wrongactor/version/schema/duplicado/historialincompleto/size rechazados e input intacto, lint/tipos/suite/build/diff/referencias. Commit/pushint/HEAD/cuotas. Snapshot readonly13c1b/UIexport13c1c siguientes.
+
+
+13c1a: backup estricto completo de11stores, cuentaspropias ymetadata validada, tombstones/leases/outcomes/resolutions/Superseded intactos, clavesúnicas/sequence/dependencias/counter/evidencia. UTF8<=16MiB/records<=10000, nofiltrar registros/secretos/control de cuenta. Tres tests roundtrip/invalidactor/version/duplicates/historicalmissing/size/unknownmetadata; 217pass/30skip/4727aserciones, lint318files/tipos/build30recursos aprobados. Contrato puro, noDB/UI/importación; próxima13c1b snapshotreadonly. Backupnoautoriza ni restauraACK/leases/cursors, compartidos/versionesfuturas requierennuevocontrato.

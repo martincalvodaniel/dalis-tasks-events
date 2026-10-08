@@ -1,0 +1,11 @@
+# Backup y recuperación
+
+Contrato1 almacena un snapshot validado de los once stores propios de IndexedDB2: contenido y apariciones, categorías/vistas/colocaciones/settings, memberships/invitations, outbox, shadows y metadata (contador, preference-tail, cursor, outcomes y decisiones de resolución). Incluye tombstones, operaciones confirmadas y supersedidas y leases como evidencia. El ownerId de una lease es el nonce del sender, no el propietario de los datos.
+
+Formato dalis-local-backup/version1/protocol1/databaseVersion2, cuenta y fecha de exportación. Todos los stores son obligatorios; arrays acotados a10000 registros (settings1), fichero <=16MiB UTF8. Claves y secuencias únicas, dependencias hacia registros anteriores, contador vigente, outcome ligado al payload conservado, decisiones ligadas a su historia Superseded/replacement. No se filtran silenciosamente registros incompatibles ni se borra nada al fallar.
+
+El fichero no incluye cookies, Google tokens, secretos o control de cuenta/época. La cuenta activa debe coincidir al generar o leer un backup. Se soportan datos propios actuales; registros compartidos ajenos y versiones futuras necesitan un contrato posterior y se rechazan íntegramente. Un fichero local nunca constituye autorización remota. El contrato es validación estructural y coherencia; no firma ni prueba de autenticidad del servidor.
+
+13c1a solo contrato/codificador/lector puros y tests. Siguiente13c1b: snapshot de una transacción readonly de todos los stores, conexión cerrada y guardias de cuenta/época antes/después. Siguiente13c1c: descarga JSON desde Ajustes, bajo petición, sin red y solo tras validación completa, con error honesto y fichero de cuenta/fecha sin PII en filename.
+
+Importación aún no disponible. Cortes posteriores deben mostrar contenido/duplicados/cuenta/versión y confirmar explícitamente. No restaurar directamente outbox, ACK, leases, cursores, revisión remota ni permisos; generar intenciones nuevas por decisiones de producto y conservar copia/evidencia original. Reintentos o fallos de cuota no deben producir éxito ni borrar datos. Repeticiones/preferencias necesitan ejecutores compatibles; no declarar importación global lista a partir del exportador.
