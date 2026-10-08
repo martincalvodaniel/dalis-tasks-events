@@ -12,6 +12,20 @@ export const backupImportSelectionSchema = z.strictObject({
   operationId: entityIdSchema,
 })
 
+export const backupImportPreparationSchema = z
+  .strictObject({
+    sourceJson: z
+      .string()
+      .min(1)
+      .max(16 * 1024 * 1024),
+    expected: localBackupSchema,
+    sourceItemIds: z.array(entityIdSchema).min(1).max(50),
+  })
+  .refine(
+    (input) => new Set(input.sourceItemIds).size === input.sourceItemIds.length,
+    "Import selections must be distinct"
+  )
+
 export const backupImportRequestSchema = z
   .strictObject({
     importId: entityIdSchema,

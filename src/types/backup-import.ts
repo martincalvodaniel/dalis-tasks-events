@@ -30,6 +30,12 @@ export type BackupImportPreview = {
   stores: Record<BackupStoreName, BackupImportRow[]>
 }
 
+export type BackupImportComparison = {
+  sourceJson: string
+  expected: LocalBackup
+  preview: BackupImportPreview
+}
+
 export type BackupImportRequest = z.infer<typeof backupImportRequestSchema>
 export type BackupImportRecord = z.infer<typeof backupImportRecordSchema>
 export type LocalBackupImportResult = {

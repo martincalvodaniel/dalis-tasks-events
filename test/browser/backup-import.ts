@@ -1,6 +1,16 @@
 import { applyItemCommand } from "@/lib/calendar/item-command"
+import {
+  ACCOUNT_CONTROL_DATABASE,
+  activatePreparedAccount,
+  completeRemoteLogout,
+  hideLocalAccount,
+  readAccountControl,
+} from "@/lib/local-db/account-control"
 import { readLocalBackup } from "@/lib/local-db/backup"
-import { importLocalBackupCopies } from "@/lib/local-db/backup-import"
+import {
+  importLocalBackupCopies,
+  LocalBackupImporter,
+} from "@/lib/local-db/backup-import"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import { entityIdSchema } from "@/schemas/primitives"
@@ -58,16 +68,29 @@ function request(
   }
 }
 async function cleanup() {
+  const control = await readAccountControl()
+  assert(control.userId === null || control.userId === userId)
   localStorage.removeItem(storageKey)
-  for (const actor of [userId, otherUserId])
+  for (const name of [
+    localDatabaseName(userId),
+    localDatabaseName(otherUserId),
+    ACCOUNT_CONTROL_DATABASE,
+  ])
     await new Promise<void>((resolve, reject) => {
-      const deletion = indexedDB.deleteDatabase(localDatabaseName(actor))
+      const deletion = indexedDB.deleteDatabase(name)
       deletion.onsuccess = () => resolve()
       deletion.onerror = () => reject(deletion.error)
       deletion.onblocked = () =>
         reject(new Error("Import fixture cleanup blocked"))
     })
   statusElement.textContent = "Recursos propios limpiados."
+}
+async function activateFixtureAccount() {
+  let control = await readAccountControl()
+  assert(control.userId === null || control.userId === userId)
+  if (control.logoutPending) control = await completeRemoteLogout(control.epoch)
+  const prepared = await activatePreparedAccount(userId, now, control.epoch)
+  return { userId, epoch: prepared.epoch }
 }
 async function run() {
   if (query.get("phase") === "cleanup") {
@@ -363,6 +386,113 @@ async function run() {
       } finally {
         window.removeEventListener("dalis:outbox-changed", notified)
       }
+      let account = await activateFixtureAccount()
+      const comparison = await readAccountBackupImportPreview(
+        account,
+        sourceJson
+      )
+      const preparation = {
+        sourceJson,
+        expected: comparison.expected,
+        sourceItemIds: [source.stores.items[0].id],
+      }
+      let prepared = await prepareAccountBackupImport(account, preparation)
+      await check(
+        "Comparación y preparación de workspace no escriben",
+        async () => {
+          assert(
+            JSON.stringify((await read()).stores) ===
+              JSON.stringify(comparison.expected.stores)
+          )
+          assert(
+            prepared.copies.length === 1 && prepared.request.userId === userId
+          )
+        }
+      )
+      await check(
+        "Cambio de época durante apertura rechaza antes de guardar",
+        async () => {
+          const before = JSON.stringify((await read()).stores)
+          const nativeOpen = LocalBackupImporter.open
+          LocalBackupImporter.open = async (actor) => {
+            const importer = await nativeOpen(actor)
+            await hideLocalAccount()
+            return importer
+          }
+          try {
+            await refused(async () =>
+              commitAccountBackupImport(account, prepared)
+            )
+          } finally {
+            LocalBackupImporter.open = nativeOpen
+          }
+          await refused(async () =>
+            readAccountBackupImportPreview(account, sourceJson)
+          )
+          assert(JSON.stringify((await read()).stores) === before)
+        }
+      )
+      account = await activateFixtureAccount()
+      prepared = await prepareAccountBackupImport(account, {
+        ...preparation,
+        expected: await read(),
+      })
+      await check(
+        "Inputs y cuenta capturados no cambian durante awaits",
+        async () => {
+          const expectedCopyId = prepared.request.copies[0].itemId
+          const actor = { ...account }
+          const pending = commitAccountBackupImport(actor, prepared)
+          actor.userId = "mutated-caller"
+          prepared.sourceJson = "mutated-caller"
+          prepared.request.copies[0].itemId = originalId
+          const result = await pending
+          assert(
+            result.status === "applied" &&
+              result.record.sourceJson === sourceJson
+          )
+          assert(
+            (await read()).stores.items.some(
+              (item) => item.id === expectedCopyId
+            )
+          )
+        }
+      )
+      prepared = await prepareAccountBackupImport(account, {
+        ...preparation,
+        expected: await read(),
+      })
+      await check(
+        "Cambio tras commit conserva copia propia y permite replay",
+        async () => {
+          const before = await read()
+          const nativeCommit = LocalBackupImporter.prototype.commit
+          LocalBackupImporter.prototype.commit = async function (input, json) {
+            const result = await nativeCommit.call(this, input, json)
+            await hideLocalAccount()
+            return result
+          }
+          try {
+            await refused(async () =>
+              commitAccountBackupImport(account, prepared)
+            )
+          } finally {
+            LocalBackupImporter.prototype.commit = nativeCommit
+          }
+          const after = await read()
+          assert(after.stores.items.length === before.stores.items.length + 1)
+          assert(after.stores.outbox.length === before.stores.outbox.length + 1)
+          account = await activateFixtureAccount()
+          assert(
+            (await commitAccountBackupImport(account, prepared)).status ===
+              "replayed"
+          )
+          assert(
+            JSON.stringify((await read()).stores) ===
+              JSON.stringify(after.stores)
+          )
+        }
+      )
       localStorage.setItem(
         storageKey,
         JSON.stringify({
@@ -389,3 +519,9 @@ run().catch((error) => {
   statusElement.textContent = "Una prueba de importación ha fallado."
   console.error(error)
 })
+
+import {
+  commitAccountBackupImport,
+  prepareAccountBackupImport,
+  readAccountBackupImportPreview,
+} from "@/features/workspace/import-backup"

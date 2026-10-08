@@ -1070,3 +1070,20 @@ Importador client-only guarda nuevas copias, intenciones pending, contador y rec
 Fixture propia de loopback4188 e IndexedDB real: seis checks de multicopia/preservación, replay/progreso, reutilización/stale/collision, cuenta/partición, fallo tardío con rollback y concurrencia una sola copia. Séptimo check tras recarga verifica snapshot/cola/recibo exactos y replay sin escrituras. Se corrigió la fixture porque getAll de outbox está ordenado por UUID, no por secuencia; ahora encuentra por identidad y ordena secuencias explícitamente. Ambas ejecuciones limpiaron exclusivamente particiones UUID propias; pestaña y servidor cerrados.
 
 Normal234pass/30opt-in skip/0fail/4859aserciones, lint339archivos, tipos ybuild30recursos aprobados; sin DB remota ni falsa declaración de ACK/convergencia nueva. Próxima `13c2c3`: guardias de cuenta/época y preparación de confirmación a nivel workspace, luego UI compacta y prueba de envío de copias con dos dispositivos/Mongo aislado.
+
+
+## 13c2c3 — Preparación y guardias de cuenta/época
+
+- Entrada81%/26% tras `adc40e7`, int/secuencial/reserva10%.
+- Objetivo: servicios workspace de lectura/comparación, preparación con UUID/fecha estables y commit del plan bajo cuenta/época capturada; sin UI aún.
+- `target_paths`: `src/features/workspace/import-backup.ts`, `src/schemas/backup-import.ts`, `src/types/backup-import.ts`, `test/browser/backup-import.ts`, `plan/{master,iterations,iteration-log,backup-recovery,sync-test-environment}.md`.
+- Dependencias: ejecutor `13c2c2`.
+- Aceptación: identidad capturada antes de awaits, guardias antes/después de lectura/preparación/commit, inputs validados y clonados para impedir cambios del caller durante awaits, cierre finally. Prepare compara snapshot actual y asigna UUID/fecha una vez; commit no regenera decisiones. Cuenta/época obsoleta falla antes de escritura. Si cambia después del commit, conservar copia propia y permitir replay desde su cuenta, sin mostrar éxito a otra cuenta ni deshacer el guardado.
+- Validación: fixture propia IndexedDB real incluye lectura/prepare sin escritura, época caducada antes de commit, cambio tras commit/replay y mutación del caller; cleanup de control local solo tras comprobar cuenta propia o nula. Suite/lint/tipos/build/plan/diff/rutas/commit/push/HEAD/cuotas.
+
+
+### Resultado 13c2c3
+
+Servicios client-only de workspace entregados: lectura/comparación readonly, preparación con UUID/fecha generados una vez y commit del plan estable. Capturan cuenta/época e inputs antes de awaits, validan snapshot actual, verifican cuenta antes/después y de nuevo tras abrir importer, y cierran conexiones en finally. Si la cuenta cambia tras commit, no exponen éxito a otra cuenta ni deshacen copias propias; el recibo permite replay desde su cuenta.
+
+Fixture IndexedDB real alcanza diez checks y uno tras recarga: preparación readonly, época invalidada durante apertura, caller mutando identidad/plan durante awaits, cambio tras commit con copia conservada/replay exacto, además de los checks anteriores. Cleanup valida control de cuenta propio/nulo antes de borrar exclusivamente sus particiones y control en loopback4188; pestaña/servidor cerrados. Suite234pass/30opt-in skip/0fail/4859aserciones, lint340archivos, tipos/build30recursos aprobados. Próxima `13c2d1`: selección y confirmación UI compactas en Ajustes; sincronización de copias con dos dispositivos/Mongo aislado en corte posterior.
