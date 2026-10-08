@@ -22,3 +22,18 @@ export const syncIncidentSnapshotInputSchema = z.strictObject({
   shadows: z.array(remoteShadowSchema),
   outcomes: z.array(localOperationOutcomeSchema),
 })
+
+export const syncIncidentSnapshotSchema = z.strictObject({
+  entry: outboxEntrySchema,
+  reason: z.enum([
+    "conflict",
+    "unavailable",
+    "invalid_command",
+    "identity_reuse",
+  ]),
+  local: calendarItemSchema.nullable(),
+  localAtOutcome: calendarItemSchema.nullable(),
+  shadowAtOutcome: calendarItemSchema.nullable(),
+  remote: calendarItemSchema.nullable(),
+  intentions: z.array(outboxEntrySchema).min(1),
+})
