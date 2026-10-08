@@ -968,3 +968,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 
 
 13c1b: lector getAlllimit10001 de11stores enmisma txreadonly, ownershippartición/DBversion/fecha/byteguard sintruncate, wrapperactor/epochantesdespués yclosefinally. IndexedDB4checks+reload: snapshot completo/colaexacta/tombstone/preferencias/roundtrip, snapshotprecedewritecoherente, unknownmetadatarechaza sin cambios, wrongpartition/epoch yepochcambiada durantelectura noentregadatos/closeexacto. Owncleanupnormal217pass/30skip/4727aserciones/lint321files/tipos/build30recursos. Próxima13c1cdescargaUI si margen, importación siguependiente.
+
+### 13c1c — Descargar backup validado desde Ajustes
+
+- Objetivo previo: botón compacto bajo detalles debackup, descargaJSON solicitada solo tras snapshotvalidado y guardiaactual. Entrada22%/31%, int/secuencial/reserva10%; depende13c1b. Coste esperado menor que cortesUI anteriores (snapshot ya probado, sinformulario/import ni navegación nueva).
+- target_paths: src/features/workspace/{download-backup.ts,components/{backup-settings,device-settings}.tsx}, test/browser/backup-ui.tsx, scripts/backup-ui-test-server.ts, plan/{master,iterations,iteration-log,backup-recovery,sync-test-environment}.md.
+- Aceptación: sólo cuenta preparada/época vigente, offline/sinfetch, snapshotcompleto yJSONvalidado antesdeBlob; filenamefecha sinusuario/PII, revocaciónURL ylinkremovido, sinnetwork/ACK/escrituras. UI44px/compacta español, errorhonesto conserva datos, mensaje descarga solicitada (no afirmar que navegadorguardó). Detalles explican restauraciónpendiente; no nuevapantalla.
+- Validación: UIreal390 confetchbloqueado capturaBlob+filename+11stores+pending+colaexacta, cuentaobsoleta falla sinBlob, cleanup propio; lint/tipos/suite/build/diff/referencias. Commit/pushint/HEAD/cuotas, después cierre si reserva no admite otrocorte.
+
+
+13c1c: secciónplegablecompactaCopia de seguridad enAjustes, downloadsolo tras snapshotvalidado yguardiaactual, JSONBlob/filenamefecha sincuenta yURLrevocable/linkremovido. Mensajehonestodescargasolicitada, importacióntodavíano disponible; sinfetch/ACK/escrituras. FixtureUIreal390 confetchbloqueado validaBlob11stores/colaexacta, epochcambiado error sinsegundaBlob, recursospropios limpios yviewportreset; botón44px/sin overflow. Normal217pass/30skip/4727aserciones/lint325files/tipos/build30recursos aprobados. Próxima13c2apreviewpuro deimportación si margen; ejecutor/importUI posteriores.

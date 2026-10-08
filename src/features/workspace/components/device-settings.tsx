@@ -3,6 +3,7 @@
 import { useId, useState } from "react"
 import { canPrepareOfflineShell } from "@/config/pwa"
 import { DeviceSyncSettings } from "@/features/sync/components/device-sync-settings"
+import { BackupSettings } from "@/features/workspace/components/backup-settings"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import {
   closeLocalAccount,
@@ -169,7 +170,10 @@ export function DeviceSettings() {
         </p>
       ) : null}
       {account ? (
-        <DeviceSyncSettings key={account.epoch} account={account} />
+        <>
+          <DeviceSyncSettings key={account.epoch} account={account} />
+          <BackupSettings key={`backup:${account.epoch}`} account={account} />
+        </>
       ) : null}
     </div>
   )
