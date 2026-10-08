@@ -160,3 +160,8 @@ El usuario autoriza «Haz un intento mínimo» tras conocer que ejecutar el fix 
 ### Continuación autorizada tras renovación del 8 de octubre
 
 Lectura real al reanudar: 100% de 5h / 29% de 7d, reinicio publicado 1791470291. «Adelante» y la instrucción posterior autorizan commit y push por iteración, consulta automática de ambas ventanas y siguiente corte si todavía hay margen. Trabajo secuencial con reserva base del 10% en ambas ventanas, sin automatizaciones nuevas ni créditos. El menor margen semanal limita el alcance aunque la ventana de 5h esté renovada. Antes de cada corte usar coste observado más reparación/cierre. `13c2a` es puro; piloto real necesita sesión de Vercel/Google en los navegadores de prueba y no bloquea este trabajo independiente.
+
+
+### Paralelismo autorizado en13c2d1
+
+El usuario pide adelantar lo posible en paralelo. Se asignan rutas disjuntas: rootUI/helper/fixture4189/plan, agente únicamente fixtures de dos dispositivos/Mongo. Una integración y commit por corte; ningún recurso ni archivo de otro agente se limpia o revierte. Reserva10% en ambas ventanas, consulta después del commit/push, sin nuevas automatizaciones.

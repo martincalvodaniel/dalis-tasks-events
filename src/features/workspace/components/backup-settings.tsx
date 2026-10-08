@@ -1,14 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { lazy, Suspense, useState } from "react"
 import { downloadAccountBackup } from "@/features/workspace/download-backup"
 import type { LocalAccount } from "@/features/workspace/local-account"
+
+const BackupImportDialog = lazy(() =>
+  import("@/features/workspace/components/backup-import-dialog").then(
+    (module) => ({ default: module.BackupImportDialog })
+  )
+)
 
 export function BackupSettings({
   account,
 }: {
   account: Pick<LocalAccount, "userId" | "epoch">
 }) {
+  const [importing, setImporting] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(false)
   const [requested, setRequested] = useState(false)
@@ -34,8 +41,8 @@ export function BackupSettings({
       <div className="space-y-2 pb-3">
         <p className="text-xs text-zinc-600 dark:text-zinc-400">
           Descarga los datos de este dispositivo y sus cambios pendientes,
-          también sin conexión. La restauración desde archivo todavía no está
-          disponible.
+          también sin conexión. Puedes importar tareas y eventos simples como
+          copias nuevas.
         </p>
         <button
           type="button"
@@ -45,6 +52,28 @@ export function BackupSettings({
         >
           {busy ? "Preparando copia…" : "Descargar copia JSON"}
         </button>
+        <button
+          type="button"
+          disabled={busy || importing}
+          onClick={() => setImporting(true)}
+          className="ml-2 min-h-11 rounded-lg border border-zinc-300 px-3 font-medium dark:border-zinc-700"
+        >
+          Importar JSON
+        </button>
+        {importing ? (
+          <Suspense
+            fallback={
+              <p role="status" className="text-xs">
+                Abriendo importación…
+              </p>
+            }
+          >
+            <BackupImportDialog
+              account={account}
+              onClose={() => setImporting(false)}
+            />
+          </Suspense>
+        ) : null}
         {error ? (
           <p role="alert" className="text-xs text-red-700 dark:text-red-300">
             No se pudo generar la copia. Comprueba que sigues en esta cuenta y

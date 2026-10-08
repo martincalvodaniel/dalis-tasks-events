@@ -1,4 +1,14 @@
 import type { z } from "zod"
+import {
+  commitAccountBackupImport,
+  prepareAccountBackupImport,
+} from "@/features/workspace/import-backup"
+import { readAccountBackup } from "@/features/workspace/local-backup"
+import {
+  encodeLocalBackup,
+  localBackupStoreNames,
+} from "@/lib/backup/local-backup"
+import { readAccountControl } from "@/lib/local-db/account-control"
 import { calendarItemSchema, taskDraftSchema } from "@/schemas/calendar-item"
 import {
   syncBrowserCommandSchema,
@@ -94,6 +104,11 @@ async function snapshot(index: number) {
     await call(index, { type: "snapshot" })
   )
 }
+async function importAccount() {
+  const control = await readAccountControl()
+  assert(control.userId === fixture.userId, "owned import account")
+  return { userId: fixture.userId, epoch: control.epoch }
+}
 async function pass(index: number, expected = "settled") {
   const result = (await call(index, { type: "run" })) as { status?: string }
   assert(result.status === expected, `${expected}, received ${result.status}`)
@@ -157,6 +172,7 @@ async function refused(work: () => Promise<unknown>) {
 const itemId = crypto.randomUUID()
 const independentId = crypto.randomUUID()
 const checklistId = crypto.randomUUID()
+let archivedSourceJson = ""
 const draft = taskDraftSchema.parse({
   kind: "task",
   title: "Tarea de prueba",
@@ -252,6 +268,10 @@ button.onclick = async () => {
             item.status === "in_progress" &&
             item.checklist[0].completed,
           "progress and dependent revision"
+        )
+        archivedSourceJson = encodeLocalBackup(
+          await readAccountBackup(await importAccount()),
+          fixture.userId
         )
       }
     )
@@ -828,9 +848,185 @@ button.onclick = async () => {
         )
       }
     )
+    await check(
+      "Importación crea una copia nueva: ACK real, replay y progreso convergen sin restaurar historia",
+      async () => {
+        // The controller shares device 0's origin and uses its real partition.
+        const account = await importAccount()
+        const before = await readAccountBackup(account)
+        const original = before.stores.items.find((item) => item.id === itemId)
+        assert(
+          original?.deletedAt && original.revision === 5,
+          "source is now a tombstone"
+        )
+        const plan = await prepareAccountBackupImport(account, {
+          sourceJson: archivedSourceJson,
+          expected: before,
+          sourceItemIds: [itemId],
+        })
+        const copy = plan.copies[0]
+        assert(copy && copy.item.id !== itemId, "new identity selected")
+        const result = await commitAccountBackupImport(account, plan)
+        assert(result.status === "applied", "import committed locally")
+        const imported = await readAccountBackup(account)
+        const entry = imported.stores.outbox.find(
+          (value) => value.operation.operationId === copy.operation.operationId
+        )
+        assert(
+          entry?.state === "pending" &&
+            entry.attempts === 0 &&
+            entry.lease === null &&
+            entry.operation.command.type === "item.create" &&
+            entry.operation.baseRevision === 0 &&
+            copy.item.revision === 0,
+          "new copy requires a real create ACK"
+        )
+        for (const store of localBackupStoreNames) {
+          const retained = imported.stores[store].filter((record) => {
+            if (store === "items")
+              return !("id" in record && record.id === copy.item.id)
+            if (store === "outbox")
+              return !(
+                "operation" in record &&
+                record.operation.operationId === copy.operation.operationId
+              )
+            if (store === "syncMetadata")
+              return !(
+                "key" in record &&
+                (record.key === "outbox-sequence" ||
+                  record.key === result.record.key)
+              )
+            return true
+          })
+          const previous = before.stores[store].filter(
+            (record) =>
+              !(
+                store === "syncMetadata" &&
+                "key" in record &&
+                record.key === "outbox-sequence"
+              )
+          )
+          assert(
+            JSON.stringify(retained) === JSON.stringify(previous),
+            `${store} preserves existing records and history`
+          )
+        }
+        assert(
+          result.record.sourceJson === archivedSourceJson,
+          "source history archived literally"
+        )
+        assert(
+          !(await remote()).some((item) => item.id === copy.item.id),
+          "local import does not confer remote authority"
+        )
+        const secondBefore = await snapshot(1)
+        assert(
+          !secondBefore.items.some((item) => item.id === copy.item.id),
+          "second device has no local copy yet"
+        )
+        await call(0, { type: "drop-response" })
+        await pass(0, "retry_later")
+        const lost = await readAccountBackup(account)
+        assert(
+          lost.stores.outbox.find(
+            (value) =>
+              value.operation.operationId === copy.operation.operationId
+          )?.state === "pending" &&
+            (await remote()).find((item) => item.id === copy.item.id)
+              ?.revision === 1,
+          "remote create committed once while its local receipt is uncertain"
+        )
+        await load(0)
+        assert(
+          (await commitAccountBackupImport(account, plan)).status ===
+            "replayed",
+          "durable import receipt replays after reload"
+        )
+        assert(
+          JSON.stringify((await readAccountBackup(account)).stores) ===
+            JSON.stringify(lost.stores),
+          "replay preserves uncertain operation and all local stores"
+        )
+        await pass(0)
+        await pass(1)
+        await equalDevices()
+        const acknowledged = await snapshot(0)
+        const ack = acknowledged.entries.find(
+          (value) => value.operation.operationId === copy.operation.operationId
+        )
+        const confirmed = acknowledged.items.find(
+          (item) => item.id === copy.item.id
+        )
+        assert(
+          ack?.state === "acknowledged" &&
+            ack.attempts === 2 &&
+            JSON.stringify(ack.operation) === JSON.stringify(entry.operation) &&
+            confirmed?.kind === "task" &&
+            confirmed.revision === 1 &&
+            confirmed.status === "in_progress" &&
+            confirmed.checklist[0].completed,
+          "same imported intention receives real ACK and preserves source progress"
+        )
+        await call(0, {
+          type: "commit",
+          command: {
+            type: "task.set-status",
+            itemId: copy.item.id,
+            occurrenceId: null,
+            status: "completed",
+          },
+        })
+        const edited = await readAccountBackup(account)
+        assert(
+          (await commitAccountBackupImport(account, plan)).status ===
+            "replayed",
+          "receipt replay after subsequent edit"
+        )
+        assert(
+          JSON.stringify((await readAccountBackup(account)).stores) ===
+            JSON.stringify(edited.stores),
+          "replay does not overwrite copy progress or append intentions"
+        )
+        await pass(0)
+        await pass(1)
+        await equalDevices()
+        const final = await readAccountBackup(account)
+        const items = await remote()
+        const finalCopy = items.find((item) => item.id === copy.item.id)
+        assert(
+          finalCopy?.kind === "task" &&
+            finalCopy.status === "completed" &&
+            finalCopy.revision === 2,
+          "later progress reaches both devices once"
+        )
+        assert(
+          items.filter((item) => item.id === copy.item.id).length === 1,
+          "exactly one imported identity"
+        )
+        assert(
+          JSON.stringify(items.find((item) => item.id === itemId)) ===
+            JSON.stringify(original),
+          "original remote tombstone is unchanged"
+        )
+        assert(
+          JSON.stringify(
+            final.stores.items.find((item) => item.id === itemId)
+          ) === JSON.stringify(original),
+          "original local tombstone is unchanged"
+        )
+        assert(
+          JSON.stringify(
+            final.stores.syncMetadata.find(
+              (record) => record.key === result.record.key
+            )
+          ) === JSON.stringify(result.record),
+          "archived source and import receipt remain intact after ACK and edit"
+        )
+      }
+    )
     passed = true
     statusElement.textContent =
-      "Trece escenarios integrados correctos; limpiando recursos propios"
+      "Catorce escenarios integrados correctos; limpiando recursos propios"
   } catch (error) {
     statusElement.textContent = `Prueba fallida: ${error instanceof Error ? error.message : "error"}`
   } finally {
