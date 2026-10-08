@@ -1,3 +1,5 @@
+import { assertBackupOwnership } from "@/lib/backup/backup-ownership"
+import { validateBackupImportEvidence } from "@/lib/backup/import-record"
 import { localBackupSchema } from "@/schemas/local-backup"
 import { userIdSchema } from "@/schemas/primitives"
 import type { LocalBackup } from "@/types/local-backup"
@@ -17,23 +19,6 @@ export const localBackupStoreNames = [
   "syncMetadata",
 ] as const
 
-function own(value: unknown, userId: string): void {
-  if (!value || typeof value !== "object") return
-  if (Array.isArray(value)) {
-    for (const entry of value) own(entry, userId)
-    return
-  }
-  for (const [key, entry] of Object.entries(value)) {
-    // Lease owner IDs identify senders, not data accounts.
-    if (key === "lease") continue
-    if (
-      (key === "userId" || key === "ownerId" || key === "recipientUserId") &&
-      entry !== userId
-    )
-      throw new Error("Backup record belongs to another account")
-    own(entry, userId)
-  }
-}
 function unique(keys: (string | number)[], description: string): void {
   if (new Set(keys).size !== keys.length)
     throw new Error(`Backup has duplicate ${description}`)
@@ -47,7 +32,7 @@ export function validateLocalBackup(
   const backup = localBackupSchema.parse(input)
   if (backup.userId !== actor)
     throw new Error("Backup belongs to another account")
-  own(backup.stores, actor)
+  assertBackupOwnership(backup.stores, actor)
   const s = backup.stores
   for (const records of [s.items, s.occurrences, s.tags, s.invitations])
     unique(
@@ -116,6 +101,8 @@ export function validateLocalBackup(
   )
   const superseded = new Set<string>()
   for (const record of s.syncMetadata) {
+    if ("importId" in record)
+      validateBackupImportEvidence(record, entries, actor)
     if ("result" in record) {
       const entry = entries.get(record.operation.operationId)
       if (

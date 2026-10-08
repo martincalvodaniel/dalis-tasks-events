@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { backupImportRecordSchema } from "@/schemas/backup-import-record"
 import { calendarItemSchema } from "@/schemas/calendar-item"
 import {
   localOperationOutcomeSchema,
@@ -25,6 +26,7 @@ export const localBackupMetadataSchema = z.union([
   localPullCursorSchema,
   localOperationOutcomeSchema,
   syncResolutionRecordSchema,
+  backupImportRecordSchema,
 ])
 export const localBackupStoresSchema = z.strictObject({
   items: z.array(calendarItemSchema).max(10000),

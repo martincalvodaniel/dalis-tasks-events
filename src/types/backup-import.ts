@@ -1,5 +1,6 @@
 import type { z } from "zod"
 import type { backupImportRequestSchema } from "@/schemas/backup-import"
+import type { backupImportRecordSchema } from "@/schemas/backup-import-record"
 import type { CalendarItem } from "@/types/calendar-item"
 import type { LocalBackup } from "@/types/local-backup"
 import type { SyncOperation } from "@/types/sync"
@@ -30,6 +31,7 @@ export type BackupImportPreview = {
 }
 
 export type BackupImportRequest = z.infer<typeof backupImportRequestSchema>
+export type BackupImportRecord = z.infer<typeof backupImportRecordSchema>
 export type BackupImportPlan = {
   request: BackupImportRequest
   sourceJson: string
