@@ -74,3 +74,6 @@ Partir cada corte antes de implementarlo si su evidencia no cabe en el presupues
 
 
 Guardia previa a activación: la cadena personal incluye colocaciones aún sin executor remoto. Una colocación pending/sending/conflict/rejected puede bloquear dependencias posteriores y conservar toda proyección personal; no resolverla con ACK fabricado ni supersesión automática. El corte de capacidades/coordinador debe comprobar cola histórica real y definir progreso/recuperación con executor compatible o decisiones explícitas, antes de anunciar sincronización personal completa.
+
+
+Transporte11c4a3t preparado: [HTTP2](../src/features/sync/http-transport-v2.ts) exige handshake2 explícito, conserva cookies same-origin/no-store y consulta completa, valida page/result contra actor/request capturados. Anuncio activo sigue1, ninguna ruta/caller cambia. Timeout de acción no cancela commit remoto ni descarta intención de replay.
