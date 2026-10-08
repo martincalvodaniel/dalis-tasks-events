@@ -66,6 +66,26 @@ describe("MongoDB index specifications", () => {
     ])
   })
 
+  test("stages private item view identity without activating its collection", () => {
+    expect(
+      INDEX_SPECS.filter(
+        (spec) => spec.collection === COLLECTION_NAMES.itemViews
+      )
+    ).toEqual([
+      {
+        collection: COLLECTION_NAMES.itemViews,
+        keys: { userId: 1, itemId: 1 },
+        options: { name: "item_views_user_item_uidx", unique: true },
+        provisioning: "explicit",
+      },
+    ])
+    expect(
+      automaticIndexSpecs().some(
+        (spec) => spec.collection === COLLECTION_NAMES.itemViews
+      )
+    ).toBe(false)
+  })
+
   test("omits staged indexes automatically but provisions an explicit selection", async () => {
     const calls: Array<{
       collection: string

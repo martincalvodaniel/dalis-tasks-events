@@ -179,6 +179,7 @@ try {
           "src/lib/db/transactions.integration.test.ts",
           "src/lib/db/remote-items.integration.test.ts",
           "src/lib/db/remote-tags.integration.test.ts",
+          "src/lib/db/remote-item-views.integration.test.ts",
           "src/lib/db/remote-item-commands.integration.test.ts",
           "src/lib/db/remote-changes.integration.test.ts",
         ]

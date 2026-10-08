@@ -8,6 +8,10 @@ import {
 } from "@/schemas/primitives"
 import { syncOperationSchema } from "@/schemas/sync"
 
+export const remoteItemViewSchema = itemViewSchema.extend({
+  revision: revisionSchema.min(1),
+})
+
 export const remoteItemViewPlanningInputSchema = z
   .strictObject({
     userId: userIdSchema,
@@ -19,9 +23,7 @@ export const remoteItemViewPlanningInputSchema = z
         "Remote item context requires a positive revision"
       )
       .nullable(),
-    current: itemViewSchema
-      .extend({ revision: revisionSchema.min(1) })
-      .nullable(),
+    current: remoteItemViewSchema.nullable(),
     tag: tagSchema.safeExtend({ revision: revisionSchema.min(1) }).nullable(),
   })
   .superRefine((value, context) => {
