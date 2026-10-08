@@ -186,6 +186,7 @@ try {
           "src/lib/db/remote-preference-races.integration.test.ts",
           "src/lib/db/remote-changes-v2.integration.test.ts",
           "src/lib/db/remote-item-commands.integration.test.ts",
+          "src/lib/db/remote-operation-commands.integration.test.ts",
           "src/lib/db/remote-changes.integration.test.ts",
         ]
   const testProcess = Bun.spawn(argumentsForMode, {

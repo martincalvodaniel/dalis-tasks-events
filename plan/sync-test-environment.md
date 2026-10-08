@@ -198,3 +198,6 @@ Próxima11c2b2b: mutaciones multirregistro propias + contador compartido + journ
 
 
 11c3b2a: runner vigente11archivos, Mongo48pass/494aserciones/0fail; replay item v2 tras tombstone sin reescritura, corrupción/restauración y UUID personal reutilizado frente al executor item probados. Índices de categoría registrados sólo en DB propia; recursos propios eliminados. Sin activación ni piloto nuevo.
+
+
+11c3b2b: runner incorpora dispatcher, Mongo52pass/520aserciones/0fail en12archivos; mezcla y replay tardío, colisiones entre familias, aislamiento, unsupported sin efectos y familia histórica incompatible/restauración. Recursos propios eliminados; no nueva ruta, protocolo activo ni navegador.
