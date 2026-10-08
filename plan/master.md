@@ -211,3 +211,8 @@ La automatización puntual continuar-sincronizaci-n-siguiente-ventana queda PAUS
 La siguiente candidata es 13c2a: preview puro de un archivo validado y del snapshot propio actual, sin escribir ni enviar. Clasificará contenido nuevo, idéntico, cambiado, tombstones y tipos sin ejecutor, conservando los datos no admitidos. El contrato y ejecutor de importación vendrán después, con UUID nuevos y confirmación sólo tras pruebas. Nunca restaurar directamente ACK, cursores, leases, revisiones remotas o permisos.
 
 El piloto de Google y RPC de Next real sigue pendiente. Preferencias, series, cumpleaños y compartidos todavía no se sincronizan. Rechazos sin acceso y cadenas externas permanecen conservados. Reanudar exige nueva autorización y ambas cuotas; vuelve el protocolo normal de consulta tras cada iteración salvo otro lote explícito.
+
+
+### Corrección intercalada del preview protegido, 8 de octubre
+
+`13b2b`: el precache enviaba `credentials: "omit"`, lo que impide presentar la cookie de acceso de Vercel y provoca redirecciones SSO/CORS al preparar recursos. Se cambia a `same-origin` conservando las guardias de caché neutra. Pruebas con gate simulado; la comprobación en el dominio real sigue pendiente tras publicar. Corte mínimo autorizado con aproximadamente 8% de 5h, sin ampliar la sesión ni cambiar protección del despliegue. Próxima candidata `13c2a`.

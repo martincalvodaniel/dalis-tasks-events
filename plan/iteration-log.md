@@ -786,3 +786,15 @@ La automatización puntual continuar-sincronizaci-n-siguiente-ventana queda PAUS
 La siguiente candidata es 13c2a: preview puro de un archivo validado y del snapshot propio actual, sin escribir ni enviar. Clasificará contenido nuevo, idéntico, cambiado, tombstones y tipos sin ejecutor, conservando los datos no admitidos. El contrato y ejecutor de importación vendrán después, con UUID nuevos y confirmación sólo tras pruebas. Nunca restaurar directamente ACK, cursores, leases, revisiones remotas o permisos.
 
 El piloto de Google y RPC de Next real sigue pendiente. Preferencias, series, cumpleaños y compartidos todavía no se sincronizan. Rechazos sin acceso y cadenas externas permanecen conservados. Reanudar exige nueva autorización y ambas cuotas; vuelve el protocolo normal de consulta tras cada iteración salvo otro lote explícito.
+
+
+## Intercalada 13b2b: cookies de acceso en preproducción protegida
+
+El 8 de octubre el usuario autoriza un intento mínimo con aproximadamente 8% de la ventana de 5h, consumiendo la reserva exclusivamente para esta corrección. Trabajo secuencial en `int`; no encadenar implementación al cerrar.
+
+- Objetivo: preparar recursos offline en un preview protegido sin omitir su cookie de acceso del mismo origen.
+- `target_paths`: `src/lib/pwa/service-worker.ts`, `src/lib/pwa/service-worker.test.ts`, `plan/{master,workflow,iterations,iteration-log}.md`.
+- Dependencias: worker existente, shell `/workspace` neutro y documentación instalada de Next sobre PWA; no cambios en hosting, permisos, secretos, DB o dependencias.
+- Aceptación: solicitudes de precache con `credentials: "same-origin"`; mantener rechazo de respuestas redirigidas, URL inesperada y shell sin marcador neutro, y eliminación de caché fallida. APIs, autenticación y contenido personalizado siguen fuera del precache.
+- Validación: worker de producto compilado y ejecutado en sandbox de pruebas con gate de autenticación simulado; tres pruebas cubren opciones de cada recurso, redirección SSO y HTML sin marcador. El simulador representa explícitamente opciones del navegador porque Bun normaliza `same-origin` a `include`. Suite 222 pass / 30 opt-in skip / 0 fail, 4749 aserciones; lint 326 archivos y tipos aprobados. Build aprobado: `/workspace` estático y worker preparado con 30 recursos neutros; diff y rutas comprobados para el cierre.
+- Límite: no se ha reproducido el acceso SSO en el dominio real de Vercel; el usuario debe recargar el preview publicado y verificar preparación. No borrar IndexedDB ni trabajo local. La siguiente candidata de producto continúa siendo `13c2a`; piloto real Google/RPC Next pendiente.

@@ -14,7 +14,8 @@ async function prepareCache() {
     await Promise.all(
       PWA_ASSET_URLS.map(async (path) => {
         const response = await fetch(
-          new Request(path, { credentials: "omit", cache: "reload" })
+          // Protected previews require their same-origin access cookie.
+          new Request(path, { credentials: "same-origin", cache: "reload" })
         )
         if (
           !response.ok ||

@@ -988,3 +988,15 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 
 
 13c1d: outcome.local/base/current/applieditem deben coincidirconcommand.itemId; replacement exacto contra operaciónpreservada, sinaceptarevidenciamanipulada. Dos tests identity/payload/actornested/counter/shadowduplicado; 219pass/30skip/4734aserciones/lint325files/tipos/build30recursos aprobados. Fixture usa operaciónclonada separada de decisiónpara quealterar una pruebe realmenterechazo. Sin nuevaUI/IO/migración. Código cerrado, próxima13c2apreviewimportación.
+
+
+## Intercalada 13b2b: cookies de acceso en preproducción protegida
+
+El 8 de octubre el usuario autoriza un intento mínimo con aproximadamente 8% de la ventana de 5h, consumiendo la reserva exclusivamente para esta corrección. Trabajo secuencial en `int`; no encadenar implementación al cerrar.
+
+- Objetivo: preparar recursos offline en un preview protegido sin omitir su cookie de acceso del mismo origen.
+- `target_paths`: `src/lib/pwa/service-worker.ts`, `src/lib/pwa/service-worker.test.ts`, `plan/{master,workflow,iterations,iteration-log}.md`.
+- Dependencias: worker existente, shell `/workspace` neutro y documentación instalada de Next sobre PWA; no cambios en hosting, permisos, secretos, DB o dependencias.
+- Aceptación: solicitudes de precache con `credentials: "same-origin"`; mantener rechazo de respuestas redirigidas, URL inesperada y shell sin marcador neutro, y eliminación de caché fallida. APIs, autenticación y contenido personalizado siguen fuera del precache.
+- Validación: worker de producto compilado y ejecutado en sandbox de pruebas con gate de autenticación simulado; tres pruebas cubren opciones de cada recurso, redirección SSO y HTML sin marcador. El simulador representa explícitamente opciones del navegador porque Bun normaliza `same-origin` a `include`. Suite 222 pass / 30 opt-in skip / 0 fail, 4749 aserciones; lint 326 archivos y tipos aprobados. Build aprobado: `/workspace` estático y worker preparado con 30 recursos neutros; diff y rutas comprobados para el cierre.
+- Límite: no se ha reproducido el acceso SSO en el dominio real de Vercel; el usuario debe recargar el preview publicado y verificar preparación. No borrar IndexedDB ni trabajo local. La siguiente candidata de producto continúa siendo `13c2a`; piloto real Google/RPC Next pendiente.

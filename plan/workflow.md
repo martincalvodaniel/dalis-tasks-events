@@ -150,3 +150,8 @@ La automatización puntual continuar-sincronizaci-n-siguiente-ventana queda PAUS
 La siguiente candidata es 13c2a: preview puro de un archivo validado y del snapshot propio actual, sin escribir ni enviar. Clasificará contenido nuevo, idéntico, cambiado, tombstones y tipos sin ejecutor, conservando los datos no admitidos. El contrato y ejecutor de importación vendrán después, con UUID nuevos y confirmación sólo tras pruebas. Nunca restaurar directamente ACK, cursores, leases, revisiones remotas o permisos.
 
 El piloto de Google y RPC de Next real sigue pendiente. Preferencias, series, cumpleaños y compartidos todavía no se sincronizan. Rechazos sin acceso y cadenas externas permanecen conservados. Reanudar exige nueva autorización y ambas cuotas; vuelve el protocolo normal de consulta tras cada iteración salvo otro lote explícito.
+
+
+### Excepción puntual para el fix de preproducción
+
+El usuario autoriza «Haz un intento mínimo» tras conocer que ejecutar el fix con aproximadamente 8% restante de 5h consume la reserva del 10%. Esta autorización cubre únicamente `13b2b`, pruebas y commit/push en `int`. Cerrar después, sin otro corte ni automatización. No modifica permanentemente la reserva. La última lectura automática previa fue 9% de 5h y 29% de 7d; las cifras pueden incluir uso de otros chats. Volver al protocolo normal de ambas cuotas al cerrar.
