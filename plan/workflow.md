@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## Reserva vigente por ventana
+
+El usuario reduce explícitamente la reserva semanal al **5%** el 8 de octubre. Se mantiene **10% en 5h**. Esta política sustituye las reservas anteriores para futuras iteraciones; las entradas históricas conservan las condiciones de su ejecución. Consultar ambas cuotas tras cada commit/push y evaluar el margen de cada ventana por separado y el consumo observado, sin equiparar sus porcentajes. No empezar si 5h <=10% o 7d <=5%, ni si implementación, pruebas, reparación y cierre pueden cruzar sus reservas. Sin créditos/reinicios ni nuevas automatizaciones.
+
 ## Continuación de sincronización autorizada, 8 de octubre
 
 El usuario autoriza continuar desatendidamente desde00:16 y una revisión posterior, con tareas pequeñas hasta conservar **10% en ambas ventanas**, sustituyendo la reserva20% de los lotes anteriores para esta continuación. Consultar cuotas después de cada commit; dividir antes de abrir un corte cuyo coste alto observado y cierre pueda cruzar10%. No consumir créditos/reinicios. Ramaint: commit+push por iteración comprobada. Esta autorización no crea una cadena indefinida de revisiones.
@@ -36,9 +40,9 @@ Política inicial del proyecto, **no un límite oficial de OpenAI**:
 | Más del 40% | Una entrega pequeña/mediana. Paralelo solo si hay beneficio claro y margen observado. |
 | Del 20% al 40%, inclusive | Una entrega pequeña secuencial; partir entregas medianas o con incertidumbre. |
 | Más del 10% y menos del 20% | Solo una entrega mínima cuyo cierre esté bien acotado; en caso de duda, detener. |
-| 10% o menos | No empezar trabajo nuevo. Cerrar lo ya abierto y esperar recuperación del presupuesto. |
+| 10% o menos | Para 5h, no empezar. Para 7d, aplicar la reserva vigente del 5% y el coste observado de la entrega completa. |
 
-Objetivo: conservar al menos **10 puntos porcentuales en ambas ventanas**, con reserva mayor en sincronización, migraciones o fallos difíciles de reproducir. Es una heurística revisable, no una garantía de que Codex nunca alcanzará un límite. El coste real depende de contexto, modelo, herramientas y pruebas; contrastar con la [documentación oficial de uso](https://learn.chatgpt.com/docs/pricing#what-are-the-usage-limits-for-my-plan).
+Objetivo vigente: conservar al menos **10% en 5h y 5% en 7d**, con reserva mayor en sincronización, migraciones o fallos difíciles de reproducir. Es una heurística revisable, no una garantía de que Codex nunca alcanzará un límite. El coste real depende de contexto, modelo, herramientas y pruebas; contrastar con la [documentación oficial de uso](https://learn.chatgpt.com/docs/pricing#what-are-the-usage-limits-for-my-plan).
 
 Registrar consumos observados solo si hay lecturas comparables antes/después y no hubo reinicio. Si otras sesiones consumieron presupuesto, señalar la incertidumbre. Para nuevas tareas, usar como referencia el consumo más alto de entregas similares y añadir margen de cierre; no usar una media optimista. Con poca evidencia, trabajar secuencialmente.
 

@@ -147,3 +147,6 @@ Repo server-only propio/session/singleton poractor+itemId, claveMongo compuesta 
 Worker solointegrationtest/runner; rootrepositorio/schema/registry/plan. RunnerMongoDBpropio exit0:25pass/0fail/215aserciones en6archivos; cuatro pruebas nuevas/47aserciones deaislamiento conUUIDigual, metadata/propiedad, CAS/conservar/quitarcategoría/tombstone, corrupción yrollback múltiple/duplicado ensession. Contenedor/tmpfs propios eliminados; pinned8.2.11amd64 revalidado, noDBusuario ni secrets/hosting. Normal255pass/44opt-in skip/0fail/5002aserciones, lint364archivos, tipos/build34recursos/diff-check aprobados.
 
 Próxima11c2b0: concretar contrato deatomicidad/recibos/journal ydependencias decompatibilidad antes deimplementar ejecutor multirregistro. Preferencias aún sin sincronización activada; task.move/settings/series/compartidos posteriores.
+
+
+11c2b2b1 entrega executor preparatorio de categorías y pruebas de atomicidad/replay/rollback con Mongo propio. No activado: antes deben completarse vistas11c2b2b2, carreras11c2b3 y compatibilidad/ACK/pull. Reserva actual10%5h/5%7d por solicitud humana, con comprobación tras commit/push.

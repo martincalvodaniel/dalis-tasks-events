@@ -1402,3 +1402,22 @@ Próxima11c2b2b: mutaciones multirregistro propias + contador compartido + journ
 MongoDB aislado: 29 pruebas, 249 aserciones, cero fallos; legacy/personal, orden de propiedades equivalente, aislamiento por actor, reutilización de identidad, input inválido, historia intacta y visibilidad de sesión/rollback. Contenedor y almacenamiento propios eliminados. Suite normal 265 pass/50 opt-in skip/0 fail/5121 aserciones; lint 379 archivos, tipos y build con 34 recursos neutrales aprobados. Se corrigió únicamente el literal discriminante de una fixture tras detectar el error de tipos. Diff comprobado; commit y push a int con verificación de HEAD remoto y lectura de cuotas al cierre.
 
 Próxima candidata 11c2b2b: aplicar efectos, contador compartido, journal y recibo en una transacción; conservar pruebas de fallo tardío/replay/CAS y carreras 11c2b3 antes de activar preferencias remotas. El helper entregado es preparatorio y no activa su sincronización.
+
+
+## 11c2b2b1 — Categorías con commit transaccional
+
+- Entrada 82%5h/10%7d. Usuario reduce reserva semanal a5%; ventana5h conserva10%. Secuencial, corte de categorías separado de vistas y de carreras con barreras.
+- Objetivo: aplicar catálogo propio y CAS de todos los efectos tag.save/delete/move, contador común, journal v2 y recibo v2 en una sola transacción snapshot/majority; replay canónico sin nuevas escrituras.
+- `target_paths`: `src/lib/db/remote-tag-commands{,.integration.test}.ts`, `scripts/sync-db-test-runner.ts`, `AGENTS.md`, `plan/{master,workflow,iterations,iteration-log,preference-transactions,preference-sync,sync-test-environment}.md`.
+- Dependencias: planners/repos tag y contratos v2, lector/replay común, índices personales explícitos sólo en DB de prueba propia. Sin callers productivos ni activación, wire/pull/ACK vigentes intactos.
+- Aceptación: validar antes de IO; actor externo autenticado por futuro servicio; replay usa digest exacto, conflictos/rechazos sin secuencia, un journal por conjunto completo. CAS y duplicados abortan/reintentan con sesión fresca acotada; nada aplicado retornado por wrapper antes de commit. Etapa transaccional interna exige sesión activa y no concede ACK.
+- Validación: Mongo propio commit/replay/identidad, CAS/tombstone/nombre, compactación multirregistro, rollback intencional después del recibo que revierte todos los efectos/contador/journal/recibo, dos intentos de misma operación; suite/lint/tipos/build/diff, commitpush/HEAD/cuotas. Autorización y carreras de vecinos con snapshots solapados quedan 11c2b3, no se declaran probadas aquí.
+
+
+### Resultado 11c2b2b1 — Categorías atómicas preparadas
+
+Executor server-only valida actor/intención antes de IO y usa replay común con fingerprint v1. Dentro de snapshot/majority, lee catálogo propio, aplica CAS de todos los efectos, incrementa contador compartido e inserta journal/recibo v2 completos. Wrapper devuelve resultado sólo después de commit; etapa interna exige transacción activa y su resultado no constituye ACK. Conflictos/rechazos conservan recibo sin secuencia aplicada; unsupported nuevo no escribe. Duplicados/CAS abortan y admiten hasta tres sesiones nuevas, sin continuar una sesión abortada. Índices existentes registrados cubren las consultas, los personales se provisionan únicamente en Mongo de prueba propio. Sin callers productivos, wire/pull/ACK activos ni activación personal.
+
+Cuatro escenarios nuevos Mongo: entrega duplicada concurrente produce un solo efecto/recibo/journal; replay exacto e identidad reutilizada; CAS/tombstones/nombres NFKC/aislamiento/unsupported; compactación de tres revisiones y fallo después del recibo que revierte efectos, contador, journal y recibo; historial mixto item/category/item conserva secuencias1/2/3 y registros legacy intactos. No equivalen a barreras de snapshots solapados de11c2b3. Total Mongo33pass/0fail/305aserciones en8archivos, recursos propios eliminados. Normal265pass/56opt-in skip/0fail/5121aserciones; lint381archivos, tipos/build34recursos/diff aprobados. Tipos de_id y refinamiento de fixtures corregidos antes del cierre.
+
+Reserva vigente actualizada por solicitud humana:10%5h y5%7d, evaluadas por margen y coste propios. Próxima11c2b2b2: executor de vista personal con autorización de item/tag dentro de la misma transacción; después11c2b3 carreras de catálogo y autorización con barreras. Antes de activar cualquier writer personal deben existir lectores/handshake/ACK/pull compatibles.
