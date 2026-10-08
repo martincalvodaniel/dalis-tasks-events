@@ -1,6 +1,6 @@
 # Sincronización de preferencias personales
 
-Estado11c0/11c1a: diseño yDTO puro de efectos entregados, sin nuevo ejecutor, envío, índice o migración. Reductor compartido entregado11c1b1; próximo11c1b2a: planning puro de categorías. Tareas/eventos simples siguen usando el protocolo vigente hasta cerrar compatibilidad, persistencia remota y reconciliación local. No anunciar convergencia completa del espacio.
+Estado11c0/11c1a: diseño yDTO puro de efectos entregados, sin nuevo ejecutor, envío, índice o migración. Reductor compartido entregado11c1b1; planning de categorías entregado11c1b2a; próximo11c1b2b: vista personal de propios simples. Tareas/eventos simples siguen usando el protocolo vigente hasta cerrar compatibilidad, persistencia remota y reconciliación local. No anunciar convergencia completa del espacio.
 
 ## Por qué hace falta otro tramo
 
@@ -92,3 +92,12 @@ Siguiente11c1b1: extraer el reductor personal existente a módulo puro compartid
 Funciones de categorías/vistas/ranking extraídas al módulo puro lib/preferences/preference-command, sin directiva de cliente ni IO/driver/framework. El adapter client-only local reexporta aliases de la API existente; todos los consumidores siguen usando exactamente esas transformaciones. Comparación textual contraHEAD anterior verifica igualdad completa salvo directiva y nombres genéricos. Revisión local, payload/errores/fechas/tombstones mantienen semántica.
 
 Regresión nueva fuerza compactación sin posición representable: devuelve tres categorías afectadas, orden esperado y posiciones-1024/0/1024, campos/revisiones/entrada/tombstone preservados. Tests existentes de preferencias/day/overdue/rank reutilizan adapter;240pass/30opt-in skip/0fail/4915aserciones, lint352archivos, tipos/build34recursos ydiff-check aprobados. NoCAS/envío/ACK nuevo. Próxima11c1b2a planning remoto puro de familia tag.save/delete/move y efectos completos; item-view ytask.move siguen después según dependencias.
+
+
+### Resultado11c1b2a — Planning de categorías remotas
+
+Familia tag.save/delete/move convertida porplanner puro a changes/conflict/unavailable/invalid_command/unsupported, sinapplied/ACK niIO. Snapshot remoto propio valida IDs/nombres activos únicos yrevisiones positivas, actor/fecha/operaciónv1; cuenta corrupta falla antes deproducirplan. CAS porcategoríaobjetivo ybase0 solocreación, tombstone devuelvesu conflicto sinrestauración. Reutiliza transformaciones compartidas, conserva createdAt/campos yeleva cada revisión afectada desde su propio valor; overflowfalla íntegramente.
+
+Movimientos devuelven todos los efectos decompactación; vecinos obsoletos ycolisiones NFKC produceninvalid_command sin cambios. Borrado mantiene tombstone yno toca referencias personales. DTO deefectos sevalida reservando el tamaño deMAX_SAFE_INTEGER de secuencia; no se asigna un número dejournal ni se declara recibo. Límite512KiB rechaza uncompactado grande sin truncarlo.
+
+Seis pruebas/39aserciones yregresión246pass/30opt-in skip/0fail/4954aserciones; lint356archivos, tipos/build34recursos/diff-check aprobados. Fuente yentrada independientes, conflicto clonado, cuentas/futuro/normalización/bases/overflow/compactación comprobados. Próxima11c1b2b: planner puro deitem-view.set para elementos propios simples, conservación decontenido yCAS propio; series/movimientos/settings requieren sus cortes posteriores. DB yprotocolo todavía sin ampliación.
