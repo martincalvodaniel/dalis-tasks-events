@@ -78,7 +78,10 @@ export function useSyncEngine({ userId, epoch }: AccountIdentity) {
     const wake = () => scheduler.wake()
     const unsubscribe = subscribeLocalOutboxChanges(userId, () => {
       scheduler.changed()
-      void mutate(["dalis:sync-queue", userId, epoch]).catch(() => undefined)
+      void Promise.all([
+        mutate(["dalis:sync-queue", userId, epoch]),
+        mutate(["dalis:sync-incidents", userId, epoch]),
+      ]).catch(() => undefined)
     })
     window.addEventListener("online", wake)
     window.addEventListener("focus", wake)

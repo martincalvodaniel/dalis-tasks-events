@@ -93,8 +93,7 @@ export function SyncStatusPanel({
             ) : null}
             {summary.conflicts + summary.rejected > 0 ? (
               <p>
-                Los borradores se conservan. La resolución de estos cambios
-                estará disponible próximamente.
+                Los borradores se conservan. Puedes revisar los detalles debajo.
               </p>
             ) : null}
           </>

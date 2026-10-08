@@ -827,3 +827,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 - Validación: proyección pura con corrupción/cuenta/duplicados/evidencia ausente; navegador IndexedDB real con conflicto, rechazo, dependientes, tombstones, recarga y cuenta cambiada; lint, tipos, suite, build, diff/referencias. Commit y push int con HEAD remoto comprobado, cuotas tras commit.
 
 - Resultado 13a1b: snapshot readonly de cuatro stores, proyección íntegra y orden estable; conserva todas las intenciones sin ACK de cada elemento y tombstones. Wrapper exige usuario/época antes y después y cierra conexión. Tres tests nuevos; 187 pass/30 opt-in skip/0 fail/4526 aserciones, lint 285 archivos, tipos/build aprobados. Navegador valida conflicto+rechazo+dependiente, outcome ausente, recarga y cambio de época. Fixture corregida para completar su logout ficticio antes de nueva preparación; datos propios limpiados y servidor cerrado. Próxima 13a1c.
+
+
+### 13a1c — Comparación compacta de incidentes en Ajustes
+
+- Objetivo previo: mostrar razón, borrador actual, remoto conocido y comando congelado, con intenciones posteriores, usando snapshot 13a1b. Entrada 93%/42%, secuencial/int/reserva 10%.
+- `target_paths`: `src/features/sync/{components,hooks}/sync-incident*`, `src/features/sync/components/{device-sync-settings,sync-status-panel}.tsx`, `src/features/sync/hooks/use-sync-engine.ts`, `test/browser/sync-incident-ui.tsx`, `scripts/sync-incident-ui-test-server.ts`, `plan/{master,iterations,iteration-log,conflict-recovery,sync-test-environment}.md`.
+- Aceptación: lectura solo con incidentes y bajo demanda, clave SWR usuario/época y guardias existentes; razones y detalles en español, borrados y remoto desconocido explícitos; datos extensos desplegables, contadores sin acciones de resolución prematuras. Sin nueva ruta; Ajustes accesible en ambas navegaciones. Renovar lectura ante edición local sin adelantar backoff.
+- Validación: SSR de comparación/rechazo/tombstone y error sin datos; fixture React/IndexedDB real, apertura de detalles, móvil sin overflow, recarga y cleanup; lint/tipos/suite/build/diff/referencias, commit/push int/HEAD/cuotas.
+
+- Resultado 13a1c: lectura bajo demanda SWR usuario/época y detalles en Ajustes con borrador, remoto conocido, comando e intenciones conservadas; estados/borrados/rechazos explícitos, error oculta caché. Aviso de cambios locales renueva también caché de incidentes sin cambiar política scheduler. Dos SSR nuevas; 189 pass/30 opt-in skip/0 fail/4543 aserciones, lint 294 archivos sin avisos, tipos/build 30 recursos aprobados. Fixture React/IndexedDB: móvil 390×844 sin overflow, summaries 44px, detalles y recarga con cola intacta; limpieza y servidor/tab cerrados. Próxima 13a2a contrato de resolución.

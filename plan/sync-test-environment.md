@@ -66,3 +66,6 @@ Seis checks browser pasan: offline simulado/recarga, convergencia de tareas simp
 
 
 13a1b: `bun run scripts/browser-test-server.ts sync-incidents` ofrece fixture loopback con partición browser-test UUID. Comprueba snapshot real IndexedDB, conflicto/rechazo/dependientes/tombstones, error íntegro por outcome ausente, recarga y guardia de época durante lectura. Seis checks pasan; solo su partición y control de cuenta ficticio local, ninguna DB remota. Datos y conexiones propios limpiados al cerrar.
+
+
+13a1c: `bun run scripts/sync-incident-ui-test-server.ts` sirve en127.0.0.1:4180 una fixture React/IndexedDB propia, con CSS del build. Apertura de conflicto y comando, móvil390×844 sin overflow/summary44px, recarga y comparación sin mutación de cola verificadas. Botón de validación cierra conexiones y elimina solo partición UUID propia; servidor/tab/viewport cerrados/restaurados. No llamaMongo niGoogle.
