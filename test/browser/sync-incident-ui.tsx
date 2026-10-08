@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client"
+import { mutate } from "swr"
 import { SyncIncidentDetails } from "@/features/sync/components/sync-incident-details"
 import {
   activatePreparedAccount,
@@ -79,7 +80,7 @@ if (query.get("phase") !== "reload") {
     },
   })
 }
-const entries = JSON.stringify(await outbox.listEntries())
+const entries = await outbox.listEntries()
 const rootElement = document.getElementById("root")
 const statusElement = document.getElementById("status")
 const actions = document.getElementById("actions")
@@ -90,19 +91,64 @@ root.render(<SyncIncidentDetails account={{ userId, epoch: control.epoch }} />)
 if (query.get("phase") !== "reload") {
   const link = document.createElement("a")
   link.textContent = "Verificar tras recarga"
-  link.href = `/?run=${runId}&phase=reload`
+  link.href = `/?run=${runId}&phase=reload${query.get("choice") ? `&choice=${query.get("choice")}` : ""}`
   link.className = "block min-h-11 py-3 text-sm underline"
   actions.append(link)
+  const edit = document.createElement("a")
+  edit.textContent = "Cambio simulado en otra pestaña"
+  edit.href = `/edit?run=${runId}`
+  edit.className = "block min-h-11 py-3 text-sm underline"
+  actions.append(edit)
 }
+const verifyCancel = document.createElement("button")
+verifyCancel.textContent = "Validar cancelación"
+verifyCancel.className = "block min-h-11 py-2 text-sm underline"
+verifyCancel.onclick = async () => {
+  if (JSON.stringify(await outbox.listEntries()) !== JSON.stringify(entries))
+    throw new Error("Cancellation modified the queue")
+  statusElement.textContent = "Cancelación sin cambios verificada."
+}
+actions.append(verifyCancel)
+const refresh = document.createElement("button")
+refresh.textContent = "Actualizar comparación"
+refresh.className = "block min-h-11 py-2 text-sm underline"
+refresh.onclick = async () => {
+  await mutate(["dalis:sync-incidents", userId, control.epoch])
+}
+actions.append(refresh)
 const button = document.createElement("button")
 button.textContent = "Validar y limpiar prueba"
 button.className = "mt-2 min-h-11 rounded-lg border px-3 text-sm"
 actions.append(button)
 button.onclick = async () => {
-  if (JSON.stringify(await outbox.listEntries()) !== entries)
-    throw new Error("Comparison changed the durable queue")
-  if (query.get("phase") === "reload" && original !== entries)
-    throw new Error("Reload changed the durable queue")
+  const after = await outbox.listEntries()
+  if (query.get("choice")) {
+    const expectedPending = query.get("choice") === "retry" ? 1 : 0
+    if (
+      after.filter((entry) => entry.state === "pending").length !==
+        expectedPending ||
+      after.filter((entry) => entry.state === "superseded").length < 2 ||
+      after.some((entry) => entry.state === "acknowledged")
+    )
+      throw new Error("Resolution produced incorrect local states")
+    for (const original of entries.filter(
+      (entry) => entry.state === "conflict"
+    )) {
+      const preserved = after.find(
+        (entry) =>
+          entry.operation.operationId === original.operation.operationId
+      )
+      if (
+        JSON.stringify(preserved?.operation) !==
+        JSON.stringify(original.operation)
+      )
+        throw new Error("Resolution changed the original operation")
+    }
+  } else if (
+    JSON.stringify(after) !== JSON.stringify(entries) ||
+    (query.get("phase") === "reload" && original !== JSON.stringify(entries))
+  )
+    throw new Error("Comparison modified the queue")
   root.unmount()
   outbox.close()
   store.close()
@@ -118,6 +164,6 @@ button.onclick = async () => {
     request.onblocked = () => reject(new Error("Fixture cleanup blocked"))
   })
   statusElement.textContent =
-    "Comparación sin mutaciones y limpieza verificadas."
+    "Estados locales, historial y limpieza verificados."
   button.disabled = true
 }

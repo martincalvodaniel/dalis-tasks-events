@@ -66,7 +66,11 @@ function fixture() {
 }
 test("comparison distinguishes local tombstone, known remote and frozen command without offering premature choices", () => {
   const input = fixture()
-  const incident = { ...projectSyncIncident(input), intentions: [input.entry] }
+  const incident = {
+    ...projectSyncIncident(input),
+    intentions: [input.entry],
+    blockedByRelatedIntentions: false,
+  }
   const html = renderToStaticMarkup(
     <SyncIncidentPanel incidents={[incident]} error={false} />
   )
@@ -102,6 +106,7 @@ test("rejection explains unavailable remote data while read errors hide cached c
       },
     }),
     intentions: [input.entry],
+    blockedByRelatedIntentions: false,
   }
   const html = renderToStaticMarkup(
     <SyncIncidentPanel incidents={[incident]} error={false} />
@@ -121,4 +126,30 @@ test("rejection explains unavailable remote data while read errors hide cached c
   expect(
     renderToStaticMarkup(<SyncIncidentPanel incidents={[]} error={false} />)
   ).toContain("No hay conflictos")
+})
+
+test("settings offer proven choices while remote tombstones and related chains limit the available actions", () => {
+  const input = fixture()
+  const incident = {
+    ...projectSyncIncident(input),
+    intentions: [input.entry],
+    blockedByRelatedIntentions: false,
+  }
+  const account = { userId: input.userId, epoch: crypto.randomUUID() }
+  const render = (data: typeof incident) =>
+    renderToStaticMarkup(
+      <SyncIncidentPanel incidents={[data]} error={false} account={account} />
+    )
+  expect(render(incident)).toContain("Enviar borrado local")
+  expect(render(incident)).toContain("Usar remoto conocido")
+  const deletedRemote = {
+    ...incident,
+    remote: incident.remote
+      ? { ...incident.remote, deletedAt: "2026-10-08T00:00:00.000Z" }
+      : null,
+  }
+  expect(render(deletedRemote)).not.toContain("Enviar borrado local")
+  const blocked = render({ ...incident, blockedByRelatedIntentions: true })
+  expect(blocked).toContain("cambios relacionados fuera")
+  expect(blocked).not.toContain("Usar remoto conocido")
 })

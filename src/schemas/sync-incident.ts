@@ -36,4 +36,5 @@ export const syncIncidentSnapshotSchema = z.strictObject({
   shadowAtOutcome: calendarItemSchema.nullable(),
   remote: calendarItemSchema.nullable(),
   intentions: z.array(outboxEntrySchema).min(1),
+  blockedByRelatedIntentions: z.boolean().default(false),
 })

@@ -1,5 +1,8 @@
 import { expect, test } from "bun:test"
-import { planSyncIncidentResolution } from "@/lib/sync/incident-resolution"
+import {
+  availableSyncIncidentResolutionChoices,
+  planSyncIncidentResolution,
+} from "@/lib/sync/incident-resolution"
 import type { Task } from "@/types/calendar-item"
 import type { OutboxEntry } from "@/types/local-sync"
 import type { SyncIncidentSnapshot } from "@/types/sync-incident"
@@ -69,6 +72,7 @@ function fixture() {
     shadowAtOutcome: { ...remote, revision: 2 },
     remote,
     intentions: [entry, dependent],
+    blockedByRelatedIntentions: false,
   } satisfies SyncIncidentSnapshot
   const request = {
     userId,
@@ -239,4 +243,32 @@ test("a dependent operation with an uncertain earlier send cannot be superseded"
   expect(() =>
     planSyncIncidentResolution({ ...request, expected: changed }, changed)
   ).toThrow()
+})
+
+test("UI choices follow the executor contract for tombstones, related intentions and unsupported incidents", () => {
+  const { current, request, now } = fixture()
+  expect(availableSyncIncidentResolutionChoices(current)).toEqual([
+    "adopt_remote",
+    "retry_local",
+  ])
+  expect(
+    availableSyncIncidentResolutionChoices({
+      ...current,
+      remote: { ...current.remote, deletedAt: now },
+    })
+  ).toEqual(["adopt_remote"])
+  const blocked = { ...current, blockedByRelatedIntentions: true }
+  expect(availableSyncIncidentResolutionChoices(blocked)).toEqual([])
+  expect(() =>
+    planSyncIncidentResolution({ ...request, expected: blocked }, blocked)
+  ).toThrow("related")
+  expect(
+    availableSyncIncidentResolutionChoices({ ...current, remote: null })
+  ).toEqual([])
+  expect(
+    availableSyncIncidentResolutionChoices({
+      ...current,
+      reason: "unavailable",
+    })
+  ).toEqual([])
 })

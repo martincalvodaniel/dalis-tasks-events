@@ -1,5 +1,7 @@
+import { SyncIncidentActions } from "@/features/sync/components/sync-incident-actions"
 import { incidentTaskStatuses } from "@/features/sync/components/sync-incident-copy"
 import { SyncIncidentVersion } from "@/features/sync/components/sync-incident-version"
+import type { LocalAccount } from "@/features/workspace/local-account"
 import type { SyncIncidentSnapshot } from "@/types/sync-incident"
 
 const reasons: Record<SyncIncidentSnapshot["reason"], string> = {
@@ -11,8 +13,10 @@ const reasons: Record<SyncIncidentSnapshot["reason"], string> = {
 
 export function SyncIncidentCard({
   incident,
+  account,
 }: {
   incident: SyncIncidentSnapshot
+  account?: Pick<LocalAccount, "userId" | "epoch">
 }) {
   const { command } = incident.entry.operation
   const sentDraft =
@@ -91,10 +95,9 @@ export function SyncIncidentCard({
             ))}
           </ol>
         </details>
-        <p className="text-xs text-zinc-500">
-          Tus cambios se conservan. La elección de versión estará disponible
-          próximamente.
-        </p>
+        {account ? (
+          <SyncIncidentActions account={account} incident={incident} />
+        ) : null}
       </div>
     </details>
   )

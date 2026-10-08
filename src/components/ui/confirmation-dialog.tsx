@@ -9,6 +9,7 @@ export function ConfirmationDialog({
   confirmLabel,
   pendingLabel,
   cancelLabel = "Cancelar",
+  confirmTone = "danger",
   failureMessage,
   busy,
   onConfirm,
@@ -19,6 +20,7 @@ export function ConfirmationDialog({
   confirmLabel: string
   pendingLabel: string
   cancelLabel?: string
+  confirmTone?: "danger" | "primary"
   failureMessage: string
   busy: boolean
   onConfirm: (operationId: string) => Promise<void>
@@ -80,7 +82,7 @@ export function ConfirmationDialog({
           onClick={() => {
             void confirm()
           }}
-          className="min-h-12 rounded-xl bg-red-700 px-4 py-3 font-semibold text-white disabled:opacity-50"
+          className={`min-h-12 rounded-xl px-4 py-3 font-semibold text-white disabled:opacity-50 ${confirmTone === "primary" ? "bg-emerald-700" : "bg-red-700"}`}
         >
           {buttonLabel}
         </button>

@@ -21,7 +21,11 @@ export function SyncIncidentDetails({
         Ver conflictos y cambios rechazados
       </summary>
       {open ? (
-        <SyncIncidentPanel incidents={data} error={Boolean(error)} />
+        <SyncIncidentPanel
+          incidents={data}
+          error={Boolean(error)}
+          account={account}
+        />
       ) : null}
     </details>
   )

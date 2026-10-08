@@ -13,4 +13,5 @@ export interface SyncIncident {
 
 export interface SyncIncidentSnapshot extends SyncIncident {
   intentions: OutboxEntry[]
+  blockedByRelatedIntentions: boolean
 }

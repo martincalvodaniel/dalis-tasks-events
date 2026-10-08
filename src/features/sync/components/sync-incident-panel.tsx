@@ -1,12 +1,15 @@
 import { SyncIncidentCard } from "@/features/sync/components/sync-incident-card"
+import type { LocalAccount } from "@/features/workspace/local-account"
 import type { SyncIncidentSnapshot } from "@/types/sync-incident"
 
 export function SyncIncidentPanel({
   incidents,
   error,
+  account,
 }: {
   incidents: SyncIncidentSnapshot[] | undefined
   error: boolean
+  account?: Pick<LocalAccount, "userId" | "epoch">
 }) {
   if (error)
     return (
@@ -29,6 +32,7 @@ export function SyncIncidentPanel({
         <SyncIncidentCard
           key={incident.entry.operation.operationId}
           incident={incident}
+          account={account}
         />
       ))}
     </div>

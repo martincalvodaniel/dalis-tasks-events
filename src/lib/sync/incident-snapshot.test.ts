@@ -141,3 +141,35 @@ test("snapshot rejects foreign partitions, duplicates and incomplete outcomes as
   ])
     expect(() => projectSyncIncidentSnapshot(invalid)).toThrow()
 })
+
+test("snapshot identifies related unconfirmed intentions outside an item before offering choices", () => {
+  const input = fixture()
+  const root = input.entries[1]
+  const linked: OutboxEntry = {
+    ...input.entries[0],
+    entityKey: `item-view:${input.items[0].id}`,
+    sequence: 3,
+    operation: {
+      ...input.entries[0].operation,
+      operationId: crypto.randomUUID(),
+      command: {
+        type: "item-view.set",
+        itemId: input.items[0].id,
+        primaryTagId: null,
+      },
+    },
+    dependencies: [root.operation.operationId],
+  }
+  expect(
+    projectSyncIncidentSnapshot({
+      ...input,
+      entries: [...input.entries, linked],
+    })[0].blockedByRelatedIntentions
+  ).toBe(true)
+  expect(
+    projectSyncIncidentSnapshot({
+      ...input,
+      entries: [...input.entries, { ...linked, state: "acknowledged" }],
+    })[0].blockedByRelatedIntentions
+  ).toBe(false)
+})

@@ -75,3 +75,6 @@ Seis checks browser pasan: offline simulado/recarga, convergencia de tareas simp
 
 
 13a2b1a amplía `bun run test:sync-browser` a nueve escenarios: retry explícito con cadena de dos operaciones, respuesta perdida/replay de decisión/recarga; adopción sin cambio de revisión/journal tras rechazo de snapshot local obsoleto; tombstone rechaza resurrección y converge por adopción. Ambas proyecciones/cursors comparadas con Mongo; pending/sending/conflicts/rejected0 requeridos para declarar convergencia. Originales permanecen superseded y solo replacement ACK. Runnerexit0 y limpieza de particiones/cookies/tabs/proxy/container/tmpfs propios verificados. Ninguna conexión a DB del usuario; Google/RPCNext reales todavía pendientes.
+
+
+13a2b2: fixture UI soporta `?choice=retry` o`?choice=adopt`, confirma estados/historial ycleanup. Ruta `/edit?run=<UUID>` simula edición desde otra pestaña de misma partición ficticia, guardando estado completed sin cambiar cuenta/época ni limpiar recursos de la pestaña principal. Cancelación no muta, snapshot congelado rechazado tras edición, elección revisada crea3superseded/1pending; adopción2superseded/0pending. Móvil390 sinoverflow/dialog358px/buttons48px yrecarga verificados. Nueve escenariosMongo revalidadosdespués de guardiascompartidas, exit0/cleanup.

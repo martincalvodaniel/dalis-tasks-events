@@ -55,7 +55,7 @@ Auth conserva las escrituras atómicas por documento y los índices únicos, sin
 
 ## IndexedDB
 
-Stores propuestos: `items`, `occurrences`, `tags`, `itemViews`, `taskPlacements`, `settings`, `memberships`, `invitations`, `outbox`, `remoteShadows`, `syncMetadata`, `conflicts`. Representación elegida en `03a`: una base `dalis-account:<userId codificado>` por usuario estable. Versión inicial 1 con ocho stores de dominio; `03b` migra a versión 2 añadiendo `outbox`, `remoteShadows` y `syncMetadata`, sin borrar registros. `conflicts` se incorpora al implementar su gestión en `13`. Repositorios cliente validados por Zod y preferencias personales comprobadas contra la partición.
+Stores propuestos: `items`, `occurrences`, `tags`, `itemViews`, `taskPlacements`, `settings`, `memberships`, `invitations`, `outbox`, `remoteShadows`, `syncMetadata`, `conflicts`. Representación elegida en `03a`: una base `dalis-account:<userId codificado>` por usuario estable. Versión inicial 1 con ocho stores de dominio; `03b` migra a versión 2 añadiendo `outbox`, `remoteShadows` y `syncMetadata`, sin borrar registros. `13a` reutiliza `syncMetadata` para outcomes y resoluciones con claves propias; no necesita un store `conflicts` separado ni una migración física adicional. Repositorios cliente validados por Zod y preferencias personales comprobadas contra la partición.
 
 - Índices locales por tipo/fecha, serie, usuario, categoría y operaciones pendientes según consultas reales.
 - Outbox guarda intención tipada: ID UUID de operación, ID entidad, tipo, `baseRevision`, payload validado, orden local, dependencias y versión de protocolo. No guardar un POST de Next.js ni su action ID.
@@ -301,3 +301,10 @@ Guardar intenciónoutbox emite aviso validado deusuario trascommit; evento local
 ### Evidencia para recuperación13a1a
 
 Proyecciónpure deconflicto/rechazo ligaentrada congelada/outcome/records propios, preserva borradoractual yversiones conocidas. Replaytardío puede tener versiónmenor queshadowalrecibirlo; elegir másnueva porrevisión yrechazar igualcontenido contradictorio. Shadowoutcome no es basehistórica deoperación. [Diseño](conflict-recovery.md) exige elección explícita ycadenasdependientes, registro/nuevoUUID/CAS/tombstones; snapshot/lector/UI/ejecutor siguenpendientes.
+
+
+### Recuperación explícita13a1b–13a2b2
+
+Snapshots de cuatrostores conservan cadena/outcome/borradores/tombstones yguardias usuario/época. Ajustes ofrece comparación bajo demanda y elecciones probadas: adoptar remoto conocido o crearUUID nuevo para enviarborradorcompleto sobre revisión remota. Estado `superseded` es decisión local auditada, nuncaACK; operación/resultados originales intactos. Registro+cola+proyección+replacement/secuencia atómicos, replay no reescribeediciones posteriores. Dependientes externos y envíosinciertos impiden resolver; nuevos comandos ignoran tails ya supersedidos yotrasdependencias siguenrequiriendoACKreal. Reutilización de metadata mantiene versiones/stores/índices existentes (desviación justificada delstore `conflicts` previsto).
+
+Confirmacióncongela preview ycantidad decambios; edición enotra pestaña invalida elección sinperdertrabajo. Error decaché no hacefracasarlocalcommityaplicado. Reintento/adopción/tombstone convergen enprueba de dosorígenes yMongoDBpropio sinduplicación. Identidadremotaborrada no resucita: copia explícita nueva sigueen13a2c1. Preferencias/series/sharing ypilotoGoogle/RPCNext genuino siguenpendientes.

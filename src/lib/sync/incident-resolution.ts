@@ -10,23 +10,21 @@ import {
 import type { SyncOperation } from "@/types/sync"
 import type { SyncResolutionRecord } from "@/types/sync-resolution"
 
-export function planSyncIncidentResolution(
-  input: unknown,
-  currentInput: unknown
-): SyncResolutionRecord {
-  const request = syncResolutionRequestSchema.parse(input)
-  const current = syncIncidentSnapshotSchema.parse(currentInput)
-  if (JSON.stringify(request.expected) !== JSON.stringify(current))
-    throw new Error("Incident changed since the comparison was opened")
+function validateResolutionSnapshot(input: unknown, userId: string) {
+  const current = syncIncidentSnapshotSchema.parse(input)
   const { entry, local, remote, intentions } = current
   if (
-    entry.userId !== request.userId ||
+    entry.userId !== userId ||
     entry.state !== "conflict" ||
     current.reason !== "conflict" ||
     !remote
   )
     throw new Error(
       "Resolution requires a preserved conflict with a known remote version"
+    )
+  if (current.blockedByRelatedIntentions)
+    throw new Error(
+      "Resolution has related intentions outside its reviewed chain"
     )
   const command = entry.operation.command
   if (!("itemId" in command) || entry.entityKey !== `item:${command.itemId}`)
@@ -39,7 +37,7 @@ export function planSyncIncidentResolution(
   ]) {
     if (
       record &&
-      (record.ownerId !== request.userId ||
+      (record.ownerId !== userId ||
         record.id !== command.itemId ||
         record.kind === "birthday" ||
         record.recurrence)
@@ -54,7 +52,7 @@ export function planSyncIncidentResolution(
   const sequences = new Set<number>()
   for (const intention of intentions) {
     if (
-      intention.userId !== request.userId ||
+      intention.userId !== userId ||
       intention.entityKey !== entry.entityKey ||
       intention.state === "acknowledged" ||
       intention.state === "sending" ||
@@ -76,6 +74,38 @@ export function planSyncIncidentResolution(
     )
   )
     throw new Error("Resolution chain is missing its incident")
+  return { ...current, remote, ids }
+}
+
+export function availableSyncIncidentResolutionChoices(
+  input: unknown
+): ("adopt_remote" | "retry_local")[] {
+  try {
+    const parsed = syncIncidentSnapshotSchema.parse(input)
+    const { local, remote } = validateResolutionSnapshot(
+      parsed,
+      parsed.entry.userId
+    )
+    return local && !remote.deletedAt
+      ? ["adopt_remote", "retry_local"]
+      : ["adopt_remote"]
+  } catch {
+    return []
+  }
+}
+
+export function planSyncIncidentResolution(
+  input: unknown,
+  currentInput: unknown
+): SyncResolutionRecord {
+  const request = syncResolutionRequestSchema.parse(input)
+  const current = syncIncidentSnapshotSchema.parse(currentInput)
+  if (JSON.stringify(request.expected) !== JSON.stringify(current))
+    throw new Error("Incident changed since the comparison was opened")
+  const { local, remote, intentions, ids } = validateResolutionSnapshot(
+    current,
+    request.userId
+  )
   if (
     ids.has(request.resolutionId) ||
     (request.operationId &&

@@ -30,6 +30,25 @@ export function projectSyncIncidentSnapshot(
   }
   for (const group of intentions.values())
     group.sort((a, b) => a.sequence - b.sequence)
+  const byId = new Map(
+    entries.map((entry) => [entry.operation.operationId, entry])
+  )
+  const blockedEntities = new Set<string>()
+  for (const entry of entries) {
+    if (!isUnresolvedOutboxEntry(entry)) continue
+    for (const id of entry.dependencies) {
+      const dependency = byId.get(id)
+      if (!dependency || dependency.state === "superseded")
+        blockedEntities.add(entry.entityKey)
+      else if (
+        isUnresolvedOutboxEntry(dependency) &&
+        dependency.entityKey !== entry.entityKey
+      ) {
+        blockedEntities.add(entry.entityKey)
+        blockedEntities.add(dependency.entityKey)
+      }
+    }
+  }
   const local = new Map<string, (typeof items)[number]>()
   for (const item of items) {
     if (item.ownerId !== userId || local.has(item.id))
@@ -68,6 +87,7 @@ export function projectSyncIncidentSnapshot(
           ),
         }),
         intentions: intentions.get(entry.entityKey) ?? [],
+        blockedByRelatedIntentions: blockedEntities.has(entry.entityKey),
       }
     })
 }
