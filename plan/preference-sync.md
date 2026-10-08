@@ -122,3 +122,19 @@ Explorador sololectura confirma quegetDatabase/auth ejecutanINDEX_SPECS automát
 Registro central admite índices conprovisioning=explicit. Selección automática valida catálogo completo antes de excluirlos; bootstrap/auth/script mantienen exactamente los índices vigentes. Selección explícita conserva keys/options ypermite provisionar pendientes únicamente en unentorno autorizado. Duplicados incluso entre entrada automática/pendiente, nombres vacíos ypolítica inválida fallan antes dewrites. No se registra todavía colección ni índice nuevo yno se conecta aDB real. Instrucción anidada actualizada.
 
 Tres regresiones conDB simulada; suite253pass/30opt-in skip/0fail/4999aserciones, lint360archivos, tipos/build34recursos/diff-check aprobados. Próxima11c2a1: repositorio actor-scoped decategorías, catálogo íntegro/CAS/unicidad activa ypruebas deMongoDB propio; índices pendientes centrales, sinexecutor/wire/ACK activados.
+
+
+## Repositorio de categorías11c2a1
+
+`RemoteTagRepository` es server-only yusa singleton/getCollection, conactor validado ysession opcional en todos los accesos. ClaveMongo `_id=JSON.stringify([userId,id])`: UUID iguales deactores distintos son válidos, a diferencia dela identidad global delcontenido. Read poruserId/id incluye tombstone; catálogo ordena porid ylee10001 para rechazar más de10000 sinresultado parcial. Registros validan schema remoto de revisión positiva, normalización, propiedad eidentidad almacenada; catálogo valida unicidad ID/nombre activo.
+
+Insert requiere revisión1/metadatos iniciales/activo. Duplicado deidentidad devuelvefalse solo fuera desession; colisión de nombre activoyerrores en sesión sepropagan para no disimular abort. Replace filtra actor/id/claveMongo/base>=1/createdAt/currentactive, exige revisión siguiente ypreserva_id. No resurrección. Índices centrales pendientes: `{userId:1,id:1}` único pararead/catalogsorted; `{userId:1,normalizedName:1}` único parcial deletedAt:null. Nombres borrados sonreutilizables conotroUUID; bootstrap/auth no provisionan estos índices. Activación yexecutor multirregistro permanecen posteriores, sin nuevosACK.
+
+
+### Resultado11c2a1 — Categorías propias en MongoDB
+
+Repositorio server-only conactor/session/singleton; UUID compuesto porcuenta, catálogo íntegro<=10000 incl.tombstones yregistros positivos validados. Insert inicial yCAS porrevisión/createdAt/activo; identidad duplicadafalse solo fueradesession, nombre duplicado/error ensessionpropagados. Índices centrales únicos deidentidad/nombreactivo registrados explicit: login/bootstrap no activa colección pendiente. Compartidos/executor/wire/ACK noampliados. Se ajustó replaceOne aWithoutId deldriver: filtra_idcompuesto ypreserva_id omitiéndolo delreemplazo.
+
+Worker paralelo propietario solotest/runner, rootrepo/contratos/registro/plan. MongoDB8.2.11amd64 digestfijado revalidado; runner aislado21pass/0fail/168aserciones, seis nuevas pruebas/63aserciones: mismoUUID/nombre entreactores, CASrace, tombstone/nombre reutilizable, carrera nombre activo ycolisión replace, corrupción, catálogo exacto10000/overflow10001, rollback tardío múltiple yduplicado dentro detransacción. Contenedor/tmpfs propios limpios, sinDBusuario/envsecrets/browser. Normal254pass/38opt-in skip/0fail/5000aserciones; lint362archivos, tipos/build34recursos/diff-check aprobados.
+
+Siguiente11c2a2: repositorio deitemViews propio, conCAS/identidadcompuesta ysession, pruebas aisladas yautorización decontenido enexecutor posterior. Mantener cortes separados yreserva10%, sin declarar preferencias activas.

@@ -7,14 +7,17 @@ import {
 } from "@/schemas/primitives"
 import { syncOperationSchema } from "@/schemas/sync"
 
+export const maximumRemoteTags = 10000
+export const remoteTagSchema = tagSchema.safeExtend({
+  revision: revisionSchema.min(1),
+})
+
 export const remoteTagPlanningInputSchema = z
   .strictObject({
     userId: userIdSchema,
     timestamp: timestampSchema,
     operation: syncOperationSchema,
-    tags: z
-      .array(tagSchema.safeExtend({ revision: revisionSchema.min(1) }))
-      .max(10000),
+    tags: z.array(remoteTagSchema).max(maximumRemoteTags),
   })
   .superRefine((value, context) => {
     const ids = new Set<string>()

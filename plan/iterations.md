@@ -1208,3 +1208,21 @@ Explorador sololectura confirma quegetDatabase/auth ejecutanINDEX_SPECS automát
 Registro central admite índices conprovisioning=explicit. Selección automática valida catálogo completo antes de excluirlos; bootstrap/auth/script mantienen exactamente los índices vigentes. Selección explícita conserva keys/options ypermite provisionar pendientes únicamente en unentorno autorizado. Duplicados incluso entre entrada automática/pendiente, nombres vacíos ypolítica inválida fallan antes dewrites. No se registra todavía colección ni índice nuevo yno se conecta aDB real. Instrucción anidada actualizada.
 
 Tres regresiones conDB simulada; suite253pass/30opt-in skip/0fail/4999aserciones, lint360archivos, tipos/build34recursos/diff-check aprobados. Próxima11c2a1: repositorio actor-scoped decategorías, catálogo íntegro/CAS/unicidad activa ypruebas deMongoDB propio; índices pendientes centrales, sinexecutor/wire/ACK activados.
+
+
+## 11c2a1 — Repositorio remoto de categorías
+
+- Entrada27%5h/17%7d tras a14693d, int/reserva10%; paralelo autorizado con rutas disjuntas.
+- Root: `src/lib/db/remote-tags.ts`, `src/lib/db/{collections,ensure-indexes,ensure-indexes.test}.ts`, `src/schemas/remote-tag-planning.ts`, `plan/{master,iterations,iteration-log,preference-sync,sync-test-environment}.md`; worker: solo `src/lib/db/remote-tags.integration.test.ts` y `scripts/sync-db-test-runner.ts`. Root integra/valida/commit.
+- Objetivo: read/catalog/insert/replace propios por actor ysession Mongo singleton; identidad compuesta actor+UUID, catálogo completo<=10000 incl.tombstones sin truncado, revisiones positivas/CAS, no resurrección; nombres activos únicos reutilizables tras borrado. Dependencia11c2a0 yplanner/DTO. Índices actor/id yactor/normalizedName conpartialdeletedAt:null registrados centrales explicit, no bootstrap activo ni modificaciónDBusuario.
+- Contrato worker: `RemoteTagRepository.open(actorInput,session?)`; `read(id):Tag|null`, `catalog():Tag[]`, `insert(input):boolean`, `replace(baseRevision,input):boolean`; newrev1/createdAt==updatedAt/active; replacebase>=1/nextbase+1/createdAtvigente/currentactive; duplicado identidad false fuera sesión, colisión nombre yduplicate en sesión throws. Doc `_id=JSON.stringify([userId,id])`. `maximumRemoteTags=10000` exportado remote-tag-planning schema.
+- Aceptación/pruebas: dosactores mismoUUID/nombre sin fuga; carreraCAS unganador; tombstone conservaID/nombre reutilizable; carrera nombre activo única; corrupción yoverflowcatalog rechazan; sesión+rollback real devarias escrituras; stagedíndices provisionados soloenMongoaislado propio. RunnerDockerpropio limpio, suite/lint/tipos/build/diff/plan/commitpush/HEAD/cuotas; sinexecutor/wire/ACK ni activaciónpersonal.
+
+
+### Resultado11c2a1 — Categorías propias en MongoDB
+
+Repositorio server-only conactor/session/singleton; UUID compuesto porcuenta, catálogo íntegro<=10000 incl.tombstones yregistros positivos validados. Insert inicial yCAS porrevisión/createdAt/activo; identidad duplicadafalse solo fueradesession, nombre duplicado/error ensessionpropagados. Índices centrales únicos deidentidad/nombreactivo registrados explicit: login/bootstrap no activa colección pendiente. Compartidos/executor/wire/ACK noampliados. Se ajustó replaceOne aWithoutId deldriver: filtra_idcompuesto ypreserva_id omitiéndolo delreemplazo.
+
+Worker paralelo propietario solotest/runner, rootrepo/contratos/registro/plan. MongoDB8.2.11amd64 digestfijado revalidado; runner aislado21pass/0fail/168aserciones, seis nuevas pruebas/63aserciones: mismoUUID/nombre entreactores, CASrace, tombstone/nombre reutilizable, carrera nombre activo ycolisión replace, corrupción, catálogo exacto10000/overflow10001, rollback tardío múltiple yduplicado dentro detransacción. Contenedor/tmpfs propios limpios, sinDBusuario/envsecrets/browser. Normal254pass/38opt-in skip/0fail/5000aserciones; lint362archivos, tipos/build34recursos/diff-check aprobados.
+
+Siguiente11c2a2: repositorio deitemViews propio, conCAS/identidadcompuesta ysession, pruebas aisladas yautorización decontenido enexecutor posterior. Mantener cortes separados yreserva10%, sin declarar preferencias activas.

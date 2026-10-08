@@ -24,11 +24,46 @@ describe("MongoDB index specifications", () => {
         },
       }),
     }
-    expect(automaticIndexSpecs()).toEqual(INDEX_SPECS)
+    expect(
+      automaticIndexSpecs().some(
+        (spec) => spec.collection === COLLECTION_NAMES.tags
+      )
+    ).toBe(false)
     await ensureIndexes(database)
-    expect(calls).toEqual(
-      INDEX_SPECS.map((spec) => `${spec.collection}.${spec.options.name}`)
-    )
+    expect(calls).toEqual([
+      "sync_operations.sync_operations_actor_operation_uidx",
+      "sync_changes.sync_changes_recipient_sequence_uidx",
+      "items.items_owner_id_idx",
+      "users.users_email_uidx",
+      "sessions.sessions_token_uidx",
+      "sessions.sessions_userId_idx",
+      "accounts.accounts_userId_idx",
+      "accounts.accounts_providerId_accountId_uidx",
+      "verifications.verifications_identifier_idx",
+    ])
+  })
+
+  test("stages actor-scoped category identity and active name uniqueness", () => {
+    expect(
+      INDEX_SPECS.filter((spec) => spec.collection === COLLECTION_NAMES.tags)
+    ).toEqual([
+      {
+        collection: COLLECTION_NAMES.tags,
+        keys: { userId: 1, id: 1 },
+        options: { name: "tags_user_id_uidx", unique: true },
+        provisioning: "explicit",
+      },
+      {
+        collection: COLLECTION_NAMES.tags,
+        keys: { userId: 1, normalizedName: 1 },
+        options: {
+          name: "tags_user_active_name_uidx",
+          unique: true,
+          partialFilterExpression: { deletedAt: null },
+        },
+        provisioning: "explicit",
+      },
+    ])
   })
 
   test("omits staged indexes automatically but provisions an explicit selection", async () => {
