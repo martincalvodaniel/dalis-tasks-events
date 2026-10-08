@@ -23,4 +23,4 @@
 - Add `unique: true` only when uniqueness is a domain invariant, not merely a performance optimization.
 - Do not add speculative indexes. Each index should correspond to an implemented query, sort, lookup, or uniqueness constraint.
 - Update the index tests whenever index registration rules or concrete specifications change.
-- `getDatabase()` applies registered indexes once per process. Use `bun run db:ensure-indexes` to apply and verify them explicitly in an environment.
+- `getDatabase()` applies automatic registered indexes once per process. `bun run db:ensure-indexes` uses the same automatic selection. Entries marked `provisioning: "explicit"` remain in the central registry but require an explicitly selected list passed to `ensureIndexes()`, with environment authorization. Registering a staged feature must not activate its indexes through authentication.

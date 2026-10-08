@@ -1194,3 +1194,17 @@ item-view.set depropios simples convierte contexto remoto validado enefecto deú
 Cuatropruebas/34aserciones: asignar/cambiar/quitar categoría, contextosajenos/identidadesincongruentes/base0stored/overflow, faltas/tombstones/CAS, clones ycontenido intacto, evento simple yrecurrencia/otra familiaunsupported. Se corrigió fixture derepetición al contratoend vigente; no cambio deschema. Suite250pass/30opt-in skip/0fail/4988aserciones; lint360archivos, tipos/build34recursos/diff-check aprobados.
 
 Explorador sololectura confirma quegetDatabase/auth ejecutanINDEX_SPECS automáticamente. Próxima11c2a0 protegeíndices staged medianteprovisionamiento explícito central, antes deregistrar colecciones personales: no crear índices deproducto latenteporlogin enint. Luego11c2a1 repositorio decategorías/CAS yMongoDB propio, separado deexecutor/wire/ACK. No servicios/DB/envsecrets enesta investigación.
+## 11c2a0 — Índices con activación explícita
+
+- Entrada tras03a8ff8: 28%5h/17%7d; int, secuencial, reserva10% en ambas ventanas.
+- `target_paths`: `src/lib/db/ensure-indexes{,.test}.ts`, `src/lib/db/AGENTS.md`, `plan/{master,iterations,iteration-log,preference-sync}.md`.
+- Objetivo: permitir registro central de índices pendientes sin provisionarlos al conectar/autenticar. Dependencia: revisión del bootstrap y contrato personal11c1b.
+- Aceptación: propiedad opcional `provisioning: "explicit"`; selección automática excluye solo esas entradas, valida el catálogo completo antes de filtrar y falla antes de IO si es inválido. `ensureIndexes(database)` conserva índices actuales; lista explícita permite provisionar pendientes. Sin nuevos índices/colecciones ni cambios de DB real, auth, secretos o hosting.
+- Validación: selección automática frente a explícita con DB simulada, rechazo de duplicados ocultos por el filtro antes de writes, registro actual y auth intactos; suite/lint/tipos/build/diff, documentación, commit+push/HEAD/cuotas.
+
+
+### Resultado11c2a0 — Provisionamiento explícito
+
+Registro central admite índices conprovisioning=explicit. Selección automática valida catálogo completo antes de excluirlos; bootstrap/auth/script mantienen exactamente los índices vigentes. Selección explícita conserva keys/options ypermite provisionar pendientes únicamente en unentorno autorizado. Duplicados incluso entre entrada automática/pendiente, nombres vacíos ypolítica inválida fallan antes dewrites. No se registra todavía colección ni índice nuevo yno se conecta aDB real. Instrucción anidada actualizada.
+
+Tres regresiones conDB simulada; suite253pass/30opt-in skip/0fail/4999aserciones, lint360archivos, tipos/build34recursos/diff-check aprobados. Próxima11c2a1: repositorio actor-scoped decategorías, catálogo íntegro/CAS/unicidad activa ypruebas deMongoDB propio; índices pendientes centrales, sinexecutor/wire/ACK activados.

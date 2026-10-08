@@ -15,6 +15,7 @@ export interface IndexSpec {
   collection: string
   keys: IndexSpecification
   options: CreateIndexesOptions & { name: string }
+  provisioning?: "explicit"
 }
 
 // Add index specifications here alongside the feature that introduces the
@@ -77,6 +78,9 @@ export function validateIndexSpecs(specs: readonly IndexSpec[]): void {
     if (!collection || !name) {
       throw new Error("MongoDB indexes require a collection and a stable name")
     }
+    if (spec.provisioning !== undefined && spec.provisioning !== "explicit") {
+      throw new Error("Invalid MongoDB index provisioning policy")
+    }
 
     const collectionNames = namesByCollection.get(collection) ?? new Set()
     if (collectionNames.has(name)) {
@@ -88,9 +92,17 @@ export function validateIndexSpecs(specs: readonly IndexSpec[]): void {
   }
 }
 
+export function automaticIndexSpecs(
+  catalog: readonly IndexSpec[] = INDEX_SPECS
+): readonly IndexSpec[] {
+  // Validate staged entries too, before excluding them from automatic writes.
+  validateIndexSpecs(catalog)
+  return catalog.filter((spec) => spec.provisioning !== "explicit")
+}
+
 export async function ensureIndexes(
   database: IndexDatabase,
-  specs: readonly IndexSpec[] = INDEX_SPECS
+  specs: readonly IndexSpec[] = automaticIndexSpecs()
 ): Promise<void> {
   validateIndexSpecs(specs)
 

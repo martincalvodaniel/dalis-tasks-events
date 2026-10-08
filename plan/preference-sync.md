@@ -115,3 +115,10 @@ Explorador sololectura confirma quegetDatabase/auth ejecutanINDEX_SPECS automát
 ## Provisionamiento previo11c2a0
 
 [client.ts:50](../src/lib/db/client.ts:50) llamaensureIndexes porprimera conexión y[auth-adapter.ts:66](../src/lib/db/auth-adapter.ts:66) usaesegetDatabase. Registrar índices detags sinprotección loscrearía alautenticar aunque elrepo noestéactivo. Antes11c2a1, añadirpropiedad opcionalprovisioning=explicit aIndexSpec: especificaciones pendientes siguenenINDEX_SPECS central, peroensureIndexes pordefecto seleccionasoloautomáticas. Testaislado puedeprovisionarselección explícita. Auth yscriptnormal siguenenautomáticos; activación futuraesun corteexplícito probado. No ejecutarconfiguración deDB real nimodificarsecretos/hosting.
+
+
+### Resultado11c2a0 — Provisionamiento explícito
+
+Registro central admite índices conprovisioning=explicit. Selección automática valida catálogo completo antes de excluirlos; bootstrap/auth/script mantienen exactamente los índices vigentes. Selección explícita conserva keys/options ypermite provisionar pendientes únicamente en unentorno autorizado. Duplicados incluso entre entrada automática/pendiente, nombres vacíos ypolítica inválida fallan antes dewrites. No se registra todavía colección ni índice nuevo yno se conecta aDB real. Instrucción anidada actualizada.
+
+Tres regresiones conDB simulada; suite253pass/30opt-in skip/0fail/4999aserciones, lint360archivos, tipos/build34recursos/diff-check aprobados. Próxima11c2a1: repositorio actor-scoped decategorías, catálogo íntegro/CAS/unicidad activa ypruebas deMongoDB propio; índices pendientes centrales, sinexecutor/wire/ACK activados.

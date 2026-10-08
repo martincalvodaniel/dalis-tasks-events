@@ -6,6 +6,7 @@ import { AUTH_MODEL_NAMES } from "@/lib/db/auth-models"
 import { COLLECTION_NAMES } from "@/lib/db/collections"
 import type { IndexSpec } from "./ensure-indexes"
 import {
+  automaticIndexSpecs,
   ensureIndexes,
   INDEX_SPECS,
   type IndexDatabase,
@@ -13,6 +14,107 @@ import {
 } from "./ensure-indexes"
 
 describe("MongoDB index specifications", () => {
+  test("keeps the current bootstrap automatic selection unchanged", async () => {
+    const calls: string[] = []
+    const database: IndexDatabase = {
+      collection: (collection) => ({
+        createIndex: async (_keys, options) => {
+          calls.push(`${collection}.${options?.name}`)
+          return options?.name ?? ""
+        },
+      }),
+    }
+    expect(automaticIndexSpecs()).toEqual(INDEX_SPECS)
+    await ensureIndexes(database)
+    expect(calls).toEqual(
+      INDEX_SPECS.map((spec) => `${spec.collection}.${spec.options.name}`)
+    )
+  })
+
+  test("omits staged indexes automatically but provisions an explicit selection", async () => {
+    const calls: Array<{
+      collection: string
+      keys: unknown
+      options: unknown
+    }> = []
+    const database: IndexDatabase = {
+      collection: (collection) => ({
+        createIndex: async (keys, options) => {
+          calls.push({ collection, keys, options })
+          return options?.name ?? ""
+        },
+      }),
+    }
+    const automatic: IndexSpec = {
+      collection: "fixture_active",
+      keys: { actor: 1 },
+      options: { name: "actor_idx" },
+    }
+    const staged: IndexSpec = {
+      collection: "fixture_staged",
+      keys: { actor: 1, identity: 1 },
+      options: { name: "actor_identity_uidx", unique: true },
+      provisioning: "explicit",
+    }
+    const catalog = [automatic, staged]
+    const before = structuredClone(catalog)
+    const selection = automaticIndexSpecs(catalog)
+    expect(selection).toEqual([automatic])
+    await ensureIndexes(database, selection)
+    expect(calls).toEqual([
+      {
+        collection: automatic.collection,
+        keys: automatic.keys,
+        options: automatic.options,
+      },
+    ])
+    await ensureIndexes(database, [staged])
+    expect(calls[1]).toEqual({
+      collection: staged.collection,
+      keys: staged.keys,
+      options: staged.options,
+    })
+    expect(catalog).toEqual(before)
+  })
+
+  test("validates staged entries before filtering and writes nothing for an invalid list", async () => {
+    let writes = 0
+    const database: IndexDatabase = {
+      collection: () => ({
+        createIndex: async () => {
+          writes += 1
+          return "unexpected"
+        },
+      }),
+    }
+    const automatic: IndexSpec = {
+      collection: "fixture",
+      keys: { actor: 1 },
+      options: { name: "same_name" },
+    }
+    const staged: IndexSpec = {
+      ...automatic,
+      keys: { identity: 1 },
+      provisioning: "explicit",
+    }
+    expect(() => automaticIndexSpecs([automatic, staged])).toThrow(
+      "Duplicate MongoDB index name"
+    )
+    await expect(ensureIndexes(database, [automatic, staged])).rejects.toThrow(
+      "Duplicate MongoDB index name"
+    )
+    expect(() => automaticIndexSpecs([{ ...staged, collection: "" }])).toThrow()
+    expect(() =>
+      automaticIndexSpecs([
+        {
+          ...staged,
+          provisioning: "unsupported" as IndexSpec["provisioning"],
+        },
+      ])
+    ).toThrow("Invalid MongoDB index provisioning policy")
+    expect(writes).toBe(0)
+  })
+
   test("supports bounded owner item pagination without changing global identity uniqueness", () => {
     expect(INDEX_SPECS).toContainEqual({
       collection: COLLECTION_NAMES.items,
