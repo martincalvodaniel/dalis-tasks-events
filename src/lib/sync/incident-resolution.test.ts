@@ -3,6 +3,10 @@ import {
   availableSyncIncidentResolutionChoices,
   planSyncIncidentResolution,
 } from "@/lib/sync/incident-resolution"
+import {
+  syncResolutionRecordSchema,
+  syncResolutionRequestSchema,
+} from "@/schemas/sync-resolution"
 import type { Task } from "@/types/calendar-item"
 import type { OutboxEntry } from "@/types/local-sync"
 import type { SyncIncidentSnapshot } from "@/types/sync-incident"
@@ -271,4 +275,81 @@ test("UI choices follow the executor contract for tombstones, related intentions
       reason: "unavailable",
     })
   ).toEqual([])
+})
+
+test("explicit copy uses a fresh item and operation while preserving the original remote tombstone", () => {
+  const { current, request, now } = fixture()
+  const deleted = { ...current, remote: { ...current.remote, deletedAt: now } }
+  const input = {
+    ...request,
+    expected: deleted,
+    choice: "copy_local",
+    copyItemId: crypto.randomUUID(),
+  }
+  const before = JSON.stringify(deleted)
+  const record = planSyncIncidentResolution(input, deleted)
+  expect(record.local).toEqual(deleted.remote)
+  expect(record.copy?.id).toBe(input.copyItemId)
+  expect(record.copy?.deletedAt).toBeNull()
+  expect(record.copy?.revision).toBe(0)
+  expect(record.copy?.title).toBe("Latest draft")
+  expect(record.copy?.kind === "task" ? record.copy.checklist : []).toEqual(
+    current.local.checklist
+  )
+  expect(record.replacement).toMatchObject({
+    operationId: input.operationId,
+    baseRevision: 0,
+    command: { type: "item.create", itemId: input.copyItemId },
+  })
+  expect(record.supersededOperationIds).toEqual(
+    current.intentions.map((entry) => entry.operation.operationId)
+  )
+  expect(JSON.stringify(deleted)).toBe(before)
+})
+
+test("copy refuses live remote records, deleted drafts and reused copy identities", () => {
+  const { current, request, now } = fixture()
+  const deleted = { ...current, remote: { ...current.remote, deletedAt: now } }
+  const input = {
+    ...request,
+    expected: deleted,
+    choice: "copy_local",
+    copyItemId: crypto.randomUUID(),
+  }
+  for (const changed of [
+    current,
+    { ...deleted, local: { ...deleted.local, deletedAt: now } },
+  ])
+    expect(() =>
+      planSyncIncidentResolution({ ...input, expected: changed }, changed)
+    ).toThrow()
+  for (const copyItemId of [
+    current.local.id,
+    request.resolutionId,
+    request.operationId,
+    current.entry.operation.operationId,
+    null,
+  ])
+    expect(() =>
+      planSyncIncidentResolution({ ...input, copyItemId }, deleted)
+    ).toThrow()
+  expect(() =>
+    planSyncIncidentResolution(
+      { ...request, copyItemId: crypto.randomUUID() },
+      current
+    )
+  ).toThrow()
+})
+
+test("nullable copy defaults preserve request and durable evidence compatibility", () => {
+  const { current, request } = fixture()
+  const record = planSyncIncidentResolution(request, current)
+  const { copy: _copy, copyItemId: _copyItemId, ...legacy } = record
+  expect(syncResolutionRecordSchema.parse(legacy).copy).toBeNull()
+  expect(syncResolutionRecordSchema.parse(legacy).copyItemId).toBeNull()
+  expect(syncResolutionRequestSchema.parse(request).copyItemId).toBeNull()
+  expect(
+    syncResolutionRecordSchema.safeParse({ ...record, copy: current.local })
+      .success
+  ).toBe(false)
 })

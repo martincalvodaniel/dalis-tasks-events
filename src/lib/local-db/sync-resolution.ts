@@ -24,6 +24,8 @@ export function resolveLocalSyncIncident(
   const request = syncResolutionRequestSchema.parse(input)
   if (request.userId !== userId)
     throw new Error("Resolution belongs to another account")
+  if (request.choice === "copy_local")
+    throw new Error("Copy recovery requires its dedicated local executor")
   const key = `incident-resolution:${request.resolutionId}`
   return runLocalTransaction(
     database,

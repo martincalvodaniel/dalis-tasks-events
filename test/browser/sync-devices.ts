@@ -141,6 +141,7 @@ function resolution(
     choice,
     resolutionId: crypto.randomUUID(),
     operationId: choice === "retry_local" ? crypto.randomUUID() : null,
+    copyItemId: null,
     createdAt: new Date().toISOString(),
   }
 }

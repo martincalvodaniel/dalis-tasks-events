@@ -7,6 +7,7 @@ import {
   syncResolutionRecordSchema,
   syncResolutionRequestSchema,
 } from "@/schemas/sync-resolution"
+import type { CalendarItem } from "@/types/calendar-item"
 import type { SyncOperation } from "@/types/sync"
 import type { SyncResolutionRecord } from "@/types/sync-resolution"
 
@@ -106,25 +107,43 @@ export function planSyncIncidentResolution(
     current,
     request.userId
   )
+  const identities = [
+    request.resolutionId,
+    request.operationId,
+    request.copyItemId,
+  ].filter((id) => id !== null)
   if (
-    ids.has(request.resolutionId) ||
-    (request.operationId &&
-      (ids.has(request.operationId) ||
-        request.operationId === request.resolutionId))
+    new Set(identities).size !== identities.length ||
+    identities.some((id) => ids.has(id) || id === remote.id)
   )
     throw new Error("Resolution identities must be new and distinct")
   let replacement: SyncOperation | null = null
   let nextLocal = remote
-  if (request.choice === "retry_local") {
-    if (!local || local.kind === "birthday" || remote.deletedAt)
+  let copy: CalendarItem | null = null
+  if (request.choice !== "adopt_remote") {
+    if (
+      !local ||
+      local.kind === "birthday" ||
+      (request.choice === "retry_local" && remote.deletedAt)
+    )
       throw new Error(
         "Deleted remote identities cannot be resurrected; recovery requires a new copy"
+      )
+    if (
+      request.choice === "copy_local" &&
+      (!remote.deletedAt || local.deletedAt || !request.copyItemId)
+    )
+      throw new Error(
+        "Copy recovery requires a living draft and a deleted remote identity"
       )
     const nextCommand = local.deletedAt
       ? { type: "item.delete" as const, itemId: local.id }
       : {
-          type: "item.update" as const,
-          itemId: local.id,
+          type:
+            request.choice === "copy_local"
+              ? ("item.create" as const)
+              : ("item.update" as const),
+          itemId: request.copyItemId ?? local.id,
           input: calendarItemDraftSchema.parse(
             local.kind === "task"
               ? {
@@ -148,21 +167,24 @@ export function planSyncIncidentResolution(
     replacement = syncOperationSchema.parse({
       protocolVersion: 1,
       operationId: request.operationId,
-      baseRevision: remote.revision,
+      baseRevision: request.choice === "copy_local" ? 0 : remote.revision,
       command: nextCommand,
     })
-    nextLocal = applyItemCommand(
-      remote,
+    const projection = applyItemCommand(
+      request.choice === "copy_local" ? null : remote,
       nextCommand,
       request.userId,
       request.createdAt
     )
+    if (request.choice === "copy_local") copy = projection
+    else nextLocal = projection
   }
   return syncResolutionRecordSchema.parse({
     ...request,
     key: `incident-resolution:${request.resolutionId}`,
     replacement,
     local: nextLocal,
+    copy,
     supersededOperationIds: intentions.map(
       (intention) => intention.operation.operationId
     ),
