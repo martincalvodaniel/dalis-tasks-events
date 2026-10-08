@@ -1602,3 +1602,24 @@ Cada candidato incluye metadata de continuación y guard2MiB antes de acumularse
 Seis pruebas/59aserciones de política con executor simulado: sesión/cuenta, negociación, validación completa, secuencialidad/identidad por familia, fallo/familia/ID/owner/target incoherentes y respuesta Unicode con16outcomes individuales válidos que corta antes de2MiB sin ejecutar posteriores. Fixture unión discriminada ajustada antes del cierre. Suite281pass/83opt-in skip/0fail/5331aserciones; lint399archivos, tipos/build34recursos/diff aprobados. No repetir Mongo para política pura; prueba de servicio+executor real queda en11c3b2c2.
 
 Próxima candidata11c3b2c2: integración del batch con dispatcher Mongo, pérdida de respuesta/replay/prefijo y clasificación de acceso/identidad, sin nueva ruta. Después metadata/ACK/pull/backup locales compatibles antes de activación. Reserva10%5h/1%7d; commitpushHEAD/cuotas al cierre.
+
+
+## 11c3b2c2 — Batch y dispatcher con Mongo real
+
+- Entrada42%5h/4%7d tras7f243b6 publicado, secuencial/reserva10%5h/1%7d; pruebas acotadas sin cambios de runtime activo.
+- Objetivo: comprobar servicio batch preparatorio con executor real, pérdida de respuesta después de commit y replay sin secuencias duplicadas, identidad/acceso y respuesta grande con prefijo íntegro.
+- `target_paths`: `src/lib/db/remote-operation-commands.integration.test.ts`, `plan/{master,iterations,iteration-log,preference-sync,preference-transactions,sync-test-environment}.md`.
+- Dependencias: servicio de política, dispatcher, executors/reader reales; runner/índices propios vigentes. Sin acciones/rutas/colecciones/índices productivos.
+- Aceptación: commit real oculto tras error devuelve prefijo anterior; retry de intención intacta replay sin efectos duplicados y posteriores avanzan una vez. UUID reutilizado clasificado por familia, acceso ajeno no concede efectos. Batch de status pequeño sobre tareas grandes supera2MiB de respuesta: excluida puede estar committed, retry debe conservar registro y evitar nuevo sequence/conflict; contenidos completos y secuencias sin huecos.
+- Validación: Mongo propio casos anteriores y regresión existente, suite/lint/tipos/build/diff/plan/commitpush/HEAD/cuotas. No declarar ACK local/convergencia ni activar preferencias; siguiente metadata local según margen nuevo.
+
+
+### Resultado 11c3b2c2 — Batch mixto probado con commits reales
+
+Tres escenarios nuevos conectan servicio preparatorio y dispatcher con Mongo propio. Error intencional tras commit de categoría devuelve sólo prefijo item; retry con la intención original conserva recibo/sequence2 y confirma vista ensequence3, replay posterior no escribe. UUID reutilizado entre ambas familias responde identity_reuse correspondiente sin efectos; vista de contenido ajeno devuelve unavailable sin contador propio ni tocar owner.
+
+16tareas grandes se crean individualmente, luego un batch pequeño de status produce respuesta>2MiB. Servicio devuelve prefijo íntegro, y se verifica antes de cualquier retry que la operación excluida ya tiene recibo/commit. Replay exacto conserva ledger; restantes avanzan una vez hasta32secuencias contiguas/32recibos, todas las tareas revision2/in_progress y checklist completo. No falso ACK ni pérdida de respuesta confundida con fallo remoto. Esta prueba no implementa ACK local ni equivale a dos dispositivos reales.
+
+Mongo55pass/0fail/618aserciones en12archivos; recursos propios eliminados. Normal281pass/86opt-in skip/0fail/5331aserciones; lint399archivos, tipos/build34recursos/diff aprobados. Sólo pruebas/plan nuevos; no rutas/protocolo activo/índices productivos ni activación personal.
+
+Próxima candidata11c3c0: contrato de transición de metadata local item/personal y backup, antes de schemas/ACK/pull/recuperación compatibles. Debe conservar intención1, chains/tombstones, historial legacy, propiedad/época, replay más antiguo y rechazar futuro/corrupto sin borrar ni avanzar. Servicio/reader preparados siguen sin callers activos. Elegir corte con cuota posterior, reserva10%5h/1%7d y margen de reparación/cierre.

@@ -201,3 +201,6 @@ Próxima11c2b2b: mutaciones multirregistro propias + contador compartido + journ
 
 
 11c3b2b: runner incorpora dispatcher, Mongo52pass/520aserciones/0fail en12archivos; mezcla y replay tardío, colisiones entre familias, aislamiento, unsupported sin efectos y familia histórica incompatible/restauración. Recursos propios eliminados; no nueva ruta, protocolo activo ni navegador.
+
+
+11c3b2c2: runner vigente12archivos, Mongo55pass/618aserciones/0fail. Batch real: pérdida de respuesta tras commit de categoría y replay sin duplicados, identity_reuse por familia/foreign-view unavailable y respuestaUTF8>2MiB sobre16tareas que conserva intención excluida ya committed y converge en32secuencias. Sin ACK local ni piloto físico nuevo; recursos propios eliminados.
