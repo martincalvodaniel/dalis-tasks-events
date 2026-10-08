@@ -978,3 +978,13 @@ Si el alcance de una subentrega supera el presupuesto, dividirla conservando est
 
 
 13c1c: secciónplegablecompactaCopia de seguridad enAjustes, downloadsolo tras snapshotvalidado yguardiaactual, JSONBlob/filenamefecha sincuenta yURLrevocable/linkremovido. Mensajehonestodescargasolicitada, importacióntodavíano disponible; sinfetch/ACK/escrituras. FixtureUIreal390 confetchbloqueado validaBlob11stores/colaexacta, epochcambiado error sinsegundaBlob, recursospropios limpios yviewportreset; botón44px/sin overflow. Normal217pass/30skip/4727aserciones/lint325files/tipos/build30recursos aprobados. Próxima13c2apreviewpuro deimportación si margen; ejecutor/importUI posteriores.
+
+### 13c1d — Identidad y payload de evidencias de backup
+
+- Objetivo previo: endurecer relación outcome/elemento yreplacement/payload sinnuevaUI niIO, antesdeimportación. Entrada16%/30%, int/secuencial/reserva10%; corte mínimo de dosguardias ytests sobrefixtureexistente (margen6puntos; noabrir13c2aimplementaciónmayor).
+- target_paths: src/lib/backup/{local-backup,local-backup.test}.ts, plan/{master,iterations,iteration-log,backup-recovery}.md.
+- Aceptación: local/base/current/applieditem deloutcome ligado acommand.itemId, versionessupersedidas conservan outcomeoriginal; replacement debe coincidirpayloadexacto conentryhistórica. Manipulación deID/payload/actoranidado/counterrechaza íntegramente, leasesendernoncelegítimo sigueválido. Sin cambiar ficheroscorrectos ni restaurarestado.
+- Validación: tests purecontra identidad/payload/counter/actor/duplicates, suite/lint/tipos/build/diff/referencias. Commit/pushint/HEAD/cuotas ycerrarlote/reservasin nuevaautomatización.
+
+
+13c1d: outcome.local/base/current/applieditem deben coincidirconcommand.itemId; replacement exacto contra operaciónpreservada, sinaceptarevidenciamanipulada. Dos tests identity/payload/actornested/counter/shadowduplicado; 219pass/30skip/4734aserciones/lint325files/tipos/build30recursos aprobados. Fixture usa operaciónclonada separada de decisiónpara quealterar una pruebe realmenterechazo. Sin nuevaUI/IO/migración. Código cerrado, próxima13c2apreviewimportación.

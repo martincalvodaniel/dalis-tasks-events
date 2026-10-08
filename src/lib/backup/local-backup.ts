@@ -123,6 +123,20 @@ export function validateLocalBackup(
         JSON.stringify(entry.operation) !== JSON.stringify(record.operation)
       )
         throw new Error("Backup outcome does not match its preserved operation")
+      const command = record.operation.command
+      const resultItem =
+        record.result.status === "applied"
+          ? record.result.item
+          : record.result.status === "conflict"
+            ? record.result.current
+            : null
+      if (
+        "itemId" in command &&
+        [record.local, record.base, resultItem].some(
+          (item) => item !== null && item.id !== command.itemId
+        )
+      )
+        throw new Error("Backup outcome belongs to another item")
     }
     if ("resolutionId" in record) {
       for (const id of record.supersededOperationIds) {
@@ -150,8 +164,13 @@ export function validateLocalBackup(
           throw new Error("Backup decision is missing its original outcome")
         superseded.add(id)
       }
-      if (record.replacement && !entries.has(record.replacement.operationId))
-        throw new Error("Backup decision is missing its replacement")
+      if (
+        record.replacement &&
+        JSON.stringify(
+          entries.get(record.replacement.operationId)?.operation
+        ) !== JSON.stringify(record.replacement)
+      )
+        throw new Error("Backup decision is missing its exact replacement")
     }
     if (
       "operationId" in record &&

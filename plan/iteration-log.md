@@ -767,3 +767,22 @@ No rellenar evidencias a partir de intención o memoria. Un test no ejecutado es
 
 - Entrada22%/31% tras6f83498, int/secuencial/reserva10%. 13c1c: secciónplegablecompactaCopia de seguridad enAjustes, downloadsolo tras snapshotvalidado yguardiaactual, JSONBlob/filenamefecha sincuenta yURLrevocable/linkremovido. Mensajehonestodescargasolicitada, importacióntodavíano disponible; sinfetch/ACK/escrituras. FixtureUIreal390 confetchbloqueado validaBlob11stores/colaexacta, epochcambiado error sinsegundaBlob, recursospropios limpios yviewportreset; botón44px/sin overflow. Normal217pass/30skip/4727aserciones/lint325files/tipos/build30recursos aprobados. Próxima13c2apreviewpuro deimportación si margen; ejecutor/importUI posteriores.
 - Cuenta preparada única, keyporépoca para desmontar accionesprevias, filenameUTCfecha sinPII. No afirmar queel navegador guardóarchivo; sólo se solicita trasvalidación. Fixtureinstrumenta Blob/anchor ynoautorizaotrosdestinos. Snapshot/codificadores probadospreviamente, suite/build finalpassed despuésdecorregir firmaBunfetch defixture. Referencias/diff ycommit/pushint/HEAD/cuotas alcerrar.
+
+
+## 13c1d — Evidencias de backup y cierre del lote, 8 de octubre
+
+- Entrada16%/30% trase4abc42, int/secuencial/reserva10%. 13c1d: outcome.local/base/current/applieditem deben coincidirconcommand.itemId; replacement exacto contra operaciónpreservada, sinaceptarevidenciamanipulada. Dos tests identity/payload/actornested/counter/shadowduplicado; 219pass/30skip/4734aserciones/lint325files/tipos/build30recursos aprobados. Fixture usa operaciónclonada separada de decisiónpara quealterar una pruebe realmenterechazo. Sin nuevaUI/IO/migración. Código cerrado, próxima13c2apreviewimportación.
+- Lectura previa cierre13%/30%; se cierra esta iteración y el lote. AutomatizaciónPAUSED yno nueva cadena. Referencias/diff/commit/pushint/HEAD/cuotasalcierre; siguiente13c2a requiere nuevaautorización/margen.
+
+
+### Cierre de la segunda continuación, 8 de octubre, 05:18
+
+El lote autorizado partió de la renovación real con 100%/43% y reinicio 1791447514. Se entrega hasta 13c1d: lectura y comparación de incidentes; supersesión local diferenciada de ACK y elecciones explícitas de adopción, reintento o copia; pruebas de dos dispositivos con MongoDB; recuperación de sesión, cierre y leases; compatibilidad de protocolo; actualización del worker; backup portable, lectura coherente y descarga offline. Cada iteración tiene commit y push en int, con HEAD remoto verificado. Se preservaron cambios ajenos y no se tocó la DB, los secretos o la configuración de producción.
+
+La lectura previa al cierre es 13%/30%, con reserva del 10% en ambas ventanas. Tres puntos no cubren la siguiente implementación con pruebas, reparaciones y cierre. Los últimos cortes consumieron tres puntos para el snapshot, seis para la descarga y tres para las guardias mínimas; el contrato anterior consumió ocho con reparaciones. Las lecturas pueden incluir otros chats y no garantizan costes futuros. El repo queda coherente y sin código abierto.
+
+La automatización puntual continuar-sincronizaci-n-siguiente-ventana queda PAUSED. La autorización cubría esta última revisión; no se crea otra cadena ni se usan créditos o reinicios.
+
+La siguiente candidata es 13c2a: preview puro de un archivo validado y del snapshot propio actual, sin escribir ni enviar. Clasificará contenido nuevo, idéntico, cambiado, tombstones y tipos sin ejecutor, conservando los datos no admitidos. El contrato y ejecutor de importación vendrán después, con UUID nuevos y confirmación sólo tras pruebas. Nunca restaurar directamente ACK, cursores, leases, revisiones remotas o permisos.
+
+El piloto de Google y RPC de Next real sigue pendiente. Preferencias, series, cumpleaños y compartidos todavía no se sincronizan. Rechazos sin acceso y cadenas externas permanecen conservados. Reanudar exige nueva autorización y ambas cuotas; vuelve el protocolo normal de consulta tras cada iteración salvo otro lote explícito.
