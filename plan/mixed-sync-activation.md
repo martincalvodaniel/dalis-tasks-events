@@ -80,3 +80,8 @@ Panel `11c4a9u` preparado: alcance opcional con default de transporte1 y summary
 
 
 `11c4a8m` comprueba provisión parcial/reintento y respuesta perdida con MongoDB real del descriptor propio (dos escenarios/20 aserciones). No ejecuta el procedimiento en DB del usuario ni habilita caller productivo. CLI/destino revisables y autorización del entorno siguen pendientes antes de activación.
+
+
+### Evidencia de frontera autenticada 11c4a7n
+
+Siete escenarios con Next compilado, dos sesiones Better Auth persistidas y MongoDB propios pasan: action2/defaults autentican y escriben tareas/categorías/asignaciones, ambas sesiones descargan journal real, replay no duplica y estados de cuenta/versión/sesión rechazan sin efectos. Wrapper exclusivo valida capability/cookies dentro de RPC; no equivale al ID exacto del endpoint desplegado ni a Google interactivo. Índices sólo del descriptor propio. Producto permanece transporte1. Falta procedimiento de provisión de entorno revisable/autorizado y conexión conjunta de ruta/acción/identidad/cliente/UI; no anunciar2 por configuración aislada.

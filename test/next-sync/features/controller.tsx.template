@@ -1,0 +1,418 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import type { z } from "zod"
+import {
+  nextSyncPublicConfigSchema,
+  nextSyncDeviceCommandSchema,
+  nextSyncStateSchema,
+} from "@/schemas/next-sync-test"
+import {
+  remotePushResultV2Schema,
+  remotePushInputV2Schema,
+} from "@/schemas/remote-push-v2"
+import { validateRemotePushResultV2 } from "@/lib/sync/remote-push-v2"
+import { syncOperationSchema } from "@/schemas/sync"
+import { workspaceIdentitySchema } from "@/schemas/workspace"
+import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
+import { executeFixtureCommand, fixtureFetch } from "@fixture/device-client"
+
+function assert(value: unknown, message: string): asserts value {
+  if (!value) throw new Error(message)
+}
+type Reply = { status: number; value: unknown; protocol: string | null }
+
+export function FixtureController() {
+  const [config, setConfig] = useState<z.infer<
+    typeof nextSyncPublicConfigSchema
+  > | null>(null)
+  const [status, setStatus] = useState("Preparando la prueba aislada de Next")
+  const [rows, setRows] = useState<string[]>([])
+  const [running, setRunning] = useState(false)
+  useEffect(() => {
+    void (async () => {
+      const run = new URLSearchParams(location.search).get("run")
+      const parsed = nextSyncPublicConfigSchema.parse(
+        await (
+          await fetch(`/fixture/config?runId=${run}`, { cache: "no-store" })
+        ).json()
+      )
+      assert(
+        location.origin === parsed.origins[0],
+        "Fixture controller host is invalid"
+      )
+      setConfig(parsed)
+      setStatus("Listo. La prueba abre un segundo dispositivo en otra pestaña")
+    })().catch(() => setStatus("No se ha podido preparar la prueba aislada"))
+  }, [])
+
+  const run = () => {
+    if (!config || running) return
+    const fixture = config
+    setRunning(true)
+    let secondary: Window | null = null
+    let removeReady = () => {}
+    let readyTimer: ReturnType<typeof setTimeout> | undefined
+    const ready = new Promise<void>((resolveReady, reject) => {
+      readyTimer = setTimeout(() => {
+        removeReady()
+        reject(new Error("Fixture second device did not become ready"))
+      }, 45000)
+      const listener = (event: MessageEvent) => {
+        if (
+          event.source !== secondary ||
+          event.origin !== fixture.origins[1] ||
+          event.data?.runId !== fixture.runId ||
+          event.data?.ready !== true
+        )
+          return
+        clearTimeout(readyTimer)
+        removeReady()
+        resolveReady()
+      }
+      window.addEventListener("message", listener)
+      removeReady = () => window.removeEventListener("message", listener)
+    })
+    void ready.catch(() => {})
+    // Open synchronously from the user gesture; both devices must be top-level first-party sites.
+    secondary = window.open(
+      `${fixture.origins[1]}/device?run=${fixture.runId}`,
+      `dalis-next-sync-${fixture.runId}`
+    )
+    const call = async (
+      index: number,
+      command: z.infer<typeof nextSyncDeviceCommandSchema>
+    ): Promise<unknown> => {
+      const parsed = nextSyncDeviceCommandSchema.parse(command)
+      if (index === 0) return executeFixtureCommand(fixture.runId, parsed)
+      assert(
+        secondary && !secondary.closed,
+        "Fixture second device is unavailable"
+      )
+      const channel = new MessageChannel()
+      try {
+        return await new Promise((resolveReply, reject) => {
+          const timer = setTimeout(
+            () => reject(new Error("Fixture command timed out")),
+            45000
+          )
+          channel.port1.onmessage = (event) => {
+            clearTimeout(timer)
+            if (event.data?.ok === true) resolveReply(event.data.value)
+            else reject(new Error("Fixture second device command failed"))
+          }
+          secondary!.postMessage(
+            { runId: fixture.runId, command: parsed },
+            fixture.origins[1],
+            [channel.port2]
+          )
+        })
+      } finally {
+        channel.port1.close()
+      }
+    }
+    const check = async (label: string, work: () => Promise<void>) => {
+      setStatus(label)
+      await work()
+      setRows((values) => [...values, `Correcto: ${label}`])
+    }
+    const state = async (userId: string) => {
+      const response = await fixtureFetch(
+        fixture.runId,
+        `/fixture/state?runId=${fixture.runId}&userId=${encodeURIComponent(userId)}`
+      )
+      assert(response.status === 200, "Fixture state reader failed")
+      return nextSyncStateSchema.parse(response.value)
+    }
+    const push = async (index: number, input: unknown, expected: string) => {
+      const result = remotePushResultV2Schema.parse(
+        await call(index, { type: "push", input })
+      )
+      assert(
+        result.status === expected,
+        `Unexpected push status ${result.status}`
+      )
+      if (result.status === "complete") {
+        const request = remotePushInputV2Schema.parse(input)
+        validateRemotePushResultV2(result, request.expectedUserId, request)
+        assert(
+          result.results.every((entry) => entry.outcome.status === "applied"),
+          "Completed fixture command lacks applied outcomes"
+        )
+      }
+      return result
+    }
+    const operation = (
+      command: z.infer<typeof syncOperationSchema>["command"],
+      baseRevision = 0
+    ) =>
+      syncOperationSchema.parse({
+        operationId: crypto.randomUUID(),
+        protocolVersion: 1,
+        baseRevision,
+        command,
+      })
+    const itemId = crypto.randomUUID(),
+      tagId = crypto.randomUUID()
+    const creation = operation({
+      type: "item.create",
+      itemId,
+      input: {
+        kind: "task",
+        title: "Tarea RPC aislada",
+        description: "",
+        scheduledDate: "2026-10-09",
+        status: "not_started",
+        checklist: [],
+        recurrence: null,
+      },
+    })
+    let owner = ""
+    let passed = false
+    void (async () => {
+      assert(secondary, "Fixture popup was blocked")
+      await ready
+      await check("RPC real sin sesión rechaza la escritura", async () => {
+        for (let index = 0; index < 2; index++) {
+          const identity = (await call(index, { type: "identity" })) as Reply
+          assert(identity.status === 401, "Fixture starts without a session")
+          await push(
+            index,
+            {
+              transportVersion: 2,
+              expectedUserId: "fixture-unauthenticated",
+              operations: [creation],
+            },
+            "unauthorized"
+          )
+        }
+      })
+      await check(
+        "Dos sesiones persistidas autentican la misma cuenta",
+        async () => {
+          for (let index = 0; index < 2; index++) {
+            const prepared = (await call(index, {
+              type: "bootstrap",
+              identity: "owner",
+            })) as Reply
+            assert(prepared.status === 200, "Session bootstrap failed")
+            const identity = (await call(index, { type: "identity" })) as Reply
+            assert(
+              identity.status === 200 && identity.protocol !== null,
+              "Persisted session identity failed"
+            )
+            const value = workspaceIdentitySchema.parse(identity.value)
+            if (index === 0) owner = value.userId
+            else
+              assert(
+                value.userId === owner,
+                "Both persisted sessions represent the same actor"
+              )
+          }
+          const initial = await state(owner)
+          assert(
+            initial.page.through === 0 &&
+              Object.values(initial.counts).every((value) => value === 0),
+            "Unauthenticated RPC did not write"
+          )
+        }
+      )
+      const batch = {
+        transportVersion: 2,
+        expectedUserId: "",
+        operations: [creation],
+      }
+      await check(
+        "RPC de tarea, categoría y asignación usa el ejecutor y diario reales",
+        async () => {
+          batch.expectedUserId = owner
+          await push(0, batch, "complete")
+          await push(
+            1,
+            {
+              ...batch,
+              operations: [
+                operation({
+                  type: "tag.save",
+                  tagId,
+                  input: {
+                    name: "Categoría RPC",
+                    color: "#123456",
+                    position: 1024,
+                  },
+                }),
+              ],
+            },
+            "complete"
+          )
+          await push(
+            0,
+            {
+              ...batch,
+              operations: [
+                operation({
+                  type: "item-view.set",
+                  itemId,
+                  primaryTagId: tagId,
+                }),
+              ],
+            },
+            "complete"
+          )
+          const stored = await state(owner)
+          assert(
+            JSON.stringify(stored.counts) ===
+              JSON.stringify({ items: 1, tags: 1, views: 1, receipts: 3 }) &&
+              stored.page.through === 3,
+            "Real Mongo mutations/receipts/journal differ"
+          )
+          for (let index = 0; index < 2; index++) {
+            const downloaded = (await call(index, {
+              type: "pull",
+              userId: owner,
+            })) as Reply
+            assert(downloaded.status === 200, "Authenticated download failed")
+            assert(
+              JSON.stringify(
+                remoteChangesPageV2Schema.parse(downloaded.value)
+              ) === JSON.stringify(stored.page),
+              "Both sessions read the same authoritative journal"
+            )
+          }
+        }
+      )
+      await check(
+        "Replay mantiene revisiones, recibos y diario sin duplicados",
+        async () => {
+          const before = await state(owner)
+          const first = await push(0, batch, "complete")
+          const second = await push(1, batch, "complete")
+          assert(
+            JSON.stringify(first) === JSON.stringify(second),
+            "Cross-session replay differs"
+          )
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(before),
+            "Replay changes durable state"
+          )
+        }
+      )
+      await check(
+        "Cuenta esperada y versiones incompatibles se rechazan antes de escribir",
+        async () => {
+          const before = await state(owner)
+          await push(
+            0,
+            { ...batch, expectedUserId: crypto.randomUUID() },
+            "account_changed"
+          )
+          const { transportVersion, ...legacy } = batch
+          await push(0, legacy, "update_required")
+          await push(1, { ...batch, transportVersion: 3 }, "update_required")
+          await push(
+            1,
+            { ...batch, operations: [{ ...creation, protocolVersion: 2 }] },
+            "update_required"
+          )
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(before),
+            "Rejected envelopes changed Mongo state"
+          )
+        }
+      )
+      await check(
+        "Sesión revocada y caducada impiden nuevas escrituras",
+        async () => {
+          const before = await state(owner)
+          assert(
+            ((await call(1, { type: "session", command: "revoke" })) as Reply)
+              .status === 200,
+            "Owned session revocation failed"
+          )
+          await push(1, batch, "unauthorized")
+          assert(
+            ((await call(0, { type: "identity" })) as Reply).status === 200,
+            "Revocation touched the other session"
+          )
+          assert(
+            ((await call(0, { type: "session", command: "expire" })) as Reply)
+              .status === 200,
+            "Owned session expiry failed"
+          )
+          await push(0, batch, "unauthorized")
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(before),
+            "Revoked or expired session wrote"
+          )
+        }
+      )
+      await check(
+        "Usuario no verificado se rechaza con sesión persistida",
+        async () => {
+          const prepared = (await call(1, {
+            type: "bootstrap",
+            identity: "unverified",
+          })) as Reply
+          assert(prepared.status === 200, "Unverified session bootstrap failed")
+          await push(1, batch, "unauthorized")
+        }
+      )
+      passed = true
+    })()
+      .catch(() => {
+        setStatus(
+          "La prueba ha fallado o se ha bloqueado de forma segura; revisa las comprobaciones completadas"
+        )
+      })
+      .finally(async () => {
+        removeReady()
+        clearTimeout(readyTimer)
+        for (let index = 0; index < 2; index++) {
+          try {
+            assert(
+              (
+                (await call(index, {
+                  type: "session",
+                  command: "cleanup",
+                })) as Reply
+              ).status === 200,
+              "Fixture session cleanup failed"
+            )
+          } catch {
+            passed = false
+          }
+        }
+        secondary?.close()
+        if (passed)
+          setStatus(
+            "Siete escenarios RPC correctos; cookies y recursos propios cerrados"
+          )
+        await fetch("/fixture/finish", {
+          method: "POST",
+          credentials: "same-origin",
+          cache: "no-store",
+          headers: {
+            "Content-Type": "application/json",
+            "x-sync-test-run": fixture.runId,
+          },
+          body: JSON.stringify({ runId: fixture.runId, passed }),
+        })
+      })
+  }
+  return (
+    <main>
+      <h1>Prueba aislada de sincronización Next</h1>
+      <p id="status" role="status">
+        {status}
+      </p>
+      <button disabled={!config || running} onClick={run}>
+        Ejecutar prueba RPC real
+      </button>
+      <ol id="results">
+        {rows.map((row) => (
+          <li key={row}>{row}</li>
+        ))}
+      </ol>
+    </main>
+  )
+}

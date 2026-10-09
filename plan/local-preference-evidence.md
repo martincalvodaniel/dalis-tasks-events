@@ -107,3 +107,6 @@ Envío `11c4a6s` [preparado](../src/features/sync/guarded-push-batch-v2.ts): reu
 
 
 `11c4a8p` prepara [provisión por puertos](../src/lib/db/mixed-sync-index-provisioning.ts) y [selección central](../src/lib/db/mixed-sync-index-specs.ts). Sin conexión o caller; reinspección y estado parcial conservado, sin reparar datos/índices. Schema de nombres y readiness compartido estricto. No equivale a índices creados en el entorno del usuario.
+
+
+`11c4a7n` prueba RPC de Next compilada→acción2/defaults con Better Auth persistido y Mongo propios, siete escenarios correctos con dos sesiones y journal real. No habilita transporte2 en el producto ni sustituye piloto Google; categorías/asignaciones siguen preparadas hasta provisión autorizada y cambio conjunto.

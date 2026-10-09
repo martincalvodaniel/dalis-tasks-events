@@ -259,3 +259,8 @@ El runner aislado incorpora mixed-sync-index-readiness.integration.test.ts. Prov
 ### Provisión personal aislada 11c4a8m
 
 `bun run scripts/sync-db-test-runner.ts indexes` ejecuta únicamente [mixed-sync-index-provisioning.integration.test.ts](../src/lib/db/mixed-sync-index-provisioning.integration.test.ts), sin compartir índices explícitos con otras suites. MongoDB propio:2 pass/20 aserciones, duplicados/creación parcial/reintento/noop y respuesta perdida tras create real; registros conservados. Recursos propios limpiados y exit0. No inspección ni provisión del entorno del usuario. La frontera RPC Next todavía requiere ejecutar su fixture independiente.
+
+
+### Next/Server Action con sesión persistida — 11c4a7n
+
+`bun run scripts/sync-db-test-runner.ts next` crea app temporal ignorada y MongoDB propios. Build/start Next reales, env sintético exacto, dos hosts con sesiones BetterAuth persistidas, wrapper ServerAction compilado→acción2/defaultauth/DAL reales. Siete escenarios navegador correctos de escritura/descarga/replay/cuenta/protocolo/revocación/caducidad/noverificado; tres entidades/recibos/journal sin duplicados, ambas descargas verificadas contra Mongo. No Google interactivo ni ID exacto del endpoint productivo; runtime IndexedDB validado por el piloto mixto previo. Host exacto del request se valida por encabezado porque NextURL normaliza loopback; Origin/capability/cookies ajenas permanecen protegidas. Cleanup sólo propios y runner exit0, main/popup cerrados; captura /private/tmp/dalis-next-rpc-proof-20261009.jpg. Ninguna DB/cookie productiva tocada.

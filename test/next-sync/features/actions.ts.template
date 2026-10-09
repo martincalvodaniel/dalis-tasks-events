@@ -1,0 +1,12 @@
+"use server"
+
+import { headers } from "next/headers"
+import { pushSyncOperationsV2 } from "@/features/sync/actions-v2"
+import { validateNextSyncFixtureHeaders } from "@/lib/db/next-sync-fixture"
+import { nextSyncActionSchema } from "@/schemas/next-sync-test"
+
+export async function pushFixtureOperations(input: unknown) {
+  const parsed = nextSyncActionSchema.parse(input)
+  validateNextSyncFixtureHeaders(await headers(), { runId: parsed.runId })
+  return pushSyncOperationsV2(parsed.input)
+}

@@ -1,0 +1,136 @@
+import "server-only"
+
+import { NextResponse } from "next/server"
+import { getNextSyncTestConfig } from "@/config/next-sync-test"
+import { getAuthenticatedSyncChangesResponseV2 } from "@/features/sync/authenticated-pull-v2"
+import { getSyncIdentityResponse } from "@/features/sync/identity-response"
+import {
+  bootstrapNextSyncSession,
+  controlNextSyncSession,
+  readNextSyncFixtureState,
+  validateNextSyncFixtureRequest,
+} from "@/lib/db/next-sync-fixture"
+import {
+  nextSyncCapabilitySchema,
+  nextSyncFinishSchema,
+  nextSyncPublicConfigSchema,
+} from "@/schemas/next-sync-test"
+
+export async function handleFixtureRequest(request: Request) {
+  try {
+    const url = new URL(request.url)
+    const command = url.pathname.split("/").at(-1)
+    if (command === "config" && request.method === "GET") {
+      let config: ReturnType<typeof getNextSyncTestConfig>
+      try { config = getNextSyncTestConfig() }
+      catch { return Response.json({diagnostic:"private_environment_invalid"},{status:403}) }
+      const capability = nextSyncCapabilitySchema.safeParse(
+        Object.fromEntries(url.searchParams)
+      )
+      if (!capability.success || capability.data.runId !== config.runId)
+        return Response.json({diagnostic:"capability_invalid"},{status:403})
+      if (url.protocol !== "http:" || request.headers.get("host") !== new URL(config.authOrigin).host)
+        return Response.json({diagnostic:"request_origin_mismatch"},{status:403})
+      return Response.json(
+        nextSyncPublicConfigSchema.parse({
+          runId: config.runId,
+          origins: config.origins,
+        }),
+        { headers: { "Cache-Control": "no-store" } }
+      )
+    }
+    const capability = { runId: request.headers.get("x-sync-test-run") }
+    // Completion may report a safe foreign-cookie block; it never reads or mutates auth state.
+    if (command === "finish" && request.method === "POST") {
+      const config = getNextSyncTestConfig()
+      const input = nextSyncFinishSchema.parse(await request.json())
+      if (
+        input.runId !== config.runId ||
+        capability.runId !== config.runId ||
+        url.protocol !== "http:" ||
+        request.headers.get("host") !== new URL(config.authOrigin).host ||
+        (request.headers.get("origin") !== null &&
+          request.headers.get("origin") !== config.authOrigin)
+      )
+        return new Response(null, { status: 403 })
+      const accepted = await fetch(`${config.controlOrigin}/finish`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-sync-test-run": config.runId,
+        },
+        body: JSON.stringify(input),
+        cache: "no-store",
+      })
+      return new Response(null, { status: accepted.ok ? 204 : 503 })
+    }
+    if (command === "session" && request.method === "POST") {
+      const input = await request.json()
+      const parsedCapability = nextSyncCapabilitySchema.parse(capability)
+      if (input?.runId !== parsedCapability.runId)
+        return new Response(null, { status: 403 })
+      const changed = await controlNextSyncSession(
+        request,
+        input
+      )
+      const response = NextResponse.json({ complete: true })
+      for (const name of changed.names)
+        response.cookies.set(name, "", {
+          httpOnly: true,
+          path: "/",
+          sameSite: "lax",
+          expires: new Date(0),
+          maxAge: 0,
+        })
+      return response
+    }
+    validateNextSyncFixtureRequest(request, capability)
+    if (command === "guard" && request.method === "GET")
+      return Response.json({ ready: true })
+    if (command === "bootstrap" && request.method === "POST") {
+      const prepared = await bootstrapNextSyncSession(
+        request,
+        await request.json()
+      )
+      const response = NextResponse.json({ userId: prepared.userId })
+      for (const cookie of prepared.cookies)
+        response.cookies.set(cookie.name, cookie.value, {
+          httpOnly: cookie.httpOnly,
+          path: cookie.path,
+          secure: cookie.secure,
+          sameSite: cookie.sameSite?.toLowerCase() as
+            | "lax"
+            | "strict"
+            | "none"
+            | undefined,
+          expires: cookie.expires ? new Date(cookie.expires * 1000) : undefined,
+        })
+      return response
+    }
+    if (command === "identity" && request.method === "GET") {
+      const { getAuthorizedSessionFromHeaders } = await import(
+        "@/lib/auth/session"
+      )
+      const session = await getAuthorizedSessionFromHeaders(request.headers)
+      return getSyncIdentityResponse(
+        session ? { userId: session.user.id } : null,
+        2
+      )
+    }
+    if (command === "changes" && request.method === "GET")
+      return getAuthenticatedSyncChangesResponseV2(request)
+    if (command === "state" && request.method === "GET")
+      return Response.json(
+        await readNextSyncFixtureState(
+          request,
+          Object.fromEntries(url.searchParams)
+        )
+      )
+    return new Response(null, { status: 404 })
+  } catch {
+    return Response.json(
+      { error: "The isolated Next fixture was safely blocked" },
+      { status: 403 }
+    )
+  }
+}

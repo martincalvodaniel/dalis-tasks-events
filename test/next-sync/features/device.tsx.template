@@ -1,0 +1,64 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import {
+  nextSyncPublicConfigSchema,
+  nextSyncDeviceCommandSchema,
+} from "@/schemas/next-sync-test"
+import { executeFixtureCommand } from "@fixture/device-client"
+
+export function FixtureDevice() {
+  const [status, setStatus] = useState(
+    "Preparando el segundo dispositivo aislado"
+  )
+  useEffect(() => {
+    const runId = new URLSearchParams(location.search).get("run")
+    let dispose = () => {}
+    void (async () => {
+      const config = nextSyncPublicConfigSchema.parse(
+        await (
+          await fetch(`/fixture/config?runId=${runId}`, { cache: "no-store" })
+        ).json()
+      )
+      if (!window.opener || location.origin !== config.origins[1])
+        throw new Error("Fixture requires its registered top-level opener")
+      const listener = async (event: MessageEvent) => {
+        if (
+          event.source !== window.opener ||
+          event.origin !== config.origins[0] ||
+          event.data?.runId !== config.runId ||
+          event.ports.length !== 1
+        )
+          return
+        const port = event.ports[0]
+        try {
+          const command = nextSyncDeviceCommandSchema.parse(event.data.command)
+          port.postMessage({
+            ok: true,
+            value: await executeFixtureCommand(config.runId, command),
+          })
+        } catch {
+          port.postMessage({ ok: false })
+        } finally {
+          port.close()
+        }
+      }
+      window.addEventListener("message", listener)
+      dispose = () => window.removeEventListener("message", listener)
+      window.opener.postMessage(
+        { runId: config.runId, ready: true },
+        config.origins[0]
+      )
+      setStatus("Segundo dispositivo preparado; conserva esta pestaña abierta")
+    })().catch(() =>
+      setStatus("No se ha podido preparar el dispositivo aislado")
+    )
+    return () => dispose()
+  }, [])
+  return (
+    <main>
+      <h1>Dispositivo de prueba Next</h1>
+      <p>{status}</p>
+    </main>
+  )
+}

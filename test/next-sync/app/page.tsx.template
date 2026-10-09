@@ -1,0 +1,5 @@
+import { FixtureController } from "@fixture/controller"
+
+export default function Page() {
+  return <FixtureController />
+}

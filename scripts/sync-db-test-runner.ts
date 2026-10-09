@@ -12,6 +12,7 @@ if (
   mode !== "database" &&
   mode !== "browser" &&
   mode !== "browser-mixed" &&
+  mode !== "next" &&
   mode !== "indexes"
 )
   throw new Error("Unknown isolated sync test mode")
@@ -176,36 +177,44 @@ try {
           "./test/setup.ts",
           "src/lib/db/mixed-sync-index-provisioning.integration.test.ts",
         ]
-      : mode === "browser" || mode === "browser-mixed"
+      : mode === "next"
         ? [
             "bun",
             "--no-env-file",
             "--preload",
             "./test/setup.ts",
-            mode === "browser-mixed"
-              ? "scripts/mixed-sync-browser-test-server.ts"
-              : "scripts/sync-browser-test-server.ts",
+            "scripts/next-sync-test-runner.ts",
           ]
-        : [
-            "bun",
-            "--no-env-file",
-            "test",
-            "--preload",
-            "./test/setup.ts",
-            "src/lib/db/transactions.integration.test.ts",
-            "src/lib/db/remote-items.integration.test.ts",
-            "src/lib/db/remote-tags.integration.test.ts",
-            "src/lib/db/remote-item-views.integration.test.ts",
-            "src/lib/db/mixed-sync-index-readiness.integration.test.ts",
-            "src/lib/db/remote-operation-receipts.integration.test.ts",
-            "src/lib/db/remote-tag-commands.integration.test.ts",
-            "src/lib/db/remote-item-view-commands.integration.test.ts",
-            "src/lib/db/remote-preference-races.integration.test.ts",
-            "src/lib/db/remote-changes-v2.integration.test.ts",
-            "src/lib/db/remote-item-commands.integration.test.ts",
-            "src/lib/db/remote-operation-commands.integration.test.ts",
-            "src/lib/db/remote-changes.integration.test.ts",
-          ]
+        : mode === "browser" || mode === "browser-mixed"
+          ? [
+              "bun",
+              "--no-env-file",
+              "--preload",
+              "./test/setup.ts",
+              mode === "browser-mixed"
+                ? "scripts/mixed-sync-browser-test-server.ts"
+                : "scripts/sync-browser-test-server.ts",
+            ]
+          : [
+              "bun",
+              "--no-env-file",
+              "test",
+              "--preload",
+              "./test/setup.ts",
+              "src/lib/db/transactions.integration.test.ts",
+              "src/lib/db/remote-items.integration.test.ts",
+              "src/lib/db/remote-tags.integration.test.ts",
+              "src/lib/db/remote-item-views.integration.test.ts",
+              "src/lib/db/mixed-sync-index-readiness.integration.test.ts",
+              "src/lib/db/remote-operation-receipts.integration.test.ts",
+              "src/lib/db/remote-tag-commands.integration.test.ts",
+              "src/lib/db/remote-item-view-commands.integration.test.ts",
+              "src/lib/db/remote-preference-races.integration.test.ts",
+              "src/lib/db/remote-changes-v2.integration.test.ts",
+              "src/lib/db/remote-item-commands.integration.test.ts",
+              "src/lib/db/remote-operation-commands.integration.test.ts",
+              "src/lib/db/remote-changes.integration.test.ts",
+            ]
   const testProcess = Bun.spawn(argumentsForMode, {
     env: syncTestProcessEnvironment(config),
     stdout: "inherit",

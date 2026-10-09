@@ -1,0 +1,5 @@
+import { handleFixtureRequest } from "@fixture/handler"
+
+export const dynamic = "force-dynamic"
+export const GET = handleFixtureRequest
+export const POST = handleFixtureRequest

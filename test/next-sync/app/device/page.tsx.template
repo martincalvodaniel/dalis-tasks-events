@@ -1,0 +1,5 @@
+import { FixtureDevice } from "@fixture/device"
+
+export default function Page() {
+  return <FixtureDevice />
+}
