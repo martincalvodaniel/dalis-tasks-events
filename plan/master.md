@@ -338,3 +338,6 @@ Actualización9oct10:29 —11c4a8e2b: CLI online separado y adapter privado prep
 
 
 11c4a9c1 preparado y probado: dispatcher/resumen/controlescliente2 independientes; guardias cuenta/época, diagnóstico y cierre preservados. Suite451pass98skip sin fallos; lint/tipos/build34 aprobados. Producto sigue1 y manifiesto conserva una solaacción, sin activarendpointmixto. Siguiente composición privada y retirolegacy/matriz; provisiónpreprod espera nombre explícito solicitado.
+
+
+11c4a9c2 preparado: composición cliente2 completa y retirementcompatible de pushlegacy, sin caller activo. Ocho tests79aserciones prueban identidadcapturada, refreshguardado y actualización sinACK tras handshakeviejo. Suite459pass98skip sin fallos/lint/tipos/build34. Próxima pruebaNext directa de estas conexiones, sólo recursos propios; nombreDBpreproductivo pendiente. Producto sigue1.

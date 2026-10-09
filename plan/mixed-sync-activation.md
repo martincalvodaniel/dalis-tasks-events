@@ -112,3 +112,6 @@ Lectura6%5h/55%7d, reservas4%/1%: sólo cierre documental ahora; defaults/CLI/pr
 
 
 Ensamblajecliente11c4a9c1: dispatcher2 y resumen guardado independientes, SyncAttemptV2/SyncSchedulerV2 delegan controles existentes conservando diagnóstico/coalescencia y limpiándolo ante cancelación/cuenta distinta/fallback. Sin imports desde hook/provider activo ni config/rutas editadas; build sigue una acciónnode. Antes de activación, conectar composición conjunta y retirar acciónlegacy mediante resultado legacy update_required antes de executor, no devolver envelope2 al cliente1. Ocho tests/57aserciones no sustituyen pilotoGoogle.
+
+
+11c4a9c2 cierra [composición cliente](../src/features/sync/mixed-sync-client.ts) privada y [retirementcompatible](../src/features/sync/retired-sync-push.ts). El nuevo cliente usa defaults2 con cuenta/epochcapturados, guardiasrefresh y cierrepropio. Retirementautenticado validaenvelope/cuenta y retorna legacyupdate_required sin executor/ACK; acción1 activa todavía conserva comportamiento1. Ocho tests79aserciones, incluidohandshake1 anterior→update_required con intención/cursor/historia intactos y lease liberado. Antes de activar conectar retirementenacciónlegacy y composiciónenhook junto a identidad/pull/UI; nueva pruebaNext directa pendiente. Manifiesto app conserva una solaacción.
