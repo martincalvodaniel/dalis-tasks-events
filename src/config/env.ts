@@ -1,5 +1,6 @@
 import "server-only"
 
+import { parsePersonalIndexConnectionConfiguration } from "@/config/personal-index-provisioning"
 import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
 
 type RequiredEnvName =
@@ -66,6 +67,13 @@ export function getDatabaseEnv() {
     isDevelopment: process.env.NODE_ENV === "development",
     uri: getRequiredEnv("MONGODB_URI"),
   }
+}
+
+export function getPersonalIndexConnectionConfiguration() {
+  return parsePersonalIndexConnectionConfiguration({
+    mongodbUri: process.env.MONGODB_URI,
+    databaseName: process.env.MONGODB_DB,
+  })
 }
 
 export function getAuthDatabaseTestConfig() {

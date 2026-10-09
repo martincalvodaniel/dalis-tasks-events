@@ -93,3 +93,6 @@ Ejecutar `bun --no-env-file run db:preview-personal-indexes` imprime las tres es
 
 
 El [contrato de provisión de entorno](personal-index-provisioning.md) (`11c4a8c`) divide guardia de destino, CLI/adaptador y prueba propia. La ejecución basada en getDatabase incluye bootstrap automático de índices registrados; no se ofrece como readonly. DB sin fallback y autoridad exacta preceden conexión, pero no sustituyen autorización del entorno. Siguiente corte11c4a8g antes de conexión conjunta.
+
+
+Guardia de descriptor11c4a8g1 y resolver/config explícita11c4a8g2 cerrados sin IO. DB raw sin fallback y autoridad exacta sin userinfo se comparan antes de futura conexión; esto no acredita entorno o autorización. Revisión offline completa11c4a8e1 está entregada. Siguiente11c4a8e2 adaptador/CLI online y11c4a8t prueba de destino propio; no tocar DB del usuario ni activar transporte2 hasta prerrequisitos.

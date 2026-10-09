@@ -34,3 +34,6 @@ Avance11c4a8g1: [schema del descriptor](../src/schemas/personal-index-target.ts)
 
 
 Avance11c4a8e1: vista previa ampliada usa automaticIndexSpecs real y selector personal exacto, nueve y tres definiciones actuales respectivamente. Se ejecutó con entorno vacío sin conexión y argumentos/apply rechazados. La parte de conexión de11c4a8e todavía depende de resolver/config11c4a8g2 y pruebas propias posteriores.
+
+
+Avance11c4a8g2: [resolver puro](../src/config/personal-index-provisioning.ts) y getter config/env.ts leen DB explícita sin fallback y derivan autoridad exacta sin credenciales. Dos tests/81 aserciones; conserva orden de seeds y no normaliza lo devuelto. DNS/IP/IPv6/puertos y SRV único sin puerto validados conservadoramente; no sockets Unix ni validación completa de opciones del driver, disponibilidad, permisos u ownership. Rechazos genéricos sin URI/cause y cero conexión. Siguiente11c4a8e2 adaptador/CLI online (la revisión offline ya está cerrada), seguido de prueba propia11c4a8t antes de actuar sobre entorno autorizado.
