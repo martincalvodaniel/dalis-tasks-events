@@ -61,31 +61,51 @@ Object.freeze(syncCapabilityRegistry.commands)
 Object.freeze(syncCapabilityRegistry.stores)
 Object.freeze(syncCapabilityRegistry)
 
+// Prepared generation-three policy only; existing callers retain the generation-two registry.
+export const placementSyncCapabilityRegistry = Object.freeze({
+  stores: Object.freeze([
+    ...syncCapabilityRegistry.stores,
+    "taskPlacements",
+  ] as const),
+  commands: Object.freeze({
+    ...syncCapabilityRegistry.commands,
+    "task.move": Object.freeze({
+      store: "taskPlacements" as const,
+      supported: true,
+      reason: null,
+    }),
+  }),
+})
+
 export interface SyncCommandCapability extends CommandCapability {
   kind: "item" | "preference"
   contextKnown: boolean
   requiresRemoteValidation: true
 }
 
-export function readSyncCommandCapability(
+function readCommandCapability(
   commandInput: unknown,
-  currentItemInput: unknown = null
+  currentItemInput: unknown,
+  registry: { commands: Record<SyncCommand["type"], CommandCapability> }
 ): SyncCommandCapability {
   const command = syncCommandSchema.parse(commandInput)
   const current = calendarItemSchema.nullable().parse(currentItemInput)
   if (current && (!("itemId" in command) || command.itemId !== current.id))
     throw new Error("Sync capability context does not match its item identity")
-  const descriptor = syncCapabilityRegistry.commands[command.type]
+  const descriptor = registry.commands[command.type]
   let reason: UnsupportedReason | null = descriptor.reason
   if (descriptor.supported) {
     if (
       (command.type === "task.set-status" ||
-        command.type === "task.set-checklist-entry") &&
+        command.type === "task.set-checklist-entry" ||
+        command.type === "task.move") &&
       command.occurrenceId !== null
     )
       reason = "occurrence_executor_unavailable"
     else if (current?.kind === "birthday") reason = "birthday_unavailable"
     else if (current?.recurrence) reason = "recurrence_unavailable"
+    else if (command.type === "task.move" && current?.kind !== "task")
+      reason = "placement_executor_unavailable"
     else if (command.type === "item.create" || command.type === "item.update") {
       if (command.input.kind === "birthday") reason = "birthday_unavailable"
       else if (command.input.recurrence) reason = "recurrence_unavailable"
@@ -100,4 +120,26 @@ export function readSyncCommandCapability(
     contextKnown: current !== null,
     requiresRemoteValidation: true,
   }
+}
+
+export function readSyncCommandCapability(
+  commandInput: unknown,
+  currentItemInput: unknown = null
+): SyncCommandCapability {
+  return readCommandCapability(
+    commandInput,
+    currentItemInput,
+    syncCapabilityRegistry
+  )
+}
+
+export function readPlacementSyncCommandCapability(
+  commandInput: unknown,
+  currentItemInput: unknown = null
+): SyncCommandCapability {
+  return readCommandCapability(
+    commandInput,
+    currentItemInput,
+    placementSyncCapabilityRegistry
+  )
 }
