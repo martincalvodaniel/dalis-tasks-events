@@ -1378,3 +1378,10 @@ La compilación detectó alias absolutos interpretados como relativos por Turbop
 Comando db:preview-personal-indexes imprime JSON inglés con scope offline_definition_preview/databaseAccess none y las tres especificaciones exactas del selector central. No acepta argumentos ni apply; no llama auth/getDatabase/readiness/ensureIndexes. Usa condición react-server instalada, sin mocks. Smoke ejecutado con entorno vacío y --no-env-file pasa sin variables Mongo/auth, selección exacta y provisioning explicit comprobados; --apply rechaza con exit1 y sin JSON parcial. El launcher bun run puede heredar variables de su padre, pero la vista previa no las consume; para revisión aislada usar bun --no-env-file run db:preview-personal-indexes. No prueba disponibilidad de índices de un entorno ni autoriza crearlos.
 
 FullDoD432pass/93opt-in skip/0fail/7079 aserciones, lint492/tipos/build34/diff correctos. Sin tests redundantes añadidos por script reversible; smoke verifica el comportamiento solicitado. Entrada22%5h/58%7d, reservas4%/1%. Siguiente: contrato de destino explícito y procedimiento de ejecución autorizado, sin DB del usuario. Commitpush/HEAD/cuotas por entrega.
+
+
+### Resultado 11c4a8c — Destino y efectos del futuro CLI
+
+Contrato [personal-index-provisioning.md](personal-index-provisioning.md) cierra destino explícito, autoridad sin credenciales, DB sin fallback, autorización de conexión concreta y nueve índices automáticos del singleton además de tres personales. No ofrecer inspección readonly: getDatabase puede crear índices automáticos faltantes antes de readiness. CLI sigue sin implementar; preview offline vigente no conecta. Servicio personal existente conserva partial-create/retry/error incierto y nunca rollback/deduplicación. Cortes siguientes guardia pura11c4a8g, adaptador/CLI11c4a8e, prueba propia11c4a8t, conexión conjunta/piloto autorizado.
+
+Sólo docs: referencias, consistencia con fuente/registro y diffcheck validados, sin repetir suite/build estables432pass/93skip. Entrada20%5h/58%7d, reservas4%/1%. Commitpush/HEAD/cuotas al cierre. Sin DB del usuario ni cambio de permisos/hosting/protocolo activo.
