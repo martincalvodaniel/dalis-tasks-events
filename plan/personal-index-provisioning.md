@@ -40,3 +40,10 @@ Avance11c4a8g2: [resolver puro](../src/config/personal-index-provisioning.ts) y 
 
 
 Avance11c4a8e2a: [ciclo privado por puertos](../src/lib/db/personal-index-execution.ts) exige descriptor/acuse de bootstrap, compara destino antes de abrir, verifica DB real y cierra cualquier intento de bootstrap. Cierre fallido conserva resultado/prefijo confirmado y no anuncia éxito. Cuatro tests/28 aserciones; sin defaults/caller/DB. Siguiente11c4a8e2b conecta defaults/CLI separado sólo para proceso operador propio;11c4a8t lo ejecuta únicamente con descriptor Mongo propio antes de actuar sobre entorno autorizado.
+
+
+## Evidencia de ejecución preproductiva — 11c4a8receipt
+
+Antes de conectar, identificar la configuración de la instancia preview/int desde una fuente de entorno verificable y conservar su procedencia; ni rama int ni .env.local prueban el destino. Comparar el descriptor esperado con la configuración resuelta y comprobar nombre real de DB después de bootstrap. No consultar producción para confirmar la separación ya declarada por el usuario.
+
+Al ejecutar, registrar entorno preproduction, fase/estado, nombres personales de created confirmados, readiness final missing/incompatible y estado de cierre. No incluir URI, credenciales, tokens, cuenta, documentos o mensajes Mongo crudos en el registro de proyecto; los metadatos concretos de conexión permanecen fuera del repositorio. Conservar resultado parcial también si falla el cierre; creación con respuesta perdida no figura como confirmada aunque listIndexes observe su efecto. Sólo resultado ready con cierre correcto permite registrar provisión completada; fallo/incompatibilidad conserva estado y exige diagnóstico, sin borrar/corregir datos ni índices. Esta evidencia acredita índices de preproducción, no activación del cliente, Google interactivo o convergencia multidispositivo.
