@@ -1,7 +1,7 @@
 "use client"
 
 import { startTransition } from "react"
-import { dispatchSyncOperationsV2 } from "@/features/sync/client-action-v2"
+import { dispatchSyncOperationsV3 } from "@/features/sync/client-action-v3"
 import type { z } from "zod"
 import { nextSyncDeviceCommandSchema } from "@/schemas/next-sync-test"
 import { rejectFixtureLegacyOperations } from "@fixture/actions"
@@ -51,6 +51,9 @@ async function executeCommand(
       "mixed-summary",
       "mixed-run",
       "legacy-missing-action-run",
+      "retired-mixed-action-run",
+      "lost-move-response-run",
+      "protocol-matrix",
       "rotate-local",
       "hook-mount",
       "hook-rerender",
@@ -80,7 +83,7 @@ async function executeCommand(
       runId,
       `/fixture/changes?expectedUserId=${encodeURIComponent(command.userId)}&after=0&limit=100`
     )
-  if (command.type === "push") return dispatchSyncOperationsV2(command.input)
+  if (command.type === "push") return dispatchSyncOperationsV3(command.input)
   if (command.type !== "retired-push")
     throw new Error("Fixture command is unsupported")
   return new Promise<unknown>((resolve, reject) =>

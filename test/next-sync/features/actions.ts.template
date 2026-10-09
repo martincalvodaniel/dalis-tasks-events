@@ -1,7 +1,7 @@
 "use server"
 
 import { headers } from "next/headers"
-import { rejectRetiredSyncPush } from "@/features/sync/retired-sync-push"
+import { rejectRetiredSyncPushV2 } from "@/features/sync/retired-sync-push-v2"
 import { validateNextSyncFixtureHeaders } from "@/lib/db/next-sync-fixture"
 import { nextSyncActionSchema } from "@/schemas/next-sync-test"
 
@@ -9,5 +9,5 @@ export async function rejectFixtureLegacyOperations(input: unknown) {
   const parsed = nextSyncActionSchema.parse(input)
   const requestHeaders = await headers()
   validateNextSyncFixtureHeaders(requestHeaders, { runId: parsed.runId })
-  return rejectRetiredSyncPush(parsed.input, requestHeaders)
+  return rejectRetiredSyncPushV2(parsed.input, requestHeaders)
 }

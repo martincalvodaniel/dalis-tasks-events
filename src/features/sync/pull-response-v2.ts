@@ -25,14 +25,15 @@ export interface PullDependenciesV2 {
 
 export async function getSyncChangesResponseV2(
   request: Request,
-  dependencies: PullDependenciesV2
+  dependencies: PullDependenciesV2,
+  protocolVersion: 2 | 3 = 2
 ): Promise<Response> {
   const respond = (body: unknown, status: number) =>
     Response.json(body, {
       status,
       headers: {
         "Cache-Control": "private, no-store",
-        [syncProtocolHeader]: encodeSyncProtocolRange(2),
+        [syncProtocolHeader]: encodeSyncProtocolRange(protocolVersion),
       },
     })
   const unavailable = () =>

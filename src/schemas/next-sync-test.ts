@@ -94,13 +94,18 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
     type: z.literal("commit-local"),
     command: syncCommandSchema.refine(
       (command) =>
-        ["item.create", "tag.save", "item-view.set"].includes(command.type),
+        ["item.create", "tag.save", "item-view.set", "task.move"].includes(
+          command.type
+        ),
       "Fixture local command is unsupported"
     ),
   }),
   z.strictObject({ type: z.literal("mixed-summary") }),
   z.strictObject({ type: z.literal("mixed-run") }),
   z.strictObject({ type: z.literal("legacy-missing-action-run") }),
+  z.strictObject({ type: z.literal("retired-mixed-action-run") }),
+  z.strictObject({ type: z.literal("lost-move-response-run") }),
+  z.strictObject({ type: z.literal("protocol-matrix") }),
   z.strictObject({ type: z.literal("rotate-local") }),
   z.strictObject({ type: z.literal("hook-mount") }),
   z.strictObject({ type: z.literal("hook-rerender") }),

@@ -6,9 +6,13 @@ import { unstable_isUnrecognizedActionError } from "next/navigation"
 import { startTransition } from "react"
 import { OFFLINE_ACCOUNT_KEY } from "@/config/pwa"
 import { syncProtocolHeader } from "@/config/sync-protocol"
-import { createHttpSyncTransport } from "@/features/sync/http-transport"
-import { openLocalSyncRuntime } from "@/features/sync/local-runtime"
-import { createMixedSyncClient } from "@/features/sync/mixed-sync-client"
+import { createHttpSyncTransportV2 } from "@/features/sync/http-transport-v2"
+import { createHttpSyncTransportV3 } from "@/features/sync/http-transport-v3"
+import { dispatchSyncOperationsV3 } from "@/features/sync/client-action-v3"
+import { SyncTransportError } from "@/features/sync/transport-error"
+import { rejectFixtureLegacyOperations } from "@fixture/actions"
+import { openLocalSyncRuntimeV2, openLocalPlacementSyncRuntime } from "@/features/sync/local-runtime-v2"
+import { createMixedSyncClientV3 } from "@/features/sync/mixed-sync-client-v3"
 import { readAccountBackup } from "@/features/workspace/local-backup"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
 import {
@@ -42,7 +46,7 @@ let owned: {
   markerBefore: string | null
   markerAfter: string | null
 } | null = null
-let client: ReturnType<typeof createMixedSyncClient> | null = null
+let client: ReturnType<typeof createMixedSyncClientV3> | null = null
 
 function account() {
   if (!owned?.epoch || !client)
@@ -106,7 +110,7 @@ export async function executeLocalFixtureCommand(
     )
     owned.epoch = active.epoch
     owned.markerAfter = localStorage.getItem(markerKey)
-    client = createMixedSyncClient({
+    client = createMixedSyncClientV3({
       userId: command.userId,
       epoch: active.epoch,
     })
@@ -137,7 +141,9 @@ export async function executeLocalFixtureCommand(
   const active = account()
   await requireActiveAccount(active)
   switch (command.type) {
-    case "legacy-missing-action-run": {
+    case "legacy-missing-action-run":
+    case "retired-mixed-action-run": {
+      const missing = command.type === "legacy-missing-action-run"
       const identity = await fetch("/api/sync/identity", {
         credentials: "same-origin",
         cache: "no-store",
@@ -145,7 +151,7 @@ export async function executeLocalFixtureCommand(
       if (
         !identity.ok ||
         identity.headers.get(syncProtocolHeader) !==
-          encodeSyncProtocolRange(2) ||
+          encodeSyncProtocolRange(3) ||
         workspaceIdentitySchema.parse(await identity.json()).userId !==
           active.userId
       )
@@ -153,7 +159,7 @@ export async function executeLocalFixtureCommand(
           "Missing-action proof requires the owned current identity"
         )
       const actionId = nextSyncMissingActionId(runId)
-      const probe = await fetch(location.pathname + location.search, {
+      const probe = missing ? await fetch(location.pathname + location.search, {
         method: "POST",
         credentials: "same-origin",
         cache: "no-store",
@@ -164,9 +170,10 @@ export async function executeLocalFixtureCommand(
         body: "[]",
         signal: AbortSignal.timeout(15000),
       })
+      : new Response(null, { status: 200 })
       const actionNotFound = probe.headers.get("x-nextjs-action-not-found")
       await probe.body?.cancel()
-      if (probe.status !== 404 || actionNotFound !== "1")
+      if (missing && (probe.status !== 404 || actionNotFound !== "1"))
         throw new Error(
           "Missing-action candidate is not absent from this fixture"
         )
@@ -195,6 +202,7 @@ export async function executeLocalFixtureCommand(
         // A read-only captured v1 handshake lets the old client reach its missing action reference.
         const capturedIdentity = Object.freeze({ userId: active.userId })
         const capturedPage = Object.freeze({
+          version: 2,
           changes: Object.freeze([]),
           nextAfter: cursor.after,
           through: cursor.after,
@@ -210,7 +218,7 @@ export async function executeLocalFixtureCommand(
             ++identityReads === 1
           )
             return Response.json(capturedIdentity, {
-              headers: { [syncProtocolHeader]: encodeSyncProtocolRange(1) },
+              headers: { [syncProtocolHeader]: encodeSyncProtocolRange(2) },
             })
           if (
             url.pathname === "/api/sync/changes" &&
@@ -221,16 +229,21 @@ export async function executeLocalFixtureCommand(
             [...url.searchParams].length === 3
           )
             return Response.json(capturedPage, {
-              headers: { [syncProtocolHeader]: encodeSyncProtocolRange(1) },
+              headers: { [syncProtocolHeader]: encodeSyncProtocolRange(2) },
             })
           throw new Error(
             "Prior handshake exceeded its captured identity and page"
           )
         }
         const runLegacy = async (fetchRequest: typeof fetch) => {
-          const runtime = await openLocalSyncRuntime(
+          const runtime = await openLocalSyncRuntimeV2(
             active,
-            createHttpSyncTransport(active.userId, sendMissing, fetchRequest)
+            createHttpSyncTransportV2(active.userId, missing ? sendMissing : async (input) => {
+              dispatches++
+              return new Promise((resolve, reject) => startTransition(async () => {
+                try { resolve(await rejectFixtureLegacyOperations({ runId, input })) } catch (error) { reject(error) }
+              }))
+            }, fetchRequest)
           )
           try {
             return await runtime.run()
@@ -252,7 +265,7 @@ export async function executeLocalFixtureCommand(
         return {
           probeStatus: probe.status,
           actionNotFound,
-          handshake: "captured-prior-v1",
+          handshake: "captured-prior-v2",
           dispatches,
           unrecognized,
           identityReads,
@@ -265,6 +278,45 @@ export async function executeLocalFixtureCommand(
       } finally {
         store.close()
       }
+    }
+    case "protocol-matrix": {
+      const rejectsBeforeBody = async (protocol: 2 | 3, path: "identity" | "pull") => {
+        let bodies = 0
+        const request: typeof fetch = async (input, init) => {
+          const response = await fetch(input, init)
+          if (!response.ok) throw new Error("Fixture matrix requires an authenticated response")
+          const candidate = new Response("invalid-body", {
+            headers: { [syncProtocolHeader]: encodeSyncProtocolRange(protocol === 3 ? 2 : 3) },
+          })
+          candidate.json = async () => { bodies++; throw new Error("Incompatible body was consumed") }
+          return candidate
+        }
+        const transport = protocol === 3
+          ? createHttpSyncTransportV3(active.userId, dispatchSyncOperationsV3, request)
+          : createHttpSyncTransportV2(active.userId, dispatchSyncOperationsV3, request)
+        let rejected = false
+        try {
+          if (path === "identity") await transport.readIdentity()
+          else await transport.pull({ after: 0, through: null, limit: 50 })
+        } catch (error) {
+          rejected = error instanceof SyncTransportError && error.reason === "update_required"
+        }
+        if (!rejected || bodies !== 0) throw new Error("Fixture matrix consumed an incompatible response")
+      }
+      for (const protocol of [2, 3] as const)
+        for (const path of ["identity", "pull"] as const)
+          await rejectsBeforeBody(protocol, path)
+      return { cases: 4, bodies: 0 }
+    }
+    case "lost-move-response-run": {
+      let lost = false
+      const runtime = await openLocalPlacementSyncRuntime(active,
+        createHttpSyncTransportV3(active.userId, async (input) => {
+          const reply = await dispatchSyncOperationsV3(input)
+          if (!lost) { lost = true; throw new Error("Fixture dropped a committed action response") }
+          return reply
+        }))
+      try { return await runtime.run() } finally { await runtime.close() }
     }
     case "hook-mount":
       return mountHook(active)
@@ -298,7 +350,7 @@ export async function executeLocalFixtureCommand(
       // Track the durable epoch immediately so cleanup follows the committed account control.
       owned.epoch = rotated.epoch
       owned.markerAfter = localStorage.getItem(markerKey)
-      client = createMixedSyncClient({
+      client = createMixedSyncClientV3({
         userId: active.userId,
         epoch: rotated.epoch,
       })
@@ -357,7 +409,8 @@ export async function executeLocalFixtureCommand(
           return await outbox.commitItemCommand(command.command)
         if (
           command.command.type === "tag.save" ||
-          command.command.type === "item-view.set"
+          command.command.type === "item-view.set" ||
+          command.command.type === "task.move"
         )
           return await outbox.commitPreferenceCommand(command.command)
         throw new Error("Fixture local command is unsupported")

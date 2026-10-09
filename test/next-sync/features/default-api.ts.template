@@ -1,8 +1,9 @@
 import "server-only"
 
 import { getNextSyncTestConfig } from "@/config/next-sync-test"
-import { GET as readProductIdentity } from "@/app/api/sync/identity/route"
-import { GET as readProductChanges } from "@/app/api/sync/changes/route"
+import { getSyncIdentityResponse } from "@/features/sync/identity-response"
+import { getWorkspaceIdentity } from "@/features/workspace/server-identity"
+import { getAuthenticatedSyncChangesResponseV3 } from "@/features/sync/authenticated-pull-v3"
 import { validateNextSyncFixtureRequest } from "@/lib/db/next-sync-fixture"
 import { nextSyncCapabilitySchema } from "@/schemas/next-sync-test"
 
@@ -39,8 +40,8 @@ export async function handleDefaultSyncApi(
     if (!hasOwnedFixtureCapabilityCookie(request.headers, config.runId))
       throw new Error("Fixture capability cookie is required")
     validateNextSyncFixtureRequest(request, { runId: config.runId }, config)
-    if (kind === "changes") return readProductChanges(request)
-    return readProductIdentity()
+    if (kind === "changes") return getAuthenticatedSyncChangesResponseV3(request)
+    return getSyncIdentityResponse(await getWorkspaceIdentity(), 3)
   } catch {
     return Response.json(
       { error: "The isolated sync API was safely blocked" },

@@ -99,7 +99,7 @@ async function initializeFixture(config: NextSyncPrivateConfig) {
   const [
     { getDatabase },
     { ensureIndexes },
-    { selectMixedSyncIndexSpecs },
+    { selectPlacementSyncIndexSpecs },
     { auth },
     { betterAuth },
     { testUtils },
@@ -114,7 +114,7 @@ async function initializeFixture(config: NextSyncPrivateConfig) {
   const database = await getDatabase()
   if (database.databaseName !== config.mongodbDatabase)
     throw new Error("Next fixture database ownership is invalid")
-  await ensureIndexes(database, selectMixedSyncIndexSpecs())
+  await ensureIndexes(database, selectPlacementSyncIndexSpecs())
   return betterAuth({
     ...auth.options,
     logger: { disabled: true },

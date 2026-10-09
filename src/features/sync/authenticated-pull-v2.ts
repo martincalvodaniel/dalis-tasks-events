@@ -32,12 +32,17 @@ const defaultPorts: AuthenticatedPullPortsV2 = {
 
 export async function getAuthenticatedSyncChangesResponseV2(
   request: Request,
-  ports: AuthenticatedPullPortsV2 = defaultPorts
+  ports: AuthenticatedPullPortsV2 = defaultPorts,
+  protocolVersion: 2 | 3 = 2
 ): Promise<Response> {
-  return getSyncChangesResponseV2(request, {
-    readActor: async () =>
-      (await ports.readSession(request.headers))?.user.id ?? null,
-    readReadiness: () => ports.readReadiness(),
-    readChanges: (actor, query) => ports.readChanges(actor, query),
-  })
+  return getSyncChangesResponseV2(
+    request,
+    {
+      readActor: async () =>
+        (await ports.readSession(request.headers))?.user.id ?? null,
+      readReadiness: () => ports.readReadiness(),
+      readChanges: (actor, query) => ports.readChanges(actor, query),
+    },
+    protocolVersion
+  )
 }

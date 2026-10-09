@@ -318,3 +318,17 @@ describe("preparatory private mixed download", () => {
     expect(f.value.through).toBe(2)
   })
 })
+
+test("placement announcement remains exclusive while the download envelope stays version two", async () => {
+  const { request, dependencies, value, calls } = fixture()
+  const response = await getSyncChangesResponseV2(request(), dependencies, 3)
+  expect(response.status).toBe(200)
+  expect(
+    acceptsSyncProtocolRange(response.headers.get(syncProtocolHeader), 3)
+  ).toBe(true)
+  expect(
+    acceptsSyncProtocolRange(response.headers.get(syncProtocolHeader), 2)
+  ).toBe(false)
+  expect(await response.json()).toEqual(value)
+  expect(calls).toEqual(["actor", "readiness", "changes"])
+})

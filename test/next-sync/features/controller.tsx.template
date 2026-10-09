@@ -334,6 +334,13 @@ export function FixtureController() {
           )
         }
       )
+      await check("Negociación2 y3 rechaza respuestas incompatibles antes de consumir el cuerpo", async () => {
+        for (let index = 0; index < 2; index++) {
+          await call(index, { type: "prepare-local", userId: owner })
+          const proof = await call(index, { type: "protocol-matrix" }) as { cases: number; bodies: number }
+          assert(proof.cases === 4 && proof.bodies === 0, "Four incompatible headers reject before JSON")
+        }
+      })
       const batch = {
         transportVersion: 2,
         expectedUserId: "",
@@ -556,6 +563,60 @@ export function FixtureController() {
           )
         }
       )
+      await check("Movimiento histórico y dependientes convergen tras perder la respuesta de un commit remoto", async () => {
+        const before = await state(owner)
+        await call(0, { type: "commit-local", command: {
+          type: "task.move", itemId, occurrenceId: null, scope: "day", date: "2026-10-09",
+          tagId, beforeId: null, afterId: null,
+        } })
+        const dependentTag = crypto.randomUUID()
+        await call(0, { type: "commit-local", command: {
+          type: "tag.save", tagId: dependentTag, input: { name: "Categoría tras movimiento", color: "#123456", position: 3072 },
+        } })
+        await call(0, { type: "commit-local", command: {
+          type: "item-view.set", itemId, primaryTagId: dependentTag,
+        } })
+        const pending = await snapshot(0)
+        const move = pending.backup.stores.outbox.find(entry => entry.operation.command.type === "task.move")
+        assert(move?.state === "pending" && move.attempts === 0 && pending.summary.pending === 3, "Original producer creates pending move and personal dependents")
+        const tag = pending.backup.stores.outbox.find(entry => entry.operation.command.type === "tag.save" && entry.operation.command.tagId === dependentTag)
+        assert(tag?.dependencies.includes(move.operation.operationId), "Personal chain depends on historical move UUID")
+        const lost = await call(0, { type: "lost-move-response-run" }) as { status: string; uploaded: number }
+        assert(lost.status === "retry_later" && lost.uploaded === 0, "Lost response creates no local ACK")
+        const committed = await state(owner)
+        assert(committed.counts.receipts === before.counts.receipts + 1 && committed.page.through === before.page.through + 1, "Lost response still committed one remote receipt")
+        const retained = await snapshot(0)
+        const retainedMove = retained.backup.stores.outbox.find(entry => entry.operation.operationId === move.operation.operationId)
+        assert(retainedMove?.state === "pending" && retainedMove.attempts === 1 && retainedMove.lease === null && JSON.stringify(retainedMove.operation) === JSON.stringify(move.operation), "Lost response preserves historical payload and releases owned lease")
+        for (let index = 0; index < 2; index++) {
+          const result = await call(index, { type: "mixed-run" }) as { status: string }
+          assert(result.status === "settled", "Both devices finish the historical chain")
+        }
+        const stored = await state(owner)
+        assert(stored.counts.receipts === before.counts.receipts + 3 && stored.page.through === before.page.through + 3, "Replay is unique and personal dependents receive real remote receipts")
+        assert(stored.page.changes.filter(change => change.operationId === move.operation.operationId).length === 1, "Historical UUID appears once in journal")
+        const expected = { tags: new Map<string, unknown>(), itemViews: new Map<string, unknown>(), taskPlacements: new Map<string, unknown>() }
+        for (const change of stored.page.changes) if (change.kind === "preference") {
+          for (const effect of change.effects.effects) {
+            if (effect.store === "tags") expected.tags.set(effect.record.id, effect.record)
+            if (effect.store === "itemViews") expected.itemViews.set(effect.record.itemId, effect.record)
+            if (effect.store === "taskPlacements") expected.taskPlacements.set(JSON.stringify([effect.record.scope, effect.record.date, effect.record.occurrenceId]), effect.record)
+          }
+        }
+        const ordered = (records: unknown[]) => JSON.stringify(records.map(record => JSON.stringify(record)).sort())
+        for (let index = 0; index < 2; index++) {
+          const confirmed = await snapshot(index)
+          for (const store of ["tags", "itemViews", "taskPlacements"] as const)
+            assert(ordered(confirmed.backup.stores[store]) === ordered([...expected[store].values()]), "Exact category/view/placement projection matches journal in both partitions")
+          assert(confirmed.cursor.after === stored.page.through && confirmed.cursor.through === null && confirmed.summary.pending === 0, "Both cursors match authoritative checkpoint")
+          if (index === 0) {
+            const ack = confirmed.backup.stores.outbox.find(entry => entry.operation.operationId === move.operation.operationId)
+            assert(ack?.state === "acknowledged" && ack.attempts === 2 && JSON.stringify(ack.operation) === JSON.stringify(move.operation) && JSON.stringify(ack.dependencies) === JSON.stringify(move.dependencies), "Remote replay ACK preserves original UUID/payload/dependencies")
+          }
+        }
+        await call(0, { type: "mixed-run" })
+        assert(JSON.stringify(await state(owner)) === JSON.stringify(stored), "No-op replay leaves all remote records intact")
+      })
       await check(
         "Sesión revocada conserva la intención local y reconectar confirma una sola vez",
         async () => {
@@ -935,7 +996,7 @@ export function FixtureController() {
           assert(
             proof.probeStatus === 404 &&
               proof.actionNotFound === "1" &&
-              proof.handshake === "captured-prior-v1" &&
+              proof.handshake === "captured-prior-v2" &&
               proof.dispatches === 1 &&
               proof.unrecognized === 1 &&
               proof.identityReads === 1 &&
@@ -986,10 +1047,94 @@ export function FixtureController() {
         }
       )
       await check(
+        "Acción2 retirada conserva la intención tras capturar handshake2",
+        async () => {
+          assert(
+            creation.command.type === "item.create",
+            "Transition proof requires the creation command"
+          )
+          const localItemId = crypto.randomUUID()
+          await call(1, {
+            type: "commit-local",
+            command: { ...creation.command, itemId: localItemId },
+          })
+          const pending = await snapshot(1)
+          const intention = pending.backup.stores.outbox.find(
+            (entry) =>
+              entry.operation.command.type === "item.create" &&
+              entry.operation.command.itemId === localItemId
+          )
+          assert(
+            intention?.state === "pending" &&
+              intention.attempts === 0 &&
+              intention.lease === null,
+            "Missing-action proof starts with an unclaimed original intention"
+          )
+          const remoteBefore = await state(owner)
+          const proof = (await call(1, {
+            type: "retired-mixed-action-run",
+          })) as {
+            probeStatus: number
+            actionNotFound: string
+            handshake: string
+            dispatches: number
+            unrecognized: number
+            identityReads: number
+            pageReads: number
+            first: { status: string; uploaded: number; downloaded: number }
+            second: { status: string; uploaded: number; downloaded: number }
+            afterFirst: { backup: unknown; cursor: unknown }
+            afterSecond: { backup: unknown; cursor: unknown }
+          }
+          assert(proof.dispatches === 1 && proof.identityReads === 1 && proof.pageReads === 1, "Retired action receives one captured handshake")
+          assert(
+            proof.first.status === "update_required" &&
+              proof.first.uploaded === 0 &&
+              proof.first.downloaded === 0,
+            "Missing action cannot acknowledge or upload the legacy intention"
+          )
+          assert(
+            proof.second.status === "update_required" &&
+              proof.second.uploaded === 0 &&
+              proof.second.downloaded === 0,
+            "Current transport announcement blocks the legacy runtime before a new claim"
+          )
+          const expectedStores = structuredClone(pending.backup.stores)
+          const expectedEntry = expectedStores.outbox.find(
+            (entry) =>
+              entry.operation.operationId === intention.operation.operationId
+          )
+          assert(
+            expectedEntry,
+            "Transition baseline lacks the original intention"
+          )
+          expectedEntry.attempts = 1
+          for (const retained of [
+            proof.afterFirst,
+            proof.afterSecond,
+            await snapshot(1),
+          ]) {
+            const backup = validateLocalBackup(retained.backup, owner)
+            assert(
+              JSON.stringify(backup.stores) ===
+                JSON.stringify(expectedStores) &&
+                JSON.stringify(localPullCursorSchema.parse(retained.cursor)) ===
+                  JSON.stringify(pending.cursor),
+              "Both legacy passes preserve every store, outcome, dependency and cursor except the one released attempt"
+            )
+          }
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(remoteBefore),
+            "Absent action and incompatible handshake leave Mongo unchanged"
+          )
+          await verifyRecovery(intention, remoteBefore, pending, "mixed-run", 2)
+        }
+      )
+      await check(
         "RPC retirado autenticado rechaza el transporte antiguo sin mutación",
         async () => {
           const before = await state(owner)
-          const { transportVersion: _version, ...legacy } = batch
+          const legacy = batch
           for (let index = 0; index < 2; index++) {
             const reply = (await call(index, {
               type: "retired-push",
@@ -1068,7 +1213,8 @@ export function FixtureController() {
       )
       passed = true
     })()
-      .catch(() => {
+      .catch((error) => {
+        console.error(error instanceof Error ? error.message : "Fixture assertion failed")
         setStatus(
           "La prueba ha fallado o se ha bloqueado de forma segura; revisa las comprobaciones completadas"
         )
@@ -1102,7 +1248,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Catorce escenarios Next, React e IndexedDB correctos; cookies y recursos propios cerrados"
+            "Diecisiete escenarios Next, React e IndexedDB correctos; cookies y recursos propios cerrados"
           )
         await fetch("/fixture/finish", {
           method: "POST",
