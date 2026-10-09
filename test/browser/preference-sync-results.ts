@@ -1,13 +1,21 @@
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalPreferenceResult } from "@/lib/local-db/preference-sync-results"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { validateLocalSyncResultInputV2 } from "@/lib/sync/local-sync-result-v2"
 import { outboxEntrySchema } from "@/schemas/local-sync"
-import { itemViewSchema, tagSchema } from "@/schemas/preferences"
+import { taskPlacementEntityKey } from "@/schemas/ordering"
+import {
+  itemViewSchema,
+  tagSchema,
+  taskPlacementSchema,
+} from "@/schemas/preferences"
 import { entityIdSchema } from "@/schemas/primitives"
+import { personalShadowEntityKey } from "@/schemas/remote-shadow-v2"
 import type { LocalPreferenceOutcomeV2 } from "@/types/local-operation-outcome-v2"
 import type { OutboxEntry } from "@/types/local-sync"
 import type { LocalSyncResultInputV2 } from "@/types/local-sync-result-v2"
 import type { PreferenceEffect } from "@/types/preference-effects"
+import type { RemoteShadowV2 } from "@/types/remote-shadow-v2"
 
 if (location.hostname !== "127.0.0.1" || location.port !== "4191")
   throw new Error("Personal fixture requires its isolated loopback origin")
@@ -17,7 +25,14 @@ const runId = entityIdSchema.parse(
 const userId = `browser-test-${runId}-personal-results`
 const otherUserId = `${userId}-other`
 const timestamp = "2026-10-08T00:00:00.000Z"
-const stores = ["tags", "itemViews", "outbox", "remoteShadows", "syncMetadata"]
+const stores = [
+  "tags",
+  "itemViews",
+  "taskPlacements",
+  "outbox",
+  "remoteShadows",
+  "syncMetadata",
+]
 const rows = document.getElementById("results")
 const status = document.getElementById("status")
 if (!rows || !status) throw new Error("Personal fixture markup missing")
@@ -65,7 +80,15 @@ function tag(
 type PersonalSubmission = Omit<LocalSyncResultInputV2, "result"> & {
   result: Extract<LocalSyncResultInputV2["result"], { kind: "preference" }>
 }
-function fixture(pending = true, baseRevision = 1) {
+type Fixture = {
+  submission: PersonalSubmission
+  entries: OutboxEntry[]
+  tags: Extract<PreferenceEffect, { store: "tags" }>["record"][]
+  views: Extract<PreferenceEffect, { store: "itemViews" }>["record"][]
+  placements: Extract<PreferenceEffect, { store: "taskPlacements" }>["record"][]
+  shadows: RemoteShadowV2[]
+}
+function fixture(pending = true, baseRevision = 1): Fixture {
   const first = crypto.randomUUID()
   const second = crypto.randomUUID()
   const operationId = crypto.randomUUID()
@@ -130,6 +153,7 @@ function fixture(pending = true, baseRevision = 1) {
     entries,
     tags: [tag(first, 0, 7000).record, tag(second, 0, 9000).record],
     views: [] as Extract<PreferenceEffect, { store: "itemViews" }>["record"][],
+    placements: [],
     shadows: [first, second].map((id) => ({
       version: 2 as const,
       kind: "preference" as const,
@@ -138,6 +162,94 @@ function fixture(pending = true, baseRevision = 1) {
     })),
   }
 }
+function movementFixture(baseRevision = 1): Fixture {
+  const value = fixture(false)
+  const itemId = crypto.randomUUID(),
+    peerId = crypto.randomUUID()
+  const operation = {
+    ...value.submission.operation,
+    baseRevision: 0,
+    command: {
+      type: "task.move" as const,
+      itemId,
+      occurrenceId: null,
+      scope: "day" as const,
+      date: "2026-10-08",
+      tagId: null,
+      beforeId: peerId,
+      afterId: null,
+    },
+  }
+  const effects: PreferenceEffect[] = [
+    ...[itemId, peerId].map((occurrenceId, index) => ({
+      store: "taskPlacements" as const,
+      record: taskPlacementSchema.parse({
+        userId,
+        occurrenceId,
+        scope: "day",
+        date: "2026-10-08",
+        tagId: null,
+        position: (index + 1) * 1024,
+        revision: index ? 8 : 1,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        deletedAt: null,
+      }),
+    })),
+    {
+      store: "itemViews",
+      record: itemViewSchema.parse({
+        userId,
+        itemId,
+        primaryTagId: null,
+        revision: 4,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        deletedAt: null,
+      }),
+    },
+  ]
+  value.submission.operation = operation
+  value.submission.result = {
+    kind: "preference",
+    outcome: {
+      status: "applied",
+      operationId: operation.operationId,
+      effects: {
+        version: 1,
+        userId,
+        operationId: operation.operationId,
+        sequence: 4,
+        effects,
+      },
+    },
+  }
+  value.tags = []
+  value.placements = effects
+    .filter((effect) => effect.store === "taskPlacements")
+    .map((effect) => ({ ...effect.record, revision: 0, position: 9000 }))
+  value.views = effects
+    .filter((effect) => effect.store === "itemViews")
+    .map((effect) => ({ ...effect.record, revision: 0 }))
+  value.shadows = effects.map((effect) => {
+    const record = structuredClone(effect)
+    record.record.revision = baseRevision
+    return {
+      version: 2,
+      kind: "preference",
+      entityKey: personalShadowEntityKey(effect),
+      record,
+    }
+  })
+  value.entries = [
+    outboxEntrySchema.parse({
+      ...value.entries[0],
+      operation,
+      entityKey: taskPlacementEntityKey(itemId, "day", "2026-10-08"),
+    }),
+  ]
+  return value
+}
 async function seed(db: IDBDatabase, value: ReturnType<typeof fixture>) {
   await runLocalTransaction<void>(db, stores, "readwrite", (context) => {
     for (const name of stores) context.transaction.objectStore(name).clear()
@@ -145,6 +257,8 @@ async function seed(db: IDBDatabase, value: ReturnType<typeof fixture>) {
       context.transaction.objectStore("tags").put(record)
     for (const record of value.views)
       context.transaction.objectStore("itemViews").put(record)
+    for (const record of value.placements)
+      context.transaction.objectStore("taskPlacements").put(record)
     for (const record of value.entries)
       context.transaction.objectStore("outbox").put(record)
     for (const record of value.shadows)
@@ -215,6 +329,257 @@ async function runChecks() {
   const db = await openLocalDatabase(userId)
   const other = await openLocalDatabase(otherUserId)
   try {
+    await check(
+      "ACK de movimiento conserva UUID, compactación y sólo rebasa dependientes directos sin intento",
+      async () => {
+        const value = movementFixture()
+        const command = value.submission.operation.command
+        assert(command.type === "task.move" && command.beforeId !== null)
+        const dependent = (
+          sequence: number,
+          entityKey: string,
+          command: OutboxEntry["operation"]["command"]
+        ) =>
+          outboxEntrySchema.parse({
+            ...value.entries[0],
+            sequence,
+            entityKey,
+            state: "pending",
+            attempts: 0,
+            lease: null,
+            dependencies: [value.submission.operation.operationId],
+            operation: {
+              protocolVersion: 1,
+              operationId: crypto.randomUUID(),
+              baseRevision: 0,
+              command,
+            },
+          })
+        value.entries.push(
+          dependent(2, value.entries[0].entityKey, command),
+          dependent(
+            3,
+            taskPlacementEntityKey(command.beforeId, "day", command.date),
+            { ...command, itemId: command.beforeId, beforeId: null }
+          ),
+          dependent(4, `item-view:${command.itemId}`, {
+            type: "item-view.set",
+            itemId: command.itemId,
+            primaryTagId: null,
+          })
+        )
+        const tried = dependent(5, value.entries[1].entityKey, command)
+        tried.attempts = 1
+        const indirect = dependent(6, value.entries[1].entityKey, command)
+        indirect.dependencies = [value.entries[1].operation.operationId]
+        const unrelated = dependent(7, value.entries[1].entityKey, command)
+        unrelated.dependencies = []
+        value.entries.push(tried, indirect, unrelated)
+        await seed(db, value)
+        const baseline = await snapshot(db)
+        await applyLocalPreferenceResult(db, userId, value.submission)
+        const after = await snapshot(db)
+        const entries = (after.outbox as OutboxEntry[]).toSorted(
+          (a, b) => a.sequence - b.sequence
+        )
+        assert(
+          JSON.stringify(
+            entries.map((entry) => entry.operation.baseRevision)
+          ) === JSON.stringify([0, 1, 8, 4, 0, 0, 0])
+        )
+        assert(entries[0].state === "acknowledged" && entries[0].lease === null)
+        assert(
+          JSON.stringify(entries.slice(4)) ===
+            JSON.stringify(value.entries.slice(4))
+        )
+        for (let index = 0; index < entries.length; index++) {
+          assert(
+            JSON.stringify(entries[index].operation.command) ===
+              JSON.stringify(value.entries[index].operation.command)
+          )
+          assert(
+            entries[index].operation.operationId ===
+              value.entries[index].operation.operationId
+          )
+          assert(
+            JSON.stringify(entries[index].dependencies) ===
+              JSON.stringify(value.entries[index].dependencies)
+          )
+        }
+        for (const name of ["taskPlacements", "itemViews"])
+          assert(JSON.stringify(after[name]) === JSON.stringify(baseline[name]))
+        const evidence = outcome(
+          await read(
+            db,
+            "syncMetadata",
+            `operation-outcome:${value.submission.operation.operationId}`
+          )
+        )
+        assert(evidence.local.length === 3 && evidence.base.length === 3)
+        assert(
+          evidence.result.outcome.status === "applied" &&
+            JSON.stringify(evidence.result) ===
+              JSON.stringify(
+                validateLocalSyncResultInputV2(value.submission, userId).result
+              )
+        )
+        assert(
+          JSON.stringify(
+            after.remoteShadows
+              .map(
+                (row) =>
+                  (row as Extract<RemoteShadowV2, { kind: "preference" }>)
+                    .record.record.revision
+              )
+              .sort((a, b) => a - b)
+          ) === JSON.stringify([1, 4, 8])
+        )
+        const replay = JSON.stringify(after)
+        assert(
+          (await applyLocalPreferenceResult(db, userId, {
+            ...value.submission,
+            senderId: crypto.randomUUID(),
+          })) === "replayed"
+        )
+        assert(JSON.stringify(await snapshot(db)) === replay)
+      }
+    )
+    await check(
+      "ACK tardío conserva tombstone nuevo y replay no sobrescribe shadows posteriores",
+      async () => {
+        const value = movementFixture(20)
+        const shadow = value.shadows.find(
+          (entry) =>
+            entry.kind === "preference" &&
+            entry.record.store === "taskPlacements"
+        )
+        assert(shadow?.kind === "preference")
+        shadow.record.record.deletedAt = timestamp
+        await seed(db, value)
+        await applyLocalPreferenceResult(db, userId, value.submission)
+        const after = await snapshot(db)
+        assert(
+          after.taskPlacements.length === 2 &&
+            after.taskPlacements.every(
+              (row) => (row as { revision: number }).revision === 20
+            )
+        )
+        assert(
+          after.taskPlacements.some(
+            (row) =>
+              (row as { deletedAt: string | null }).deletedAt === timestamp
+          )
+        )
+        const evidence = outcome(
+          await read(
+            db,
+            "syncMetadata",
+            `operation-outcome:${value.submission.operation.operationId}`
+          )
+        )
+        assert(
+          evidence.local.every((row) => row.record?.record.revision === 0) &&
+            evidence.base.every((row) => row.record?.record.revision === 20)
+        )
+        assert(
+          evidence.base.some(
+            (row) => row.record?.record.deletedAt === timestamp
+          )
+        )
+        shadow.record.record.revision = 30
+        await runLocalTransaction(
+          db,
+          ["remoteShadows"],
+          "readwrite",
+          (context) => {
+            context.transaction.objectStore("remoteShadows").put(shadow)
+            context.setResult(undefined)
+          }
+        )
+        const newer = JSON.stringify(await snapshot(db))
+        assert(
+          (await applyLocalPreferenceResult(db, userId, {
+            ...value.submission,
+            senderId: crypto.randomUUID(),
+          })) === "replayed"
+        )
+        assert(JSON.stringify(await snapshot(db)) === newer)
+        assert(
+          JSON.stringify(await read(db, "syncMetadata", evidence.key)) ===
+            JSON.stringify(evidence)
+        )
+      }
+    )
+    await check(
+      "Fallo de colocación o outcome tardío revierte placements, vista, shadows y ACK juntos",
+      async () => {
+        for (const target of ["taskPlacements", "syncMetadata"]) {
+          const value = movementFixture()
+          await seed(db, value)
+          const before = JSON.stringify(await snapshot(db))
+          const original = IDBObjectStore.prototype.put
+          let placementWrites = 0,
+            injected = false
+          IDBObjectStore.prototype.put = function (record, key) {
+            if (this.name === "taskPlacements") placementWrites++
+            if (
+              this.name === target &&
+              (target !== "syncMetadata" ||
+                String(record?.key).startsWith("operation-outcome:"))
+            ) {
+              injected = true
+              throw new Error("Injected placement transaction failure")
+            }
+            return key === undefined
+              ? original.call(this, record)
+              : original.call(this, record, key)
+          }
+          try {
+            await refused(() =>
+              applyLocalPreferenceResult(db, userId, value.submission)
+            )
+          } finally {
+            IDBObjectStore.prototype.put = original
+          }
+          assert(injected && placementWrites > 0)
+          assert(JSON.stringify(await snapshot(db)) === before)
+          assert(
+            (await applyLocalPreferenceResult(db, userId, value.submission)) ===
+              "applied"
+          )
+        }
+      }
+    )
+    await check(
+      "Colocaciones ajenas o no canónicas detienen incluso el replay sin escrituras parciales",
+      async () => {
+        for (const invalid of ["owner", "date"] as const) {
+          const value = movementFixture()
+          await seed(db, value)
+          await applyLocalPreferenceResult(db, userId, value.submission)
+          const record = { ...value.placements[0] }
+          if (invalid === "owner") record.userId = otherUserId
+          else {
+            record.scope = "overdue"
+            record.date = "2026-10-08"
+          }
+          await runLocalTransaction(
+            db,
+            ["taskPlacements"],
+            "readwrite",
+            (context) => {
+              context.transaction.objectStore("taskPlacements").put(record)
+              context.setResult(undefined)
+            }
+          )
+          const before = JSON.stringify(await snapshot(db))
+          await refused(() =>
+            applyLocalPreferenceResult(db, userId, value.submission)
+          )
+          assert(JSON.stringify(await snapshot(db)) === before)
+        }
+      }
+    )
     await check(
       "Compactación completa, revisiones independientes y dependientes sin perder el estado local",
       async () => {

@@ -1,9 +1,15 @@
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
+import { applyLocalPreferenceResult } from "@/lib/local-db/preference-sync-results"
 import { applyLocalChangesPageV2 } from "@/lib/local-db/pull-changes-v2"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { calendarItemSchema } from "@/schemas/calendar-item"
 import { outboxEntrySchema } from "@/schemas/local-sync"
-import { itemViewSchema, tagSchema } from "@/schemas/preferences"
+import { taskPlacementEntityKey } from "@/schemas/ordering"
+import {
+  itemViewSchema,
+  tagSchema,
+  taskPlacementSchema,
+} from "@/schemas/preferences"
 import { entityIdSchema } from "@/schemas/primitives"
 import type { RemoteChangeV2 } from "@/types/remote-change-v2"
 
@@ -19,6 +25,7 @@ const stores = [
   "items",
   "tags",
   "itemViews",
+  "taskPlacements",
   "outbox",
   "remoteShadows",
   "syncMetadata",
@@ -86,7 +93,21 @@ function fixture() {
     userId,
     itemId: id,
     primaryTagId: first,
+    revision: 4,
   })
+  const peerId = crypto.randomUUID()
+  const placements = [id, peerId].map((occurrenceId, index) =>
+    taskPlacementSchema.parse({
+      ...metadata,
+      userId,
+      occurrenceId,
+      scope: "day",
+      date: "2026-10-08",
+      tagId: first,
+      position: (index + 1) * 1024,
+      revision: index ? 8 : 1,
+    })
+  )
   const changes: RemoteChangeV2[] = [
     {
       version: 2,
@@ -99,7 +120,13 @@ function fixture() {
   ]
   for (const [index, effects] of [
     tags.map((record) => ({ store: "tags" as const, record })),
-    [{ store: "itemViews" as const, record: view }],
+    [
+      ...placements.map((record) => ({
+        store: "taskPlacements" as const,
+        record,
+      })),
+      { store: "itemViews" as const, record: view },
+    ],
   ].entries()) {
     const operationId = crypto.randomUUID()
     const sequence = index + 2
@@ -116,6 +143,8 @@ function fixture() {
     item,
     tags,
     view,
+    placements,
+    peerId,
     receipt: {
       query: { after: 0, through: null, limit: 50 },
       page: { version: 2, changes, nextAfter: 3, through: 3, hasMore: false },
@@ -153,7 +182,7 @@ async function run() {
   const other = await openLocalDatabase(otherUserId)
   try {
     await check(
-      "La página guarda contenido, categorías, asignación y cursor juntos; persiste al reabrir",
+      "La página guarda contenido, categorías, movimiento completo y cursor juntos; persiste al reabrir",
       async () => {
         const value = fixture()
         await seed(db)
@@ -167,9 +196,14 @@ async function run() {
         assert(
           rows.items.length === 1 &&
             rows.tags.length === 2 &&
-            rows.itemViews.length === 1
+            rows.itemViews.length === 1 &&
+            rows.taskPlacements.length === 2
         )
-        assert(rows.remoteShadows.length === 4 && rows.outbox.length === 0)
+        const ordered = (records: unknown[]) =>
+          JSON.stringify(records.map((record) => JSON.stringify(record)).sort())
+        assert(ordered(rows.taskPlacements) === ordered(value.placements))
+        assert(JSON.stringify(rows.itemViews) === JSON.stringify([value.view]))
+        assert(rows.remoteShadows.length === 6 && rows.outbox.length === 0)
         assert(
           JSON.stringify(rows.syncMetadata) ===
             JSON.stringify([{ key: "pull-cursor", after: 3, through: null }])
@@ -236,13 +270,133 @@ async function run() {
         const after = await snapshot(db)
         for (const name of ["items", "tags", "outbox"])
           assert(JSON.stringify(after[name]) === JSON.stringify(before[name]))
-        assert(after.itemViews.length === 0 && after.remoteShadows.length === 4)
+        assert(
+          after.itemViews.length === 0 &&
+            after.taskPlacements.length === 0 &&
+            after.remoteShadows.length === 6
+        )
         assert(
           after.syncMetadata.some(
             (row) =>
               JSON.stringify(row) === JSON.stringify(before.syncMetadata[0])
           )
         )
+      }
+    )
+    await check(
+      "La cadena personal bloquea colocaciones locales; ACK final reconcilia el movimiento completo sin cambiar cursor",
+      async () => {
+        const value = fixture()
+        const change = value.receipt.page.changes[2]
+        assert(change.kind === "preference")
+        const senderId = crypto.randomUUID()
+        const operation = {
+          protocolVersion: 1 as const,
+          operationId: change.operationId,
+          baseRevision: 0,
+          command: {
+            type: "task.move" as const,
+            itemId: value.item.id,
+            occurrenceId: null,
+            scope: "day" as const,
+            date: "2026-10-08",
+            tagId: value.tags[0].id,
+            beforeId: value.peerId,
+            afterId: null,
+          },
+        }
+        const entry = outboxEntrySchema.parse({
+          userId,
+          entityKey: taskPlacementEntityKey(value.item.id, "day", "2026-10-08"),
+          sequence: 1,
+          dependencies: [],
+          state: "sending",
+          attempts: 1,
+          createdAt: now,
+          lease: { ownerId: senderId, expiresAt: "2026-10-08T00:01:00.000Z" },
+          operation,
+        })
+        await seed(db, {
+          items: [value.item],
+          tags: value.tags,
+          taskPlacements: value.placements.map((record) => ({
+            ...record,
+            position: 9000,
+            revision: 0,
+          })),
+          itemViews: [{ ...value.view, primaryTagId: null, revision: 0 }],
+          outbox: [entry],
+          syncMetadata: [{ key: "fixture-history", evidence: "untouched" }],
+        })
+        const baseline = await snapshot(db)
+        assert(
+          (await applyLocalChangesPageV2(db, userId, value.receipt)) ===
+            "applied"
+        )
+        const pulled = await snapshot(db)
+        for (const name of ["taskPlacements", "itemViews", "tags", "outbox"])
+          assert(
+            JSON.stringify(pulled[name]) === JSON.stringify(baseline[name])
+          )
+        assert(pulled.remoteShadows.length === 6)
+        assert(
+          pulled.syncMetadata.some(
+            (row) =>
+              JSON.stringify(row) ===
+              JSON.stringify({ key: "pull-cursor", after: 3, through: null })
+          )
+        )
+        const shadows = JSON.stringify(pulled.remoteShadows)
+        await applyLocalPreferenceResult(db, userId, {
+          operation,
+          senderId,
+          result: {
+            kind: "preference",
+            outcome: {
+              status: "applied",
+              operationId: operation.operationId,
+              effects: change.effects,
+            },
+          },
+        })
+        const settled = await snapshot(db)
+        const ordered = (records: unknown[]) =>
+          JSON.stringify(records.map((record) => JSON.stringify(record)).sort())
+        assert(ordered(settled.taskPlacements) === ordered(value.placements))
+        assert(
+          JSON.stringify(settled.itemViews) === JSON.stringify([value.view])
+        )
+        assert(JSON.stringify(settled.items) === JSON.stringify(baseline.items))
+        assert(JSON.stringify(settled.remoteShadows) === shadows)
+        assert(
+          settled.syncMetadata.some(
+            (row) =>
+              JSON.stringify(row) === JSON.stringify(baseline.syncMetadata[0])
+          )
+        )
+        assert(
+          settled.syncMetadata.some(
+            (row) =>
+              JSON.stringify(row) ===
+              JSON.stringify({ key: "pull-cursor", after: 3, through: null })
+          )
+        )
+        const acknowledged = outboxEntrySchema.parse(settled.outbox[0])
+        assert(
+          acknowledged.state === "acknowledged" &&
+            acknowledged.lease === null &&
+            acknowledged.attempts === 1
+        )
+        assert(
+          JSON.stringify(acknowledged.operation) ===
+            JSON.stringify(entry.operation)
+        )
+        const replay = JSON.stringify(settled)
+        assert(
+          (await applyLocalChangesPageV2(db, userId, value.receipt)) ===
+            "ignored"
+        )
+        assert(JSON.stringify(await snapshot(db)) === replay)
       }
     )
     await check(
@@ -280,9 +434,14 @@ async function run() {
         await seed(db)
         const before = JSON.stringify(await snapshot(db))
         const original = IDBObjectStore.prototype.put
+        let placementWrites = 0,
+          cursorFailure = false
         IDBObjectStore.prototype.put = function (row, key) {
-          if (this.name === "syncMetadata")
+          if (this.name === "taskPlacements") placementWrites++
+          if (this.name === "syncMetadata") {
+            cursorFailure = true
             throw new Error("Injected late cursor failure")
+          }
           return original.call(this, row, key)
         }
         try {
@@ -292,6 +451,7 @@ async function run() {
         } finally {
           IDBObjectStore.prototype.put = original
         }
+        assert(cursorFailure && placementWrites === 2)
         assert(JSON.stringify(await snapshot(db)) === before)
         assert(
           (await applyLocalChangesPageV2(db, userId, value.receipt)) ===
@@ -315,6 +475,21 @@ async function run() {
           await refused(() =>
             applyLocalChangesPageV2(other, userId, value.receipt)
           )
+          for (const invalid of ["owner", "date"] as const) {
+            const receipt = structuredClone(value.receipt)
+            const movement = receipt.page.changes[2]
+            assert(movement.kind === "preference")
+            const effect = movement.effects.effects.find(
+              (entry) => entry.store === "taskPlacements"
+            )
+            assert(effect?.store === "taskPlacements")
+            if (invalid === "owner") effect.record.userId = otherUserId
+            else {
+              effect.record.scope = "overdue"
+              effect.record.date = "2026-10-08"
+            }
+            await refused(() => applyLocalChangesPageV2(db, userId, receipt))
+          }
           const change = value.receipt.page.changes[2]
           if (change.kind !== "preference")
             throw new Error("Personal fixture missing")
@@ -380,7 +555,7 @@ async function run() {
         const last = structuredClone(value.receipt.page.changes[2])
         if (last.kind !== "preference")
           throw new Error("Personal fixture missing")
-        last.effects.effects[0].record.deletedAt = now
+        for (const effect of last.effects.effects) effect.record.deletedAt = now
         await applyLocalChangesPageV2(db, userId, {
           query: { after: 2, through: 3, limit: 50 },
           page: { ...value.receipt.page, changes: [last] },
@@ -389,6 +564,12 @@ async function run() {
           (await snapshot(db)).itemViews.some(
             (row) => (row as { deletedAt: string | null }).deletedAt === now
           )
+        )
+        assert(
+          (await snapshot(db)).taskPlacements.length === 2 &&
+            (await snapshot(db)).taskPlacements.every(
+              (row) => (row as { deletedAt: string | null }).deletedAt === now
+            )
         )
         const change = value.receipt.page.changes[0]
         if (change.kind !== "item") throw new Error("Item fixture missing")
@@ -430,6 +611,12 @@ async function run() {
             ],
           },
           { tags: [{ ...value.tags[0], userId: otherUserId }] },
+          { taskPlacements: [{ ...value.placements[0], userId: otherUserId }] },
+          {
+            taskPlacements: [
+              { ...value.placements[0], scope: "overdue", date: "2026-10-08" },
+            ],
+          },
         ]) {
           await seed(db, {
             ...rows,

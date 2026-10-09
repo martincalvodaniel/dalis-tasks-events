@@ -9,7 +9,12 @@ import { planLocalPersonalChangesPage } from "@/lib/sync/local-personal-changes-
 import { planRemotePreferenceProjection } from "@/lib/sync/preference-projection"
 import { decodeRemoteShadow } from "@/lib/sync/remote-shadow-v2"
 import { calendarItemSchema } from "@/schemas/calendar-item"
-import { itemViewSchema, tagSchema } from "@/schemas/preferences"
+import { taskPlacementEntityKey } from "@/schemas/ordering"
+import {
+  itemViewSchema,
+  tagSchema,
+  taskPlacementSchema,
+} from "@/schemas/preferences"
 import { userIdSchema } from "@/schemas/primitives"
 import type { PersonalSnapshot } from "@/types/personal-snapshot"
 
@@ -27,7 +32,15 @@ export function applyLocalChangesPageV2(
   const receipt = validateLocalChangesPageInputV2(receiptInput, userId)
   return runLocalTransaction(
     database,
-    ["items", "tags", "itemViews", "outbox", "remoteShadows", "syncMetadata"],
+    [
+      "items",
+      "tags",
+      "itemViews",
+      "taskPlacements",
+      "outbox",
+      "remoteShadows",
+      "syncMetadata",
+    ],
     "readwrite",
     (context) => {
       const transaction = context.transaction
@@ -35,13 +48,16 @@ export function applyLocalChangesPageV2(
         items: transaction.objectStore("items").getAll(undefined, 10001),
         tags: transaction.objectStore("tags").getAll(undefined, 10001),
         views: transaction.objectStore("itemViews").getAll(undefined, 10001),
+        placements: transaction
+          .objectStore("taskPlacements")
+          .getAll(undefined, 10001),
         entries: transaction.objectStore("outbox").getAll(undefined, 10001),
         shadows: transaction
           .objectStore("remoteShadows")
           .getAll(undefined, 10001),
         cursor: transaction.objectStore("syncMetadata").get("pull-cursor"),
       }
-      let remaining = 6
+      let remaining = 7
       const finish = () => {
         if (--remaining) return
         try {
@@ -49,6 +65,7 @@ export function applyLocalChangesPageV2(
             requests.items,
             requests.tags,
             requests.views,
+            requests.placements,
             requests.entries,
             requests.shadows,
           ])
@@ -88,6 +105,17 @@ export function applyLocalChangesPageV2(
               return {
                 entityKey: `item-view:${record.itemId}`,
                 record: { store: "itemViews" as const, record },
+              }
+            }),
+            ...requests.placements.result.map((input: unknown) => {
+              const record = taskPlacementSchema.parse(input)
+              return {
+                entityKey: taskPlacementEntityKey(
+                  record.occurrenceId,
+                  record.scope,
+                  record.date
+                ),
+                record: { store: "taskPlacements" as const, record },
               }
             }),
           ]
@@ -161,6 +189,8 @@ export function applyLocalChangesPageV2(
               transaction.objectStore("tags").put(entry.record.record)
             else if (entry.record?.store === "itemViews")
               transaction.objectStore("itemViews").put(entry.record.record)
+            else if (entry.record?.store === "taskPlacements")
+              transaction.objectStore("taskPlacements").put(entry.record.record)
           }
           for (const shadow of shadows.values())
             if (

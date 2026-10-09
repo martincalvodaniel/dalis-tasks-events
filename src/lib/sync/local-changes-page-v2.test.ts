@@ -134,43 +134,69 @@ test("local mixed receipt rejects query, account and shape mismatches before ret
   expect(() => validateLocalChangesPageInputV2(input, "")).toThrow()
 })
 
-test("unsupported personal effects at the end reject the entire page without trimming supported effects", () => {
-  for (const store of ["settings", "taskPlacements"] as const) {
-    const input = fixture()
-    const personal = input.page.changes[1]
-    if (personal.kind !== "preference")
-      throw new Error("Personal fixture missing")
-    personal.effects.effects.push(
-      store === "settings"
-        ? {
-            store,
-            record: {
-              ...metadata,
-              userId,
-              timeZone: "Europe/Madrid",
-              weekStartsOn: 1,
-              locale: "es-ES",
-            },
-          }
-        : {
-            store,
-            record: {
-              ...metadata,
-              userId,
-              occurrenceId: crypto.randomUUID(),
-              scope: "overdue",
-              date: "0001-01-01",
-              tagId: null,
-              position: 0,
-            },
-          }
-    )
-    const before = structuredClone(input)
-    expect(() => validateLocalChangesPageInputV2(input, userId)).toThrow(
-      "personal store"
-    )
-    expect(input).toEqual(before)
+test("unsupported settings at the end reject the whole page without trimming supported effects", () => {
+  const input = fixture()
+  const personal = input.page.changes[1]
+  if (personal.kind !== "preference")
+    throw new Error("Personal fixture missing")
+  personal.effects.effects.push({
+    store: "settings",
+    record: {
+      ...metadata,
+      userId,
+      timeZone: "Europe/Madrid",
+      weekStartsOn: 1,
+      locale: "es-ES",
+    },
+  })
+  const before = structuredClone(input)
+  expect(() => validateLocalChangesPageInputV2(input, userId)).toThrow(
+    "personal store"
+  )
+  expect(input).toEqual(before)
+})
+
+test("placement receipts preserve complete effects and reject noncanonical, foreign or duplicate placement evidence", () => {
+  const input = fixture()
+  const personal = input.page.changes[1]
+  if (personal.kind !== "preference")
+    throw new Error("Personal fixture missing")
+  const placement = {
+    store: "taskPlacements" as const,
+    record: {
+      ...metadata,
+      userId,
+      occurrenceId: crypto.randomUUID(),
+      scope: "overdue" as const,
+      date: "0001-01-01",
+      tagId: null,
+      position: 0,
+    },
   }
+  personal.effects.effects.push(placement)
+  const value = validateLocalChangesPageInputV2(input, userId)
+  const change = value.page.changes[1]
+  if (change.kind !== "preference") throw new Error("Personal fixture missing")
+  expect(change.effects.effects).toEqual(personal.effects.effects)
+  const copied = change.effects.effects.at(-1)
+  if (!copied) throw new Error("Placement fixture missing")
+  copied.record.userId = "changed-clone"
+  expect(placement.record.userId).toBe(userId)
+  for (const mutation of [
+    { date: "2026-10-08" },
+    { userId: "foreign" },
+    { revision: 0 },
+  ]) {
+    const malformed = structuredClone(input)
+    const last = malformed.page.changes[1]
+    if (last.kind !== "preference") throw new Error("Personal fixture missing")
+    const altered = last.effects.effects.at(-1)
+    if (!altered) throw new Error("Placement fixture missing")
+    altered.record = { ...placement.record, ...mutation }
+    expect(() => validateLocalChangesPageInputV2(malformed, userId)).toThrow()
+  }
+  personal.effects.effects.push(placement)
+  expect(() => validateLocalChangesPageInputV2(input, userId)).toThrow()
 })
 
 test("local mixed receipt retains simple events but rejects uncommitted, recurring and regressing item history", () => {

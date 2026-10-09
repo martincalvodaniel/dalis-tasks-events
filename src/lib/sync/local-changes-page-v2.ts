@@ -15,7 +15,10 @@ export function validateLocalChangesPageInputV2(
     if (change.kind === "preference") {
       if (
         change.effects.effects.some(
-          (effect) => effect.store !== "tags" && effect.store !== "itemViews"
+          (effect) =>
+            effect.store !== "tags" &&
+            effect.store !== "itemViews" &&
+            effect.store !== "taskPlacements"
         )
       )
         throw new Error(
