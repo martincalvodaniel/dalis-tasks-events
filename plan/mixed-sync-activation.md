@@ -141,3 +141,17 @@ La conexión productiva es un corte posterior conjunto, condicionado al recibo d
 - No cambiar intención durable1 ni habilitar un rango1–2, crear índices desde requests o prometer orden manual/series/compartidos. No basta cambiar sync-protocol.ts.
 
 Los IDs de Server Actions pueden cambiar con el build y las acciones sin referencia se eliminan, según `node_modules/next/dist/docs/01-app/02-guides/server-actions.md`. La prueba local de referencia directa no demuestra que un ID antiguo del deployment invoque el retirementhelper. La matriz de transición debe contemplar también referencia antigua ausente: no efectos/ACK, cola y lease conservados/liberados correctamente, rechazo temporal comprensible y siguiente handshake2 que exige actualización. No conservar un endpoint mediante un botón ficticio ni alterar secretos de cifrado o hosting para el piloto. Google real y recarga/offline de preproducción permanecen una evidencia distinta del fixture.
+
+
+### 11c4a8pre — Nombre confirmado; acceso pendiente de Vercel
+
+El usuario confirma dalis-tasks-events como nombre de DB preproductiva. Se revalidó la misma guía del recurso Preview identificado previamente; Show secret solicita Reauthenticate y queda deshabilitado hasta verificar identidad. Captura privada se abortó sin obtener URI, fichero de credenciales ni conexión Mongo; ninguna ejecución del operador, índice o mutación remota. Se pidió únicamente completar la verificación de Vercel en su propia pestaña, sin códigos en chat ni otra aprobación de índices. CLI/procedimiento siguen validados y autorización vigente; tras verificación reanudar captura privada/descriptor explícito/ejecución única/readiness/cierre, no reabrir pregunta del nombre.
+
+Entrada10%5h/41%7d reservas4%/1%. Este corte no activa producto ni modifica código. Validación documental referencias/consistencia/diff, commitpushint/HEAD/cuotas al cerrar si el acceso no queda disponible. Mantener revisión única15:31 con prompt actualizado a nombre confirmado y gate de reautenticación. Fuera de la provisión, siguiente hook mixto inactivo11c4a9h requiere ventana nueva.
+
+
+### Actualización 11c4a8pre — Identidad verificada; ejecución aplazada por cuota
+
+El usuario completó Reauthenticate. La URI del mismo recurso Preview se capturó en fichero temporal privado600 y se volvió a ocultar; no se imprimieron credenciales. El launcher no inició el CLI: primer fallo por condición react-server ausente en el proceso padre; segundo por pasar el campo de procedencia source al schema estricto de conexión. Ambos anteriores a spawn/conexión. Para siguiente ejecución usar --no-env-file --conditions=react-server en padre e hijo y pasar al resolver únicamente {mongodbUri,databaseName}, verificando procedencia aparte. La corrección del launcher se identificó pero no se ejecutó otra conexión. El finally eliminó el fichero de credenciales; launcher propio retirado al cierre. Ningún índice/DB/documento remoto tocado ni recibo de provisión inventado.
+
+Lectura real4%5h/40%7d: no abrir otra ejecución sobre reserva4%/1%. Nombre y verificación Vercel ya confirmados; única revisión15:31 preservada con prompt actualizado. Próximo lote revalida fuente Preview, recaptura URI privada y ejecuta procedimiento ya probado; no repetir pregunta del nombre ni pedir nueva autorización. Producto permanece1. Este corte cierra documentación y diagnóstico, no provisión completada; referencias/diff/consistencia, commitpushint/HEAD/cuotas.
