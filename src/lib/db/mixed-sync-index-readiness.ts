@@ -3,7 +3,10 @@ import "server-only"
 import { MongoServerError } from "mongodb"
 import { type CollectionName, getCollection } from "@/lib/db/collections"
 import type { IndexSpec } from "@/lib/db/ensure-indexes"
-import { selectMixedSyncIndexSpecs } from "@/lib/db/mixed-sync-index-specs"
+import {
+  selectMixedSyncIndexSpecs,
+  selectPlacementSyncIndexSpecs,
+} from "@/lib/db/mixed-sync-index-specs"
 
 export interface MixedSyncIndexInspection {
   listIndexes(
@@ -94,10 +97,10 @@ function indexMatches(
 }
 
 // This port inspects definitions only; it cannot provision an index or expose account data.
-export async function inspectMixedSyncIndexReadiness(
-  inspection: MixedSyncIndexInspection
+async function inspectIndexReadiness(
+  inspection: MixedSyncIndexInspection,
+  selected: readonly IndexSpec[]
 ): Promise<MixedSyncIndexReadiness> {
-  const selected = selectMixedSyncIndexSpecs()
   const missing: string[] = []
   const incompatible: string[] = []
   const collections = [...new Set(selected.map((spec) => spec.collection))]
@@ -127,9 +130,27 @@ export async function inspectMixedSyncIndexReadiness(
   }
 }
 
+export async function inspectMixedSyncIndexReadiness(
+  inspection: MixedSyncIndexInspection
+): Promise<MixedSyncIndexReadiness> {
+  return inspectIndexReadiness(inspection, selectMixedSyncIndexSpecs())
+}
+
+export async function inspectPlacementSyncIndexReadiness(
+  inspection: MixedSyncIndexInspection
+): Promise<MixedSyncIndexReadiness> {
+  return inspectIndexReadiness(inspection, selectPlacementSyncIndexSpecs())
+}
+
+const mongoIndexInspection: MixedSyncIndexInspection = {
+  listIndexes: async (collection) =>
+    (await getCollection(collection)).listIndexes().toArray(),
+}
+
 export function readMixedSyncIndexReadiness(): Promise<MixedSyncIndexReadiness> {
-  return inspectMixedSyncIndexReadiness({
-    listIndexes: async (collection) =>
-      (await getCollection(collection)).listIndexes().toArray(),
-  })
+  return inspectMixedSyncIndexReadiness(mongoIndexInspection)
+}
+
+export function readPlacementSyncIndexReadiness(): Promise<MixedSyncIndexReadiness> {
+  return inspectPlacementSyncIndexReadiness(mongoIndexInspection)
 }
