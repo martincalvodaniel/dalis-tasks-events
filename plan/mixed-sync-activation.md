@@ -85,3 +85,8 @@ Panel `11c4a9u` preparado: alcance opcional con default de transporte1 y summary
 ### Evidencia de frontera autenticada 11c4a7n
 
 Siete escenarios con Next compilado, dos sesiones Better Auth persistidas y MongoDB propios pasan: action2/defaults autentican y escriben tareas/categorías/asignaciones, ambas sesiones descargan journal real, replay no duplica y estados de cuenta/versión/sesión rechazan sin efectos. Wrapper exclusivo valida capability/cookies dentro de RPC; no equivale al ID exacto del endpoint desplegado ni a Google interactivo. Índices sólo del descriptor propio. Producto permanece transporte1. Falta procedimiento de provisión de entorno revisable/autorizado y conexión conjunta de ruta/acción/identidad/cliente/UI; no anunciar2 por configuración aislada.
+
+
+### Revisión offline de las definiciones 11c4a8v
+
+Ejecutar `bun --no-env-file run db:preview-personal-indexes` imprime sólo las tres especificaciones centrales, sin conectar ni leer configuración de DB/auth. Es una vista previa de código; no inspección del despliegue. Cualquier argumento (incluido --apply) se rechaza. Falta CLI de ejecución con destino explícito validado antes de conexión, revisión de efectos del bootstrap automático y autorización de entorno. La autorización actual excluye ejecutarlo en DB del usuario.
