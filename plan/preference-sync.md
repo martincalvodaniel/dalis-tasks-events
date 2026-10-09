@@ -284,3 +284,10 @@ Petición de una iteración adicional cerrada con reserva10%5h/1%7d ya vigente. 
 ### Núcleo de colocaciones reutilizable, 11c5a1p
 
 [task-placement-command.ts](../src/lib/preferences/task-placement-command.ts) contiene ahora el algoritmo puro `planTaskPlacements`, sin frontera cliente ni import de persistencia. El adapter local conserva exports y callers. La extracción mantiene exactamente el cuerpo del algoritmo: ranks implícitos, compactación multiefecto, sentinel de atrasadas, ocurrencias, tombstones y revisiones locales. No añade validación, autorización, reloj remoto ni ACK. Seis tests directos y regresiones task-move/day aprobados. El executor remoto sigue pendiente de política civil diferida y catálogo/CAS/recepción de placements.
+
+
+### Resultado11c5a2 — Plan remoto puro de movimientos simples
+
+Planner valida catálogo íntegro propio (10000 por familia), identidades/revisiones/categorías y ancla canónica; CAS primario por colocación y revisiones independientes de cada efecto. Reutiliza planTaskPlacements/orden implícito/reductor de vistas. Day exige fecha actual de tarea; overdue interpreta command.date como día civil declarado, sin comparar hora actual ni zona remota. Tarea completada/reprogramada, vecinos obsoletos, tombstones y series/ocurrencias conservan rechazo/unsupported; ninguna intención histórica reescrita. Categoría y compactación son efectos conjuntos acotados512KiB antes de journal; contenido intacto. Sin Mongo/ACK/callers/capacidades activos nuevos.
+
+Siete tests/45aserciones prueban creación, cambio categoría, CAS/ausencia/tombstone, atraso tardío/cambio fecha/completado, vecinos/ranks implícitos/compactación, corrupción/aislamiento/catalog10001 y5000efectos que exceden bytes sin salida parcial. Suite467pass/98opt-in skip/0fail/7552aserciones, lint519 sinruido/tipos/build34/diff aprobados. Próximo11c5a3: repo de colocaciones/índice explícito y catálogos propios acotados items/views, con CAS/rollback Mongo antes de executor multiefecto. El piloto histórico sigue pendiente hasta activar toda cadena. Commitpushint/HEAD/cuotas al cierre; usuario eligió conservar/sincronizar el movimiento.
