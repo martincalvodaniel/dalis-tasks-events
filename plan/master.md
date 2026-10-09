@@ -332,3 +332,6 @@ Lectura6%5h/55%7d, reservas4%/1%: sólo cierre documental ahora; defaults/CLI/pr
 
 
 Actualización9oct10:29 —11c4a8e2b: CLI online separado y adapter privado preparados; validan destino/config explícitos antes de singleton y cierran conexión del proceso operador. Suite443pass/93skip sin fallos, lint/tipos/build34 aprobados. Siguiente prueba CLI/defaults en Mongo propio11c4a8t; todavía producto transporte1. Vercel Preview/Production identificados sin revelar valores; nombre DB preproductiva pendiente de respuesta. La creación de índices preproductivos ya está autorizada, falta acreditar destino/procedimiento, no otra aprobación. Reservas4%5h/1%7d; renovación100%/55%, reset real15:29:20Madrid.
+
+
+11c4a8t cerrado: CLI/defaults/procedimiento completo probado en Mongo propio (3casos/70aserciones), limpieza terminada; lint/tipos/suite443pass98skip/build34 aprobados. Provisión preproductiva ya autorizada pero no ejecutada: nombre explícito solicitado al usuario, configuración Preview localizada. Producto aún transporte1. Siguiente ensamblajecliente2 inactivo/controles y retirolegacy antes de activación conjunta y piloto.

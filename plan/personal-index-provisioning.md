@@ -1,6 +1,6 @@
 # Provisión personal de entorno
 
-Estado: CLI separado y defaults privados entregados en11c4a8e2b; pendientes prueba integrada propia11c4a8t y ejecución preproductiva con destino verificado. `bun --no-env-file run db:preview-personal-indexes` no conecta y muestra el registro. El comando online no tiene caller productivo ni implica categorías activadas.
+Estado: CLI separado y defaults privados entregados en11c4a8e2b; prueba integrada propia11c4a8t cerrada; pendiente ejecución preproductiva con destino verificado. `bun --no-env-file run db:preview-personal-indexes` no conecta y muestra el registro. El comando online no tiene caller productivo ni implica categorías activadas.
 
 ## Destino y autorización
 
@@ -52,3 +52,6 @@ Al ejecutar, registrar entorno preproduction, fase/estado, nombres personales de
 Avance11c4a8e2b: [operador privado](../src/lib/db/personal-index-operator.ts), [CLI](../scripts/provision-personal-indexes.ts) y [parser puro](../src/schemas/personal-index-cli.ts). Invocar en proceso separado: `bun --no-env-file run db:provision-personal-indexes <local|preproduction> <expected-database> <expected-authority> --apply --acknowledge-automatic-bootstrap`; credenciales exclusivamente en env del proceso. El primer --no-env-file también evita carga automática del launcher exterior. Guardia antes de singleton, bootstrap registrado, DB real, readiness/provisión centrales y cierre awaited. No invocar desde el servidor de aplicación: el proceso operador es dueño de la conexión que cierra. Sólo resultado ready+closed da exit0. Args inválidos generan recibo configuration/not_opened; excepción inesperada de import/operador imprime únicamente error genérico a stderr y exit1, sin inventar fase o cierre. Tres tests/126 aserciones del parser y smoke con entorno vacío (args válidos pero config ausente) rechazan antes de conexión. Suite443pass/93skip/0fail, lint/tipos/build34 aprobados. Todavía ninguna DB del usuario conectada.
 
 Fuente disponible: panel Vercel autenticado del proyecto muestra MONGODB_URI específico Preview y otro Production; no MONGODB_DB ni overrides de rama visibles en listado. El recurso de Preview y su guía de conexión se identificaron sin revelar credenciales. Nombre explícito solicitado al usuario; el default del código no se ha convertido silenciosamente en autorización del destino. Continuar prueba propia e integración preparatoria mientras falta ese dato.
+
+
+Avance11c4a8t: [prueba del CLI/defaults](../src/lib/db/personal-index-operator.integration.test.ts) ejecutada con `bun run scripts/sync-db-test-runner.ts operator` en DB propia del descriptor:3pass/70aserciones. Acredita bootstrap9, personales3, guardias sin escrituras, noop, prefijo parcial/duplicados intactos/retryonlymissing y cierre exitoso de cada proceso. No conexión al usuario. Procedimiento validado; destino preproductivo aún requiere nombre explícito y configuración Preview verificada, con autorización humana ya otorgada.
