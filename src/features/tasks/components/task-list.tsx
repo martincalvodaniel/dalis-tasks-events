@@ -5,6 +5,7 @@ import { DragOrderHandle } from "@/components/ui/drag-order-handle"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { OrderControls } from "@/components/ui/order-controls"
 import { ItemCategorySelect } from "@/features/tags/components/item-category-select"
+import { useItemCategory } from "@/features/tags/hooks/use-item-category"
 import { useLocalTags } from "@/features/tags/hooks/use-local-tags"
 import { useTagOrder } from "@/features/tags/hooks/use-tag-order"
 import {
@@ -50,20 +51,21 @@ export function TaskList({
   const progress = useTaskProgress(account)
   const { data: categories, error: categoryReadError } = useLocalTags(account)
   const ordering = useTaskOrder(account)
+  const category = useItemCategory(account)
   const groupOrdering = useTagOrder(account)
   const { data: placements, error: placementReadError } =
     useLocalTaskPlacements(account)
   const section = useRef<HTMLElement>(null)
   const categoryFocus = useRef<string | null>(null)
   useEffect(() => {
-    if (ordering.busy || categoryFocus.current === null) return
+    if (category.busy || categoryFocus.current === null) return
     section.current
       ?.querySelector<HTMLSelectElement>(
         `select[data-item-id="${categoryFocus.current}"]`
       )
       ?.focus({ preventScroll: true })
     categoryFocus.current = null
-  }, [ordering.busy])
+  }, [category.busy])
   const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(
     () => new Set()
   )
@@ -89,7 +91,12 @@ export function TaskList({
   const visibleTagIds = groups
     .filter((group) => categories?.tags.some((tag) => tag.id === group.id))
     .map((group) => group.id)
-  const busy = deleting || progress.busy || ordering.busy || groupOrdering.busy
+  const busy =
+    deleting ||
+    progress.busy ||
+    ordering.busy ||
+    category.busy ||
+    groupOrdering.busy
   const canOrder = Boolean(
     categories && !categoryReadError && placements && !placementReadError
   )
@@ -130,6 +137,7 @@ export function TaskList({
       {progress.busy ? <p role="status">Guardando progreso…</p> : null}
       {categoryReadError ||
       ordering.error ||
+      category.error ||
       placementReadError ||
       groupOrdering.error ? (
         <ErrorBanner>
@@ -138,8 +146,9 @@ export function TaskList({
         </ErrorBanner>
       ) : null}
       {ordering.busy || groupOrdering.busy ? (
-        <p role="status">Guardando orden y categoría…</p>
+        <p role="status">Guardando orden…</p>
       ) : null}
+      {category.busy ? <p role="status">Guardando categoría…</p> : null}
       {pendingDelete ? (
         <DeleteTaskDialog
           task={pendingDelete}
@@ -246,29 +255,15 @@ export function TaskList({
                           itemId={task.id}
                           tags={categories.tags}
                           selectedId={categories.views[task.id] ?? null}
-                          busy={busy || !canOrder}
+                          busy={busy}
                           onChange={(tagId) => {
                             const currentTagId =
                               group.id === "uncategorized" ? null : group.id
                             if (tagId === currentTagId) return
-                            const destination = groups.find(
-                              (candidate) =>
-                                candidate.id === (tagId ?? "uncategorized")
-                            )
-                            const peers = taskOrderPeers(
-                              destination?.tasks ?? [],
-                              selection,
-                              task
-                            ).filter((record) => record.id !== task.id)
                             categoryFocus.current = task.id
-                            void ordering.change({
-                              type: "task.move",
+                            void category.change({
                               itemId: task.id,
-                              occurrenceId: null,
                               tagId,
-                              ...taskOrderContext(selection, task),
-                              beforeId: null,
-                              afterId: peers.at(-1)?.id ?? null,
                             })
                           }}
                         />

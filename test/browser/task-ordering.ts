@@ -1,3 +1,11 @@
+import { createElement } from "react"
+import { createRoot } from "react-dom/client"
+import { OFFLINE_ACCOUNT_KEY } from "@/config/pwa"
+import {
+  ACCOUNT_CONTROL_DATABASE,
+  activatePreparedAccount,
+  readAccountControl,
+} from "@/lib/local-db/account-control"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import { LocalRepository } from "@/lib/local-db/repository"
@@ -12,8 +20,12 @@ import {
 import { taskPlacementSchema, userSettingsSchema } from "@/schemas/preferences"
 import { entityIdSchema } from "@/schemas/primitives"
 import type { LocalPreferenceCommand } from "@/types/local-sync"
+import { TaskCategoryFixture } from "./task-category-fixture"
 
-if (location.hostname !== "127.0.0.1" || location.port !== "4179")
+if (
+  !["127.0.0.1", "localhost"].includes(location.hostname) ||
+  location.port !== "4179"
+)
   throw new Error("Task ordering fixtures require an isolated loopback origin")
 const query = new URLSearchParams(location.search)
 const runId = entityIdSchema.parse(query.get("run") ?? crypto.randomUUID())
@@ -38,8 +50,11 @@ const results = document.getElementById("results")
 const status = document.getElementById("status")
 const actions = document.getElementById("actions")
 if (!results || !status || !actions) throw new Error("Test markup missing")
-function assert(value: unknown): asserts value {
-  if (!value) throw new Error("Task ordering browser assertion failed")
+function assert(
+  value: unknown,
+  message = "Task ordering browser assertion failed"
+): asserts value {
+  if (!value) throw new Error(message)
 }
 async function check(label: string, work: () => Promise<void>) {
   const row = document.createElement("li")
@@ -92,6 +107,200 @@ async function counter(value: number) {
   } finally {
     database.close()
   }
+}
+async function categorySelectorProof() {
+  const actor = `${userId}-category-ui`
+  const databaseName = localDatabaseName(actor)
+  const markerKey = "dalis:account-change"
+  const markerBefore = localStorage.getItem(markerKey)
+  assert(
+    !(await indexedDB.databases()).some((database) =>
+      [databaseName, ACCOUNT_CONTROL_DATABASE].includes(database.name ?? "")
+    ) && localStorage.getItem(OFFLINE_ACCOUNT_KEY) === null,
+    "Category selector proof requires a fresh origin without an existing account control or partition"
+  )
+  const repository = await LocalRepository.open(actor)
+  const outbox = await LocalOutbox.open(actor)
+  const host = document.createElement("div")
+  actions?.before(host)
+  const root = createRoot(host)
+  let ownedEpoch: string | null = null
+  let ownedActor: string | null = null
+  let markerAfter = markerBefore
+  try {
+    await repository.put(
+      "settings",
+      userSettingsSchema.parse({
+        ...metadata,
+        userId: actor,
+        timeZone: "Europe/Madrid",
+        weekStartsOn: 1,
+        locale: "es-ES",
+      })
+    )
+    await outbox.commitItemCommand(
+      {
+        type: "item.create",
+        itemId: ids[0],
+        input: taskDraftSchema.parse({
+          kind: "task",
+          title: "Prueba de selector de categoría",
+          description: "",
+          scheduledDate: "2026-10-06",
+          status: "not_started",
+          checklist: [],
+          recurrence: null,
+        }),
+      },
+      { now }
+    )
+    for (const [id, name] of [
+      [tagId, "Trabajo"],
+      [homeId, "Casa"],
+    ])
+      await outbox.commitPreferenceCommand(
+        {
+          type: "tag.save",
+          tagId: id,
+          input: { name, color: "#059669", position: 0 },
+        },
+        { now }
+      )
+    await outbox.commitPreferenceCommand(
+      { type: "item-view.set", itemId: ids[0], primaryTagId: tagId },
+      { now }
+    )
+    await repository.put(
+      "taskPlacements",
+      taskPlacementSchema.parse({
+        ...metadata,
+        userId: actor,
+        occurrenceId: ids[0],
+        scope: "day",
+        date: "2026-10-06",
+        tagId,
+        position: 1024,
+      })
+    )
+    const baseline = {
+      items: JSON.stringify(
+        await repository.list("items", { includeDeleted: true })
+      ),
+      placements: JSON.stringify(
+        await repository.list("taskPlacements", { includeDeleted: true })
+      ),
+      entries: await outbox.listEntries(),
+    }
+    const initial = await readAccountControl()
+    ownedEpoch = initial.epoch
+    assert(initial.userId === null && !initial.logoutPending)
+    const active = await activatePreparedAccount(
+      actor,
+      now.toISOString(),
+      initial.epoch
+    )
+    ownedEpoch = active.epoch
+    ownedActor = actor
+    markerAfter = localStorage.getItem(markerKey)
+    root.render(
+      createElement(TaskCategoryFixture, {
+        account: {
+          userId: actor,
+          epoch: active.epoch,
+          itemCount: 1,
+          offlineReady: false,
+        },
+      })
+    )
+    const selector = () =>
+      host.querySelector<HTMLSelectElement>(`select[data-item-id="${ids[0]}"]`)
+    const waitFor = async (predicate: () => boolean) => {
+      const deadline = Date.now() + 15000
+      while (!predicate()) {
+        if (Date.now() >= deadline)
+          throw new Error("Task category selector did not settle")
+        await new Promise((resolve) => setTimeout(resolve, 20))
+      }
+    }
+    await waitFor(() => selector()?.value === tagId && !selector()?.disabled)
+    const choose = (value: string) => {
+      const select = selector()
+      assert(select)
+      select.value = value
+      select.dispatchEvent(new Event("change", { bubbles: true }))
+    }
+    choose(homeId)
+    // The second event arrives before React renders disabled controls; the intent lock must reject it.
+    choose(tagId)
+    await waitFor(() => selector()?.value === homeId && !selector()?.disabled)
+    assert((await repository.get("itemViews", ids[0]))?.primaryTagId === homeId)
+    assert((await outbox.listEntries()).length === baseline.entries.length + 1)
+    choose("")
+    await waitFor(() => selector()?.value === "" && !selector()?.disabled)
+    assert((await repository.get("itemViews", ids[0]))?.primaryTagId === null)
+    const entries = await outbox.listEntries()
+    const added = entries.slice(baseline.entries.length)
+    assert(
+      added.length === 2 &&
+        added.every(
+          (entry) =>
+            entry.operation.command.type === "item-view.set" &&
+            entry.operation.command.itemId === ids[0] &&
+            entry.state === "pending" &&
+            entry.attempts === 0 &&
+            entry.lease === null
+        )
+    )
+    assert(
+      added[0].operation.command.type === "item-view.set" &&
+        added[0].operation.command.primaryTagId === homeId
+    )
+    assert(
+      added[1].operation.command.type === "item-view.set" &&
+        added[1].operation.command.primaryTagId === null
+    )
+    assert(
+      JSON.stringify(entries.slice(0, baseline.entries.length)) ===
+        JSON.stringify(baseline.entries)
+    )
+    assert(
+      JSON.stringify(
+        await repository.list("items", { includeDeleted: true })
+      ) === baseline.items
+    )
+    assert(
+      JSON.stringify(
+        await repository.list("taskPlacements", { includeDeleted: true })
+      ) === baseline.placements
+    )
+  } finally {
+    root.unmount()
+    host.remove()
+    repository.close()
+    outbox.close()
+    if (ownedEpoch) {
+      const current = await readAccountControl()
+      assert(
+        current.epoch === ownedEpoch &&
+          current.userId === ownedActor &&
+          !current.logoutPending
+      )
+      await deleteFixtureDatabase(ACCOUNT_CONTROL_DATABASE)
+      if (localStorage.getItem(markerKey) === markerAfter) {
+        if (markerBefore === null) localStorage.removeItem(markerKey)
+        else localStorage.setItem(markerKey, markerBefore)
+      }
+    }
+    await deleteFixtureDatabase(databaseName)
+  }
+}
+async function deleteFixtureDatabase(name: string) {
+  await new Promise<void>((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(name)
+    request.onsuccess = () => resolve()
+    request.onerror = () => reject(request.error)
+    request.onblocked = () => reject(new Error("Fixture cleanup is blocked"))
+  })
 }
 async function run() {
   if (query.get("mode") === "cleanup") {
@@ -440,6 +649,10 @@ async function run() {
         const completed = await repository.get("items", ids[1])
         assert(completed?.kind === "task" && completed.status === "completed")
       }
+    )
+    await check(
+      "Selector real asigna y quita categoría sin mover tareas; la elección rápida no duplica intenciones",
+      categorySelectorProof
     )
     if (status)
       status.textContent = "Colocaciones e intenciones atómicas comprobadas."

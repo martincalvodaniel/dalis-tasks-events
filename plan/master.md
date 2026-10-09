@@ -357,3 +357,6 @@ Actualización9oct10:29 —11c4a8e2b: CLI online separado y adapter privado prep
 
 
 11c4a9r: diez escenarios Next correctos; sesión revocada conserva toda la intención/cola/cursor, reautenticación del mismo actor confirma una sola vez y ambos dispositivos convergen con Mongo propio. FullDoD aprobado y recursos propios cerrados. Producto sigue transporte1 y provisión preproductiva espera únicamente nombre DB explícito, con actuación ya autorizada.
+
+
+15a2f corrige la integración del selector de categoría de tareas: ahora crea item-view.set; el orden explícito mantiene task.move local. Seis checks browser, suite/lint/tipos/build aprobados. Piloto real confirmó categoría propia y encontró un task.move histórico de asignación que se conserva sinACK: esa cuenta aún tiene cadena personal bloqueada. Falta piloto del arreglo desplegado y recuperación del histórico; no declarar convergencia por settled ni presentar toda la sincronización de preferencias como terminada. Al cerrar categorías/asignaciones, estimar porcentaje y ordenar pendientes para que el usuario elija; detener continuación de bloques ajenos.
