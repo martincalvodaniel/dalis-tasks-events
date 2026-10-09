@@ -1,9 +1,11 @@
 import type { SyncPassResult } from "@/features/sync/coordinator"
 import { OfflineUpdateCheck } from "@/features/workspace/components/offline-update-check"
 import type { SyncQueueSummary } from "@/lib/sync/queue-summary"
+import type { SyncQueueSummaryV2 } from "@/lib/sync/queue-summary-v2"
 
 interface SyncStatusPanelProps {
-  summary: SyncQueueSummary | null
+  summary: SyncQueueSummary | SyncQueueSummaryV2 | null
+  scope?: "own_content" | "own_content_and_preferences"
   error: boolean
   busy: boolean
   result: SyncPassResult | null
@@ -31,6 +33,7 @@ export function SyncStatusPanel({
   busy,
   result,
   onSync,
+  scope = "own_content",
 }: SyncStatusPanelProps) {
   const unresolved = summary
     ? summary.pending + summary.sending + summary.conflicts + summary.rejected
@@ -68,9 +71,9 @@ export function SyncStatusPanel({
         </button>
       </div>
       <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-        Automática con conexión mientras la aplicación está abierta. Tareas y
-        eventos sin repetición. Categorías, orden y repeticiones se guardan solo
-        en este dispositivo por ahora.
+        {scope === "own_content_and_preferences"
+          ? "Automática con conexión mientras la aplicación está abierta. Tareas y eventos sin repetición, categorías y asignaciones. Orden de tareas y repeticiones siguen en este dispositivo."
+          : "Automática con conexión mientras la aplicación está abierta. Tareas y eventos sin repetición. Categorías, orden y repeticiones se guardan solo en este dispositivo por ahora."}
       </p>
       <div role="status" aria-live="polite" className="mt-2">
         {error ? (
@@ -82,6 +85,16 @@ export function SyncStatusPanel({
         ) : (
           <>
             <p>{pendingLabel}</p>
+            {"personalProjectionBlocked" in summary &&
+            summary.personalProjectionBlocked ? (
+              <p>
+                {summary.personalUnresolved}{" "}
+                {summary.personalUnresolved === 1
+                  ? "cambio personal pendiente."
+                  : "cambios personales pendientes."}{" "}
+                Tus categorías y asignaciones locales se conservan.
+              </p>
+            ) : null}
             {summary.unsupported > 0 ? (
               <p>
                 {summary.unsupported} cambios todavía sin sincronización
