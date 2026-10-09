@@ -1436,3 +1436,8 @@ Lectura6%5h/55%7d, reservas4%/1%: sólo cierre documental ahora; defaults/CLI/pr
 ### 11c4a8receipt — Evidencia mínima de provisión real
 
 Objetivo/target_paths: cerrar el recibo operativo en plan/personal-index-provisioning.md e iteration-log.md. Dependencias: autorización humana preproductiva y ciclo privado preparado; aceptación: procedencia preview/int y descriptor verificados, resultado parcial/readiness/cierre fieles, sin conexión a producción/secretos/documentos ni falsa activación. Sólo docs; referencias/consistencia/git diff --check, commitpushint/HEAD/cuotas. Entrada5%5h/55%7d, reserva4%/1%. Resultado: criterios documentados para registrar provisión real separada de fixtures; no se ejecutó ninguna DB. Mantener revisión10:29 y siguiente defaults/CLI/prueba propia con ventana renovada.
+
+
+### Resultado11c4a8e2b — Defaults privados y CLI operador
+
+Adapter server-only reutiliza config explícita, ciclo por puertos, getDatabase singleton, readiness y ensureIndexes central. CLI separado con cinco argumentos exactos, sin URI/credenciales; parser antes de import, exit0 sólo ready+closed. Excepción inesperada produce stderr genérico sin recibo inventado. Tests parser3/126aserciones y smoke entorno vacío config ausente -> failed/configuration/not_opened exit1. Suite443pass/93skip/0fail/7368aserciones, lint503/tipos/build34/diff aprobados. Entrada renovación100%5h/55%7d, reservas4%/1%, reset real1791552560 (15:29:20Madrid). No conexión DBusuario ni activación producto. Investigación readonly encontró Vercel Preview/Production URI separadas; falta DB explícita solicitada. Siguiente11c4a8t CLI/defaults/bootstrap real con descriptor propio, después provisión preproductiva autorizada al verificar destino. Commitpushint/HEAD/cuotas al cerrar.

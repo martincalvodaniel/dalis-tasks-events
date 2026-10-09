@@ -6,6 +6,7 @@
     "build": "bun run scripts/build.ts",
     "db:ensure-indexes": "bun run scripts/ensure-indexes.ts",
     "db:preview-personal-indexes": "bun --no-env-file --conditions=react-server scripts/preview-personal-indexes.ts",
+    "db:provision-personal-indexes": "bun --no-env-file --conditions=react-server scripts/provision-personal-indexes.ts",
     "dev": "next dev",
     "format": "biome format --write",
     "knip": "knip",
