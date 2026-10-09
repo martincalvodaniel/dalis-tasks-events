@@ -96,3 +96,6 @@ El [contrato de provisión de entorno](personal-index-provisioning.md) (`11c4a8c
 
 
 Guardia de descriptor11c4a8g1 y resolver/config explícita11c4a8g2 cerrados sin IO. DB raw sin fallback y autoridad exacta sin userinfo se comparan antes de futura conexión; esto no acredita entorno o autorización. Revisión offline completa11c4a8e1 está entregada. Siguiente11c4a8e2 adaptador/CLI online y11c4a8t prueba de destino propio; no tocar DB del usuario ni activar transporte2 hasta prerrequisitos.
+
+
+Cierre del lote05:27: código7525376, ciclo privado por puertos preparado y probado sin defaults/CLI. Siguiente11c4a8e2b conecta defaults/CLI y11c4a8t verifica Mongo propio antes de ofrecer ejecución de entorno. Transporte1 vigente; una revisión futura confirmada9oct10:29Madrid, reservas4%/1%. No ejecutar índices en DB del usuario ni anunciar2 por config aislada.

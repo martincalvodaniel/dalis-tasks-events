@@ -194,3 +194,8 @@ Código cerrado y publicado hasta 4f0dc93, seguido del commit documental de cier
 ### Renovación desatendida del 9 de octubre, 05:27
 
 Cuotas reales al despertar: 100%5h/70%7d, reset siguiente publicado 1791534431 (10:27:11 Madrid). Continúa la autorización encadenada del usuario con reservas 4%5h/1%7d, commit/push int y lectura tras cada entrega. Regla vigente de este lote sustituye los valores históricos anteriores; no gastar créditos ni reinicios. La próxima revisión, al cerrar, debe ser al menos un minuto tras ese reset real y redondeada hacia arriba (10:29 mientras siga siendo el reset vigente). No se programa aún ni se presupone una renovación. Paralelo sólo según ownership concreto registrado en iterations.md.
+
+
+### Cierre del lote de las05:27, 9 de octubre
+
+Último código7525376 publicado y verificado enorigin/int; cierre documental posterior. Lectura10%5h/56%7d, reservas4%/1%. Siguiente defaults/CLI+prueba Mongo propia exige margen de reparación/cierre adicional, por eso no se abre en esta ventana. Próxima revisión del mismo heartbeat confirmada9oct10:29Europe/Madrid, desde reset publicado1791534432 (10:27:12), al menosunminuto después y redondeado arriba. ACTIVE/failed_runs_only/chat preservados, alternativa históricaPAUSED. Ciclo encadenado autorizado; consultar cuotas/renovación y reprogramar únicamente con reset futuro real y margen semanal. No se ejecutó provisión en DB del usuario.

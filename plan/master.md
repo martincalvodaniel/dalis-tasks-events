@@ -317,3 +317,8 @@ Contrato push versionado conserva UUID/payload/fingerprint durables1; verifica a
 
 
 Cierre del lote del 9 de octubre: última entrega de código 4f0dc93; 407 pruebas correctas, tipos/lint/build aprobados. Próxima revisión automática confirmada para las 05:27 Europe/Madrid, tras el reset publicado 05:25:13. Continuación desde 11c4a7p y la preparación concreta de [activación personal](mixed-sync-activation.md), con cuota real y último HEAD completo. Las categorías aún no están activadas en la aplicación.
+
+
+### Cierre de la ventana9oct05:27
+
+Código cerrado7525376 y cierre documental posterior; pruebas440pass/93opt-in skip sin fallos, lint/tipos/build34 aprobados. Frontera RPC Next con sesiones sintéticas/Mongo propios comprobada en siete escenarios; producto sigue transporte1. Provisión parcial propia, preview completo y destino/ciclo por puertos preparados; siguiente11c4a8e2b defaults/CLI+11c4a8t prueba propia antes de ejecución de entorno autorizada y conexión conjunta. Lectura10%5h/56%7d, reservas4%/1%. Única revisión verificada9oct10:29Madrid tras reset real1791534432 (10:27:12); al despertar confirmar renovación/HEAD/cuotas. No DB del usuario ni activación parcial.
