@@ -127,3 +127,17 @@ Ensamblajecliente11c4a9c1: dispatcher2 y resumen guardado independientes, SyncAt
 
 
 11c4a9e: doce escenarios Next correctos. La composición de época antigua rechaza resumen/intento por la guardia exacta, conserva toda intención/cola/cursor y la composición de la nueva época confirma una sola vez; ambas particiones convergen con Mongo propio. Cleanup sigue la nueva época comprometida; fullDoD aprobado. No prueba de red en vuelo ni activación productiva, y provisión preproductiva continúa pendiente del nombre explícito.
+
+## Siguiente corte concreto — 11c4a9h
+
+Mientras falta el nombre de DB, puede prepararse `src/features/sync/hooks/use-mixed-sync-engine.ts` sin caller activo. Reutilizar `createMixedSyncClient`, `SyncSchedulerV2`, `isAccountSyncCacheKey` y las señales existentes, sin duplicar algoritmos de envío/scheduling. Capturar userId/epoch; usar un cache key de resumen separado de transporte1 que conserve las tres primeras posiciones de cuenta (por ejemplo, `["dalis:sync-queue", userId, epoch, 2]`). Notificaciones deben refrescar ese key y los incidentes propios; refresh general conserva el filtro de cuenta. Cancelar intento/scheduler/listeners al desmontar, impedir actualizaciones tardías con disposed y no reutilizar estado de otra época. Summary y result son mixtos; alcance preparado no se muestra desde el proveedor actual. Esta entrega requiere prueba de lifecycle real del hook, además de los controles y composición ya probados; dividir hook/prueba antes de abrir si el coste no cabe.
+
+La conexión productiva es un corte posterior conjunto, condicionado al recibo de índices de preproducción ready+closed:
+
+- `src/app/api/sync/identity/route.ts`: anunciar2 explícito con identidad autorizada vigente.
+- `src/app/api/sync/changes/route.ts`: delegar en getAuthenticatedSyncChangesResponseV2; routing únicamente.
+- `src/features/sync/actions.ts`: retirar ejecución legacy mediante rejectRetiredSyncPush y headers reales; conservar resultado legacy cuando se pueda resolver esa referencia.
+- Hook mixto, `components/active-sync-provider.tsx`, `sync-context.ts` y `components/device-sync-settings.tsx` bajo features/sync: conectar cliente/runtime2, tipos/summary2 y scope de UI al mismo tiempo. Nueva acción sigue actions-v2/client-action-v2.
+- No cambiar intención durable1 ni habilitar un rango1–2, crear índices desde requests o prometer orden manual/series/compartidos. No basta cambiar sync-protocol.ts.
+
+Los IDs de Server Actions pueden cambiar con el build y las acciones sin referencia se eliminan, según `node_modules/next/dist/docs/01-app/02-guides/server-actions.md`. La prueba local de referencia directa no demuestra que un ID antiguo del deployment invoque el retirementhelper. La matriz de transición debe contemplar también referencia antigua ausente: no efectos/ACK, cola y lease conservados/liberados correctamente, rechazo temporal comprensible y siguiente handshake2 que exige actualización. No conservar un endpoint mediante un botón ficticio ni alterar secretos de cifrado o hosting para el piloto. Google real y recarga/offline de preproducción permanecen una evidencia distinta del fixture.
