@@ -34,6 +34,25 @@ export function createHttpSyncTransportV2(
   fetchRequest: typeof fetch = fetch,
   timeoutMs = 30000
 ): SyncTransportV2 {
+  return createHttpSyncTransportForProtocol(
+    2,
+    userIdInput,
+    sendOperations,
+    fetchRequest,
+    timeoutMs
+  )
+}
+
+// Negotiation changes independently of the mixed envelopes and durable intentions.
+export function createHttpSyncTransportForProtocol(
+  protocolVersion: 2 | 3,
+  userIdInput: string,
+  sendOperations: (input: unknown) => Promise<unknown>,
+  fetchRequest: typeof fetch = fetch,
+  timeoutMs = 30000
+): SyncTransportV2 {
+  if (protocolVersion !== 2 && protocolVersion !== 3)
+    throw new RangeError("Invalid mixed sync transport protocol")
   const userId = userIdSchema.parse(userIdInput)
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 60000)
     throw new RangeError("Invalid mixed sync transport timeout")
@@ -69,7 +88,12 @@ export function createHttpSyncTransportV2(
       )
     }
     if (!response.ok) throw new SyncTransportError("retry_later")
-    if (!acceptsSyncProtocolRange(response.headers.get(syncProtocolHeader), 2))
+    if (
+      !acceptsSyncProtocolRange(
+        response.headers.get(syncProtocolHeader),
+        protocolVersion
+      )
+    )
       throw new SyncTransportError("update_required")
   }
   async function send(input: RemotePushInputV2): Promise<unknown> {
