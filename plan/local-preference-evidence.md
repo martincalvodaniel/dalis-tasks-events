@@ -101,3 +101,6 @@ Descarga `11c4a6p` [preparada](../src/features/sync/pull-response-v2.ts): cuenta
 
 
 Envío `11c4a6s` [preparado](../src/features/sync/guarded-push-batch-v2.ts): reutiliza el batch validado y observa readiness sólo antes del primer executor. Fallos de readiness conservan UUID/intención sin ACK; fallos posteriores conservan el prefijo durable. Sin caché entre invocaciones, provisión, acción pública ni cambio de protocolo activo. Seis tests nuevos.
+
+
+`11c4a7p` prepara [pull autenticado](../src/features/sync/authenticated-pull-v2.ts), [push autenticado](../src/features/sync/authenticated-push-v2.ts) y [acción2](../src/features/sync/actions-v2.ts). Defaults de sesión persistida/allowlist y DAL reales; puertos sólo server-only en helpers, nunca parámetros de RPC. Ocho tests de puertos no sustituyen frontera Next/Google real. Producto permanece transporte1.
