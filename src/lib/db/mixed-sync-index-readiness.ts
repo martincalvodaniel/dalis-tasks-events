@@ -1,16 +1,9 @@
 import "server-only"
 
 import { MongoServerError } from "mongodb"
-import {
-  COLLECTION_NAMES,
-  type CollectionName,
-  getCollection,
-} from "@/lib/db/collections"
-import {
-  INDEX_SPECS,
-  type IndexSpec,
-  validateIndexSpecs,
-} from "@/lib/db/ensure-indexes"
+import { type CollectionName, getCollection } from "@/lib/db/collections"
+import type { IndexSpec } from "@/lib/db/ensure-indexes"
+import { selectMixedSyncIndexSpecs } from "@/lib/db/mixed-sync-index-specs"
 
 export interface MixedSyncIndexInspection {
   listIndexes(
@@ -104,17 +97,7 @@ function indexMatches(
 export async function inspectMixedSyncIndexReadiness(
   inspection: MixedSyncIndexInspection
 ): Promise<MixedSyncIndexReadiness> {
-  const selected = INDEX_SPECS.filter(
-    (spec) =>
-      spec.provisioning === "explicit" &&
-      (spec.collection === COLLECTION_NAMES.tags ||
-        spec.collection === COLLECTION_NAMES.itemViews)
-  )
-  validateIndexSpecs(selected)
-  if (selected.length !== 3)
-    throw new Error(
-      "Mixed sync requires its complete registered index selection"
-    )
+  const selected = selectMixedSyncIndexSpecs()
   const missing: string[] = []
   const incompatible: string[] = []
   const collections = [...new Set(selected.map((spec) => spec.collection))]

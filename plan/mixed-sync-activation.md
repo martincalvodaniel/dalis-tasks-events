@@ -69,3 +69,8 @@ Adaptadores y acción preparatoria `11c4a7p` cerrados: defaults usan sesión per
 
 
 La respuesta de identidad admite anuncio explícito validado desde `11c4a7h`. Default del producto sigue1; futuras fixtures/rutas mixtas pueden seleccionar2 sin cambiar configuración global. Se conservan body validado, privacidad y estados; versiones inválidas rechazan, sin anunciar compatibilidad1–2.
+
+
+### Provisión preparatoria cerrada
+
+`11c4a8p` aporta selección central exacta y ejecución con puertos, sin conexión de entorno. Reinspecciona antes de cada alta, bloquea definiciones incompatibles y conserva estado parcial ante fallo. created enumera sólo calls resueltas: una call rechazada puede haber creado índice, por eso readiness final se observa aparte. Duplicados o equivalente con otro nombre requieren revisión, nunca drop/rename/deduplicación automática. El siguiente corte debe probar Mongo propio y preparar un CLI con destino explícito validado antes de conectar, sin ejecutar en DB del usuario.

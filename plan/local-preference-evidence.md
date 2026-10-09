@@ -104,3 +104,6 @@ Envío `11c4a6s` [preparado](../src/features/sync/guarded-push-batch-v2.ts): reu
 
 
 `11c4a7p` prepara [pull autenticado](../src/features/sync/authenticated-pull-v2.ts), [push autenticado](../src/features/sync/authenticated-push-v2.ts) y [acción2](../src/features/sync/actions-v2.ts). Defaults de sesión persistida/allowlist y DAL reales; puertos sólo server-only en helpers, nunca parámetros de RPC. Ocho tests de puertos no sustituyen frontera Next/Google real. Producto permanece transporte1.
+
+
+`11c4a8p` prepara [provisión por puertos](../src/lib/db/mixed-sync-index-provisioning.ts) y [selección central](../src/lib/db/mixed-sync-index-specs.ts). Sin conexión o caller; reinspección y estado parcial conservado, sin reparar datos/índices. Schema de nombres y readiness compartido estricto. No equivale a índices creados en el entorno del usuario.
