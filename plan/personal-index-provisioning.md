@@ -28,3 +28,6 @@ Salida técnica en inglés con fase y estado finitos, readiness saneado y nombre
 4. **Activación:** preparar conexión conjunta de identidad/ruta/acción/runtime/UI y matriz de transición; solicitar autorización sólo con procedimiento concreto revisable y prerrequisitos de entorno cerrados. El producto sigue transporte1 hasta entonces. Piloto Google requiere sesión autorizada; evidencia Next con usuarios sintéticos no lo sustituye.
 
 Referencias: [activación mixta](mixed-sync-activation.md), [registro central](../src/lib/db/ensure-indexes.ts), [singleton](../src/lib/db/client.ts), [provisión preparada](../src/lib/db/mixed-sync-index-provisioning.ts) y [prueba propia](../src/lib/db/mixed-sync-index-provisioning.integration.test.ts).
+
+
+Avance11c4a8g1: [schema del descriptor](../src/schemas/personal-index-target.ts) y [guardia pura](../src/lib/db/personal-index-target.ts) cerrados con dos tests/54 aserciones. Compara descriptores ya resueltos; no parser de URI, lector de env o permiso. Siguiente11c4a8g2 debe derivar y validar autoridad/config sin fallback antes de conectar, y probar formas ambiguas según el driver instalado. Restricción de caracteres del descriptor no sustituye formato completo de hosts/puertos/SRV.

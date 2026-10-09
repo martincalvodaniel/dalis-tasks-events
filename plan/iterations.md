@@ -2082,3 +2082,15 @@ Objetivo: cerrar destino, efectos y cortes del futuro CLI antes de implementar c
 Contrato [personal-index-provisioning.md](personal-index-provisioning.md) cierra destino explícito, autoridad sin credenciales, DB sin fallback, autorización de conexión concreta y nueve índices automáticos del singleton además de tres personales. No ofrecer inspección readonly: getDatabase puede crear índices automáticos faltantes antes de readiness. CLI sigue sin implementar; preview offline vigente no conecta. Servicio personal existente conserva partial-create/retry/error incierto y nunca rollback/deduplicación. Cortes siguientes guardia pura11c4a8g, adaptador/CLI11c4a8e, prueba propia11c4a8t, conexión conjunta/piloto autorizado.
 
 Sólo docs: referencias, consistencia con fuente/registro y diffcheck validados, sin repetir suite/build estables432pass/93skip. Entrada20%5h/58%7d, reservas4%/1%. Commitpush/HEAD/cuotas al cierre. Sin DB del usuario ni cambio de permisos/hosting/protocolo activo.
+
+
+### Preparación 11c4a8g1 — Guardia pura del descriptor de destino
+
+Objetivo: validar descriptor explícito y comparar DB/autoridad resueltas sin IO. Target_paths root: src/schemas/personal-index-target.ts, src/lib/db/personal-index-target.ts y test, plan/**. Secuencial, sin agentes. Dependencias11c4a8c. Aceptación: schema estricto local/preproduction, nombre DB explícito conservador y autoridad sin URI/credenciales/ruta/query; comparar exactamente con configuración ya resuelta y devolver copia; rechazo genérico sin cause/valores. Sin leer env/URI, conectar, auth o defaults. Este subcorte no resuelve autoridad desde URI:11c4a8g2 debe validar formas del driver/configuración sin fallback antes de conectar CLI. Probar mismatch, selección production, ausencia/credenciales y seedlist/SRV como descriptores, no como conexiones Mongo. FullDoD/diff/referencias, plan/registro/commitpush/HEAD/cuotas. Entrada19%5h/57%7d, reservas4%/1%; no abrir adaptador de conexión en esta ventana.
+
+
+### Resultado 11c4a8g1 — Descriptor de destino comparado sin IO
+
+Schema estricto exige entorno declarado local/preproduction, DB explícita conservadora y autoridad de conexión ya resuelta sin userinfo/URI/ruta/query/whitespace. Guardia pura compara DB/autoridad exactas con configuración resuelta y devuelve copia; todo rechazo usa error finito sin cause ni valores. No lee env, interpreta URI, conecta ni acredita ownership/autorización. Formato completo/resolución de autoridad desde URI y ausencia de fallback del lector son dependencia11c4a8g2; esta guardia no debe conectarse a CLI directamente con getDatabaseEnv fallback.
+
+Dos tests/54 aserciones: coincidencia/copia, descriptores loopback/seedlist/IPv6, mismatch exacto frente a substring, production/extra/ausencia y datos inseguros sin filtración. FullDoD434pass/93opt-in skip/0fail/7133 aserciones; lint495/tipos/build34/diff correctos después de corregir literal de entorno del test. Sin Mongo/browser adicionales porque no IO ni cambios al producto. Entrada19%5h/57%7d, reservas4%/1%. Siguiente11c4a8g2 resolver/config, antes de adaptador de conexión. Commitpush/HEAD/cuotas al cierre.

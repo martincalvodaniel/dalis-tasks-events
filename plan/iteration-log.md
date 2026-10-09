@@ -1385,3 +1385,10 @@ FullDoD432pass/93opt-in skip/0fail/7079 aserciones, lint492/tipos/build34/diff c
 Contrato [personal-index-provisioning.md](personal-index-provisioning.md) cierra destino explícito, autoridad sin credenciales, DB sin fallback, autorización de conexión concreta y nueve índices automáticos del singleton además de tres personales. No ofrecer inspección readonly: getDatabase puede crear índices automáticos faltantes antes de readiness. CLI sigue sin implementar; preview offline vigente no conecta. Servicio personal existente conserva partial-create/retry/error incierto y nunca rollback/deduplicación. Cortes siguientes guardia pura11c4a8g, adaptador/CLI11c4a8e, prueba propia11c4a8t, conexión conjunta/piloto autorizado.
 
 Sólo docs: referencias, consistencia con fuente/registro y diffcheck validados, sin repetir suite/build estables432pass/93skip. Entrada20%5h/58%7d, reservas4%/1%. Commitpush/HEAD/cuotas al cierre. Sin DB del usuario ni cambio de permisos/hosting/protocolo activo.
+
+
+### Resultado 11c4a8g1 — Descriptor de destino comparado sin IO
+
+Schema estricto exige entorno declarado local/preproduction, DB explícita conservadora y autoridad de conexión ya resuelta sin userinfo/URI/ruta/query/whitespace. Guardia pura compara DB/autoridad exactas con configuración resuelta y devuelve copia; todo rechazo usa error finito sin cause ni valores. No lee env, interpreta URI, conecta ni acredita ownership/autorización. Formato completo/resolución de autoridad desde URI y ausencia de fallback del lector son dependencia11c4a8g2; esta guardia no debe conectarse a CLI directamente con getDatabaseEnv fallback.
+
+Dos tests/54 aserciones: coincidencia/copia, descriptores loopback/seedlist/IPv6, mismatch exacto frente a substring, production/extra/ausencia y datos inseguros sin filtración. FullDoD434pass/93opt-in skip/0fail/7133 aserciones; lint495/tipos/build34/diff correctos después de corregir literal de entorno del test. Sin Mongo/browser adicionales porque no IO ni cambios al producto. Entrada19%5h/57%7d, reservas4%/1%. Siguiente11c4a8g2 resolver/config, antes de adaptador de conexión. Commitpush/HEAD/cuotas al cierre.
