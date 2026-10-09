@@ -14,6 +14,7 @@ if (
   mode !== "browser-mixed" &&
   mode !== "next" &&
   mode !== "operator" &&
+  mode !== "placement-operator" &&
   mode !== "indexes"
 )
   throw new Error("Unknown isolated sync test mode")
@@ -169,16 +170,18 @@ try {
   ])
   await ready("if (!db.hello().isWritablePrimary) quit(1)")
   const argumentsForMode =
-    mode === "indexes" || mode === "operator"
+    mode === "indexes" || mode === "operator" || mode === "placement-operator"
       ? [
           "bun",
           "--no-env-file",
           "test",
           "--preload",
           "./test/setup.ts",
-          mode === "operator"
-            ? "src/lib/db/personal-index-operator.integration.test.ts"
-            : "src/lib/db/mixed-sync-index-provisioning.integration.test.ts",
+          mode === "placement-operator"
+            ? "src/lib/db/placement-index-operator.integration.test.ts"
+            : mode === "operator"
+              ? "src/lib/db/personal-index-operator.integration.test.ts"
+              : "src/lib/db/mixed-sync-index-provisioning.integration.test.ts",
         ]
       : mode === "next"
         ? [
