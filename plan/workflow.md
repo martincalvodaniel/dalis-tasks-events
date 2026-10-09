@@ -236,3 +236,8 @@ Se solicitó al usuario elegir entre completar orden remoto para conservar/sincr
 ### Reanudación11c5 por elección del usuario
 
 El usuario elige completar orden remoto para preservar y sincronizar el movimiento histórico del piloto. Continúa el lote con cuota real33%5h/29%7d y reservas4%/1%, consulta tras cada commitpushint; no supersesión ni reinterpretación de intención. La automatización pausada sólo se reprogramará al cierre si el objetivo requiere nueva ventana, con reset futuro real y campos/política preservados. Una vez cerrado categorías/asignaciones, reportar porcentaje ponderado y titulares restantes en orden óptimo y esperar elección antes de otros bloques.
+
+
+### Cierre11c5a3 — Continuación tras renovación
+
+8c70e49 completo y HEADorigin/int verificado; repo limpio, pruebas propias cerradas. Lectura5%5h/25%7d: no abrir executor/transacciones sobre reserva4/1. Reset real1791570682 (9oct20:31:22Madrid), reloj de cierre16:49Madrid. Una única revisión del mismo heartbeat reactivada/confirmada ACTIVE para9oct20:33Madrid, reset+unminuto redondeadoarriba, COUNT1/failed_runs_only/chat preservados; sin duplicados/créditos/reinicios. Elección humana de completar orden remoto reanuda este objetivo; no otros bloques después de cerrar categorías/asignaciones sin su elección. Siguiente11c5a4 executor multiefecto preparatorio, luego reader/ACKpull/incidentes y negociación3 con retiro de acción2 antes de activación. Task.move histórico intacto y aún pending. Validación documental coherencia/referencias/diff; commitpushint y consulta final de ambas cuotas.
