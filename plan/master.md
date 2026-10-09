@@ -6,9 +6,9 @@ La aplicación desplegada sigue usando transporte1: sincroniza tareas y eventos 
 
 El transporte2 de categorías y asignaciones está preparado, con CLI de índices validado en MongoDB propio, cliente por defecto y doce escenarios Next/IndexedDB/Mongo correctos. Se ha comprobado ACK/pull entre dos dispositivos, replay, recuperación de sesión, cambio de cuenta e invalidación de época local sin perder ni cruzar intenciones. Esta evidencia es aislada; no acredita Google interactivo ni el endpoint del despliegue.
 
-La provisión de índices preproductivos ya está autorizada. El usuario confirmó dalis-tasks-events como nombre explícito de esa DB. La fuente Preview de Vercel está localizada; el usuario completó Reauthenticate y la conexión se capturó privadamente y se ocultó. El launcher falló antes de iniciar el CLI, sin conexión Mongo; fichero privado eliminado. La ejecución se retoma tras renovar la cuota. Después corresponde la conexión conjunta de rutas, acción, cliente/hook y UI, seguida del piloto. Consulta [activación mixta](mixed-sync-activation.md), [provisión](personal-index-provisioning.md) e [iteraciones](iterations.md) para dependencias y cortes. Reservas vigentes del lote desatendido:4%5h/1%7d.
+La provisión preproductiva terminó correctamente en 11c4a8pre2: destino Preview verificado, DB dalis-tasks-events confirmada, tres índices personales creados mediante el procedimiento central, readiness sin faltantes/incompatibilidades y conexión cerrada. No se modificaron documentos ni producción. Falta conectar conjuntamente rutas, acción, hook/proveedor y UI de transporte2 y probar el despliegue; consulta [activación mixta](mixed-sync-activation.md) y [provisión](personal-index-provisioning.md).
 
-Próxima revisión única confirmada:9oct15:31 Europe/Madrid, después del reinicio real15:29:20. Último código completo9a34fa4, doce escenarios Next y fullDoD correctos; siguiente hook mixto inactivo11c4a9h o provisión autorizada si llega el nombre de DB. Detalle del cierre y presupuestos en workflow/iteration-log.
+Lote desatendido15:31 con renovación verificada100%5h/40%7d y reservas4%/1%. Siguiente11c4a9h: hook mixto y lifecycle real antes de activación conjunta. Reinicio siguiente publicado20:31:22Madrid; revisión posterior se programará al cerrar desde la cuota real.
 
 ## Recorrido registrado
 
