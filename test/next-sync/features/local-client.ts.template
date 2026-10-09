@@ -15,6 +15,14 @@ import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import { nextSyncDeviceCommandSchema } from "@/schemas/next-sync-test"
 import { workspaceIdentitySchema } from "@/schemas/workspace"
+import {
+  hookState,
+  mountHook,
+  observeHook,
+  quietHook,
+  synchronizeHook,
+  unmountHook,
+} from "@fixture/hook-host"
 
 const markerKey = "dalis:account-change"
 let owned: {
@@ -95,6 +103,7 @@ export async function executeLocalFixtureCommand(
     return account()
   }
   if (command.type === "cleanup-local") {
+    await unmountHook()
     if (!owned) return true
     const current = await readAccountControl()
     if (
@@ -118,6 +127,20 @@ export async function executeLocalFixtureCommand(
   const active = account()
   await requireActiveAccount(active)
   switch (command.type) {
+    case "hook-mount":
+      return mountHook(active)
+    case "hook-rerender":
+      return mountHook(active, true)
+    case "hook-state":
+      return hookState()
+    case "hook-observe":
+      return observeHook(command.state)
+    case "hook-sync":
+      return synchronizeHook()
+    case "hook-unmount":
+      return unmountHook()
+    case "hook-quiet":
+      return quietHook()
     case "rotate-local": {
       const oldClient = client!
       const previous = await readAccountControl()

@@ -1,0 +1,165 @@
+"use client"
+
+import { createRoot, type Root } from "react-dom/client"
+import { unstable_serialize } from "swr"
+import type { FixtureHookEngine } from "@fixture/hook-engine"
+import { FixtureHookRoot } from "@fixture/hook-root"
+
+type Account = { userId: string; epoch: string }
+let root: Root | null = null
+let container: HTMLElement | null = null
+let current: FixtureHookEngine | null = null
+let requested: Account | null = null
+let reports = 0
+let staleReports = 0
+let pendingSeen = false
+let epochResetObserved = false
+let resetEpoch: string | null = null
+let legacyKey = ""
+const legacyData = { fixtureLegacy: true }
+const cache = new Map<string, { data?: unknown }>()
+const waiters = new Set<() => void>()
+
+function report(engine: FixtureHookEngine) {
+  if (!root) {
+    staleReports++
+    return
+  }
+  if (
+    !requested ||
+    engine.userId !== requested.userId ||
+    engine.epoch !== requested.epoch
+  ) {
+    // An old commit may finish before React applies requested props; the new commit starts the epoch proof.
+    if (resetEpoch === null) staleReports++
+    return
+  }
+  if (resetEpoch === engine.epoch) {
+    epochResetObserved =
+      !engine.busy && engine.result === null && engine.summary === null
+    resetEpoch = null
+  }
+  current = engine
+  reports++
+  pendingSeen ||= Boolean(engine.summary?.pending)
+  for (const notify of waiters) notify()
+}
+export function hookState() {
+  return {
+    mounted: root !== null,
+    reports,
+    staleReports,
+    userId: current?.userId ?? null,
+    epoch: current?.epoch ?? null,
+    summary: current?.summary ?? null,
+    error: current?.error ?? false,
+    busy: current?.busy ?? false,
+    result: current?.result ?? null,
+    pendingSeen,
+    epochResetObserved,
+    mixedCachePresent: requested
+      ? cache.has(
+          unstable_serialize([
+            "dalis:sync-queue",
+            requested.userId,
+            requested.epoch,
+            2,
+          ])
+        )
+      : false,
+    legacyCacheIntact: cache.get(legacyKey)?.data === legacyData,
+  }
+}
+async function waitFor(predicate: () => boolean) {
+  if (predicate()) return hookState()
+  return new Promise<ReturnType<typeof hookState>>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      waiters.delete(notify)
+      reject(new Error("Fixture hook observation timed out"))
+    }, 20000)
+    const notify = () => {
+      if (!predicate()) return
+      clearTimeout(timer)
+      waiters.delete(notify)
+      resolve(hookState())
+    }
+    waiters.add(notify)
+  })
+}
+export function observeHook(state: "ready" | "pending" | "settled") {
+  if (!root) throw new Error("Fixture hook is not mounted")
+  return waitFor(() =>
+    Boolean(
+      current &&
+        !current.error &&
+        (state === "pending"
+          ? pendingSeen
+          : state === "settled"
+            ? !current.busy &&
+              current.result?.status === "settled" &&
+              current.summary?.pending === 0
+            : current.summary !== null && !current.busy)
+    )
+  )
+}
+export async function mountHook(account: Account, rerender = false) {
+  if (rerender ? !root : root !== null)
+    throw new Error("Fixture hook mount state is invalid")
+  if (rerender) {
+    if (
+      !requested ||
+      account.userId !== requested.userId ||
+      account.epoch === requested.epoch
+    )
+      throw new Error("Fixture hook rerender requires its new account epoch")
+    resetEpoch = account.epoch
+  } else {
+    container = document.createElement("aside")
+    container.setAttribute("aria-label", "Motor mixto de prueba")
+    document.body.append(container)
+    root = createRoot(container)
+  }
+  requested = { ...account }
+  current = null
+  pendingSeen = false
+  legacyKey = unstable_serialize([
+    "dalis:sync-queue",
+    account.userId,
+    account.epoch,
+  ])
+  cache.set(legacyKey, { data: legacyData })
+  // Keep the same component/provider without a key so the real hook must reject stale pass state.
+  root!.render(
+    <FixtureHookRoot account={requested} cache={cache} report={report} />
+  )
+  return observeHook("ready")
+}
+export async function synchronizeHook() {
+  await observeHook("ready")
+  const work = current!.synchronize()
+  if (!work) throw new Error("Fixture hook controller is not ready")
+  const result = await work
+  await observeHook("settled")
+  return result
+}
+export async function unmountHook() {
+  if (!root) return hookState()
+  await waitFor(() => Boolean(current && !current.busy))
+  root.unmount()
+  root = null
+  container?.remove()
+  container = null
+  return hookState()
+}
+export async function quietHook() {
+  if (root) throw new Error("Fixture quiet check requires an unmounted hook")
+  const before = reports
+  const staleBefore = staleReports
+  window.dispatchEvent(new Event("online"))
+  window.dispatchEvent(new Event("focus"))
+  document.dispatchEvent(new Event("visibilitychange"))
+  await new Promise((resolve) => setTimeout(resolve, 1200))
+  if (reports !== before || staleReports !== staleBefore || root)
+    throw new Error("Fixture hook reported after unmount")
+  return { ...hookState(), visibility: document.visibilityState }
+}

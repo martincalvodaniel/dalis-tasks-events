@@ -51,6 +51,13 @@ async function executeCommand(
       "mixed-summary",
       "mixed-run",
       "rotate-local",
+      "hook-mount",
+      "hook-rerender",
+      "hook-state",
+      "hook-observe",
+      "hook-sync",
+      "hook-unmount",
+      "hook-quiet",
       "local-snapshot",
     ].includes(command.type)
   )

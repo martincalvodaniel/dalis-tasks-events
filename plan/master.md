@@ -8,7 +8,7 @@ El transporte2 de categorías y asignaciones está preparado, con CLI de índice
 
 La provisión preproductiva terminó correctamente en 11c4a8pre2: destino Preview verificado, DB dalis-tasks-events confirmada, tres índices personales creados mediante el procedimiento central, readiness sin faltantes/incompatibilidades y conexión cerrada. No se modificaron documentos ni producción. Falta conectar conjuntamente rutas, acción, hook/proveedor y UI de transporte2 y probar el despliegue; consulta [activación mixta](mixed-sync-activation.md) y [provisión](personal-index-provisioning.md).
 
-Lote desatendido15:31 con renovación verificada100%5h/40%7d y reservas4%/1%. Siguiente11c4a9h: hook mixto y lifecycle real antes de activación conjunta. Reinicio siguiente publicado20:31:22Madrid; revisión posterior se programará al cerrar desde la cuota real.
+Lote desatendido15:31 con renovación verificada100%5h/40%7d y reservas4%/1%. 11c4a9h cerrado: hook mixto y trece escenarios Next/React/IndexedDB/Mongo correctos. Siguiente11c4a10: conexión conjunta y transición de referencia antigua ausente antes de publicar. Reinicio siguiente publicado20:31:22Madrid; revisión posterior se programará al cerrar desde la cuota real.
 
 ## Recorrido registrado
 

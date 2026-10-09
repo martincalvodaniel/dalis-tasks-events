@@ -146,15 +146,19 @@ export function FixtureController() {
     const verifyRecovery = async (
       intention: OutboxEntry,
       remoteBefore: Awaited<ReturnType<typeof state>>,
-      pending: Awaited<ReturnType<typeof snapshot>>
+      pending: Awaited<ReturnType<typeof snapshot>>,
+      source: "mixed-run" | "hook-sync" = "mixed-run"
     ) => {
-      const recovered = (await call(1, { type: "mixed-run" })) as {
+      const recovered = (await call(1, { type: source })) as {
         status?: string
         uploaded?: number
       }
       assert(
-        recovered.status === "settled" && recovered.uploaded === 1,
-        "Reauthenticated default attempt uploads exactly one intention"
+        recovered.status === "settled" &&
+          (source === "mixed-run"
+            ? recovered.uploaded === 1
+            : recovered.uploaded === 0 || recovered.uploaded === 1),
+        "Recovered attempt settles the original intention"
       )
       const confirmed = await snapshot(1)
       const acknowledgment = confirmed.backup.stores.outbox.find(
@@ -758,6 +762,136 @@ export function FixtureController() {
         }
       )
       await check(
+        "Hook React real actualiza la cola, confirma y respeta época y desmontaje",
+        async () => {
+          const mounted = (await call(1, { type: "hook-mount" })) as {
+            mounted?: boolean
+            epoch?: string
+            mixedCachePresent?: boolean
+            legacyCacheIntact?: boolean
+          }
+          assert(
+            mounted.mounted === true &&
+              mounted.mixedCachePresent === true &&
+              mounted.legacyCacheIntact === true,
+            "Real hook mounts with an isolated mixed cache"
+          )
+          assert(
+            creation.command.type === "item.create",
+            "Hook proof requires the creation command"
+          )
+          const firstItemId = crypto.randomUUID()
+          const remoteBefore = await state(owner)
+          await call(1, {
+            type: "commit-local",
+            command: { ...creation.command, itemId: firstItemId },
+          })
+          const pending = await snapshot(1)
+          const intention = pending.backup.stores.outbox.find(
+            (entry) => entry.entityKey === `item:${firstItemId}`
+          )
+          assert(
+            intention?.state === "pending" &&
+              intention.attempts === 0 &&
+              intention.lease === null,
+            "Hook receives a fresh durable intention"
+          )
+          const notified = (await call(1, {
+            type: "hook-observe",
+            state: "pending",
+          })) as { pendingSeen?: boolean }
+          assert(
+            notified.pendingSeen === true,
+            "Outbox notification revalidates the real hook summary"
+          )
+          await verifyRecovery(intention, remoteBefore, pending, "hook-sync")
+          const settled = (await call(1, {
+            type: "hook-observe",
+            state: "settled",
+          })) as {
+            epoch?: string
+            result?: unknown
+            mixedCachePresent?: boolean
+            legacyCacheIntact?: boolean
+          }
+          assert(
+            settled.result !== null &&
+              settled.result !== undefined &&
+              settled.epoch === mounted.epoch &&
+              settled.mixedCachePresent === true &&
+              settled.legacyCacheIntact === true,
+            "Mounted hook receives its real settled result and leaves legacy cache intact"
+          )
+          const storesBeforeEpoch = (await snapshot(1)).backup.stores
+          const epochBefore = await state(owner)
+          const rotated = (await call(1, { type: "rotate-local" })) as {
+            currentEpoch?: string
+          }
+          const rerendered = (await call(1, { type: "hook-rerender" })) as {
+            epoch?: string
+            epochResetObserved?: boolean
+            mixedCachePresent?: boolean
+            legacyCacheIntact?: boolean
+            staleReports?: number
+          }
+          assert(
+            rerendered.epoch === rotated.currentEpoch &&
+              rerendered.epoch !== settled.epoch &&
+              rerendered.epochResetObserved === true &&
+              rerendered.mixedCachePresent === true &&
+              rerendered.legacyCacheIntact === true,
+            "Same unkeyed component renders the new epoch without stale summary, busy state or result"
+          )
+          assert(
+            rerendered.staleReports === 0,
+            "New epoch receives no stale hook reports"
+          )
+          assert(
+            JSON.stringify((await snapshot(1)).backup.stores) ===
+              JSON.stringify(storesBeforeEpoch) &&
+              JSON.stringify(await state(owner)) ===
+                JSON.stringify(epochBefore),
+            "Epoch rerender preserves local and remote history"
+          )
+          const unmounted = (await call(1, { type: "hook-unmount" })) as {
+            mounted?: boolean
+            reports?: number
+          }
+          assert(unmounted.mounted === false, "Real hook unmounts while idle")
+          const secondItemId = crypto.randomUUID()
+          await call(1, {
+            type: "commit-local",
+            command: { ...creation.command, itemId: secondItemId },
+          })
+          const afterUnmount = await snapshot(1)
+          const second = afterUnmount.backup.stores.outbox.find(
+            (entry) => entry.entityKey === `item:${secondItemId}`
+          )
+          assert(
+            second?.state === "pending" &&
+              second.attempts === 0 &&
+              second.lease === null,
+            "Intention saved after unmount stays pending"
+          )
+          const quiet = (await call(1, { type: "hook-quiet" })) as {
+            mounted?: boolean
+            reports?: number
+          }
+          assert(
+            quiet.mounted === false && quiet.reports === unmounted.reports,
+            "Unmounted component produces no reports after outbox and wake events"
+          )
+          assert(
+            JSON.stringify((await snapshot(1)).backup.stores) ===
+              JSON.stringify(afterUnmount.backup.stores) &&
+              JSON.stringify(await state(owner)) ===
+                JSON.stringify(epochBefore),
+            "Idle unmount leaves the new intention untouched after wake signals"
+          )
+          await verifyRecovery(second, epochBefore, afterUnmount)
+        }
+      )
+      await check(
         "RPC retirado autenticado rechaza el transporte antiguo sin mutación",
         async () => {
           const before = await state(owner)
@@ -874,7 +1008,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Doce escenarios Next e IndexedDB correctos; cookies y recursos propios cerrados"
+            "Trece escenarios Next, React e IndexedDB correctos; cookies y recursos propios cerrados"
           )
         await fetch("/fixture/finish", {
           method: "POST",

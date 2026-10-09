@@ -1,0 +1,23 @@
+"use client"
+
+import { SWRConfig } from "swr"
+import {
+  FixtureHookEngine,
+  type FixtureHookEngine as Engine,
+} from "@fixture/hook-engine"
+
+export function FixtureHookRoot({
+  account,
+  cache,
+  report,
+}: {
+  account: { userId: string; epoch: string }
+  cache: Map<string, { data?: unknown }>
+  report(engine: Engine): void
+}) {
+  return (
+    <SWRConfig value={{ provider: () => cache }}>
+      <FixtureHookEngine account={account} report={report} />
+    </SWRConfig>
+  )
+}
