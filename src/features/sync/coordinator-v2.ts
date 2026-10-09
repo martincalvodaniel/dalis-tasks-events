@@ -6,8 +6,8 @@ import { validateLocalChangesPageInputV2 } from "@/lib/sync/local-changes-page-v
 import { diagnosePersonalQueue } from "@/lib/sync/personal-queue-diagnostics"
 import { validateRemotePushResultV2 } from "@/lib/sync/remote-push-v2"
 import {
-  readSyncCommandCapability,
-  syncCapabilityRegistry,
+  type SyncCapabilityPolicy,
+  syncCapabilityPolicy,
 } from "@/lib/sync/sync-capabilities"
 import { localPullCursorSchema, outboxEntrySchema } from "@/schemas/local-sync"
 import { entityIdSchema, userIdSchema } from "@/schemas/primitives"
@@ -71,7 +71,8 @@ export class SyncCoordinatorV2 {
   constructor(
     userId: string,
     private readonly ports: SyncCoordinatorPortsV2,
-    senderId = crypto.randomUUID()
+    senderId = crypto.randomUUID(),
+    private readonly policy: SyncCapabilityPolicy = syncCapabilityPolicy
   ) {
     this.userId = userIdSchema.parse(userId)
     this.senderId = entityIdSchema.parse(senderId)
@@ -117,7 +118,10 @@ export class SyncCoordinatorV2 {
       await guard()
       const snapshot = structuredClone(await this.ports.readQueueState())
       await guard()
-      diagnostics = diagnosePersonalQueue({ ...snapshot, userId: this.userId })
+      diagnostics = diagnosePersonalQueue(
+        { ...snapshot, userId: this.userId },
+        this.policy
+      )
       return { snapshot, diagnostics }
     }
     const download = async () => {
@@ -213,7 +217,7 @@ export class SyncCoordinatorV2 {
                     (record) => record.id === command.itemId
                   ) ?? null)
                 : null
-            if (!readSyncCommandCapability(command, item).supported) continue
+            if (!this.policy.readCommand(command, item).supported) continue
             const request = remotePushInputV2Schema.parse({
               transportVersion: 2,
               expectedUserId: this.userId,
@@ -247,9 +251,7 @@ export class SyncCoordinatorV2 {
               if (
                 effects.some(
                   (effect) =>
-                    !syncCapabilityRegistry.stores.some(
-                      (store) => store === effect.store
-                    )
+                    !this.policy.stores.some((store) => store === effect.store)
                 )
               )
                 throw new Error(
@@ -263,7 +265,7 @@ export class SyncCoordinatorV2 {
                 result.outcome.status === "applied"
                   ? result.outcome.item
                   : result.outcome.current
-              if (!readSyncCommandCapability(command, record).supported)
+              if (!this.policy.readCommand(command, record).supported)
                 throw new Error(
                   "Mixed push result contains unsupported item content"
                 )

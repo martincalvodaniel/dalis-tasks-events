@@ -7,6 +7,11 @@ import {
   type SyncQueueSummaryV2,
   summarizeSyncQueueV2,
 } from "@/lib/sync/queue-summary-v2"
+import {
+  placementSyncCapabilityPolicy,
+  type SyncCapabilityPolicy,
+  syncCapabilityPolicy,
+} from "@/lib/sync/sync-capabilities"
 
 type AccountIdentity = Pick<LocalAccount, "userId" | "epoch">
 interface MixedSummaryPorts {
@@ -23,17 +28,28 @@ const defaultPorts: MixedSummaryPorts = {
 // Prepared reader; the product hook still reads its legacy summary.
 export async function readMixedSyncQueueSummary(
   input: AccountIdentity,
-  ports: MixedSummaryPorts = defaultPorts
+  ports: MixedSummaryPorts = defaultPorts,
+  policy: SyncCapabilityPolicy = syncCapabilityPolicy
 ): Promise<SyncQueueSummaryV2> {
   const account = { userId: input.userId, epoch: input.epoch }
   await ports.requireActive(account)
   const store = await ports.openStore(account.userId)
   try {
     const state = await store.readQueueState()
-    const summary = summarizeSyncQueueV2({ ...state, userId: account.userId })
+    const summary = summarizeSyncQueueV2(
+      { ...state, userId: account.userId },
+      policy
+    )
     await ports.requireActive(account)
     return summary
   } finally {
     store.close()
   }
+}
+
+export function readPlacementSyncQueueSummary(
+  input: AccountIdentity,
+  ports: MixedSummaryPorts = defaultPorts
+): Promise<SyncQueueSummaryV2> {
+  return readMixedSyncQueueSummary(input, ports, placementSyncCapabilityPolicy)
 }

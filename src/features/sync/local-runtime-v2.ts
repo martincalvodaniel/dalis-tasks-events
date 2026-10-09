@@ -9,6 +9,11 @@ import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
 import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
 import { LocalOutbox } from "@/lib/local-db/outbox"
+import {
+  placementSyncCapabilityPolicy,
+  type SyncCapabilityPolicy,
+  syncCapabilityPolicy,
+} from "@/lib/sync/sync-capabilities"
 
 export interface LocalSyncRuntimeV2 {
   run(): Promise<SyncPassResultV2>
@@ -18,7 +23,8 @@ export interface LocalSyncRuntimeV2 {
 // Prepared runtime only. Account-control and product partitions cannot share an IndexedDB transaction.
 export async function openLocalSyncRuntimeV2(
   accountInput: Pick<LocalAccount, "userId" | "epoch">,
-  transport: SyncTransportV2
+  transport: SyncTransportV2,
+  policy: SyncCapabilityPolicy = syncCapabilityPolicy
 ): Promise<LocalSyncRuntimeV2> {
   const account = { userId: accountInput.userId, epoch: accountInput.epoch }
   await requireActiveAccount(account)
@@ -51,47 +57,52 @@ export async function openLocalSyncRuntimeV2(
     if (closing) throw new Error("Mixed sync runtime is closing")
     await requireActiveAccount(account)
   }
-  const coordinator = new SyncCoordinatorV2(account.userId, {
-    ...transport,
-    isActive: async () => {
-      try {
+  const coordinator = new SyncCoordinatorV2(
+    account.userId,
+    {
+      ...transport,
+      isActive: async () => {
+        try {
+          await guard()
+          return !closing
+        } catch {
+          return false
+        }
+      },
+      readCursor: async () => {
         await guard()
-        return !closing
-      } catch {
-        return false
-      }
+        const value = await store.readPullCursor()
+        await guard()
+        return value
+      },
+      readQueueState: async () => {
+        await guard()
+        const value = await store.readQueueState()
+        await guard()
+        return value
+      },
+      recoverExpiredSends: async () => {
+        await guard()
+        return outbox.recoverExpiredSends()
+      },
+      claim: async (id, sender) => {
+        await guard()
+        return outbox.claim(id, sender, new Date(), 120000)
+      },
+      // Lease cleanup is scoped to the previous partition and sender, including after account closure.
+      release: (id, sender) => outbox.release(id, sender),
+      applyPage: async (input) => {
+        await guard()
+        return store.applyChangesPage(input)
+      },
+      applyResult: async (input) => {
+        await guard()
+        return store.applyOperationResult(input)
+      },
     },
-    readCursor: async () => {
-      await guard()
-      const value = await store.readPullCursor()
-      await guard()
-      return value
-    },
-    readQueueState: async () => {
-      await guard()
-      const value = await store.readQueueState()
-      await guard()
-      return value
-    },
-    recoverExpiredSends: async () => {
-      await guard()
-      return outbox.recoverExpiredSends()
-    },
-    claim: async (id, sender) => {
-      await guard()
-      return outbox.claim(id, sender, new Date(), 120000)
-    },
-    // Lease cleanup is scoped to the previous partition and sender, including after account closure.
-    release: (id, sender) => outbox.release(id, sender),
-    applyPage: async (input) => {
-      await guard()
-      return store.applyChangesPage(input)
-    },
-    applyResult: async (input) => {
-      await guard()
-      return store.applyOperationResult(input)
-    },
-  })
+    undefined,
+    policy
+  )
   return {
     run: () => coordinator.run(),
     close: () => {
@@ -104,4 +115,16 @@ export async function openLocalSyncRuntimeV2(
       return closing
     },
   }
+}
+
+// Prepared only; the generation-three client owns this policy and transport together.
+export function openLocalPlacementSyncRuntime(
+  account: Pick<LocalAccount, "userId" | "epoch">,
+  transport: SyncTransportV2
+): Promise<LocalSyncRuntimeV2> {
+  return openLocalSyncRuntimeV2(
+    account,
+    transport,
+    placementSyncCapabilityPolicy
+  )
 }

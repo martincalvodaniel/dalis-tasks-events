@@ -1,5 +1,8 @@
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
-import { readSyncCommandCapability } from "@/lib/sync/sync-capabilities"
+import {
+  type SyncCapabilityPolicy,
+  syncCapabilityPolicy,
+} from "@/lib/sync/sync-capabilities"
 import { personalQueueDiagnosticsInputSchema } from "@/schemas/personal-queue-diagnostics"
 import type {
   PersonalQueueDiagnostics,
@@ -8,7 +11,8 @@ import type {
 
 // This readonly diagnostic preserves locally recorded states; it cannot establish a receipt or ACK.
 export function diagnosePersonalQueue(
-  input: unknown
+  input: unknown,
+  policy: SyncCapabilityPolicy = syncCapabilityPolicy
 ): PersonalQueueDiagnostics {
   const value = personalQueueDiagnosticsInputSchema.parse(input)
   const items = new Map(value.items.map((item) => [item.id, item]))
@@ -18,7 +22,7 @@ export function diagnosePersonalQueue(
     (a, b) => a.sequence - b.sequence
   )) {
     const command = entry.operation.command
-    const capability = readSyncCommandCapability(
+    const capability = policy.readCommand(
       command,
       "itemId" in command ? (items.get(command.itemId) ?? null) : null
     )

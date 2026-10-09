@@ -143,3 +143,17 @@ export function readPlacementSyncCommandCapability(
     placementSyncCapabilityRegistry
   )
 }
+
+export interface SyncCapabilityPolicy {
+  readonly readCommand: typeof readSyncCommandCapability
+  readonly stores: readonly SyncStore[]
+}
+export const syncCapabilityPolicy: SyncCapabilityPolicy = Object.freeze({
+  readCommand: readSyncCommandCapability,
+  stores: syncCapabilityRegistry.stores,
+})
+export const placementSyncCapabilityPolicy: SyncCapabilityPolicy =
+  Object.freeze({
+    readCommand: readPlacementSyncCommandCapability,
+    stores: placementSyncCapabilityRegistry.stores,
+  })

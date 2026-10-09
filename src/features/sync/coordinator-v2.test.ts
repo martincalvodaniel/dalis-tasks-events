@@ -5,6 +5,7 @@ import {
 } from "@/features/sync/coordinator-v2"
 import { SyncTransportError } from "@/features/sync/transport-error"
 import { remoteOperationKind } from "@/lib/sync/remote-push-v2"
+import { placementSyncCapabilityPolicy } from "@/lib/sync/sync-capabilities"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import type { CalendarItem } from "@/types/calendar-item"
 import type { LocalPullCursor, OutboxEntry } from "@/types/local-sync"
@@ -110,36 +111,52 @@ function fixture() {
       }
     }
     const effect =
-      command.type === "item-view.set"
+      command.type === "task.move"
         ? {
-            store: "itemViews" as const,
+            store: "taskPlacements" as const,
             record: {
               userId: owner,
-              itemId: command.itemId,
-              primaryTagId: command.primaryTagId,
+              occurrenceId: command.occurrenceId ?? command.itemId,
+              scope: command.scope,
+              date: command.scope === "overdue" ? "0001-01-01" : command.date,
+              tagId: command.tagId,
+              position: 0,
               revision: operation.baseRevision + 1,
               createdAt: timestamp,
               updatedAt: timestamp,
               deletedAt: null,
             },
           }
-        : "tagId" in command && command.tagId
+        : command.type === "item-view.set"
           ? {
-              store: "tags" as const,
+              store: "itemViews" as const,
               record: {
-                id: command.tagId,
                 userId: owner,
-                name: "Remote",
-                normalizedName: "remote",
-                color: "#123456",
-                position: 1024,
+                itemId: command.itemId,
+                primaryTagId: command.primaryTagId,
                 revision: operation.baseRevision + 1,
                 createdAt: timestamp,
                 updatedAt: timestamp,
                 deletedAt: null,
               },
             }
-          : null
+          : "tagId" in command && command.tagId
+            ? {
+                store: "tags" as const,
+                record: {
+                  id: command.tagId,
+                  userId: owner,
+                  name: "Remote",
+                  normalizedName: "remote",
+                  color: "#123456",
+                  position: 1024,
+                  revision: operation.baseRevision + 1,
+                  createdAt: timestamp,
+                  updatedAt: timestamp,
+                  deletedAt: null,
+                },
+              }
+            : null
     if (!effect) throw new Error("Expected prepared personal identity")
     return {
       kind: "preference",
@@ -847,4 +864,164 @@ test("null claims are bounded globally and release only the five requested ident
   )
   expect(value.pushes).toEqual([])
   expect(value.entries.every((entry) => entry.state === "pending")).toBe(true)
+})
+
+test("prepared placement policy sends unchanged historical intention and dependent view while default two stays blocked", async () => {
+  const value = fixture()
+  const itemId = crypto.randomUUID()
+  const move = value.add({
+    type: "task.move",
+    itemId,
+    occurrenceId: null,
+    scope: "day",
+    date: "2026-10-09",
+    tagId: null,
+    beforeId: null,
+    afterId: null,
+  })
+  const view = value.add(
+    { type: "item-view.set", itemId, primaryTagId: null },
+    [move]
+  )
+  const before = structuredClone(value.entries)
+  expect((await new SyncCoordinatorV2(owner, value.ports).run()).uploaded).toBe(
+    0
+  )
+  expect(value.calls.claim).toBe(0)
+  expect(value.entries).toEqual(before)
+  const prepared = new SyncCoordinatorV2(
+    owner,
+    value.ports,
+    undefined,
+    placementSyncCapabilityPolicy
+  )
+  expect((await prepared.run()).uploaded).toBe(2)
+  expect(value.pushes).toEqual(before.map((entry) => entry.operation))
+  expect(value.applied).toHaveLength(2)
+  expect(value.entries.every((entry) => entry.state === "acknowledged")).toBe(
+    true
+  )
+  expect(move.operation).toEqual(before[0].operation)
+  expect(view.dependencies).toEqual(before[1].dependencies)
+})
+
+test("prepared placement policy rereads context after claim and releases its own lease without sending a newly recurring task", async () => {
+  const value = fixture()
+  const itemId = crypto.randomUUID()
+  const entry = value.add({
+    type: "task.move",
+    itemId,
+    occurrenceId: null,
+    scope: "day",
+    date: "2026-10-09",
+    tagId: null,
+    beforeId: null,
+    afterId: null,
+  })
+  const before = structuredClone(entry.operation)
+  const claim = value.ports.claim
+  value.ports.claim = async (id, sender) => {
+    const claimed = await claim(id, sender)
+    const current = value.items[0]
+    if (current.kind !== "task") throw new Error("Expected task context")
+    current.recurrence = {
+      frequency: "daily",
+      interval: 1,
+      anchorDate: "2026-10-09",
+      timeZone: "Europe/Madrid",
+      end: { type: "never" },
+    }
+    return claimed
+  }
+  await new SyncCoordinatorV2(
+    owner,
+    value.ports,
+    undefined,
+    placementSyncCapabilityPolicy
+  ).run()
+  expect(value.calls.claim).toBe(1)
+  expect(value.pushes).toEqual([])
+  expect(value.applied).toEqual([])
+  expect(value.released).toHaveLength(1)
+  expect(value.released[0][0]).toBe(entry.operation.operationId)
+  expect(entry).toMatchObject({ state: "pending", attempts: 1, lease: null })
+  expect(entry.operation).toEqual(before)
+})
+
+test("default policy cannot accept a placement response even from a supported preference command", async () => {
+  const value = fixture()
+  const itemId = crypto.randomUUID()
+  const entry = value.add({ type: "item-view.set", itemId, primaryTagId: null })
+  value.ports.push = async (input) => ({
+    transportVersion: 2,
+    status: "complete",
+    results: [
+      value.result({
+        ...input.operations[0],
+        command: {
+          type: "task.move",
+          itemId,
+          occurrenceId: null,
+          scope: "day",
+          date: "2026-10-09",
+          tagId: null,
+          beforeId: null,
+          afterId: null,
+        },
+      }),
+    ],
+  })
+  expect((await new SyncCoordinatorV2(owner, value.ports).run()).status).toBe(
+    "retry_later"
+  )
+  expect(value.applied).toEqual([])
+  expect(entry.state).toBe("pending")
+})
+
+test("prepared placement policy rejects unsupported settings effects without local acknowledgement", async () => {
+  const value = fixture()
+  const itemId = crypto.randomUUID()
+  const entry = value.add({
+    type: "task.move",
+    itemId,
+    occurrenceId: null,
+    scope: "day",
+    date: "2026-10-09",
+    tagId: null,
+    beforeId: null,
+    afterId: null,
+  })
+  const before = structuredClone(entry.operation)
+  value.ports.push = async (input) => {
+    const result = value.result(input.operations[0])
+    if (result.kind !== "preference" || result.outcome.status !== "applied")
+      throw new Error("Expected fixture effects")
+    result.outcome.effects.effects.push({
+      store: "settings",
+      record: {
+        userId: owner,
+        timeZone: "Europe/Madrid",
+        weekStartsOn: 1,
+        locale: "es-ES",
+        revision: 1,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        deletedAt: null,
+      },
+    })
+    return { transportVersion: 2, status: "complete", results: [result] }
+  }
+  expect(
+    (
+      await new SyncCoordinatorV2(
+        owner,
+        value.ports,
+        undefined,
+        placementSyncCapabilityPolicy
+      ).run()
+    ).status
+  ).toBe("retry_later")
+  expect(value.applied).toEqual([])
+  expect(entry).toMatchObject({ state: "pending", attempts: 1, lease: null })
+  expect(entry.operation).toEqual(before)
 })

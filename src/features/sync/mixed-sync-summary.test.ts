@@ -1,5 +1,9 @@
 import { expect, test } from "bun:test"
-import { readMixedSyncQueueSummary } from "@/features/sync/mixed-sync-summary"
+import {
+  readMixedSyncQueueSummary,
+  readPlacementSyncQueueSummary,
+} from "@/features/sync/mixed-sync-summary"
+import { applyItemCommand } from "@/lib/calendar/item-command"
 import type { OutboxEntry } from "@/types/local-sync"
 
 const identity = { userId: "mixed-summary-account", epoch: "current-epoch" }
@@ -124,4 +128,62 @@ test("foreign or failed stored snapshots never return counts and still close own
     ).rejects.toThrow()
     expect(closed).toBe(1)
   }
+})
+
+test("prepared placement summary uses generation-three policy without rewriting blocked historical intentions", async () => {
+  const itemId = crypto.randomUUID()
+  const item = applyItemCommand(
+    null,
+    {
+      type: "item.create",
+      itemId,
+      input: {
+        kind: "task",
+        title: "Task",
+        description: "",
+        scheduledDate: "2026-10-09",
+        status: "not_started",
+        checklist: [],
+        recurrence: null,
+      },
+    },
+    identity.userId,
+    "2026-10-09T00:00:00.000Z"
+  )
+  const entry = pendingTag()
+  entry.entityKey = `task-placement:${JSON.stringify([itemId, "day", "2026-10-09"])}`
+  entry.operation.command = {
+    type: "task.move",
+    itemId,
+    occurrenceId: null,
+    scope: "day",
+    date: "2026-10-09",
+    tagId: null,
+    beforeId: null,
+    afterId: null,
+  }
+  const state = { entries: [entry], items: [item] }
+  const before = structuredClone(state)
+  let closes = 0
+  const ports = {
+    requireActive: async () => undefined,
+    openStore: async () => ({
+      readQueueState: async () => state,
+      close: () => {
+        closes++
+      },
+    }),
+  }
+  expect(await readMixedSyncQueueSummary(identity, ports)).toMatchObject({
+    ready: 0,
+    unsupported: 1,
+    personalProjectionBlocked: true,
+  })
+  expect(await readPlacementSyncQueueSummary(identity, ports)).toMatchObject({
+    ready: 1,
+    unsupported: 0,
+    personalProjectionBlocked: true,
+  })
+  expect(closes).toBe(2)
+  expect(state).toEqual(before)
 })

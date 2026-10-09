@@ -1,12 +1,19 @@
 import type { z } from "zod"
 import { diagnosePersonalQueue } from "@/lib/sync/personal-queue-diagnostics"
+import {
+  type SyncCapabilityPolicy,
+  syncCapabilityPolicy,
+} from "@/lib/sync/sync-capabilities"
 import { syncQueueSummaryV2Schema } from "@/schemas/sync-queue-v2"
 
 export type SyncQueueSummaryV2 = z.infer<typeof syncQueueSummaryV2Schema>
 
 // This describes prepared capabilities and preserved intentions, not active transport or convergence.
-export function summarizeSyncQueueV2(input: unknown): SyncQueueSummaryV2 {
-  const diagnostics = diagnosePersonalQueue(input)
+export function summarizeSyncQueueV2(
+  input: unknown,
+  policy: SyncCapabilityPolicy = syncCapabilityPolicy
+): SyncQueueSummaryV2 {
+  const diagnostics = diagnosePersonalQueue(input, policy)
   const summary: SyncQueueSummaryV2 = {
     pending: 0,
     ready: 0,
