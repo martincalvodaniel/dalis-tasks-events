@@ -99,3 +99,10 @@ Guardia de descriptor11c4a8g1 y resolver/config explícita11c4a8g2 cerrados sin 
 
 
 Cierre del lote05:27: código7525376, ciclo privado por puertos preparado y probado sin defaults/CLI. Siguiente11c4a8e2b conecta defaults/CLI y11c4a8t verifica Mongo propio antes de ofrecer ejecución de entorno. Transporte1 vigente; una revisión futura confirmada9oct10:29Madrid, reservas4%/1%. No ejecutar índices en DB del usuario ni anunciar2 por config aislada.
+
+
+### 11c4a8auth — Autorización explícita de índices preproductivos
+
+Objetivo y target_paths: registrar autorización humana en plan/personal-index-provisioning.md, mixed-sync-activation.md, master.md, workflow.md, iterations.md e iteration-log.md y actualizar el heartbeat existente sin cambiar horario/política. Dependencias: procedimiento preparado hasta7525376 y próxima revisión10:29. Aceptación: usuario confirma DB distintas y autoriza crear índices personales necesarios y automáticos registrados faltantes únicamente en preproducción, reutilizando ensureIndexes después de validar procedimiento, sin otra confirmación. Producción excluida; no borrar/corregir datos ni reparar incompatibilidades automáticamente. Esta autorización sustituye exclusiones históricas de DB del usuario sólo para esa provisión. Verificar conexión preview/int desde fuente de configuración de entorno; nunca asumir que .env.local es preview ni conectar para averiguarlo.
+
+Lectura6%5h/55%7d, reservas4%/1%: sólo cierre documental ahora; defaults/CLI/prueba propia y ejecución preproductiva continúan en revisión10:29 tras verificar renovación. CLI Vercel/project link local no disponibles en comprobación inicial; resolución del destino permanece pendiente, sin acceso a DB ni credenciales impresas. No confundir autorización con ejecución o categorías activadas. Validación documental referencias/consistencia/diff, actualización de heartbeat preservando campos, ConventionalCommit/pushint/HEAD/cuotas.
