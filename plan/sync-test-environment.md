@@ -267,3 +267,6 @@ El runner aislado incorpora mixed-sync-index-readiness.integration.test.ts. Prov
 
 
 Modo `operator` del runner aislado: selecciona exclusivamente personal-index-operator.integration.test.ts para no compartir drops/creaciones de definiciones con otras suites. CLI subprocess real --no-env-file/--conditions=react-server, sin mocks, recibe sólo env del descriptor. Tres casos/70aserciones pasan (bootstrap completo, guardias, partial-create/retry/noop); contenedor/tmpfs/bridge limpiados. Nunca ejecutarlo con env del usuario.
+
+
+Ampliación11c4a9n del modoNext: nueve escenarios con referencias directasaction2 y composicióndefault, APIs exactas privadas guardadas por cookiecapacidad y Host/Origin/cookiespropias, dos particiones IndexedDB además de sesionesMongo. Inventario local previo rechaza todo estado ajeno antesdeaccount-control; limpieza sólo recursos creados/trackedporrun. Cursor/snapshots/ACK/summary/noop igualesjournalMongo. Fixture/build/servidores/container/cookies/particiones propioslimpios y evidencia visual local conservada; Google/endpointIDdeployed fuera de alcance.

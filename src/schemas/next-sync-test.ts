@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { entityIdSchema, userIdSchema } from "@/schemas/primitives"
 import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
+import { syncCommandSchema } from "@/schemas/sync"
 import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
 
 const loopbackOriginSchema = z.string().refine((value) => {
@@ -85,6 +86,20 @@ export const nextSyncStateSchema = z.strictObject({
   page: remoteChangesPageV2Schema,
 })
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({ type: z.literal("prepare-local"), userId: userIdSchema }),
+  z.strictObject({
+    type: z.literal("commit-local"),
+    command: syncCommandSchema.refine(
+      (command) =>
+        ["item.create", "tag.save", "item-view.set"].includes(command.type),
+      "Fixture local command is unsupported"
+    ),
+  }),
+  z.strictObject({ type: z.literal("mixed-summary") }),
+  z.strictObject({ type: z.literal("mixed-run") }),
+  z.strictObject({ type: z.literal("local-snapshot") }),
+  z.strictObject({ type: z.literal("cleanup-local") }),
+  z.strictObject({ type: z.literal("retired-push"), input: z.unknown() }),
   z.strictObject({
     type: z.literal("bootstrap"),
     identity: nextSyncBootstrapSchema.shape.identity,

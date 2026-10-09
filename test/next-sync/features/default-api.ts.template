@@ -1,0 +1,58 @@
+import "server-only"
+
+import { getNextSyncTestConfig } from "@/config/next-sync-test"
+import { getAuthenticatedSyncChangesResponseV2 } from "@/features/sync/authenticated-pull-v2"
+import { getSyncIdentityResponse } from "@/features/sync/identity-response"
+import { validateNextSyncFixtureRequest } from "@/lib/db/next-sync-fixture"
+import { nextSyncCapabilitySchema } from "@/schemas/next-sync-test"
+
+export function fixtureCapabilityCookieName(runId: string): string {
+  const capability = nextSyncCapabilitySchema.parse({ runId })
+  return `dalis-next-sync-run-${capability.runId}`
+}
+
+export function hasOwnedFixtureCapabilityCookie(
+  headers: Headers,
+  runId: string
+): boolean {
+  const name = fixtureCapabilityCookieName(runId)
+  const matches = (headers.get("cookie") ?? "")
+    .split(";")
+    .map((value) => value.trim())
+    .filter((value) => value.startsWith(`${name}=`))
+  if (!matches.length) return false
+  if (
+    matches.length !== 1 ||
+    decodeURIComponent(matches[0].slice(name.length + 1)) !== runId
+  )
+    throw new Error("Fixture capability cookie is not owned by this run")
+  return true
+}
+
+// Exact transport URLs exist only in the temporary project and retain the run's request guard.
+export async function handleDefaultSyncApi(
+  request: Request,
+  kind: "identity" | "changes"
+) {
+  try {
+    const config = getNextSyncTestConfig()
+    if (!hasOwnedFixtureCapabilityCookie(request.headers, config.runId))
+      throw new Error("Fixture capability cookie is required")
+    validateNextSyncFixtureRequest(request, { runId: config.runId }, config)
+    if (kind === "changes")
+      return getAuthenticatedSyncChangesResponseV2(request)
+    const { getAuthorizedSessionFromHeaders } = await import(
+      "@/lib/auth/session"
+    )
+    const session = await getAuthorizedSessionFromHeaders(request.headers)
+    return getSyncIdentityResponse(
+      session ? { userId: session.user.id } : null,
+      2
+    )
+  } catch {
+    return Response.json(
+      { error: "The isolated sync API was safely blocked" },
+      { status: 403 }
+    )
+  }
+}

@@ -341,3 +341,6 @@ Actualización9oct10:29 —11c4a8e2b: CLI online separado y adapter privado prep
 
 
 11c4a9c2 preparado: composición cliente2 completa y retirementcompatible de pushlegacy, sin caller activo. Ocho tests79aserciones prueban identidadcapturada, refreshguardado y actualización sinACK tras handshakeviejo. Suite459pass98skip sin fallos/lint/tipos/build34. Próxima pruebaNext directa de estas conexiones, sólo recursos propios; nombreDBpreproductivo pendiente. Producto sigue1.
+
+
+11c4a9n probado: nueve escenarios Next, dispatcheracción2 directo y composicióndefault sin sustitución de puertos, con dos sesiones/IndexedDB/Mongo propios. Ambosdispositivos proyectan exactamente tareas/categorías/asignaciones y cursor del journal; ACK, replay/noop y retirolegacy sin mutaciones comprobados. Recursospropioslimpios; suite459pass98skip/lint/tipos/build34 aprobados. Transporte productivo aún1, nombreDBpreproductivo pendiente, autorizacióníndices ya concedida.

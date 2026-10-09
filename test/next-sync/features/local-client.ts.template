@@ -1,0 +1,162 @@
+"use client"
+
+import type { z } from "zod"
+import { OFFLINE_ACCOUNT_KEY } from "@/config/pwa"
+import { createMixedSyncClient } from "@/features/sync/mixed-sync-client"
+import { readAccountBackup } from "@/features/workspace/local-backup"
+import { requireActiveAccount } from "@/features/workspace/require-active-account"
+import {
+  ACCOUNT_CONTROL_DATABASE,
+  activatePreparedAccount,
+  readAccountControl,
+} from "@/lib/local-db/account-control"
+import { localDatabaseName } from "@/lib/local-db/client"
+import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
+import { LocalOutbox } from "@/lib/local-db/outbox"
+import { nextSyncDeviceCommandSchema } from "@/schemas/next-sync-test"
+import { workspaceIdentitySchema } from "@/schemas/workspace"
+
+const markerKey = "dalis:account-change"
+let owned: {
+  runId: string
+  userId: string
+  epoch: string | null
+  markerBefore: string | null
+  markerAfter: string | null
+} | null = null
+let client: ReturnType<typeof createMixedSyncClient> | null = null
+
+function account() {
+  if (!owned?.epoch || !client)
+    throw new Error("Fixture local account is not prepared")
+  return { userId: owned.userId, epoch: owned.epoch }
+}
+async function removeDatabase(name: string) {
+  await new Promise<void>((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(name)
+    request.onsuccess = () => resolve()
+    request.onerror = () => reject(request.error)
+    request.onblocked = () =>
+      reject(new Error("Fixture local cleanup is blocked"))
+  })
+}
+
+export async function executeLocalFixtureCommand(
+  runId: string,
+  input: z.infer<typeof nextSyncDeviceCommandSchema>
+) {
+  const command = nextSyncDeviceCommandSchema.parse(input)
+  if (owned && owned.runId !== runId)
+    throw new Error("Fixture local run changed")
+  if (command.type === "prepare-local") {
+    const identity = await fetch("/fixture/identity", {
+      headers: { "x-sync-test-run": runId },
+      cache: "no-store",
+    })
+    if (
+      !identity.ok ||
+      workspaceIdentitySchema.parse(await identity.json()).userId !==
+        command.userId
+    )
+      throw new Error("Fixture local identity is not authenticated")
+    if (owned) {
+      if (owned.userId !== command.userId)
+        throw new Error("Fixture local account changed")
+      await requireActiveAccount(account())
+      return account()
+    }
+    // Reject existing partitions before account-control can create or activate any state.
+    if (
+      (await indexedDB.databases()).length ||
+      localStorage.getItem(OFFLINE_ACCOUNT_KEY) !== null
+    )
+      throw new Error("Foreign local state blocks the fixture")
+    owned = {
+      runId,
+      userId: command.userId,
+      epoch: null,
+      markerBefore: localStorage.getItem(markerKey),
+      markerAfter: null,
+    }
+    const initial = await readAccountControl()
+    if (initial.userId !== null || initial.logoutPending)
+      throw new Error("Foreign local account blocks the fixture")
+    const active = await activatePreparedAccount(
+      command.userId,
+      new Date().toISOString(),
+      initial.epoch
+    )
+    owned.epoch = active.epoch
+    owned.markerAfter = localStorage.getItem(markerKey)
+    client = createMixedSyncClient({
+      userId: command.userId,
+      epoch: active.epoch,
+    })
+    return account()
+  }
+  if (command.type === "cleanup-local") {
+    if (!owned) return true
+    const current = await readAccountControl()
+    if (
+      owned.epoch
+        ? current.userId !== owned.userId ||
+          current.epoch !== owned.epoch ||
+          current.logoutPending
+        : current.userId !== null || current.logoutPending
+    )
+      throw new Error("Fixture local cleanup account changed")
+    await removeDatabase(localDatabaseName(owned.userId))
+    await removeDatabase(ACCOUNT_CONTROL_DATABASE)
+    if (localStorage.getItem(markerKey) === owned.markerAfter) {
+      if (owned.markerBefore === null) localStorage.removeItem(markerKey)
+      else localStorage.setItem(markerKey, owned.markerBefore)
+    }
+    client = null
+    owned = null
+    return true
+  }
+  const active = account()
+  await requireActiveAccount(active)
+  switch (command.type) {
+    case "commit-local": {
+      const outbox = await LocalOutbox.open(active.userId)
+      try {
+        await requireActiveAccount(active)
+        if (command.command.type === "item.create")
+          return await outbox.commitItemCommand(command.command)
+        if (
+          command.command.type === "tag.save" ||
+          command.command.type === "item-view.set"
+        )
+          return await outbox.commitPreferenceCommand(command.command)
+        throw new Error("Fixture local command is unsupported")
+      } finally {
+        outbox.close()
+      }
+    }
+    case "mixed-summary":
+      return client!.readSummary()
+    case "mixed-run": {
+      const attempt = client!.createAttempt(async () => client!.readSummary())
+      try {
+        return await attempt.run()
+      } finally {
+        attempt.stop()
+      }
+    }
+    case "local-snapshot": {
+      const backup = await readAccountBackup(active)
+      const store = await LocalMixedSyncStore.open(active.userId)
+      try {
+        const cursor = await store.readPullCursor()
+        const summary = await client!.readSummary()
+        await requireActiveAccount(active)
+        return { backup, cursor, summary }
+      } finally {
+        store.close()
+      }
+    }
+    default:
+      throw new Error("Fixture command is not local")
+  }
+}

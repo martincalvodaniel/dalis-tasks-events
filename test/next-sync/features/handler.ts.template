@@ -14,7 +14,12 @@ import {
   nextSyncCapabilitySchema,
   nextSyncFinishSchema,
   nextSyncPublicConfigSchema,
+  nextSyncSessionCommandSchema,
 } from "@/schemas/next-sync-test"
+import {
+  fixtureCapabilityCookieName,
+  hasOwnedFixtureCapabilityCookie,
+} from "@fixture/default-api"
 
 export async function handleFixtureRequest(request: Request) {
   try {
@@ -22,15 +27,30 @@ export async function handleFixtureRequest(request: Request) {
     const command = url.pathname.split("/").at(-1)
     if (command === "config" && request.method === "GET") {
       let config: ReturnType<typeof getNextSyncTestConfig>
-      try { config = getNextSyncTestConfig() }
-      catch { return Response.json({diagnostic:"private_environment_invalid"},{status:403}) }
+      try {
+        config = getNextSyncTestConfig()
+      } catch {
+        return Response.json(
+          { diagnostic: "private_environment_invalid" },
+          { status: 403 }
+        )
+      }
       const capability = nextSyncCapabilitySchema.safeParse(
         Object.fromEntries(url.searchParams)
       )
       if (!capability.success || capability.data.runId !== config.runId)
-        return Response.json({diagnostic:"capability_invalid"},{status:403})
-      if (url.protocol !== "http:" || request.headers.get("host") !== new URL(config.authOrigin).host)
-        return Response.json({diagnostic:"request_origin_mismatch"},{status:403})
+        return Response.json(
+          { diagnostic: "capability_invalid" },
+          { status: 403 }
+        )
+      if (
+        url.protocol !== "http:" ||
+        request.headers.get("host") !== new URL(config.authOrigin).host
+      )
+        return Response.json(
+          { diagnostic: "request_origin_mismatch" },
+          { status: 403 }
+        )
       return Response.json(
         nextSyncPublicConfigSchema.parse({
           runId: config.runId,
@@ -65,20 +85,28 @@ export async function handleFixtureRequest(request: Request) {
       return new Response(null, { status: accepted.ok ? 204 : 503 })
     }
     if (command === "session" && request.method === "POST") {
-      const input = await request.json()
+      const input = nextSyncSessionCommandSchema.parse(await request.json())
       const parsedCapability = nextSyncCapabilitySchema.parse(capability)
       if (input?.runId !== parsedCapability.runId)
         return new Response(null, { status: 403 })
-      const changed = await controlNextSyncSession(
-        request,
-        input
-      )
+      const removeCapability =
+        input.command === "cleanup" &&
+        hasOwnedFixtureCapabilityCookie(request.headers, input.runId)
+      const changed = await controlNextSyncSession(request, input)
       const response = NextResponse.json({ complete: true })
       for (const name of changed.names)
         response.cookies.set(name, "", {
           httpOnly: true,
           path: "/",
           sameSite: "lax",
+          expires: new Date(0),
+          maxAge: 0,
+        })
+      if (removeCapability)
+        response.cookies.set(fixtureCapabilityCookieName(input.runId), "", {
+          httpOnly: true,
+          path: "/",
+          sameSite: "strict",
           expires: new Date(0),
           maxAge: 0,
         })
@@ -93,6 +121,16 @@ export async function handleFixtureRequest(request: Request) {
         await request.json()
       )
       const response = NextResponse.json({ userId: prepared.userId })
+      const config = getNextSyncTestConfig()
+      response.cookies.set(
+        fixtureCapabilityCookieName(config.runId),
+        config.runId,
+        {
+          httpOnly: true,
+          path: "/",
+          sameSite: "strict",
+        }
+      )
       for (const cookie of prepared.cookies)
         response.cookies.set(cookie.name, cookie.value, {
           httpOnly: cookie.httpOnly,

@@ -110,3 +110,6 @@ Envío `11c4a6s` [preparado](../src/features/sync/guarded-push-batch-v2.ts): reu
 
 
 `11c4a7n` prueba RPC de Next compilada→acción2/defaults con Better Auth persistido y Mongo propios, siete escenarios correctos con dos sesiones y journal real. No habilita transporte2 en el producto ni sustituye piloto Google; categorías/asignaciones siguen preparadas hasta provisión autorizada y cambio conjunto.
+
+
+11c4a9n: pruebaNext de composicióndefault completa (sin ports reemplazados), directaction2 y dos sesiones/IndexedDB/Mongo propios. Snapshot exacto items/tags/itemViews y cursor6 contrajournal; tres intencioneslocales reales conservanUUID/payload trasACK, pending/dependencias iniciales y confirmed/noop/summary/historia probados. Nueveescenarios incluyendo auth/retirement/replay/versión, recursoslimpios. No activar producto ni afirmar Google/IDdeployed.

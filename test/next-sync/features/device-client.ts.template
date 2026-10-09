@@ -1,9 +1,11 @@
 "use client"
 
 import { startTransition } from "react"
+import { dispatchSyncOperationsV2 } from "@/features/sync/client-action-v2"
 import type { z } from "zod"
 import { nextSyncDeviceCommandSchema } from "@/schemas/next-sync-test"
-import { pushFixtureOperations } from "@fixture/actions"
+import { rejectFixtureLegacyOperations } from "@fixture/actions"
+import { executeLocalFixtureCommand } from "@fixture/local-client"
 
 export async function fixtureFetch(
   runId: string,
@@ -27,11 +29,13 @@ export async function fixtureFetch(
     protocol: response.headers.get("x-dalis-sync-protocol"),
   }
 }
-export async function executeFixtureCommand(
+async function executeCommand(
   runId: string,
   input: z.infer<typeof nextSyncDeviceCommandSchema>
 ) {
   const command = nextSyncDeviceCommandSchema.parse(input)
+  if (command.type === "cleanup-local")
+    return executeLocalFixtureCommand(runId, command)
   if (command.type === "session" && command.command === "cleanup")
     return fixtureFetch(runId, "/fixture/session", {
       runId,
@@ -40,6 +44,16 @@ export async function executeFixtureCommand(
   const guarded = await fixtureFetch(runId, "/fixture/guard")
   if (guarded.status !== 200)
     throw new Error("Fixture blocked before touching foreign auth cookies")
+  if (
+    [
+      "prepare-local",
+      "commit-local",
+      "mixed-summary",
+      "mixed-run",
+      "local-snapshot",
+    ].includes(command.type)
+  )
+    return executeLocalFixtureCommand(runId, command)
   if (command.type === "bootstrap")
     return fixtureFetch(runId, "/fixture/bootstrap", {
       runId,
@@ -57,13 +71,29 @@ export async function executeFixtureCommand(
       runId,
       `/fixture/changes?expectedUserId=${encodeURIComponent(command.userId)}&after=0&limit=100`
     )
+  if (command.type === "push") return dispatchSyncOperationsV2(command.input)
+  if (command.type !== "retired-push")
+    throw new Error("Fixture command is unsupported")
   return new Promise<unknown>((resolve, reject) =>
     startTransition(async () => {
       try {
-        resolve(await pushFixtureOperations({ runId, input: command.input }))
+        resolve(
+          await rejectFixtureLegacyOperations({ runId, input: command.input })
+        )
       } catch {
         reject(new Error("Compiled fixture action failed"))
       }
     })
   )
+}
+
+let previous: Promise<unknown> = Promise.resolve()
+export function executeFixtureCommand(
+  runId: string,
+  input: z.infer<typeof nextSyncDeviceCommandSchema>
+): Promise<unknown> {
+  const command = nextSyncDeviceCommandSchema.parse(input)
+  const result = previous.then(() => executeCommand(runId, command))
+  previous = result.catch(() => undefined)
+  return result
 }

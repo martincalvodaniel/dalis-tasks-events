@@ -15,6 +15,9 @@ import { validateRemotePushResultV2 } from "@/lib/sync/remote-push-v2"
 import { syncOperationSchema } from "@/schemas/sync"
 import { workspaceIdentitySchema } from "@/schemas/workspace"
 import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
+import { validateLocalBackup } from "@/lib/backup/local-backup"
+import { localPullCursorSchema } from "@/schemas/local-sync"
+import { syncQueueSummaryV2Schema } from "@/schemas/sync-queue-v2"
 import { executeFixtureCommand, fixtureFetch } from "@fixture/device-client"
 
 function assert(value: unknown, message: string): asserts value {
@@ -298,6 +301,181 @@ export function FixtureController() {
         }
       )
       await check(
+        "Composición predeterminada sincroniza IndexedDB, ACK y proyecciones en ambos dispositivos",
+        async () => {
+          for (let index = 0; index < 2; index++)
+            await call(index, { type: "prepare-local", userId: owner })
+          const localItemId = crypto.randomUUID(),
+            localTagId = crypto.randomUUID()
+          for (const command of [
+            { ...creation.command, itemId: localItemId },
+            {
+              type: "tag.save" as const,
+              tagId: localTagId,
+              input: {
+                name: "Categoría local Next",
+                color: "#654321",
+                position: 2048,
+              },
+            },
+            {
+              type: "item-view.set" as const,
+              itemId: localItemId,
+              primaryTagId: localTagId,
+            },
+          ])
+            await call(0, { type: "commit-local", command })
+          const snapshot = async (index: number) => {
+            const result = (await call(index, { type: "local-snapshot" })) as {
+              backup: unknown
+              cursor: unknown
+              summary: unknown
+            }
+            return {
+              backup: validateLocalBackup(result.backup, owner),
+              cursor: localPullCursorSchema.parse(result.cursor),
+              summary: syncQueueSummaryV2Schema.parse(result.summary),
+            }
+          }
+          const pending = await snapshot(0)
+          assert(
+            pending.summary.pending === 3 &&
+              pending.backup.stores.outbox.every(
+                (entry) =>
+                  entry.state === "pending" &&
+                  entry.attempts === 0 &&
+                  entry.lease === null &&
+                  entry.operation.baseRevision === 0
+              ),
+            "Local intentions require real ACKs"
+          )
+          const viewEntry = pending.backup.stores.outbox.find(
+            (entry) => entry.operation.command.type === "item-view.set"
+          )
+          assert(
+            viewEntry?.dependencies.length === 2,
+            "View retains item and category dependencies"
+          )
+          const before = await state(owner)
+          assert(before.counts.receipts === 3, "Local commits did not send RPC")
+          for (let index = 0; index < 2; index++) {
+            const result = (await call(index, { type: "mixed-run" })) as {
+              status?: string
+            }
+            assert(
+              result.status === "settled",
+              "Default mixed attempt did not settle"
+            )
+          }
+          const stored = await state(owner)
+          assert(
+            stored.counts.receipts === 6 && stored.page.through === 6,
+            "Three real local mutations and receipts expected"
+          )
+          const expectedItems = new Map(),
+            expectedTags = new Map(),
+            expectedViews = new Map()
+          for (const change of stored.page.changes) {
+            if (change.kind === "item")
+              expectedItems.set(change.item.id, change.item)
+            else
+              for (const effect of change.effects.effects) {
+                if (effect.store === "tags")
+                  expectedTags.set(effect.record.id, effect.record)
+                if (effect.store === "itemViews")
+                  expectedViews.set(effect.record.itemId, effect.record)
+              }
+          }
+          const ordered = (records: unknown[]) =>
+            JSON.stringify(
+              records.map((record) => JSON.stringify(record)).sort()
+            )
+          for (let index = 0; index < 2; index++) {
+            const confirmed = await snapshot(index)
+            assert(
+              confirmed.cursor.after === stored.page.through &&
+                confirmed.cursor.through === null,
+              "Local cursor matches authoritative checkpoint"
+            )
+            assert(
+              ordered(confirmed.backup.stores.items) ===
+                ordered([...expectedItems.values()]) &&
+                ordered(confirmed.backup.stores.tags) ===
+                  ordered([...expectedTags.values()]) &&
+                ordered(confirmed.backup.stores.itemViews) ===
+                  ordered([...expectedViews.values()]),
+              "Exact task/category/view projection matches Mongo journal"
+            )
+            assert(
+              confirmed.summary.pending +
+                confirmed.summary.sending +
+                confirmed.summary.conflicts +
+                confirmed.summary.rejected ===
+                0 && !confirmed.summary.personalProjectionBlocked,
+              "Real summary has no unresolved work"
+            )
+            if (index === 0) {
+              assert(
+                confirmed.backup.stores.outbox.length === 3 &&
+                  confirmed.backup.stores.outbox.every(
+                    (entry) =>
+                      entry.state === "acknowledged" && entry.attempts === 1
+                  ),
+                "All original local operations received a real ACK"
+              )
+              assert(
+                confirmed.backup.stores.outbox.every((entry) =>
+                  pending.backup.stores.outbox.some(
+                    (original) =>
+                      JSON.stringify(original.operation) ===
+                      JSON.stringify(entry.operation)
+                  )
+                ),
+                "Frozen local UUIDs and payloads remain intact"
+              )
+            }
+            const summary = syncQueueSummaryV2Schema.parse(
+              await call(index, { type: "mixed-summary" })
+            )
+            assert(
+              JSON.stringify(summary) === JSON.stringify(confirmed.summary),
+              "Default summary reader returns exact queue state"
+            )
+            await call(index, { type: "mixed-run" })
+            assert(
+              JSON.stringify((await snapshot(index)).backup.stores) ===
+                JSON.stringify(confirmed.backup.stores),
+              "Repeated settled attempt preserves all local history"
+            )
+          }
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(stored),
+            "Summary and no-op attempts did not write Mongo"
+          )
+        }
+      )
+      await check(
+        "RPC retirado autenticado rechaza el transporte antiguo sin mutación",
+        async () => {
+          const before = await state(owner)
+          const { transportVersion: _version, ...legacy } = batch
+          for (let index = 0; index < 2; index++) {
+            const reply = (await call(index, {
+              type: "retired-push",
+              input: legacy,
+            })) as { status?: string }
+            assert(
+              reply.status === "update_required",
+              "Authenticated retired push must require update"
+            )
+          }
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(before),
+            "Retired RPC did not mutate remote state"
+          )
+        }
+      )
+      await check(
         "Cuenta esperada y versiones incompatibles se rechazan antes de escribir",
         async () => {
           const before = await state(owner)
@@ -370,6 +548,14 @@ export function FixtureController() {
         for (let index = 0; index < 2; index++) {
           try {
             assert(
+              (await call(index, { type: "cleanup-local" })) === true,
+              "Fixture local cleanup failed"
+            )
+          } catch {
+            passed = false
+          }
+          try {
+            assert(
               (
                 (await call(index, {
                   type: "session",
@@ -385,7 +571,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Siete escenarios RPC correctos; cookies y recursos propios cerrados"
+            "Nueve escenarios Next e IndexedDB correctos; cookies y recursos propios cerrados"
           )
         await fetch("/fixture/finish", {
           method: "POST",
