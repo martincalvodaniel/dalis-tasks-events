@@ -213,6 +213,7 @@ try {
               "src/lib/db/remote-operation-receipts.integration.test.ts",
               "src/lib/db/remote-tag-commands.integration.test.ts",
               "src/lib/db/remote-item-view-commands.integration.test.ts",
+              "src/lib/db/remote-task-placement-commands.integration.test.ts",
               "src/lib/db/remote-preference-races.integration.test.ts",
               "src/lib/db/remote-changes-v2.integration.test.ts",
               "src/lib/db/remote-item-commands.integration.test.ts",

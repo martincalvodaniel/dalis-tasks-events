@@ -241,3 +241,8 @@ El usuario elige completar orden remoto para preservar y sincronizar el movimien
 ### Cierre11c5a3 — Continuación tras renovación
 
 8c70e49 completo y HEADorigin/int verificado; repo limpio, pruebas propias cerradas. Lectura5%5h/25%7d: no abrir executor/transacciones sobre reserva4/1. Reset real1791570682 (9oct20:31:22Madrid), reloj de cierre16:49Madrid. Una única revisión del mismo heartbeat reactivada/confirmada ACTIVE para9oct20:33Madrid, reset+unminuto redondeadoarriba, COUNT1/failed_runs_only/chat preservados; sin duplicados/créditos/reinicios. Elección humana de completar orden remoto reanuda este objetivo; no otros bloques después de cerrar categorías/asignaciones sin su elección. Siguiente11c5a4 executor multiefecto preparatorio, luego reader/ACKpull/incidentes y negociación3 con retiro de acción2 antes de activación. Task.move histórico intacto y aún pending. Validación documental coherencia/referencias/diff; commitpushint y consulta final de ambas cuotas.
+
+
+### Renovación desatendida9oct20:33
+
+Renovación real verificada99%5h/25%7d, lectura de trabajo posterior97%/24%; próximo reset publicado1791588799. Continúa autorización encadenada para cerrar categorías/asignaciones preservando el movimiento histórico, reservas4%5h/1%7d y consulta tras cada commitpushint. Paralelo sólo particionado eniterations.md; no otros bloques tras cerrar el objetivo sin elección humana. Revisión posterior única desde reset futuro real, no reloj supuesto ni créditos/reinicios gratuitos.
