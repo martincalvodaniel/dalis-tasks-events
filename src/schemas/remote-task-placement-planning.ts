@@ -14,6 +14,18 @@ import {
 import { syncOperationSchema } from "@/schemas/sync"
 
 export const maximumRemoteTaskCatalog = 10000
+export const remoteTaskCatalogItemSchema = calendarItemSchema.refine(
+  (item) => item.revision > 0,
+  "Remote items require a positive revision"
+)
+export const remoteTaskPlacementKeySchema = taskPlacementSchema
+  .pick({ occurrenceId: true, scope: true, date: true })
+  .extend({ occurrenceId: taskReferenceIdSchema })
+  .refine(
+    (record) =>
+      record.scope !== "overdue" || record.date === overduePlacementDate,
+    "Remote overdue placements require their canonical date"
+  )
 export const remoteTaskPlacementSchema = taskPlacementSchema
   .extend({
     revision: revisionSchema.min(1),
@@ -30,14 +42,7 @@ export const remoteTaskPlacementPlanningInputSchema = z
     userId: userIdSchema,
     timestamp: timestampSchema,
     operation: syncOperationSchema,
-    items: z
-      .array(
-        calendarItemSchema.refine(
-          (item) => item.revision > 0,
-          "Remote items require a positive revision"
-        )
-      )
-      .max(maximumRemoteTaskCatalog),
+    items: z.array(remoteTaskCatalogItemSchema).max(maximumRemoteTaskCatalog),
     tags: z
       .array(tagSchema.safeExtend({ revision: revisionSchema.min(1) }))
       .max(maximumRemoteTaskCatalog),

@@ -9,6 +9,7 @@ export const COLLECTION_NAMES = {
   items: "items",
   tags: "tags",
   itemViews: "item_views",
+  taskPlacements: "task_placements",
   syncOperations: "sync_operations",
   syncChanges: "sync_changes",
   syncCounters: "sync_counters",

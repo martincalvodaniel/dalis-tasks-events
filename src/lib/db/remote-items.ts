@@ -9,6 +9,10 @@ import {
   userIdSchema,
 } from "@/schemas/primitives"
 import { remoteItemPageQuerySchema } from "@/schemas/remote-items"
+import {
+  maximumRemoteTaskCatalog,
+  remoteTaskCatalogItemSchema,
+} from "@/schemas/remote-task-placement-planning"
 import type { CalendarItem } from "@/types/calendar-item"
 
 type ItemDocument = CalendarItem & { _id: string }
@@ -65,6 +69,19 @@ export class RemoteItemRepository {
         { _id: id },
         { projection: { _id: 1 }, session: this.session }
       )
+    )
+  }
+
+  async catalog(): Promise<CalendarItem[]> {
+    const documents = await this.collection
+      .find({ ownerId: this.actor }, { session: this.session })
+      .sort({ _id: 1 })
+      .limit(maximumRemoteTaskCatalog + 1)
+      .toArray()
+    if (documents.length > maximumRemoteTaskCatalog)
+      throw new Error("Remote item catalog exceeds the supported limit")
+    return documents.map((document) =>
+      remoteTaskCatalogItemSchema.parse(this.ownItem(parseStoredItem(document)))
     )
   }
 

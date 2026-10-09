@@ -208,6 +208,7 @@ try {
               "src/lib/db/remote-items.integration.test.ts",
               "src/lib/db/remote-tags.integration.test.ts",
               "src/lib/db/remote-item-views.integration.test.ts",
+              "src/lib/db/remote-task-placements.integration.test.ts",
               "src/lib/db/mixed-sync-index-readiness.integration.test.ts",
               "src/lib/db/remote-operation-receipts.integration.test.ts",
               "src/lib/db/remote-tag-commands.integration.test.ts",

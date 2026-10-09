@@ -8,6 +8,7 @@ import {
   userIdSchema,
 } from "@/schemas/primitives"
 import { remoteItemViewSchema } from "@/schemas/remote-item-view-planning"
+import { maximumRemoteTaskCatalog } from "@/schemas/remote-task-placement-planning"
 import type { ItemView } from "@/types/preferences"
 
 type ItemViewDocument = ItemView & { _id: string }
@@ -59,6 +60,17 @@ export class RemoteItemViewRepository {
       { session: this.session }
     )
     return stored ? this.ownView(parseStoredView(stored)) : null
+  }
+
+  async catalog(): Promise<ItemView[]> {
+    const documents = await this.collection
+      .find({ userId: this.actor }, { session: this.session })
+      .sort({ itemId: 1 })
+      .limit(maximumRemoteTaskCatalog + 1)
+      .toArray()
+    if (documents.length > maximumRemoteTaskCatalog)
+      throw new Error("Remote item view catalog exceeds the supported limit")
+    return documents.map((document) => this.ownView(parseStoredView(document)))
   }
 
   async insert(input: unknown): Promise<boolean> {

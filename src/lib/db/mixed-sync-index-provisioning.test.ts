@@ -65,7 +65,9 @@ describe("explicit mixed sync index provisioning ports", () => {
       true
     )
     expect(selected).toEqual(
-      INDEX_SPECS.filter((spec) => spec.provisioning === "explicit")
+      INDEX_SPECS.filter((spec) =>
+        mixedSyncIndexNames.some((name) => name === spec.options.name)
+      )
     )
     const partial = selected[2].options.partialFilterExpression
     if (!partial) throw new Error("Fixture requires its partial index")
@@ -74,7 +76,12 @@ describe("explicit mixed sync index provisioning ports", () => {
     selected[1].keys = { changed: 1 }
     expect(INDEX_SPECS).toEqual(before)
     expect(selectMixedSyncIndexSpecs()).toEqual(
-      before.filter((spec) => spec.provisioning === "explicit")
+      before.filter((spec) =>
+        mixedSyncIndexNames.some((name) => name === spec.options.name)
+      )
+    )
+    expect(selected.some((spec) => spec.collection === "task_placements")).toBe(
+      false
     )
     expect(automaticIndexSpecs()).toHaveLength(9)
     expect(
