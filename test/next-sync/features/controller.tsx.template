@@ -127,6 +127,18 @@ export function FixtureController() {
       assert(response.status === 200, "Fixture state reader failed")
       return nextSyncStateSchema.parse(response.value)
     }
+    const snapshot = async (index: number) => {
+      const result = (await call(index, { type: "local-snapshot" })) as {
+        backup: unknown
+        cursor: unknown
+        summary: unknown
+      }
+      return {
+        backup: validateLocalBackup(result.backup, owner),
+        cursor: localPullCursorSchema.parse(result.cursor),
+        summary: syncQueueSummaryV2Schema.parse(result.summary),
+      }
+    }
     const push = async (index: number, input: unknown, expected: string) => {
       const result = remotePushResultV2Schema.parse(
         await call(index, { type: "push", input })
@@ -325,18 +337,6 @@ export function FixtureController() {
             },
           ])
             await call(0, { type: "commit-local", command })
-          const snapshot = async (index: number) => {
-            const result = (await call(index, { type: "local-snapshot" })) as {
-              backup: unknown
-              cursor: unknown
-              summary: unknown
-            }
-            return {
-              backup: validateLocalBackup(result.backup, owner),
-              cursor: localPullCursorSchema.parse(result.cursor),
-              summary: syncQueueSummaryV2Schema.parse(result.summary),
-            }
-          }
           const pending = await snapshot(0)
           assert(
             pending.summary.pending === 3 &&
@@ -451,6 +451,158 @@ export function FixtureController() {
           assert(
             JSON.stringify(await state(owner)) === JSON.stringify(stored),
             "Summary and no-op attempts did not write Mongo"
+          )
+        }
+      )
+      await check(
+        "Sesión revocada conserva la intención local y reconectar confirma una sola vez",
+        async () => {
+          const remoteBefore = await state(owner)
+          const localBefore = await snapshot(1)
+          const revoked = (await call(1, {
+            type: "session",
+            command: "revoke",
+          })) as Reply
+          assert(revoked.status === 200, "Peer session revocation failed")
+          const recoveryItemId = crypto.randomUUID()
+          assert(
+            creation.command.type === "item.create",
+            "Session recovery requires the original creation command"
+          )
+          await call(1, {
+            type: "commit-local",
+            command: { ...creation.command, itemId: recoveryItemId },
+          })
+          const pending = await snapshot(1)
+          const intention = pending.backup.stores.outbox.find(
+            (entry) => entry.entityKey === `item:${recoveryItemId}`
+          )
+          assert(
+            intention?.state === "pending" &&
+              intention.attempts === 0 &&
+              intention.lease === null &&
+              intention.operation.baseRevision === 0 &&
+              intention.operation.command.type === "item.create" &&
+              pending.summary.pending === 1,
+            "New local intention is unclaimed and unacknowledged"
+          )
+          const denied = (await call(1, { type: "mixed-run" })) as {
+            status?: string
+            uploaded?: number
+          }
+          assert(
+            denied.status === "unauthorized" && denied.uploaded === 0,
+            "Default attempt must reject the revoked session before claim"
+          )
+          const retained = await snapshot(1)
+          assert(
+            JSON.stringify(retained.backup.stores) ===
+              JSON.stringify(pending.backup.stores) &&
+              JSON.stringify(retained.cursor) ===
+                JSON.stringify(pending.cursor),
+            "Revoked attempt preserves all stores, payload, UUID, attempts and cursor"
+          )
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(remoteBefore),
+            "Revoked local attempt did not mutate Mongo"
+          )
+          const prepared = (await call(1, {
+            type: "bootstrap",
+            identity: "owner",
+          })) as Reply
+          assert(
+            prepared.status === 200 &&
+              workspaceIdentitySchema.parse(prepared.value).userId === owner,
+            "Reauthentication returns the same persisted actor"
+          )
+          const recovered = (await call(1, { type: "mixed-run" })) as {
+            status?: string
+            uploaded?: number
+          }
+          assert(
+            recovered.status === "settled" && recovered.uploaded === 1,
+            "Reauthenticated default attempt uploads exactly one intention"
+          )
+          const confirmed = await snapshot(1)
+          const acknowledgment = confirmed.backup.stores.outbox.find(
+            (entry) =>
+              entry.operation.operationId === intention.operation.operationId
+          )
+          assert(
+            acknowledgment?.state === "acknowledged" &&
+              acknowledgment.attempts === 1 &&
+              acknowledgment.lease === null &&
+              JSON.stringify(acknowledgment.operation) ===
+                JSON.stringify(intention.operation),
+            "Real ACK preserves the original operation after reauthentication"
+          )
+          const stored = await state(owner)
+          assert(
+            stored.counts.items === remoteBefore.counts.items + 1 &&
+              stored.counts.receipts === remoteBefore.counts.receipts + 1 &&
+              stored.page.through === remoteBefore.page.through + 1 &&
+              stored.counts.tags === remoteBefore.counts.tags &&
+              stored.counts.views === remoteBefore.counts.views,
+            "Recovery adds one item, receipt and journal entry"
+          )
+          const change = stored.page.changes.find(
+            (entry) => entry.operationId === intention.operation.operationId
+          )
+          assert(
+            change?.kind === "item" &&
+              change.item.id === recoveryItemId &&
+              change.item.revision === 1,
+            "Recovery journal contains one revision-one item with the original UUID"
+          )
+          const expectedItems = new Map()
+          for (const entry of stored.page.changes)
+            if (entry.kind === "item")
+              expectedItems.set(entry.item.id, entry.item)
+          const ordered = (records: unknown[]) =>
+            JSON.stringify(
+              records.map((record) => JSON.stringify(record)).sort()
+            )
+          for (let index = 0; index < 2; index++) {
+            const pass = (await call(index, { type: "mixed-run" })) as {
+              status?: string
+              uploaded?: number
+            }
+            assert(
+              pass.status === "settled" && pass.uploaded === 0,
+              "Both devices pull or settle without repeating the upload"
+            )
+            const converged = await snapshot(index)
+            assert(
+              converged.cursor.after === stored.page.through &&
+                converged.cursor.through === null &&
+                ordered(converged.backup.stores.items) ===
+                  ordered([...expectedItems.values()]),
+              "Both item projections and cursors match the authoritative journal"
+            )
+            assert(
+              ordered(converged.backup.stores.tags) ===
+                ordered(localBefore.backup.stores.tags) &&
+                ordered(converged.backup.stores.itemViews) ===
+                  ordered(localBefore.backup.stores.itemViews),
+              "Existing exact category and view projections stay intact"
+            )
+            assert(
+              converged.summary.pending +
+                converged.summary.sending +
+                converged.summary.conflicts +
+                converged.summary.rejected ===
+                0 && !converged.summary.personalProjectionBlocked,
+              "Recovered device summaries contain no unresolved work"
+            )
+          }
+          assert(
+            JSON.stringify((await snapshot(1)).backup.stores) ===
+              JSON.stringify(confirmed.backup.stores),
+            "No-op passes preserve recovered ACK and local history"
+          )
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(stored),
+            "Recovery replay does not duplicate remote work"
           )
         }
       )
@@ -571,7 +723,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Nueve escenarios Next e IndexedDB correctos; cookies y recursos propios cerrados"
+            "Diez escenarios Next e IndexedDB correctos; cookies y recursos propios cerrados"
           )
         await fetch("/fixture/finish", {
           method: "POST",

@@ -118,3 +118,6 @@ Ensamblajecliente11c4a9c1: dispatcher2 y resumen guardado independientes, SyncAt
 
 
 11c4a9n refuerza prueba RPC: nueve escenarios compilados usan dispatcher2 directo a la acción productiva, ya sin wrapperparaV2, y createMixedSyncClient con defaults íntegros. Dos account-control/IndexedDB y sesiones persistidas/Mongo propios prueban tresACKs locales, proyección igualjournal/cursor en ambos, summary/noop/historia intactos y retirementhelperautenticado sin writes. APIs exactas sólo fixture, cookiecaprun/Host/Origin/authcookiesown; cleanup completo. Esto acredita la referencia generada en fixturelocal, no el ID del despliegue ni Googleinteractivo. Producto sigue1 y creacióníndicespreprod aún requiere nombreDBexplicito/fuenteverificada, sin nuevaaprobación.
+
+
+11c4a9r: diez escenarios Next correctos; sesión revocada conserva toda la intención/cola/cursor, reautenticación del mismo actor confirma una sola vez y ambos dispositivos convergen con Mongo propio. FullDoD aprobado y recursos propios cerrados. Producto sigue transporte1 y provisión preproductiva espera únicamente nombre DB explícito, con actuación ya autorizada.

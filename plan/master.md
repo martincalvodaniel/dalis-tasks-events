@@ -344,3 +344,6 @@ Actualización9oct10:29 —11c4a8e2b: CLI online separado y adapter privado prep
 
 
 11c4a9n probado: nueve escenarios Next, dispatcheracción2 directo y composicióndefault sin sustitución de puertos, con dos sesiones/IndexedDB/Mongo propios. Ambosdispositivos proyectan exactamente tareas/categorías/asignaciones y cursor del journal; ACK, replay/noop y retirolegacy sin mutaciones comprobados. Recursospropioslimpios; suite459pass98skip/lint/tipos/build34 aprobados. Transporte productivo aún1, nombreDBpreproductivo pendiente, autorizacióníndices ya concedida.
+
+
+11c4a9r: diez escenarios Next correctos; sesión revocada conserva toda la intención/cola/cursor, reautenticación del mismo actor confirma una sola vez y ambos dispositivos convergen con Mongo propio. FullDoD aprobado y recursos propios cerrados. Producto sigue transporte1 y provisión preproductiva espera únicamente nombre DB explícito, con actuación ya autorizada.

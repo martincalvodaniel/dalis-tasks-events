@@ -270,3 +270,6 @@ Modo `operator` del runner aislado: selecciona exclusivamente personal-index-ope
 
 
 Ampliación11c4a9n del modoNext: nueve escenarios con referencias directasaction2 y composicióndefault, APIs exactas privadas guardadas por cookiecapacidad y Host/Origin/cookiespropias, dos particiones IndexedDB además de sesionesMongo. Inventario local previo rechaza todo estado ajeno antesdeaccount-control; limpieza sólo recursos creados/trackedporrun. Cursor/snapshots/ACK/summary/noop igualesjournalMongo. Fixture/build/servidores/container/cookies/particiones propioslimpios y evidencia visual local conservada; Google/endpointIDdeployed fuera de alcance.
+
+
+11c4a9r: diez escenarios Next correctos; sesión revocada conserva toda la intención/cola/cursor, reautenticación del mismo actor confirma una sola vez y ambos dispositivos convergen con Mongo propio. FullDoD aprobado y recursos propios cerrados. Producto sigue transporte1 y provisión preproductiva espera únicamente nombre DB explícito, con actuación ya autorizada.
