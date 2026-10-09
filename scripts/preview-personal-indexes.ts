@@ -1,3 +1,4 @@
+import { automaticIndexSpecs } from "@/lib/db/ensure-indexes"
 import { selectMixedSyncIndexSpecs } from "@/lib/db/mixed-sync-index-specs"
 
 // This command reviews registered definitions without inspecting or connecting to a database.
@@ -10,6 +11,7 @@ if (process.argv.slice(2).length !== 0) {
       {
         scope: "offline_definition_preview",
         databaseAccess: "none",
+        automaticIndexes: automaticIndexSpecs(),
         indexes: selectMixedSyncIndexSpecs(),
       },
       null,

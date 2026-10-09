@@ -89,7 +89,7 @@ Siete escenarios con Next compilado, dos sesiones Better Auth persistidas y Mong
 
 ### Revisión offline de las definiciones 11c4a8v
 
-Ejecutar `bun --no-env-file run db:preview-personal-indexes` imprime sólo las tres especificaciones centrales, sin conectar ni leer configuración de DB/auth. Es una vista previa de código; no inspección del despliegue. Cualquier argumento (incluido --apply) se rechaza. Falta CLI de ejecución con destino explícito validado antes de conexión, revisión de efectos del bootstrap automático y autorización de entorno. La autorización actual excluye ejecutarlo en DB del usuario.
+Ejecutar `bun --no-env-file run db:preview-personal-indexes` imprime las tres especificaciones personales y, desde11c4a8e1, las nueve automáticas del selector central real, sin conectar ni leer configuración de DB/auth. Es una vista previa de código; no inspección del despliegue. Cualquier argumento (incluido --apply) se rechaza. Falta CLI de ejecución con destino explícito validado antes de conexión, revisión de efectos del bootstrap automático y autorización de entorno. La autorización actual excluye ejecutarlo en DB del usuario.
 
 
 El [contrato de provisión de entorno](personal-index-provisioning.md) (`11c4a8c`) divide guardia de destino, CLI/adaptador y prueba propia. La ejecución basada en getDatabase incluye bootstrap automático de índices registrados; no se ofrece como readonly. DB sin fallback y autoridad exacta preceden conexión, pero no sustituyen autorización del entorno. Siguiente corte11c4a8g antes de conexión conjunta.

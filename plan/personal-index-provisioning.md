@@ -1,6 +1,6 @@
 # Provisión personal de entorno
 
-Estado: contrato preparatorio. El único comando entregado es `bun --no-env-file run db:preview-personal-indexes`, que no conecta y no acepta argumentos. No hay todavía un CLI online de provisión; los nombres de interfaz de este documento son objetivos futuros.
+Estado: contrato preparatorio. El único comando entregado es `bun --no-env-file run db:preview-personal-indexes`, que no conecta y no acepta argumentos; muestra índices automáticos y personales del registro. No hay todavía un CLI online de provisión; los nombres de interfaz de este documento son objetivos futuros.
 
 ## Destino y autorización
 
@@ -31,3 +31,6 @@ Referencias: [activación mixta](mixed-sync-activation.md), [registro central](.
 
 
 Avance11c4a8g1: [schema del descriptor](../src/schemas/personal-index-target.ts) y [guardia pura](../src/lib/db/personal-index-target.ts) cerrados con dos tests/54 aserciones. Compara descriptores ya resueltos; no parser de URI, lector de env o permiso. Siguiente11c4a8g2 debe derivar y validar autoridad/config sin fallback antes de conectar, y probar formas ambiguas según el driver instalado. Restricción de caracteres del descriptor no sustituye formato completo de hosts/puertos/SRV.
+
+
+Avance11c4a8e1: vista previa ampliada usa automaticIndexSpecs real y selector personal exacto, nueve y tres definiciones actuales respectivamente. Se ejecutó con entorno vacío sin conexión y argumentos/apply rechazados. La parte de conexión de11c4a8e todavía depende de resolver/config11c4a8g2 y pruebas propias posteriores.

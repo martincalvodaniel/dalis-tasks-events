@@ -2094,3 +2094,15 @@ Objetivo: validar descriptor explícito y comparar DB/autoridad resueltas sin IO
 Schema estricto exige entorno declarado local/preproduction, DB explícita conservadora y autoridad de conexión ya resuelta sin userinfo/URI/ruta/query/whitespace. Guardia pura compara DB/autoridad exactas con configuración resuelta y devuelve copia; todo rechazo usa error finito sin cause ni valores. No lee env, interpreta URI, conecta ni acredita ownership/autorización. Formato completo/resolución de autoridad desde URI y ausencia de fallback del lector son dependencia11c4a8g2; esta guardia no debe conectarse a CLI directamente con getDatabaseEnv fallback.
 
 Dos tests/54 aserciones: coincidencia/copia, descriptores loopback/seedlist/IPv6, mismatch exacto frente a substring, production/extra/ausencia y datos inseguros sin filtración. FullDoD434pass/93opt-in skip/0fail/7133 aserciones; lint495/tipos/build34/diff correctos después de corregir literal de entorno del test. Sin Mongo/browser adicionales porque no IO ni cambios al producto. Entrada19%5h/57%7d, reservas4%/1%. Siguiente11c4a8g2 resolver/config, antes de adaptador de conexión. Commitpush/HEAD/cuotas al cierre.
+
+
+### Preparación 11c4a8e1 — Alcance completo en revisión offline
+
+Objetivo: mostrar bootstrap automático junto a selección personal exacta sin conectar. Target_paths root: scripts/preview-personal-indexes.ts y plan/**; secuencial. Dependencias11c4a8v/11c4a8c y selector automaticIndexSpecs central. Adelanto independiente de la parte offline de11c4a8e: resolver/config11c4a8g2 sigue necesario antes del CLI online. Aceptación: preservar indexes personales y añadir automaticIndexes directamente del selector que usa getDatabase; sin listas/números hardcodeados, IO/env o apply; datos sólo de registro. Smoke en entorno vacío verifica nueve automáticos/tres explícitos actuales y separación sin duplicados; argumentos desconocidos siguen rechazados sin JSON. FullDoD/diff/referencias, plan/registro/commitpush/HEAD/cuotas. Entrada17%5h/57%7d, reservas4%/1%.
+
+
+### Resultado 11c4a8e1 — Revisión offline del alcance completo
+
+Preview conserva indexes personales y añade automaticIndexes desde automaticIndexSpecs, el selector real del bootstrap del singleton. Nueve automáticos y tres explícitos actuales quedan separados, sin duplicados ni una segunda lista. No conecta, lee env o admite argumentos/apply; smoke en proceso con entorno vacío/--no-env-file confirma salida íntegra y rechazo exit1 sin JSON parcial. No ejecutar este JSON como instrucciones ni anunciar readiness; es revisión de definiciones del código.
+
+FullDoD434pass/93opt-in skip/0fail/7133 aserciones; lint495/tipos/build34/diff y referencias correctos. Sin nuevos tests redundantes por extensión de presentación; separación del catálogo ya cubierta por pruebas centrales. Entrada17%5h/57%7d, reservas4%/1%. Adelanto offline independiente cerrado;11c4a8g2 resolver/configuración permanece siguiente antes del adaptador/CLI online. Commitpush/HEAD/cuotas por entrega.
