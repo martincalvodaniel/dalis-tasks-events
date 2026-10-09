@@ -335,3 +335,6 @@ Actualización9oct10:29 —11c4a8e2b: CLI online separado y adapter privado prep
 
 
 11c4a8t cerrado: CLI/defaults/procedimiento completo probado en Mongo propio (3casos/70aserciones), limpieza terminada; lint/tipos/suite443pass98skip/build34 aprobados. Provisión preproductiva ya autorizada pero no ejecutada: nombre explícito solicitado al usuario, configuración Preview localizada. Producto aún transporte1. Siguiente ensamblajecliente2 inactivo/controles y retirolegacy antes de activación conjunta y piloto.
+
+
+11c4a9c1 preparado y probado: dispatcher/resumen/controlescliente2 independientes; guardias cuenta/época, diagnóstico y cierre preservados. Suite451pass98skip sin fallos; lint/tipos/build34 aprobados. Producto sigue1 y manifiesto conserva una solaacción, sin activarendpointmixto. Siguiente composición privada y retirolegacy/matriz; provisiónpreprod espera nombre explícito solicitado.

@@ -109,3 +109,6 @@ Lectura6%5h/55%7d, reservas4%/1%: sólo cierre documental ahora; defaults/CLI/pr
 
 
 11c4a8e2b/11c4a8t: defaults/CLI separado y prueba real propia cerrados. Bootstrap9+personal3, guardias sin IO, partial-create/retry/noop y cierre comprobados con3casos/70aserciones. Autorización preproductiva ya otorgada; queda nombre DB explícito tras localizar configuración Preview de Vercel. Producto transporte1. La siguiente preparación independiente es ensamblaje cliente2/controles mixtos y respuesta legacy update_required antes de retirar su executor durante transición; no activar parcial ni anunciar2 sin índices/cliente/rutas conjuntos.
+
+
+Ensamblajecliente11c4a9c1: dispatcher2 y resumen guardado independientes, SyncAttemptV2/SyncSchedulerV2 delegan controles existentes conservando diagnóstico/coalescencia y limpiándolo ante cancelación/cuenta distinta/fallback. Sin imports desde hook/provider activo ni config/rutas editadas; build sigue una acciónnode. Antes de activación, conectar composición conjunta y retirar acciónlegacy mediante resultado legacy update_required antes de executor, no devolver envelope2 al cliente1. Ocho tests/57aserciones no sustituyen pilotoGoogle.
