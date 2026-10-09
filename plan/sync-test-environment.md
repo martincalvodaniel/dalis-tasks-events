@@ -273,3 +273,6 @@ Ampliación11c4a9n del modoNext: nueve escenarios con referencias directasaction
 
 
 11c4a9r: diez escenarios Next correctos; sesión revocada conserva toda la intención/cola/cursor, reautenticación del mismo actor confirma una sola vez y ambos dispositivos convergen con Mongo propio. FullDoD aprobado y recursos propios cerrados. Producto sigue transporte1 y provisión preproductiva espera únicamente nombre DB explícito, con actuación ya autorizada.
+
+
+11c4a9a: once escenarios Next correctos; otra sesión verificada produce account_changed sin claim ni mutaciones locales o en ninguna de las dos cuentas remotas. Recuperar la sesión original confirma una sola vez y ambos dispositivos convergen con el diario propio. Baselines anteriores al ACK y escenarios previos conservados; fullDoD aprobado, recursos propios cerrados. Producto1 sigue activo y provisión preproductiva espera nombre explícito, con autorización vigente.

@@ -18,6 +18,7 @@ import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
 import { validateLocalBackup } from "@/lib/backup/local-backup"
 import { localPullCursorSchema } from "@/schemas/local-sync"
 import { syncQueueSummaryV2Schema } from "@/schemas/sync-queue-v2"
+import type { OutboxEntry } from "@/types/local-sync"
 import { executeFixtureCommand, fixtureFetch } from "@fixture/device-client"
 
 function assert(value: unknown, message: string): asserts value {
@@ -138,6 +139,99 @@ export function FixtureController() {
         cursor: localPullCursorSchema.parse(result.cursor),
         summary: syncQueueSummaryV2Schema.parse(result.summary),
       }
+    }
+    const verifyRecovery = async (
+      intention: OutboxEntry,
+      remoteBefore: Awaited<ReturnType<typeof state>>,
+      pending: Awaited<ReturnType<typeof snapshot>>
+    ) => {
+      const recovered = (await call(1, { type: "mixed-run" })) as {
+        status?: string
+        uploaded?: number
+      }
+      assert(
+        recovered.status === "settled" && recovered.uploaded === 1,
+        "Reauthenticated default attempt uploads exactly one intention"
+      )
+      const confirmed = await snapshot(1)
+      const acknowledgment = confirmed.backup.stores.outbox.find(
+        (entry) =>
+          entry.operation.operationId === intention.operation.operationId
+      )
+      assert(
+        acknowledgment?.state === "acknowledged" &&
+          acknowledgment.attempts === 1 &&
+          acknowledgment.lease === null &&
+          JSON.stringify(acknowledgment.operation) ===
+            JSON.stringify(intention.operation),
+        "Real ACK preserves the original operation after reauthentication"
+      )
+      const stored = await state(owner)
+      assert(
+        stored.counts.items === remoteBefore.counts.items + 1 &&
+          stored.counts.receipts === remoteBefore.counts.receipts + 1 &&
+          stored.page.through === remoteBefore.page.through + 1 &&
+          stored.counts.tags === remoteBefore.counts.tags &&
+          stored.counts.views === remoteBefore.counts.views,
+        "Recovery adds one item, receipt and journal entry"
+      )
+      const change = stored.page.changes.find(
+        (entry) => entry.operationId === intention.operation.operationId
+      )
+      assert(
+        intention.operation.command.type === "item.create" &&
+          change?.kind === "item" &&
+          change.item.id === intention.operation.command.itemId &&
+          change.item.revision === 1,
+        "Recovery journal contains one revision-one item with the original UUID"
+      )
+      const expectedItems = new Map()
+      for (const entry of stored.page.changes)
+        if (entry.kind === "item") expectedItems.set(entry.item.id, entry.item)
+      const ordered = (records: unknown[]) =>
+        JSON.stringify(records.map((record) => JSON.stringify(record)).sort())
+      for (let index = 0; index < 2; index++) {
+        const pass = (await call(index, { type: "mixed-run" })) as {
+          status?: string
+          uploaded?: number
+        }
+        assert(
+          pass.status === "settled" && pass.uploaded === 0,
+          "Both devices pull or settle without repeating the upload"
+        )
+        const converged = await snapshot(index)
+        assert(
+          converged.cursor.after === stored.page.through &&
+            converged.cursor.through === null &&
+            ordered(converged.backup.stores.items) ===
+              ordered([...expectedItems.values()]),
+          "Both item projections and cursors match the authoritative journal"
+        )
+        assert(
+          ordered(converged.backup.stores.tags) ===
+            ordered(pending.backup.stores.tags) &&
+            ordered(converged.backup.stores.itemViews) ===
+              ordered(pending.backup.stores.itemViews),
+          "Existing exact category and view projections stay intact"
+        )
+        assert(
+          converged.summary.pending +
+            converged.summary.sending +
+            converged.summary.conflicts +
+            converged.summary.rejected ===
+            0 && !converged.summary.personalProjectionBlocked,
+          "Recovered device summaries contain no unresolved work"
+        )
+      }
+      assert(
+        JSON.stringify((await snapshot(1)).backup.stores) ===
+          JSON.stringify(confirmed.backup.stores),
+        "No-op passes preserve recovered ACK and local history"
+      )
+      assert(
+        JSON.stringify(await state(owner)) === JSON.stringify(stored),
+        "Recovery replay does not duplicate remote work"
+      )
     }
     const push = async (index: number, input: unknown, expected: string) => {
       const result = remotePushResultV2Schema.parse(
@@ -458,7 +552,6 @@ export function FixtureController() {
         "Sesión revocada conserva la intención local y reconectar confirma una sola vez",
         async () => {
           const remoteBefore = await state(owner)
-          const localBefore = await snapshot(1)
           const revoked = (await call(1, {
             type: "session",
             command: "revoke",
@@ -515,94 +608,87 @@ export function FixtureController() {
               workspaceIdentitySchema.parse(prepared.value).userId === owner,
             "Reauthentication returns the same persisted actor"
           )
-          const recovered = (await call(1, { type: "mixed-run" })) as {
+          await verifyRecovery(intention, remoteBefore, pending)
+        }
+      )
+      await check(
+        "Otra cuenta remota conserva la cola propia hasta recuperar su sesión",
+        async () => {
+          assert(
+            creation.command.type === "item.create",
+            "Account recovery requires the original creation command"
+          )
+          const recoveryItemId = crypto.randomUUID()
+          await call(1, {
+            type: "commit-local",
+            command: { ...creation.command, itemId: recoveryItemId },
+          })
+          const pending = await snapshot(1)
+          const intention = pending.backup.stores.outbox.find(
+            (entry) => entry.entityKey === `item:${recoveryItemId}`
+          )
+          assert(
+            intention?.state === "pending" &&
+              intention.attempts === 0 &&
+              intention.lease === null &&
+              intention.operation.baseRevision === 0 &&
+              pending.summary.pending === 1,
+            "Own local intention remains unclaimed before account mismatch"
+          )
+          const preparedOther = (await call(1, {
+            type: "bootstrap",
+            identity: "other",
+          })) as Reply
+          assert(
+            preparedOther.status === 200,
+            "Other owned actor bootstrap failed"
+          )
+          const other = workspaceIdentitySchema.parse(
+            preparedOther.value
+          ).userId
+          assert(
+            other !== owner,
+            "Other persisted actor must differ from the captured local account"
+          )
+          const remoteBefore = await state(owner)
+          const otherBefore = await state(other)
+          const denied = (await call(1, { type: "mixed-run" })) as {
             status?: string
             uploaded?: number
           }
           assert(
-            recovered.status === "settled" && recovered.uploaded === 1,
-            "Reauthenticated default attempt uploads exactly one intention"
+            denied.status === "account_changed" && denied.uploaded === 0,
+            "Default attempt rejects another remote account before claim"
           )
-          const confirmed = await snapshot(1)
-          const acknowledgment = confirmed.backup.stores.outbox.find(
-            (entry) =>
-              entry.operation.operationId === intention.operation.operationId
+          const retained = await snapshot(1)
+          assert(
+            JSON.stringify(retained.backup.stores) ===
+              JSON.stringify(pending.backup.stores) &&
+              JSON.stringify(retained.cursor) ===
+                JSON.stringify(pending.cursor),
+            "Account mismatch preserves every store, UUID, payload, attempts and cursor"
           )
           assert(
-            acknowledgment?.state === "acknowledged" &&
-              acknowledgment.attempts === 1 &&
-              acknowledgment.lease === null &&
-              JSON.stringify(acknowledgment.operation) ===
-                JSON.stringify(intention.operation),
-            "Real ACK preserves the original operation after reauthentication"
+            JSON.stringify(await state(owner)) ===
+              JSON.stringify(remoteBefore) &&
+              JSON.stringify(await state(other)) ===
+                JSON.stringify(otherBefore),
+            "Account mismatch changes neither actor's Mongo state"
           )
-          const stored = await state(owner)
+          const preparedOwner = (await call(1, {
+            type: "bootstrap",
+            identity: "owner",
+          })) as Reply
           assert(
-            stored.counts.items === remoteBefore.counts.items + 1 &&
-              stored.counts.receipts === remoteBefore.counts.receipts + 1 &&
-              stored.page.through === remoteBefore.page.through + 1 &&
-              stored.counts.tags === remoteBefore.counts.tags &&
-              stored.counts.views === remoteBefore.counts.views,
-            "Recovery adds one item, receipt and journal entry"
+            preparedOwner.status === 200 &&
+              workspaceIdentitySchema.parse(preparedOwner.value).userId ===
+                owner,
+            "Recovered session must match the captured local account"
           )
-          const change = stored.page.changes.find(
-            (entry) => entry.operationId === intention.operation.operationId
-          )
+          await verifyRecovery(intention, remoteBefore, pending)
           assert(
-            change?.kind === "item" &&
-              change.item.id === recoveryItemId &&
-              change.item.revision === 1,
-            "Recovery journal contains one revision-one item with the original UUID"
-          )
-          const expectedItems = new Map()
-          for (const entry of stored.page.changes)
-            if (entry.kind === "item")
-              expectedItems.set(entry.item.id, entry.item)
-          const ordered = (records: unknown[]) =>
-            JSON.stringify(
-              records.map((record) => JSON.stringify(record)).sort()
-            )
-          for (let index = 0; index < 2; index++) {
-            const pass = (await call(index, { type: "mixed-run" })) as {
-              status?: string
-              uploaded?: number
-            }
-            assert(
-              pass.status === "settled" && pass.uploaded === 0,
-              "Both devices pull or settle without repeating the upload"
-            )
-            const converged = await snapshot(index)
-            assert(
-              converged.cursor.after === stored.page.through &&
-                converged.cursor.through === null &&
-                ordered(converged.backup.stores.items) ===
-                  ordered([...expectedItems.values()]),
-              "Both item projections and cursors match the authoritative journal"
-            )
-            assert(
-              ordered(converged.backup.stores.tags) ===
-                ordered(localBefore.backup.stores.tags) &&
-                ordered(converged.backup.stores.itemViews) ===
-                  ordered(localBefore.backup.stores.itemViews),
-              "Existing exact category and view projections stay intact"
-            )
-            assert(
-              converged.summary.pending +
-                converged.summary.sending +
-                converged.summary.conflicts +
-                converged.summary.rejected ===
-                0 && !converged.summary.personalProjectionBlocked,
-              "Recovered device summaries contain no unresolved work"
-            )
-          }
-          assert(
-            JSON.stringify((await snapshot(1)).backup.stores) ===
-              JSON.stringify(confirmed.backup.stores),
-            "No-op passes preserve recovered ACK and local history"
-          )
-          assert(
-            JSON.stringify(await state(owner)) === JSON.stringify(stored),
-            "Recovery replay does not duplicate remote work"
+            JSON.stringify(await state(other)) === JSON.stringify(otherBefore),
+            "Owner recovery leaves the other actor's state intact"
           )
         }
       )
@@ -723,7 +809,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Diez escenarios Next e IndexedDB correctos; cookies y recursos propios cerrados"
+            "Once escenarios Next e IndexedDB correctos; cookies y recursos propios cerrados"
           )
         await fetch("/fixture/finish", {
           method: "POST",
