@@ -1,10 +1,16 @@
 import { expect, test } from "bun:test"
 import { planLocalPreferenceResult } from "@/lib/sync/preference-result-plan"
+import {
+  overduePlacementDate,
+  taskPlacementEntityKey,
+} from "@/schemas/ordering"
+import { personalShadowEntityKey } from "@/schemas/remote-shadow-v2"
 import type { OutboxEntry } from "@/types/local-sync"
 import type { LocalSyncResultInputV2 } from "@/types/local-sync-result-v2"
 import type { PersonalSnapshot } from "@/types/personal-snapshot"
 import type { PreferenceEffect } from "@/types/preference-effects"
 import type { RemoteShadowV2 } from "@/types/remote-shadow-v2"
+import type { SyncCommand } from "@/types/sync"
 
 const userId = "preference-result-plan-owner"
 const timestamp = "2026-10-08T00:00:00.000Z"
@@ -114,6 +120,130 @@ function dependent(
       protocolVersion: 1,
       baseRevision: 0,
       command: { type: "tag.delete", tagId },
+    },
+  }
+}
+
+function placementFixture(scope: "day" | "overdue" = "day") {
+  const itemId = crypto.randomUUID()
+  const peerId = crypto.randomUUID()
+  const operationId = crypto.randomUUID()
+  const senderId = crypto.randomUUID()
+  const operation = {
+    operationId,
+    protocolVersion: 1 as const,
+    baseRevision: 0,
+    command: {
+      type: "task.move" as const,
+      itemId,
+      occurrenceId: null,
+      scope,
+      date: "2026-10-08",
+      tagId: null,
+      beforeId: peerId,
+      afterId: null,
+    },
+  }
+  const effects: PreferenceEffect[] = [
+    ...[itemId, peerId].map((occurrenceId, index) => ({
+      store: "taskPlacements" as const,
+      record: {
+        userId,
+        occurrenceId,
+        scope,
+        date:
+          scope === "overdue" ? overduePlacementDate : operation.command.date,
+        tagId: null,
+        position: (index + 1) * 1024,
+        revision: index === 0 ? 1 : 8,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        deletedAt: null,
+      },
+    })),
+    {
+      store: "itemViews",
+      record: {
+        userId,
+        itemId,
+        primaryTagId: null,
+        revision: 4,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        deletedAt: null,
+      },
+    },
+  ]
+  const submission: Omit<LocalSyncResultInputV2, "result"> & {
+    result: Extract<LocalSyncResultInputV2["result"], { kind: "preference" }>
+  } = {
+    operation,
+    senderId,
+    result: {
+      kind: "preference",
+      outcome: {
+        operationId,
+        status: "applied",
+        effects: { version: 1, userId, operationId, sequence: 9, effects },
+      },
+    },
+  }
+  const local: PersonalSnapshot = effects.map((effect) => {
+    const record = structuredClone(effect)
+    record.record.revision = 0
+    return { entityKey: personalShadowEntityKey(effect), record }
+  })
+  const shadows: Extract<RemoteShadowV2, { kind: "preference" }>[] =
+    effects.map((effect) => {
+      const record = structuredClone(effect)
+      record.record.revision = 20
+      return {
+        version: 2,
+        kind: "preference",
+        entityKey: personalShadowEntityKey(effect),
+        record,
+      }
+    })
+  const entry: OutboxEntry = {
+    userId,
+    entityKey: taskPlacementEntityKey(itemId, scope, operation.command.date),
+    operation,
+    sequence: 1,
+    dependencies: [],
+    state: "sending",
+    attempts: 1,
+    createdAt: timestamp,
+    lease: { ownerId: senderId, expiresAt: "2026-10-08T00:01:00.000Z" },
+  }
+  return {
+    userId,
+    submission,
+    local,
+    shadows,
+    entries: [entry],
+    existingOutcome: null,
+  }
+}
+
+function placementDependent(
+  input: ReturnType<typeof placementFixture>,
+  sequence: number,
+  entityKey: string,
+  command: SyncCommand
+): OutboxEntry {
+  return {
+    ...input.entries[0],
+    entityKey,
+    sequence,
+    state: "pending",
+    attempts: 0,
+    lease: null,
+    dependencies: [input.submission.operation.operationId],
+    operation: {
+      protocolVersion: 1,
+      operationId: crypto.randomUUID(),
+      baseRevision: 0,
+      command,
     },
   }
 }
@@ -321,4 +451,168 @@ test("unsupported personal stores reject even as unrelated known shadow evidence
       },
     })
   ).toThrow("support this command")
+})
+
+test("placement ACK preserves the original move and rebases only untried direct dependents using all independent effect revisions", () => {
+  const input = placementFixture()
+  const command = input.entries[0].operation.command
+  if (command.type !== "task.move" || command.beforeId === null)
+    throw new Error("Expected move")
+  const move = placementDependent(input, 2, input.entries[0].entityKey, command)
+  const peer = placementDependent(input, 3, input.local[1].entityKey, {
+    ...command,
+    itemId: command.beforeId,
+    beforeId: null,
+  })
+  const view = placementDependent(input, 4, input.local[2].entityKey, {
+    type: "item-view.set",
+    itemId: command.itemId,
+    primaryTagId: crypto.randomUUID(),
+  })
+  const tried = {
+    ...peer,
+    sequence: 5,
+    attempts: 1,
+    operation: { ...peer.operation, operationId: crypto.randomUUID() },
+  }
+  const indirect = {
+    ...move,
+    sequence: 6,
+    dependencies: [move.operation.operationId],
+    operation: { ...move.operation, operationId: crypto.randomUUID() },
+  }
+  const unrelated = {
+    ...move,
+    sequence: 7,
+    dependencies: [],
+    operation: { ...move.operation, operationId: crypto.randomUUID() },
+  }
+  input.entries.push(move, peer, view, tried, indirect, unrelated)
+  const before = structuredClone(input)
+  const plan = planLocalPreferenceResult(input)
+  expect(plan.entries.map((entry) => entry.operation.baseRevision)).toEqual([
+    0, 1, 8, 4, 0, 0, 0,
+  ])
+  expect(plan.entries[0].state).toBe("acknowledged")
+  expect(plan.entries[0].operation).toEqual(input.submission.operation)
+  expect(plan.entries.slice(4)).toEqual(input.entries.slice(4))
+  expect(plan.local).toEqual(input.local)
+  expect(plan.outcome.local).toEqual(input.local)
+  expect(plan.outcome.base).toEqual(
+    input.shadows.map((shadow) => ({
+      entityKey: shadow.entityKey,
+      record: shadow.kind === "preference" ? shadow.record : null,
+    }))
+  )
+  expect(plan.outcome.result).toEqual(input.submission.result)
+  for (let index = 1; index < plan.entries.length; index++) {
+    expect(plan.entries[index].operation.command).toEqual(
+      input.entries[index].operation.command
+    )
+    expect(plan.entries[index].operation.operationId).toBe(
+      input.entries[index].operation.operationId
+    )
+    expect(plan.entries[index].dependencies).toEqual(
+      input.entries[index].dependencies
+    )
+  }
+  plan.local[0].record = null
+  expect(input).toEqual(before)
+})
+
+test("overdue placement identity stays canonical while conflicts and document-free errors preserve exact primary evidence", () => {
+  for (const status of [
+    "conflict",
+    "unsupported",
+    "invalid_command",
+  ] as const) {
+    const input = placementFixture("overdue")
+    const current = input.shadows[0]
+    if (current.kind !== "preference")
+      throw new Error("Expected personal shadow")
+    const conflict = structuredClone(current.record)
+    conflict.record.revision = 21
+    input.submission.result = {
+      kind: "preference",
+      outcome:
+        status === "conflict"
+          ? {
+              operationId: input.submission.operation.operationId,
+              status,
+              current: conflict,
+            }
+          : { operationId: input.submission.operation.operationId, status },
+    }
+    const plan = planLocalPreferenceResult(input)
+    expect(plan.outcome.local).toEqual([input.local[0]])
+    expect(plan.outcome.base).toEqual([
+      { entityKey: current.entityKey, record: current.record },
+    ])
+    expect(plan.outcome.local[0].entityKey).toContain(overduePlacementDate)
+    expect(plan.outcome.local[0].entityKey).not.toContain("tag:null")
+    expect(plan.outcome.operation.command).toEqual(
+      input.submission.operation.command
+    )
+    expect(plan.local).toEqual(input.local)
+    expect(plan.entries[0].state).toBe(
+      status === "conflict"
+        ? "conflict"
+        : status === "unsupported"
+          ? "pending"
+          : "rejected"
+    )
+    expect(plan.shadows[0].record.record.revision).toBe(
+      status === "conflict" ? 21 : 20
+    )
+    expect(plan.shadows.slice(1)).toEqual(input.shadows.slice(1))
+  }
+  const absent = placementFixture()
+  absent.local = []
+  absent.shadows = []
+  absent.submission.result = {
+    kind: "preference",
+    outcome: {
+      operationId: absent.submission.operation.operationId,
+      status: "unavailable",
+    },
+  }
+  const outcome = planLocalPreferenceResult(absent).outcome
+  expect(outcome.local).toEqual([
+    { entityKey: absent.entries[0].entityKey, record: null },
+  ])
+  expect(outcome.base).toEqual(outcome.local)
+})
+
+test("late placement ACK and exact replay retain newer tombstones and the original independent observed bases", () => {
+  const input = placementFixture()
+  const primary = input.shadows[0]
+  if (primary.kind !== "preference")
+    throw new Error("Expected placement shadow")
+  primary.record.record.deletedAt = timestamp
+  const plan = planLocalPreferenceResult(input)
+  expect(plan.local.map((entry) => entry.record?.record.revision)).toEqual([
+    20, 20, 20,
+  ])
+  expect(plan.local[0].record?.record.deletedAt).toBe(timestamp)
+  expect(
+    plan.outcome.local.map((entry) => entry.record?.record.revision)
+  ).toEqual([0, 0, 0])
+  expect(plan.outcome.base[0].record?.record.deletedAt).toBe(timestamp)
+  const replay = {
+    ...input,
+    local: plan.local,
+    shadows: plan.shadows,
+    entries: plan.entries,
+    existingOutcome: plan.outcome,
+    submission: { ...input.submission, senderId: crypto.randomUUID() },
+  }
+  const newer = replay.shadows[0]
+  newer.record.record.revision = 30
+  const result = planLocalPreferenceResult(replay)
+  expect(result.status).toBe("replayed")
+  expect(result.outcome).toEqual(plan.outcome)
+  expect(result.outcome.base[0].record?.record.revision).toBe(20)
+  expect(result.shadows[0].record.record.revision).toBe(30)
+  expect(result.local).toEqual(replay.local)
+  expect(result.entries).toEqual(plan.entries)
 })

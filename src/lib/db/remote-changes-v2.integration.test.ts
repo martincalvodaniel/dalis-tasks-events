@@ -12,6 +12,8 @@ import { executeRemoteItemOperation } from "@/lib/db/remote-item-commands"
 import { executeRemoteItemViewOperation } from "@/lib/db/remote-item-view-commands"
 import { executeRemoteTagOperation } from "@/lib/db/remote-tag-commands"
 import { RemoteTagRepository } from "@/lib/db/remote-tags"
+import { executeRemoteTaskPlacementOperation } from "@/lib/db/remote-task-placement-commands"
+import { RemoteTaskPlacementRepository } from "@/lib/db/remote-task-placements"
 import { maximumRemoteChangesPageBytes } from "@/schemas/remote-changes-page-v2"
 import type { CalendarItem } from "@/types/calendar-item"
 import type { SyncCommand } from "@/types/sync"
@@ -82,7 +84,8 @@ describe.skipIf(!config)("checkpointed mixed change download", () => {
       INDEX_SPECS.filter(
         (spec) =>
           spec.collection === COLLECTION_NAMES.tags ||
-          spec.collection === COLLECTION_NAMES.itemViews
+          spec.collection === COLLECTION_NAMES.itemViews ||
+          spec.collection === COLLECTION_NAMES.taskPlacements
       )
     )
   }, 30000)
@@ -93,6 +96,7 @@ describe.skipIf(!config)("checkpointed mixed change download", () => {
         [COLLECTION_NAMES.items, "ownerId"],
         [COLLECTION_NAMES.tags, "userId"],
         [COLLECTION_NAMES.itemViews, "userId"],
+        [COLLECTION_NAMES.taskPlacements, "userId"],
         [COLLECTION_NAMES.syncOperations, "actorUserId"],
         [COLLECTION_NAMES.syncChanges, "recipientUserId"],
         [COLLECTION_NAMES.syncCounters, "_id"],
@@ -302,6 +306,153 @@ describe.skipIf(!config)("checkpointed mixed change download", () => {
       (await (await RemoteTagRepository.open(actor)).read(tag.id))?.revision
     ).toBe(1)
     expect((await readRemoteChangesV2(actor, {})).changes).toHaveLength(3)
+  }, 30000)
+
+  test("reads original placement history after category changes and soft deletions without changing its checkpoint", async () => {
+    const actor = `${prefix}placement-history`
+    const { item, tag } = await seed(actor)
+    const command: SyncCommand = {
+      type: "task.move",
+      itemId: item.id,
+      occurrenceId: null,
+      scope: "day",
+      date: "2026-10-08",
+      tagId: tag.id,
+      beforeId: null,
+      afterId: null,
+    }
+    const first = await executeRemoteTaskPlacementOperation(
+      actor,
+      operation(command)
+    )
+    if (first.kind !== "preference" || first.outcome.status !== "applied")
+      throw new Error("Expected committed task movement")
+    const checkpoint = await readRemoteChangesV2(actor, {})
+    expect(checkpoint.through).toBe(3)
+    const moved = checkpoint.changes[2]
+    if (moved.kind !== "preference")
+      throw new Error("Expected movement history")
+    expect(moved.effects).toEqual(first.outcome.effects)
+    expect(moved.effects.effects.map((effect) => effect.store)).toEqual([
+      "taskPlacements",
+      "itemViews",
+    ])
+    await executeRemoteTaskPlacementOperation(
+      actor,
+      operation({ ...command, tagId: null }, 1)
+    )
+    const placements = await RemoteTaskPlacementRepository.open(actor)
+    const key = { occurrenceId: item.id, scope: "day", date: "2026-10-08" }
+    const current = await placements.read(key)
+    if (!current) throw new Error("Expected current task placement")
+    expect(
+      await placements.replace(2, {
+        ...current,
+        revision: 3,
+        deletedAt: timestamp,
+      })
+    ).toBe(true)
+    await executeRemoteTagOperation(
+      actor,
+      operation({ type: "tag.delete", tagId: tag.id }, 1)
+    )
+    await executeRemoteItemOperation(
+      actor,
+      operation({ type: "item.delete", itemId: item.id }, 1)
+    )
+    const frozen = await readRemoteChangesV2(actor, {
+      after: 2,
+      through: checkpoint.through,
+    })
+    expect(frozen.changes).toEqual([moved])
+    expect(frozen.nextAfter).toBe(3)
+    expect(frozen.hasMore).toBe(false)
+    const later = await readRemoteChangesV2(actor, { after: 3 })
+    expect(later.changes.map((change) => change.sequence)).toEqual([4, 5, 6])
+    expect(later.nextAfter).toBe(6)
+    expect((await placements.read(key))?.deletedAt).toBe(timestamp)
+  }, 30000)
+
+  test("rejects the entire placement page when current task, placement or historical category ownership is missing", async () => {
+    const actor = `${prefix}placement-access`
+    const { item, tag } = await seed(actor)
+    const command: SyncCommand = {
+      type: "task.move",
+      itemId: item.id,
+      occurrenceId: null,
+      scope: "day",
+      date: "2026-10-08",
+      tagId: tag.id,
+      beforeId: null,
+      afterId: null,
+    }
+    await executeRemoteTaskPlacementOperation(actor, operation(command))
+    await executeRemoteTaskPlacementOperation(
+      actor,
+      operation({ ...command, tagId: null }, 1)
+    )
+    const expected = await readRemoteChangesV2(actor, { after: 2 })
+    const foreign = await seed(`${prefix}placement-foreign-tag`)
+    const placementDocuments = await getCollection<Document & { _id: string }>(
+      COLLECTION_NAMES.taskPlacements
+    )
+    const placement = await placementDocuments.findOne({
+      userId: actor,
+      occurrenceId: item.id,
+    })
+    if (!placement) throw new Error("Expected owned placement fixture")
+    await placementDocuments.updateOne(
+      { _id: placement._id },
+      { $set: { tagId: foreign.tag.id } }
+    )
+    try {
+      await expect(readRemoteChangesV2(actor, { after: 2 })).rejects.toThrow(
+        "placement category access is unavailable"
+      )
+    } finally {
+      await placementDocuments.updateOne(
+        { _id: placement._id },
+        { $set: { tagId: null } }
+      )
+    }
+    for (const [name, query, key] of [
+      [
+        COLLECTION_NAMES.taskPlacements,
+        { userId: actor, occurrenceId: item.id },
+        "userId",
+      ],
+      [COLLECTION_NAMES.items, { ownerId: actor, id: item.id }, "ownerId"],
+      [COLLECTION_NAMES.tags, { userId: actor, id: tag.id }, "userId"],
+    ] as const) {
+      const collection = await getCollection<Document & { _id: string }>(name)
+      const document = await collection.findOne(query)
+      if (!document)
+        throw new Error("Expected owned placement authorization fixture")
+      await collection.updateOne(
+        { _id: document._id },
+        { $set: { [key]: `${prefix}foreign-placement` } }
+      )
+      try {
+        await expect(readRemoteChangesV2(actor, { after: 2 })).rejects.toThrow(
+          "access is unavailable"
+        )
+      } finally {
+        await collection.updateOne(
+          { _id: document._id },
+          { $set: { [key]: actor } }
+        )
+      }
+      expect(await readRemoteChangesV2(actor, { after: 2 })).toEqual(expected)
+      await collection.deleteOne({ _id: document._id })
+      try {
+        await expect(readRemoteChangesV2(actor, { after: 2 })).rejects.toThrow(
+          "access is unavailable"
+        )
+      } finally {
+        await collection.insertOne(document)
+      }
+    }
+    expect(await readRemoteChangesV2(actor, { after: 2 })).toEqual(expected)
   }, 30000)
 
   test("pages by complete UTF8 records and continues without losing any committed sequence", async () => {

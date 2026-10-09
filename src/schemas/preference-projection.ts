@@ -19,7 +19,8 @@ export const preferenceProjectionInputSchema = z
     for (const snapshot of input.local) {
       if (
         !snapshot.entityKey.startsWith("tag:") &&
-        !snapshot.entityKey.startsWith("item-view:")
+        !snapshot.entityKey.startsWith("item-view:") &&
+        !snapshot.entityKey.startsWith("task-placement:")
       )
         reject("Personal projection does not support this local store")
       if (snapshot.record && snapshot.record.record.userId !== input.userId)
@@ -29,7 +30,9 @@ export const preferenceProjectionInputSchema = z
     for (const shadow of input.shadows) {
       if (
         shadow.kind !== "preference" ||
-        (shadow.record.store !== "tags" && shadow.record.store !== "itemViews")
+        (shadow.record.store !== "tags" &&
+          shadow.record.store !== "itemViews" &&
+          shadow.record.store !== "taskPlacements")
       )
         reject("Personal projection does not support this shadow store")
       if (
@@ -45,7 +48,11 @@ export const preferenceProjectionInputSchema = z
       if (input.incoming.userId !== input.userId)
         reject("Personal projection effects belong to another account")
       for (const effect of input.incoming.effects)
-        if (effect.store !== "tags" && effect.store !== "itemViews")
+        if (
+          effect.store !== "tags" &&
+          effect.store !== "itemViews" &&
+          effect.store !== "taskPlacements"
+        )
           reject("Personal projection does not support this effect store")
     }
     const operationIds = new Set<string>()

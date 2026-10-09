@@ -5,14 +5,37 @@ import {
 import { validateLocalSyncResultInputV2 } from "@/lib/sync/local-sync-result-v2"
 import { planRemotePreferenceProjection } from "@/lib/sync/preference-projection"
 import { outboxEntrySchema } from "@/schemas/local-sync"
+import { taskPlacementEntityKey } from "@/schemas/ordering"
 import { preferenceResultPlanInputSchema } from "@/schemas/preference-result-plan"
 import { personalShadowEntityKey } from "@/schemas/remote-shadow-v2"
 import type { LocalPreferenceOutcomeV2 } from "@/types/local-operation-outcome-v2"
 import type { OutboxEntry } from "@/types/local-sync"
 import type { PersonalSnapshot } from "@/types/personal-snapshot"
 import type { RemoteShadowV2 } from "@/types/remote-shadow-v2"
+import type { SyncCommand } from "@/types/sync"
 
 type PersonalShadow = Extract<RemoteShadowV2, { kind: "preference" }>
+
+function primaryResultKey(command: SyncCommand): string {
+  switch (command.type) {
+    case "tag.save":
+    case "tag.delete":
+    case "tag.move":
+      return `tag:${command.tagId}`
+    case "item-view.set":
+      return `item-view:${command.itemId}`
+    case "task.move":
+      return taskPlacementEntityKey(
+        command.occurrenceId ?? command.itemId,
+        command.scope,
+        command.date
+      )
+    default:
+      throw new Error(
+        "Personal result application does not support this command"
+      )
+  }
+}
 export interface PreferenceResultPlan {
   status: "applied" | "replayed"
   local: PersonalSnapshot
@@ -30,19 +53,9 @@ export function planLocalPreferenceResult(
   const submission = validateLocalSyncResultInputV2(value.submission, userId)
   const { operation, result, senderId } = submission
   const command = operation.command
-  if (
-    result.kind !== "preference" ||
-    !["tag.save", "tag.delete", "tag.move", "item-view.set"].includes(
-      command.type
-    )
-  )
+  if (result.kind !== "preference")
     throw new Error("Personal result application does not support this command")
-  const primary =
-    "tagId" in command
-      ? `tag:${command.tagId}`
-      : "itemId" in command
-        ? `item-view:${command.itemId}`
-        : ""
+  const primary = primaryResultKey(command)
   const personal: PersonalShadow[] = []
   const allKeys = new Set<string>()
   let itemCount = 0

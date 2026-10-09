@@ -7,6 +7,7 @@ import { RemoteCursorAheadError } from "@/lib/db/remote-changes"
 import { RemoteItemViewRepository } from "@/lib/db/remote-item-views"
 import { RemoteItemRepository } from "@/lib/db/remote-items"
 import { RemoteTagRepository } from "@/lib/db/remote-tags"
+import { RemoteTaskPlacementRepository } from "@/lib/db/remote-task-placements"
 import { decodeRemoteChange } from "@/lib/sync/remote-change-v2"
 import { validateRemoteChangesPageV2 } from "@/lib/sync/remote-changes-page-v2"
 import { revisionSchema, userIdSchema } from "@/schemas/primitives"
@@ -15,7 +16,7 @@ import { remotePullQuerySchema } from "@/schemas/remote-sync"
 import type { RemoteChangeV2 } from "@/types/remote-change-v2"
 import type { RemoteChangesPageV2 } from "@/types/remote-changes-page-v2"
 
-// This reader is preparatory: the product still negotiates and downloads transport v1.
+// Envelope generation is independent of negotiation; new producers require compatible clients.
 export async function readRemoteChangesV2(
   actorInput: unknown,
   queryInput: unknown
@@ -50,6 +51,10 @@ export async function readRemoteChangesV2(
         const items = await RemoteItemRepository.open(actor, session)
         const tags = await RemoteTagRepository.open(actor, session)
         const views = await RemoteItemViewRepository.open(actor, session)
+        const placements = await RemoteTaskPlacementRepository.open(
+          actor,
+          session
+        )
         const changes: RemoteChangeV2[] = []
         let recordsBytes = 0
         let stoppedForBytes = false
@@ -103,6 +108,25 @@ export async function readRemoteChangesV2(
                     throw new Error(
                       "Journal personal view access is unavailable"
                     )
+                } else if (effect.store === "taskPlacements") {
+                  const record = effect.record
+                  const current = await placements.read({
+                    occurrenceId: record.occurrenceId,
+                    scope: record.scope,
+                    date: record.date,
+                  })
+                  const task = await items.read(record.occurrenceId)
+                  if (!current || !task || task.kind !== "task")
+                    throw new Error(
+                      "Journal task placement access is unavailable"
+                    )
+                  // Historical and current category ownership must both remain available.
+                  // Later completion, reprogramming or soft deletion cannot invalidate history.
+                  for (const tagId of new Set([record.tagId, current.tagId]))
+                    if (tagId !== null && !(await tags.read(tagId)))
+                      throw new Error(
+                        "Journal task placement category access is unavailable"
+                      )
                 } else
                   throw new Error(
                     "Journal preference store is not supported by this reader"

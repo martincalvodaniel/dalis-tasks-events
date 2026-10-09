@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test"
 import { planRemotePreferenceProjection } from "@/lib/sync/preference-projection"
 import { taskPlacementEntityKey } from "@/schemas/ordering"
+import { personalShadowEntityKey } from "@/schemas/remote-shadow-v2"
 import type { OutboxEntry } from "@/types/local-sync"
 import type { PersonalSnapshot } from "@/types/personal-snapshot"
 import type {
@@ -50,15 +51,12 @@ function view(revision = 1): PreferenceEffect {
 function shadow(
   effect: PreferenceEffect
 ): Extract<RemoteShadowV2, { kind: "preference" }> {
-  if (effect.store !== "tags" && effect.store !== "itemViews")
+  if (effect.store === "settings")
     throw new Error("Expected supported fixture store")
   return {
     version: 2,
     kind: "preference",
-    entityKey:
-      effect.store === "tags"
-        ? `tag:${effect.record.id}`
-        : `item-view:${effect.record.itemId}`,
+    entityKey: personalShadowEntityKey(effect),
     record: effect,
   }
 }
@@ -368,24 +366,8 @@ test("unsupported stores, item shadows, future and malformed data reject the ent
       deletedAt: null,
     },
   }
-  const placement: PreferenceEffect = {
-    store: "taskPlacements",
-    record: {
-      userId: actor,
-      occurrenceId: itemId,
-      scope: "day",
-      date: "2026-10-08",
-      tagId: null,
-      position: 1024,
-      revision: 1,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-      deletedAt: null,
-    },
-  }
   for (const [effect, entityKey] of [
     [settings, `settings:${actor}`],
-    [placement, taskPlacementEntityKey(itemId, "day", "2026-10-08")],
   ] as const) {
     for (const invalid of [
       { ...value, local: [{ entityKey, record: effect }] },
@@ -452,6 +434,109 @@ test("unsupported stores, item shadows, future and malformed data reject the ent
     },
   ])
     expect(() => planRemotePreferenceProjection(invalid)).toThrow()
+})
+
+function placement(
+  id: string,
+  revision: number
+): Extract<PreferenceEffect, { store: "taskPlacements" }> {
+  return {
+    store: "taskPlacements",
+    record: {
+      userId: actor,
+      occurrenceId: id,
+      scope: "day",
+      date: "2026-10-08",
+      tagId: firstId,
+      position: revision * 1024,
+      revision,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      deletedAt: null,
+    },
+  }
+}
+
+test("placement compaction and category effects preserve the whole optimistic chain then reconcile independent revisions and tombstones", () => {
+  const move = entry({
+    type: "task.move",
+    itemId,
+    occurrenceId: null,
+    scope: "day",
+    date: "2026-10-08",
+    tagId: null,
+    beforeId: secondId,
+    afterId: null,
+  })
+  const tombstone = placement(itemId, 20)
+  tombstone.record.deletedAt = timestamp
+  const value = {
+    userId: actor,
+    local: snapshot(placement(itemId, 0), placement(secondId, 0), view(0)),
+    shadows: [
+      shadow(tombstone),
+      shadow(placement(secondId, 1)),
+      shadow(view(2)),
+    ],
+    incoming: incoming(placement(itemId, 3), placement(secondId, 8), view(4)),
+    entries: [move],
+  }
+  const before = structuredClone(value)
+  const pending = planRemotePreferenceProjection(value)
+  expect(pending.pending).toBe(true)
+  expect(pending.local).toEqual(value.local)
+  expect(pending.shadows.map((entry) => entry.record.record.revision)).toEqual([
+    20, 8, 4,
+  ])
+  const settled = planRemotePreferenceProjection({
+    ...value,
+    shadows: pending.shadows,
+    incoming: null,
+    entries: [{ ...move, state: "acknowledged" }],
+  })
+  expect(settled.pending).toBe(false)
+  expect(settled.local).toEqual(
+    snapshot(tombstone, placement(secondId, 8), view(4))
+  )
+  expect(settled.local[0].record?.record.deletedAt).toBe(timestamp)
+  settled.local[1].record = null
+  expect(value).toEqual(before)
+})
+
+test("placement projection rejects foreign, contradictory, duplicate and noncanonical evidence without admitting settings", () => {
+  const effect = placement(itemId, 2)
+  const value = {
+    userId: actor,
+    local: snapshot(placement(itemId, 0)),
+    shadows: [shadow(effect)],
+    incoming: null,
+    entries: [],
+  }
+  const changed = structuredClone(effect)
+  changed.record.position++
+  const foreign = structuredClone(effect)
+  foreign.record.userId = "foreign"
+  const noncanonical = structuredClone(effect)
+  noncanonical.record.scope = "overdue"
+  for (const invalid of [
+    { ...value, local: snapshot(foreign) },
+    { ...value, shadows: [shadow(foreign)] },
+    { ...value, incoming: incoming(foreign) },
+    { ...value, incoming: incoming(changed) },
+    { ...value, shadows: [shadow(effect), shadow(effect)] },
+    { ...value, local: snapshot(effect, effect) },
+    { ...value, local: snapshot(noncanonical) },
+    { ...value, incoming: incoming(noncanonical) },
+    { ...value, shadows: [shadow(noncanonical)] },
+  ])
+    expect(() => planRemotePreferenceProjection(invalid)).toThrow()
+  const absent = taskPlacementEntityKey(secondId, "overdue", "2026-10-08")
+  expect(
+    planRemotePreferenceProjection({
+      ...value,
+      local: [{ entityKey: absent, record: null }],
+    }).local[0]
+  ).toEqual({ entityKey: absent, record: null })
 })
 
 test("the merged shadow snapshot cannot exceed its identity bound even with pending work", () => {
