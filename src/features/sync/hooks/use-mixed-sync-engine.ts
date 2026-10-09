@@ -22,7 +22,7 @@ interface OwnedController extends AccountIdentity {
   scheduler: SyncSchedulerV2
 }
 
-// Prepared hook only; active providers keep transport one until joint activation.
+// The account-scoped provider owns one scheduler and its listeners.
 export function useMixedSyncEngine({ userId, epoch }: AccountIdentity) {
   const { mutate } = useSWRConfig()
   const client = useMemo(

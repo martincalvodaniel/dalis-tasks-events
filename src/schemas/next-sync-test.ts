@@ -85,6 +85,9 @@ export const nextSyncStateSchema = z.strictObject({
   }),
   page: remoteChangesPageV2Schema,
 })
+export function nextSyncMissingActionId(runIdInput: unknown): string {
+  return `40${entityIdSchema.parse(runIdInput).replaceAll("-", "")}00000000`
+}
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("prepare-local"), userId: userIdSchema }),
   z.strictObject({
@@ -97,6 +100,7 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   }),
   z.strictObject({ type: z.literal("mixed-summary") }),
   z.strictObject({ type: z.literal("mixed-run") }),
+  z.strictObject({ type: z.literal("legacy-missing-action-run") }),
   z.strictObject({ type: z.literal("rotate-local") }),
   z.strictObject({ type: z.literal("hook-mount") }),
   z.strictObject({ type: z.literal("hook-rerender") }),

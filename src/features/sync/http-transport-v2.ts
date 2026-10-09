@@ -27,7 +27,7 @@ export interface SyncTransportV2 {
   push(input: RemotePushInputV2): Promise<RemotePushResultV2>
 }
 
-// Prepared transport only: the active protocol, routes and coordinator remain unchanged.
+// Mixed transport requires an explicit version-two server announcement.
 export function createHttpSyncTransportV2(
   userIdInput: string,
   sendOperations: (input: unknown) => Promise<unknown>,

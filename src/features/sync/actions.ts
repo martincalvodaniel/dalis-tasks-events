@@ -1,14 +1,8 @@
 "use server"
 
 import { headers } from "next/headers"
-import { pushSyncBatch } from "@/features/sync/push-batch"
-import { getAuthorizedSessionFromHeaders } from "@/lib/auth/session"
-import { executeRemoteItemOperation } from "@/lib/db/remote-item-commands"
+import { rejectRetiredSyncPush } from "@/features/sync/retired-sync-push"
 
 export async function pushSyncOperations(input: unknown) {
-  return pushSyncBatch(input, {
-    readActor: async () =>
-      (await getAuthorizedSessionFromHeaders(await headers()))?.user.id ?? null,
-    execute: executeRemoteItemOperation,
-  })
+  return rejectRetiredSyncPush(input, await headers())
 }

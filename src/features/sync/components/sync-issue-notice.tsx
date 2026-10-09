@@ -9,12 +9,13 @@ export function SyncIssueNotice() {
   if (!state) return null
   const count = (state.summary?.conflicts ?? 0) + (state.summary?.rejected ?? 0)
   const status = state.result?.status
+  const personalBlocked = state.summary?.personalProjectionBlocked ?? false
   const paused =
     status === "unauthorized" ||
     status === "account_changed" ||
     status === "recovery_required" ||
     status === "update_required"
-  if (count === 0 && !paused) return null
+  if (count === 0 && !paused && !personalBlocked) return null
   const settings = workspaceDestinations.find(
     (destination) => destination.id === "settings"
   )
@@ -25,7 +26,9 @@ export function SyncIssueNotice() {
     >
       {count > 0
         ? `${count} ${count === 1 ? "cambio necesita" : "cambios necesitan"} revisión.`
-        : "Sincronización pausada."}{" "}
+        : paused
+          ? "Sincronización pausada."
+          : "Categorías y asignaciones pendientes de sincronizar."}{" "}
       <a
         href={settings?.href}
         className="inline-flex min-h-11 items-center underline underline-offset-2"

@@ -62,7 +62,7 @@ class CoordinatorGuardError extends Error {
   }
 }
 
-// Preparatory passes are bounded scheduling work; settled never asserts personal convergence.
+// Passes are bounded scheduling work; settled never asserts personal convergence.
 export class SyncCoordinatorV2 {
   private readonly userId: string
   private readonly senderId: string

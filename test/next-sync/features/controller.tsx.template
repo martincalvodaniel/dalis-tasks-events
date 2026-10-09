@@ -147,7 +147,8 @@ export function FixtureController() {
       intention: OutboxEntry,
       remoteBefore: Awaited<ReturnType<typeof state>>,
       pending: Awaited<ReturnType<typeof snapshot>>,
-      source: "mixed-run" | "hook-sync" = "mixed-run"
+      source: "mixed-run" | "hook-sync" = "mixed-run",
+      expectedAttempts = 1
     ) => {
       const recovered = (await call(1, { type: source })) as {
         status?: string
@@ -167,7 +168,7 @@ export function FixtureController() {
       )
       assert(
         acknowledgment?.state === "acknowledged" &&
-          acknowledgment.attempts === 1 &&
+          acknowledgment.attempts === expectedAttempts &&
           acknowledgment.lease === null &&
           JSON.stringify(acknowledgment.operation) ===
             JSON.stringify(intention.operation),
@@ -892,6 +893,99 @@ export function FixtureController() {
         }
       )
       await check(
+        "Acción antigua ausente conserva la intención y exige actualizar antes de recuperarla",
+        async () => {
+          assert(
+            creation.command.type === "item.create",
+            "Transition proof requires the creation command"
+          )
+          const localItemId = crypto.randomUUID()
+          await call(1, {
+            type: "commit-local",
+            command: { ...creation.command, itemId: localItemId },
+          })
+          const pending = await snapshot(1)
+          const intention = pending.backup.stores.outbox.find(
+            (entry) =>
+              entry.operation.command.type === "item.create" &&
+              entry.operation.command.itemId === localItemId
+          )
+          assert(
+            intention?.state === "pending" &&
+              intention.attempts === 0 &&
+              intention.lease === null,
+            "Missing-action proof starts with an unclaimed original intention"
+          )
+          const remoteBefore = await state(owner)
+          const proof = (await call(1, {
+            type: "legacy-missing-action-run",
+          })) as {
+            probeStatus: number
+            actionNotFound: string
+            handshake: string
+            dispatches: number
+            unrecognized: number
+            identityReads: number
+            pageReads: number
+            first: { status: string; uploaded: number; downloaded: number }
+            second: { status: string; uploaded: number; downloaded: number }
+            afterFirst: { backup: unknown; cursor: unknown }
+            afterSecond: { backup: unknown; cursor: unknown }
+          }
+          assert(
+            proof.probeStatus === 404 &&
+              proof.actionNotFound === "1" &&
+              proof.handshake === "captured-prior-v1" &&
+              proof.dispatches === 1 &&
+              proof.unrecognized === 1 &&
+              proof.identityReads === 1 &&
+              proof.pageReads === 1,
+            "Compiled Next rejects the manifest-absent action after the bounded prior handshake"
+          )
+          assert(
+            proof.first.status === "retry_later" &&
+              proof.first.uploaded === 0 &&
+              proof.first.downloaded === 0,
+            "Missing action cannot acknowledge or upload the legacy intention"
+          )
+          assert(
+            proof.second.status === "update_required" &&
+              proof.second.uploaded === 0 &&
+              proof.second.downloaded === 0,
+            "Current transport announcement blocks the legacy runtime before a new claim"
+          )
+          const expectedStores = structuredClone(pending.backup.stores)
+          const expectedEntry = expectedStores.outbox.find(
+            (entry) =>
+              entry.operation.operationId === intention.operation.operationId
+          )
+          assert(
+            expectedEntry,
+            "Transition baseline lacks the original intention"
+          )
+          expectedEntry.attempts = 1
+          for (const retained of [
+            proof.afterFirst,
+            proof.afterSecond,
+            await snapshot(1),
+          ]) {
+            const backup = validateLocalBackup(retained.backup, owner)
+            assert(
+              JSON.stringify(backup.stores) ===
+                JSON.stringify(expectedStores) &&
+                JSON.stringify(localPullCursorSchema.parse(retained.cursor)) ===
+                  JSON.stringify(pending.cursor),
+              "Both legacy passes preserve every store, outcome, dependency and cursor except the one released attempt"
+            )
+          }
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(remoteBefore),
+            "Absent action and incompatible handshake leave Mongo unchanged"
+          )
+          await verifyRecovery(intention, remoteBefore, pending, "mixed-run", 2)
+        }
+      )
+      await check(
         "RPC retirado autenticado rechaza el transporte antiguo sin mutación",
         async () => {
           const before = await state(owner)
@@ -1008,7 +1102,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Trece escenarios Next, React e IndexedDB correctos; cookies y recursos propios cerrados"
+            "Catorce escenarios Next, React e IndexedDB correctos; cookies y recursos propios cerrados"
           )
         await fetch("/fixture/finish", {
           method: "POST",

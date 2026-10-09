@@ -50,6 +50,7 @@ async function executeCommand(
       "commit-local",
       "mixed-summary",
       "mixed-run",
+      "legacy-missing-action-run",
       "rotate-local",
       "hook-mount",
       "hook-rerender",

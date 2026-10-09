@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect } from "react"
-import { useMixedSyncEngine } from "@/features/sync/hooks/use-mixed-sync-engine"
+import { ActiveSyncProvider } from "@/features/sync/components/active-sync-provider"
+import type { useMixedSyncEngine } from "@/features/sync/hooks/use-mixed-sync-engine"
+import { FixtureHookReporter } from "@fixture/hook-reporter"
 
 export type FixtureHookEngine = ReturnType<typeof useMixedSyncEngine>
 export function FixtureHookEngine({
@@ -11,12 +12,11 @@ export function FixtureHookEngine({
   account: { userId: string; epoch: string }
   report(engine: FixtureHookEngine): void
 }) {
-  const engine = useMixedSyncEngine(account)
-  useEffect(() => report(engine), [engine, report])
   return (
-    <p role="status">
-      Motor mixto de prueba:{" "}
-      {engine.busy ? "sincronizando" : engine.error ? "error" : "preparado"}
-    </p>
+    <ActiveSyncProvider
+      account={{ ...account, itemCount: 0, offlineReady: false }}
+    >
+      <FixtureHookReporter report={report} />
+    </ActiveSyncProvider>
   )
 }

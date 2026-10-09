@@ -53,7 +53,7 @@ class MixedResultAdapter {
   }
 }
 
-// Prepared adapters preserve mixed diagnostics without changing the active product controls.
+// Adapters retain mixed diagnostics while reusing the bounded controls.
 export class SyncAttemptV2 {
   private readonly results = new MixedResultAdapter()
   private readonly attempt: SyncAttempt

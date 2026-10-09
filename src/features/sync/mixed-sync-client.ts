@@ -36,7 +36,7 @@ const defaultPorts: MixedClientPorts = {
   fetchRequest: fetch,
 }
 
-// Prepared composition; activation must also change routes, identity and the product hook.
+// Capture immutable account identity across transport, runtime and refresh.
 export function createMixedSyncClient(
   input: AccountIdentity,
   ports: MixedClientPorts = defaultPorts

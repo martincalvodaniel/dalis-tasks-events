@@ -1,7 +1,13 @@
 "use client"
 
 import type { z } from "zod"
+import { callServer } from "next/dist/client/app-call-server"
+import { unstable_isUnrecognizedActionError } from "next/navigation"
+import { startTransition } from "react"
 import { OFFLINE_ACCOUNT_KEY } from "@/config/pwa"
+import { syncProtocolHeader } from "@/config/sync-protocol"
+import { createHttpSyncTransport } from "@/features/sync/http-transport"
+import { openLocalSyncRuntime } from "@/features/sync/local-runtime"
 import { createMixedSyncClient } from "@/features/sync/mixed-sync-client"
 import { readAccountBackup } from "@/features/workspace/local-backup"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
@@ -13,7 +19,11 @@ import {
 import { localDatabaseName } from "@/lib/local-db/client"
 import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
 import { LocalOutbox } from "@/lib/local-db/outbox"
-import { nextSyncDeviceCommandSchema } from "@/schemas/next-sync-test"
+import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
+import {
+  nextSyncDeviceCommandSchema,
+  nextSyncMissingActionId,
+} from "@/schemas/next-sync-test"
 import { workspaceIdentitySchema } from "@/schemas/workspace"
 import {
   hookState,
@@ -127,6 +137,135 @@ export async function executeLocalFixtureCommand(
   const active = account()
   await requireActiveAccount(active)
   switch (command.type) {
+    case "legacy-missing-action-run": {
+      const identity = await fetch("/api/sync/identity", {
+        credentials: "same-origin",
+        cache: "no-store",
+      })
+      if (
+        !identity.ok ||
+        identity.headers.get(syncProtocolHeader) !==
+          encodeSyncProtocolRange(2) ||
+        workspaceIdentitySchema.parse(await identity.json()).userId !==
+          active.userId
+      )
+        throw new Error(
+          "Missing-action proof requires the owned current identity"
+        )
+      const actionId = nextSyncMissingActionId(runId)
+      const probe = await fetch(location.pathname + location.search, {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: {
+          "Next-Action": actionId,
+          "Content-Type": "text/plain;charset=UTF-8",
+        },
+        body: "[]",
+        signal: AbortSignal.timeout(15000),
+      })
+      const actionNotFound = probe.headers.get("x-nextjs-action-not-found")
+      await probe.body?.cancel()
+      if (probe.status !== 404 || actionNotFound !== "1")
+        throw new Error(
+          "Missing-action candidate is not absent from this fixture"
+        )
+      let dispatches = 0,
+        unrecognized = 0,
+        identityReads = 0,
+        pageReads = 0
+      const sendMissing = (input: unknown) =>
+        new Promise<never>((_resolve, reject) => {
+          dispatches++
+          startTransition(async () => {
+            try {
+              await callServer(actionId, [input])
+              reject(new Error("Absent action unexpectedly returned a result"))
+            } catch (error) {
+              if (unstable_isUnrecognizedActionError(error)) unrecognized++
+              reject(error)
+            }
+          })
+        })
+      const store = await LocalMixedSyncStore.open(active.userId)
+      try {
+        const cursor = await store.readPullCursor()
+        if (cursor.through !== null)
+          throw new Error("Prior handshake requires a completed cursor")
+        // A read-only captured v1 handshake lets the old client reach its missing action reference.
+        const capturedIdentity = Object.freeze({ userId: active.userId })
+        const capturedPage = Object.freeze({
+          changes: Object.freeze([]),
+          nextAfter: cursor.after,
+          through: cursor.after,
+          hasMore: false,
+        })
+        const priorHandshakeFetch: typeof fetch = async (input) => {
+          const url = new URL(String(input), location.origin)
+          if (url.origin !== location.origin)
+            throw new Error("Prior handshake origin changed")
+          if (
+            url.pathname === "/api/sync/identity" &&
+            !url.search &&
+            ++identityReads === 1
+          )
+            return Response.json(capturedIdentity, {
+              headers: { [syncProtocolHeader]: encodeSyncProtocolRange(1) },
+            })
+          if (
+            url.pathname === "/api/sync/changes" &&
+            ++pageReads === 1 &&
+            url.searchParams.get("expectedUserId") === active.userId &&
+            url.searchParams.get("after") === String(cursor.after) &&
+            url.searchParams.get("limit") === "50" &&
+            [...url.searchParams].length === 3
+          )
+            return Response.json(capturedPage, {
+              headers: { [syncProtocolHeader]: encodeSyncProtocolRange(1) },
+            })
+          throw new Error(
+            "Prior handshake exceeded its captured identity and page"
+          )
+        }
+        const runLegacy = async (fetchRequest: typeof fetch) => {
+          const runtime = await openLocalSyncRuntime(
+            active,
+            createHttpSyncTransport(active.userId, sendMissing, fetchRequest)
+          )
+          try {
+            return await runtime.run()
+          } finally {
+            await runtime.close()
+          }
+        }
+        const first = await runLegacy(priorHandshakeFetch)
+        const afterFirst = {
+          backup: await readAccountBackup(active),
+          cursor: await store.readPullCursor(),
+        }
+        const second = await runLegacy(fetch)
+        const afterSecond = {
+          backup: await readAccountBackup(active),
+          cursor: await store.readPullCursor(),
+        }
+        await requireActiveAccount(active)
+        return {
+          probeStatus: probe.status,
+          actionNotFound,
+          handshake: "captured-prior-v1",
+          dispatches,
+          unrecognized,
+          identityReads,
+          pageReads,
+          first,
+          second,
+          afterFirst,
+          afterSecond,
+        }
+      } finally {
+        store.close()
+      }
+    }
     case "hook-mount":
       return mountHook(active)
     case "hook-rerender":

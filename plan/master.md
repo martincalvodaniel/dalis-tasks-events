@@ -2,13 +2,11 @@
 
 ## Estado operativo actual — 9 de octubre
 
-La aplicación desplegada sigue usando transporte1: sincroniza tareas y eventos propios sin repetición. Categorías, asignaciones y orden manual siguen locales.
+La entrega11c4a10 en int activa transporte2: tareas y eventos propios sin repetición, categorías y asignaciones. El orden manual de tareas, repeticiones y compartidos siguen locales. Las intenciones históricas sin executor conservan su cola/dependencias y pueden bloquear la proyección personal; Ajustes y aviso compacto lo comunican.
 
-El transporte2 de categorías y asignaciones está preparado, con CLI de índices validado en MongoDB propio, cliente por defecto y doce escenarios Next/IndexedDB/Mongo correctos. Se ha comprobado ACK/pull entre dos dispositivos, replay, recuperación de sesión, cambio de cuenta e invalidación de época local sin perder ni cruzar intenciones. Esta evidencia es aislada; no acredita Google interactivo ni el endpoint del despliegue.
+Índices Preview provisionados y cerrados correctamente en11c4a8pre2, únicamente en DB preproductiva autorizada. Rutas autenticadas, acción2, hook, proveedor/contexto y UI conectados conjuntamente; catorce escenarios Next compilado con sesiones/IndexedDB/Mongo propios pasan, incluyendo referencia de acción ausente y conservación/recuperación de pendientes. Suite460pass/98skip/0fail, lint/tipos/build34 aprobados. Esta prueba aislada no sustituye Google o un piloto del deployment.
 
-La provisión preproductiva terminó correctamente en 11c4a8pre2: destino Preview verificado, DB dalis-tasks-events confirmada, tres índices personales creados mediante el procedimiento central, readiness sin faltantes/incompatibilidades y conexión cerrada. No se modificaron documentos ni producción. Falta conectar conjuntamente rutas, acción, hook/proveedor y UI de transporte2 y probar el despliegue; consulta [activación mixta](mixed-sync-activation.md) y [provisión](personal-index-provisioning.md).
-
-Lote desatendido15:31 con renovación verificada100%5h/40%7d y reservas4%/1%. 11c4a9h cerrado: hook mixto y trece escenarios Next/React/IndexedDB/Mongo correctos. Siguiente11c4a10: conexión conjunta y transición de referencia antigua ausente antes de publicar. Reinicio siguiente publicado20:31:22Madrid; revisión posterior se programará al cerrar desde la cuota real.
+Siguiente15a2: verificar despliegue de int y piloto real de categorías/asignaciones, recarga y segundo dispositivo. Si falta sesión o intervención humana, pedir el dato/acceso concreto y detener ese paso. Producción no se provisiona ni despliega por esta autorización. Lote15:31, reservas4%5h/1%7d; próxima revisión sólo se programa al cerrar desde reinicio real y si queda trabajo/margen.
 
 ## Recorrido registrado
 

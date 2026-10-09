@@ -18,6 +18,7 @@ export function DeviceSyncSettings({ account }: { account: LocalAccount }) {
     <>
       <SyncStatusPanel
         {...state}
+        scope="own_content_and_preferences"
         onSync={() => {
           void state.synchronize()
         }}

@@ -9,6 +9,7 @@ import {
 import {
   nextSyncDiagnosticSchema,
   nextSyncFinishSchema,
+  nextSyncMissingActionId,
   nextSyncPublicConfigSchema,
 } from "@/schemas/next-sync-test"
 
@@ -232,6 +233,23 @@ try {
   )
   stage = "build"
   await runNext(["build", directory], environment)
+  const manifest = JSON.parse(
+    await readFile(
+      join(directory, ".next/server/server-reference-manifest.json"),
+      "utf8"
+    )
+  )
+  const absentActionId = nextSyncMissingActionId(descriptor.runId)
+  for (const runtime of ["node", "edge"]) {
+    const references: unknown = manifest[runtime]
+    if (
+      !references ||
+      typeof references !== "object" ||
+      Array.isArray(references) ||
+      Object.hasOwn(references, absentActionId)
+    )
+      throw new Error("Fixture missing action reference is not verified")
+  }
   process.stdout.write("Next sync fixture build passed\n")
   for (let index = 0; index < origins.length; index++) {
     stage = index === 0 ? "start_primary" : "start_secondary"
