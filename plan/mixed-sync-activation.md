@@ -124,3 +124,6 @@ Ensamblajecliente11c4a9c1: dispatcher2 y resumen guardado independientes, SyncAt
 
 
 11c4a9a: once escenarios Next correctos; otra sesión verificada produce account_changed sin claim ni mutaciones locales o en ninguna de las dos cuentas remotas. Recuperar la sesión original confirma una sola vez y ambos dispositivos convergen con el diario propio. Baselines anteriores al ACK y escenarios previos conservados; fullDoD aprobado, recursos propios cerrados. Producto1 sigue activo y provisión preproductiva espera nombre explícito, con autorización vigente.
+
+
+11c4a9e: doce escenarios Next correctos. La composición de época antigua rechaza resumen/intento por la guardia exacta, conserva toda intención/cola/cursor y la composición de la nueva época confirma una sola vez; ambas particiones convergen con Mongo propio. Cleanup sigue la nueva época comprometida; fullDoD aprobado. No prueba de red en vuelo ni activación productiva, y provisión preproductiva continúa pendiente del nombre explícito.

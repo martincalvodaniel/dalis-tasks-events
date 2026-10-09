@@ -97,6 +97,7 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   }),
   z.strictObject({ type: z.literal("mixed-summary") }),
   z.strictObject({ type: z.literal("mixed-run") }),
+  z.strictObject({ type: z.literal("rotate-local") }),
   z.strictObject({ type: z.literal("local-snapshot") }),
   z.strictObject({ type: z.literal("cleanup-local") }),
   z.strictObject({ type: z.literal("retired-push"), input: z.unknown() }),

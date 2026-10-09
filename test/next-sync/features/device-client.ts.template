@@ -50,6 +50,7 @@ async function executeCommand(
       "commit-local",
       "mixed-summary",
       "mixed-run",
+      "rotate-local",
       "local-snapshot",
     ].includes(command.type)
   )

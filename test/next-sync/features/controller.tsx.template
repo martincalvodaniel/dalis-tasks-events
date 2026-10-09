@@ -13,7 +13,10 @@ import {
 } from "@/schemas/remote-push-v2"
 import { validateRemotePushResultV2 } from "@/lib/sync/remote-push-v2"
 import { syncOperationSchema } from "@/schemas/sync"
-import { workspaceIdentitySchema } from "@/schemas/workspace"
+import {
+  accountControlSchema,
+  workspaceIdentitySchema,
+} from "@/schemas/workspace"
 import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
 import { validateLocalBackup } from "@/lib/backup/local-backup"
 import { localPullCursorSchema } from "@/schemas/local-sync"
@@ -693,6 +696,68 @@ export function FixtureController() {
         }
       )
       await check(
+        "Una época local nueva invalida el cliente anterior y conserva la intención pendiente",
+        async () => {
+          assert(
+            creation.command.type === "item.create",
+            "Epoch recovery requires the original creation command"
+          )
+          const recoveryItemId = crypto.randomUUID()
+          await call(1, {
+            type: "commit-local",
+            command: { ...creation.command, itemId: recoveryItemId },
+          })
+          const pending = await snapshot(1)
+          const intention = pending.backup.stores.outbox.find(
+            (entry) => entry.entityKey === `item:${recoveryItemId}`
+          )
+          assert(
+            intention?.state === "pending" &&
+              intention.attempts === 0 &&
+              intention.lease === null &&
+              intention.operation.baseRevision === 0 &&
+              pending.summary.pending === 1,
+            "Intention is unclaimed before local epoch rotation"
+          )
+          const remoteBefore = await state(owner)
+          const rotated = (await call(1, { type: "rotate-local" })) as {
+            previousEpoch: unknown
+            currentEpoch: unknown
+            controlActive?: boolean
+            oldAccountRejected?: boolean
+            oldSummaryRejected?: boolean
+            oldAttemptRejected?: boolean
+          }
+          const previousEpoch = accountControlSchema.shape.epoch.parse(
+            rotated.previousEpoch
+          )
+          const currentEpoch = accountControlSchema.shape.epoch.parse(
+            rotated.currentEpoch
+          )
+          assert(
+            previousEpoch !== currentEpoch &&
+              rotated.controlActive === true &&
+              rotated.oldAccountRejected === true &&
+              rotated.oldSummaryRejected === true &&
+              rotated.oldAttemptRejected === true,
+            "A real new epoch invalidates the captured account, summary and attempt"
+          )
+          const retained = await snapshot(1)
+          assert(
+            JSON.stringify(retained.backup.stores) ===
+              JSON.stringify(pending.backup.stores) &&
+              JSON.stringify(retained.cursor) ===
+                JSON.stringify(pending.cursor),
+            "Old-client rejection preserves every store, operation and cursor"
+          )
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(remoteBefore),
+            "Epoch rotation and rejected old client did not mutate Mongo"
+          )
+          await verifyRecovery(intention, remoteBefore, pending)
+        }
+      )
+      await check(
         "RPC retirado autenticado rechaza el transporte antiguo sin mutación",
         async () => {
           const before = await state(owner)
@@ -809,7 +874,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Once escenarios Next e IndexedDB correctos; cookies y recursos propios cerrados"
+            "Doce escenarios Next e IndexedDB correctos; cookies y recursos propios cerrados"
           )
         await fetch("/fixture/finish", {
           method: "POST",

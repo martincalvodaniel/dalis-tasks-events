@@ -118,6 +118,75 @@ export async function executeLocalFixtureCommand(
   const active = account()
   await requireActiveAccount(active)
   switch (command.type) {
+    case "rotate-local": {
+      const oldClient = client!
+      const previous = await readAccountControl()
+      if (
+        !owned ||
+        previous.userId !== active.userId ||
+        previous.epoch !== active.epoch ||
+        previous.logoutPending
+      )
+        throw new Error("Fixture epoch rotation account changed")
+      const rotated = await activatePreparedAccount(
+        active.userId,
+        new Date().toISOString(),
+        active.epoch
+      )
+      // Track the durable epoch immediately so cleanup follows the committed account control.
+      owned.epoch = rotated.epoch
+      owned.markerAfter = localStorage.getItem(markerKey)
+      client = createMixedSyncClient({
+        userId: active.userId,
+        epoch: rotated.epoch,
+      })
+      const current = await readAccountControl()
+      if (
+        current.userId !== owned.userId ||
+        current.epoch !== owned.epoch ||
+        current.logoutPending ||
+        current.epoch === active.epoch
+      )
+        throw new Error("Fixture rotated account control is inconsistent")
+      await requireActiveAccount(account())
+      const rejected = async (work: () => Promise<unknown>) => {
+        try {
+          await work()
+          return false
+        } catch (error) {
+          if (
+            !(error instanceof Error) ||
+            error.message !== "Local account changed during the operation"
+          )
+            throw new Error(
+              "Fixture observed an unrelated old-client rejection"
+            )
+          return true
+        }
+      }
+      const oldAccountRejected = await rejected(() =>
+        requireActiveAccount(active)
+      )
+      const oldSummaryRejected = await rejected(() => oldClient.readSummary())
+      const oldAttempt = oldClient.createAttempt(async () =>
+        oldClient.readSummary()
+      )
+      let oldAttemptRejected = false
+      try {
+        oldAttemptRejected = await rejected(() => oldAttempt.run())
+      } finally {
+        oldAttempt.stop()
+      }
+      await requireActiveAccount(account())
+      return {
+        previousEpoch: active.epoch,
+        currentEpoch: rotated.epoch,
+        controlActive: true,
+        oldAccountRejected,
+        oldSummaryRejected,
+        oldAttemptRejected,
+      }
+    }
     case "commit-local": {
       const outbox = await LocalOutbox.open(active.userId)
       try {

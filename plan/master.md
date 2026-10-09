@@ -4,7 +4,7 @@
 
 La aplicación desplegada sigue usando transporte1: sincroniza tareas y eventos propios sin repetición. Categorías, asignaciones y orden manual siguen locales.
 
-El transporte2 de categorías y asignaciones está preparado, con CLI de índices validado en MongoDB propio, cliente por defecto y once escenarios Next/IndexedDB/Mongo correctos. Se ha comprobado ACK/pull entre dos dispositivos, replay, recuperación de sesión y cambio de cuenta sin perder ni cruzar intenciones. Esta evidencia es aislada; no acredita Google interactivo ni el endpoint del despliegue.
+El transporte2 de categorías y asignaciones está preparado, con CLI de índices validado en MongoDB propio, cliente por defecto y doce escenarios Next/IndexedDB/Mongo correctos. Se ha comprobado ACK/pull entre dos dispositivos, replay, recuperación de sesión, cambio de cuenta e invalidación de época local sin perder ni cruzar intenciones. Esta evidencia es aislada; no acredita Google interactivo ni el endpoint del despliegue.
 
 La provisión de índices preproductivos ya está autorizada. Falta confirmar el nombre explícito de esa DB; la fuente Preview de Vercel está localizada y no se han leído credenciales ni conectado al usuario. Después corresponde la conexión conjunta de rutas, acción, cliente/hook y UI, seguida del piloto. Consulta [activación mixta](mixed-sync-activation.md), [provisión](personal-index-provisioning.md) e [iteraciones](iterations.md) para dependencias y cortes. Reservas vigentes del lote desatendido:4%5h/1%7d.
 
