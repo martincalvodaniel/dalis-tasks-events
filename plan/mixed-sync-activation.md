@@ -66,3 +66,6 @@ Antes de activar en el entorno del usuario, preparar una ejecución explícita d
 
 
 Adaptadores y acción preparatoria `11c4a7p` cerrados: defaults usan sesión persistida/allowlist y DAL reales; tests de puertos verifican guardias y headers. Falta runner Next real y conexión conjunta para habilitarlos desde el producto. La API y acción legacy conservan su comportamiento actual.
+
+
+La respuesta de identidad admite anuncio explícito validado desde `11c4a7h`. Default del producto sigue1; futuras fixtures/rutas mixtas pueden seleccionar2 sin cambiar configuración global. Se conservan body validado, privacidad y estados; versiones inválidas rechazan, sin anunciar compatibilidad1–2.
