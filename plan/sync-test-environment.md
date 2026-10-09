@@ -254,3 +254,8 @@ Runner browser-mixed ahora diezescenarios. Ademásde8anteriores, comando coordin
 ### 11c4a5i — Readiness contra índices Mongo reales
 
 El runner aislado incorpora mixed-sync-index-readiness.integration.test.ts. Provisiona sólo tres specs centrales explícitos en la DB exacta de su descriptor, inspecciona definición real mediante singleton y verifica listIndexes byteequivalente antes/después de readiness. Suite56pass/620aserciones sin fallo, container/tmpfs/proxy propios limpiados. Mocks verifican ausencia/definiciones incompatibles/error sin provisión; no comprobar DB del despliegue ni alterar sus índices.
+
+
+### Provisión personal aislada 11c4a8m
+
+`bun run scripts/sync-db-test-runner.ts indexes` ejecuta únicamente [mixed-sync-index-provisioning.integration.test.ts](../src/lib/db/mixed-sync-index-provisioning.integration.test.ts), sin compartir índices explícitos con otras suites. MongoDB propio:2 pass/20 aserciones, duplicados/creación parcial/reintento/noop y respuesta perdida tras create real; registros conservados. Recursos propios limpiados y exit0. No inspección ni provisión del entorno del usuario. La frontera RPC Next todavía requiere ejecutar su fixture independiente.

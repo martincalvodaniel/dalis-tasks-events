@@ -77,3 +77,6 @@ La respuesta de identidad admite anuncio explícito validado desde `11c4a7h`. De
 
 
 Panel `11c4a9u` preparado: alcance opcional con default de transporte1 y summary2 para pendientes personales compactos. Activación futura debe cambiar el caller y el resumen en el mismo corte del runtime/transporte, no sólo seleccionar el texto de categorías sincronizadas. Una pasada settled no oculta conflictos ni bloqueos personales.
+
+
+`11c4a8m` comprueba provisión parcial/reintento y respuesta perdida con MongoDB real del descriptor propio (dos escenarios/20 aserciones). No ejecuta el procedimiento en DB del usuario ni habilita caller productivo. CLI/destino revisables y autorización del entorno siguen pendientes antes de activación.

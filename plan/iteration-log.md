@@ -1355,3 +1355,10 @@ Nueve escenarios nuevos más readiness/registro:32 tests/146 aserciones. Root re
 El panel existente admite summary2 y un alcance opcional explícito. Default mantiene el texto de transporte1; sólo un caller futuro seleccionará categorías/asignaciones sincronizadas. Orden de tareas y repetición siguen descritos como locales. Contador personal compacto indica conservación de categorías/asignaciones cuando la proyección está retenida; settled conserva pendientes/conflictos visibles y no declara convergencia. No nueva tarjeta grande, ruta, nav, hook o transporte activado.
 
 Dos tests nuevos de render; seis tests/25 aserciones del panel, incluida sesión/cola/protocolo vigente. Root fullDoD sobre archivos estables:428pass/89opt-in skip/0fail/7058 aserciones, lint485/tipos/build34 recursos/diff correctos. Sin repetir global tras sólo docs. Entrada68%5h/65%7d tras25cd628, reservas4%/1%; siguiente RPC Next propia y prueba Mongo de provisión. Commitpush/HEAD/cuotas al cierre.
+
+
+### Resultado 11c4a8m — Provisión parcial con MongoDB real propio
+
+Modo aislado indexes consume el descriptor validado y ejecuta sólo la prueba de provisión en una DB nueva propia. Dos escenarios/20 aserciones pasan: duplicado sintético causa fallo unique después de dos creaciones confirmadas, conserva registros y resultado saneado; limpieza explícita de la única fixture duplicada permite crear sólo el índice pendiente, y ready no crea. Una respuesta perdida tras create real no se incluye falsamente en created, pero readiness observa el efecto y el reintento crea sólo los restantes. Índices y registros limpiados son exclusivamente los del run; contenedor/tmpfs/proxy propios cerrados y runner exit0. Sin DB del usuario ni reparación automática.
+
+FullDoD sobre fuentes estables, incluido harness Next preparatorio todavía sin ejecutar:431 pass/93 opt-in skip/0 fail/7074 aserciones; lint491 archivos, tipos, build34 recursos neutros y diff aprobados. Entrada67%5h/65%7d, reservas4%/1%. La prueba RPC Next es un corte independiente pendiente de build y navegador, no evidencia Google. Commit/push/HEAD remoto y cuotas al cierre.
