@@ -1,7 +1,7 @@
 "use client"
 
-import { dispatchSyncOperationsV2 } from "@/features/sync/client-action-v2"
-import { createHttpSyncTransportV2 } from "@/features/sync/http-transport-v2"
+import { dispatchSyncOperationsV3 } from "@/features/sync/client-action-v3"
+import { createHttpSyncTransportV3 } from "@/features/sync/http-transport-v3"
 import { openLocalSyncRuntimeV2 } from "@/features/sync/local-runtime-v2"
 import {
   type AccountIdentity,
@@ -15,18 +15,18 @@ const defaultPorts: MixedClientPorts = {
   requireActive: requireActiveAccount,
   readSummary: readMixedSyncQueueSummary,
   openRuntime: openLocalSyncRuntimeV2,
-  sendOperations: dispatchSyncOperationsV2,
+  sendOperations: dispatchSyncOperationsV3,
   fetchRequest: fetch,
 }
 
 // Negotiation selects the transport and action together; durable intentions stay unchanged.
-export function createMixedSyncClient(
+export function createMixedSyncClientV3(
   input: AccountIdentity,
   ports: MixedClientPorts = defaultPorts
 ) {
   return createMixedSyncClientWithTransport(
     input,
     ports,
-    createHttpSyncTransportV2
+    createHttpSyncTransportV3
   )
 }

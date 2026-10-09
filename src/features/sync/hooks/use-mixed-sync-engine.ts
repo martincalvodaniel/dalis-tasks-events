@@ -9,6 +9,7 @@ import {
   type SyncAttemptV2,
   SyncSchedulerV2,
 } from "@/features/sync/mixed-sync-controls"
+import { mixedSyncSummaryCacheKey } from "@/features/sync/sync-summary-cache-key"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
 import { subscribeLocalOutboxChanges } from "@/lib/local-db/sync-notifications"
@@ -30,7 +31,7 @@ export function useMixedSyncEngine({ userId, epoch }: AccountIdentity) {
     [userId, epoch]
   )
   const { data: summary, error } = useSWR(
-    ["dalis:sync-queue", userId, epoch, 2],
+    mixedSyncSummaryCacheKey({ userId, epoch }, 2),
     () => client.readSummary(),
     {
       shouldRetryOnError: false,
@@ -45,7 +46,7 @@ export function useMixedSyncEngine({ userId, epoch }: AccountIdentity) {
     let disposed = false
     let attempt: SyncAttemptV2 | null = null
     const account = { userId, epoch }
-    const summaryKey = ["dalis:sync-queue", userId, epoch, 2]
+    const summaryKey = mixedSyncSummaryCacheKey(account, 2)
     const incidentKey = ["dalis:sync-incidents", userId, epoch]
     const owns = (state: AccountIdentity | null) =>
       state?.userId === userId && state.epoch === epoch
