@@ -37,3 +37,6 @@ Avance11c4a8e1: vista previa ampliada usa automaticIndexSpecs real y selector pe
 
 
 Avance11c4a8g2: [resolver puro](../src/config/personal-index-provisioning.ts) y getter config/env.ts leen DB explícita sin fallback y derivan autoridad exacta sin credenciales. Dos tests/81 aserciones; conserva orden de seeds y no normaliza lo devuelto. DNS/IP/IPv6/puertos y SRV único sin puerto validados conservadoramente; no sockets Unix ni validación completa de opciones del driver, disponibilidad, permisos u ownership. Rechazos genéricos sin URI/cause y cero conexión. Siguiente11c4a8e2 adaptador/CLI online (la revisión offline ya está cerrada), seguido de prueba propia11c4a8t antes de actuar sobre entorno autorizado.
+
+
+Avance11c4a8e2a: [ciclo privado por puertos](../src/lib/db/personal-index-execution.ts) exige descriptor/acuse de bootstrap, compara destino antes de abrir, verifica DB real y cierra cualquier intento de bootstrap. Cierre fallido conserva resultado/prefijo confirmado y no anuncia éxito. Cuatro tests/28 aserciones; sin defaults/caller/DB. Siguiente11c4a8e2b conecta defaults/CLI separado sólo para proceso operador propio;11c4a8t lo ejecuta únicamente con descriptor Mongo propio antes de actuar sobre entorno autorizado.

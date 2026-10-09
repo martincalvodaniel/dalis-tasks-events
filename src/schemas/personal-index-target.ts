@@ -18,3 +18,8 @@ export const personalIndexTargetSchema =
   personalIndexConnectionTargetSchema.extend({
     environment: z.enum(["local", "preproduction"]),
   })
+
+export const personalIndexExecutionSchema = z.strictObject({
+  target: personalIndexTargetSchema,
+  acknowledgeAutomaticBootstrap: z.literal(true),
+})
