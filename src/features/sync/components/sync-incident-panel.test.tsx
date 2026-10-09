@@ -1,11 +1,63 @@
 import { expect, test } from "bun:test"
 import { renderToStaticMarkup } from "react-dom/server"
+import { PersonalIncidentVersion } from "@/features/sync/components/personal-incident-version"
 import { SyncIncidentPanel } from "@/features/sync/components/sync-incident-panel"
 import { SyncIncidentResolutionDialog } from "@/features/sync/components/sync-incident-resolution-dialog"
 import { projectSyncIncident } from "@/lib/sync/incident-projection"
 import { projectSyncIncidentOverview } from "@/lib/sync/incident-snapshot"
+import { taskPlacementEntityKey } from "@/schemas/ordering"
 import type { Task } from "@/types/calendar-item"
 import type { OutboxEntry } from "@/types/local-sync"
+
+test("placement evidence shows its civil scope, rank, category and tombstone compactly", () => {
+  const tagId = crypto.randomUUID()
+  const occurrenceId = crypto.randomUUID()
+  for (const scope of ["day", "overdue"] as const) {
+    const date = scope === "day" ? "2026-10-09" : "0001-01-01"
+    const timestamp = "2026-10-09T00:00:00.000Z"
+    const html = renderToStaticMarkup(
+      <PersonalIncidentVersion
+        label="Tu estado actual"
+        tagNames={{ [tagId]: "Casa" }}
+        snapshot={[
+          {
+            entityKey: taskPlacementEntityKey(occurrenceId, scope, date),
+            record: {
+              store: "taskPlacements",
+              record: {
+                userId: "placement-ui-test",
+                occurrenceId,
+                scope,
+                date,
+                tagId,
+                position: 4096,
+                revision: 7,
+                createdAt: timestamp,
+                updatedAt: timestamp,
+                deletedAt: timestamp,
+              },
+            },
+          },
+        ]}
+      />
+    )
+    for (const text of [
+      "Tu estado actual",
+      "posición 4096",
+      "Casa",
+      "revisión",
+      "7",
+      "Eliminada",
+      "text-xs",
+    ])
+      expect(html).toContain(text)
+    expect(html).toContain(scope === "day" ? date : "Atrasadas")
+    expect(html).not.toContain("0001-01-01")
+    expect(html).not.toContain("Sin versión observada")
+    expect(html).not.toContain("<button")
+    expect(html).not.toContain(occurrenceId)
+  }
+})
 
 function fixture() {
   const now = "2026-10-08T00:00:00.000Z"
@@ -235,6 +287,7 @@ test("personal comparisons stay compact, preserve all observed versions and offe
     items: [],
     tags: [tag],
     itemViews: [],
+    taskPlacements: [],
     shadows: [
       {
         version: 2,

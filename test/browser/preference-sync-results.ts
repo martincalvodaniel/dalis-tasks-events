@@ -1,5 +1,6 @@
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalPreferenceResult } from "@/lib/local-db/preference-sync-results"
+import { readLocalSyncIncidentOverview } from "@/lib/local-db/sync-incidents"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { validateLocalSyncResultInputV2 } from "@/lib/sync/local-sync-result-v2"
 import { outboxEntrySchema } from "@/schemas/local-sync"
@@ -26,6 +27,7 @@ const userId = `browser-test-${runId}-personal-results`
 const otherUserId = `${userId}-other`
 const timestamp = "2026-10-08T00:00:00.000Z"
 const stores = [
+  "items",
   "tags",
   "itemViews",
   "taskPlacements",
@@ -507,6 +509,107 @@ async function runChecks() {
         assert(
           JSON.stringify(await read(db, "syncMetadata", evidence.key)) ===
             JSON.stringify(evidence)
+        )
+      }
+    )
+    await check(
+      "La incidencia de movimiento lee colocación actual y conserva evidencia del conflicto sin escribir",
+      async () => {
+        const value = movementFixture()
+        const command = value.submission.operation.command
+        assert(command.type === "task.move")
+        const local = value.placements.find(
+          (record) => record.occurrenceId === command.itemId
+        )
+        assert(local && local.revision === 0 && local.position === 9000)
+        const remote: Extract<PreferenceEffect, { store: "taskPlacements" }> = {
+          store: "taskPlacements",
+          record: taskPlacementSchema.parse({
+            ...local,
+            revision: 21,
+            position: 4096,
+          }),
+        }
+        value.submission.result = {
+          kind: "preference",
+          outcome: {
+            operationId: value.submission.operation.operationId,
+            status: "conflict",
+            current: remote,
+          },
+        }
+        await seed(db, value)
+        await applyLocalPreferenceResult(db, userId, value.submission)
+        assert(
+          JSON.stringify(
+            await read(db, "taskPlacements", [
+              local.occurrenceId,
+              local.scope,
+              local.date,
+            ])
+          ) === JSON.stringify(local)
+        )
+        const readOnly = async () => {
+          const before = JSON.stringify(await snapshot(db))
+          const overview = await readLocalSyncIncidentOverview(db, userId)
+          assert(JSON.stringify(await snapshot(db)) === before)
+          assert(overview.length === 1 && overview[0].kind === "preference")
+          return overview[0].incident
+        }
+        const incident = await readOnly()
+        assert(
+          incident.reason === "conflict" &&
+            incident.entry.state === "conflict" &&
+            incident.entry.lease === null
+        )
+        assert(
+          incident.local.length === 1 &&
+            incident.local[0].record?.store === "taskPlacements"
+        )
+        assert(
+          JSON.stringify(incident.local[0].record.record) ===
+            JSON.stringify(local)
+        )
+        assert(
+          JSON.stringify(incident.localAtOutcome) ===
+            JSON.stringify(incident.local)
+        )
+        assert(
+          incident.remote[0].record?.store === "taskPlacements" &&
+            JSON.stringify(incident.remote[0].record) === JSON.stringify(remote)
+        )
+        assert(incident.shadowAtOutcome[0].record?.record.revision === 1)
+        const evidence = JSON.stringify(incident.outcome)
+        const historical = JSON.stringify(incident.localAtOutcome)
+        const changed = taskPlacementSchema.parse({ ...local, position: 12000 })
+        await runLocalTransaction(
+          db,
+          ["taskPlacements"],
+          "readwrite",
+          (context) => {
+            context.transaction.objectStore("taskPlacements").put(changed)
+            context.setResult(undefined)
+          }
+        )
+        const current = await readOnly()
+        assert(
+          current.local[0].record?.store === "taskPlacements" &&
+            JSON.stringify(current.local[0].record.record) ===
+              JSON.stringify(changed)
+        )
+        assert(
+          JSON.stringify(current.localAtOutcome) === historical &&
+            JSON.stringify(current.outcome) === evidence
+        )
+        assert(
+          JSON.stringify(current.remote) === JSON.stringify(incident.remote) &&
+            JSON.stringify(current.shadowAtOutcome) ===
+              JSON.stringify(incident.shadowAtOutcome)
+        )
+        assert(
+          JSON.stringify(
+            await read(db, "syncMetadata", incident.outcome.key)
+          ) === evidence
         )
       }
     )

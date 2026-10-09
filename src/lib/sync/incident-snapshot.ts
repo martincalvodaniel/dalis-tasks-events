@@ -243,13 +243,17 @@ export function projectSyncIncidentOverview(
   input: unknown
 ): SyncIncidentOverview[] {
   const complete = syncIncidentOverviewInputSchema.parse(input)
-  const { tags, itemViews, ...evidenceInput } = complete
+  const { tags, itemViews, taskPlacements, ...evidenceInput } = complete
   const value = prepareIncidentEvidence(evidenceInput)
   const itemIncidents = projectItemIncidents(value)
   const current = new Map<string, PersonalSnapshot[number]["record"]>()
   for (const effect of [
     ...tags.map((record) => ({ store: "tags" as const, record })),
     ...itemViews.map((record) => ({ store: "itemViews" as const, record })),
+    ...taskPlacements.map((record) => ({
+      store: "taskPlacements" as const,
+      record,
+    })),
   ]) {
     const key = personalShadowEntityKey(effect)
     if (effect.record.userId !== value.userId || current.has(key))

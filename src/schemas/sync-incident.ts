@@ -4,6 +4,7 @@ import {
   localOperationOutcomeSchema,
   outboxEntrySchema,
 } from "@/schemas/local-sync"
+import { observedTaskPlacementSchema } from "@/schemas/personal-snapshot"
 import { itemViewSchema, tagSchema } from "@/schemas/preferences"
 import { userIdSchema } from "@/schemas/primitives"
 
@@ -27,6 +28,7 @@ export const syncIncidentOverviewInputSchema =
   syncIncidentSnapshotInputSchema.extend({
     tags: z.array(tagSchema),
     itemViews: z.array(itemViewSchema),
+    taskPlacements: z.array(observedTaskPlacementSchema),
   })
 
 export const syncIncidentSnapshotSchema = z.strictObject({

@@ -37,7 +37,15 @@ export function readLocalSyncIncidentOverview(
 ): Promise<SyncIncidentOverview[]> {
   return runLocalTransaction(
     database,
-    ["items", "tags", "itemViews", "outbox", "remoteShadows", "syncMetadata"],
+    [
+      "items",
+      "tags",
+      "itemViews",
+      "taskPlacements",
+      "outbox",
+      "remoteShadows",
+      "syncMetadata",
+    ],
     "readonly",
     (context) => {
       queueIncidentEvidence(context, userId, true, (snapshot) =>
@@ -79,7 +87,10 @@ function queueIncidentEvidence(
   const itemViews = overview
     ? context.transaction.objectStore("itemViews").getAll()
     : null
-  let remaining = overview ? 6 : 4
+  const taskPlacements = overview
+    ? context.transaction.objectStore("taskPlacements").getAll()
+    : null
+  let remaining = overview ? 7 : 4
   const finish = () => {
     if (--remaining) return
     try {
@@ -104,6 +115,7 @@ function queueIncidentEvidence(
             ...input,
             tags: tags?.result,
             itemViews: itemViews?.result,
+            taskPlacements: taskPlacements?.result,
           })
         : projectSyncIncidentSnapshot(input)
       onSnapshot(
@@ -114,6 +126,14 @@ function queueIncidentEvidence(
       context.fail(error)
     }
   }
-  for (const request of [items, entries, shadows, metadata, tags, itemViews])
+  for (const request of [
+    items,
+    entries,
+    shadows,
+    metadata,
+    tags,
+    itemViews,
+    taskPlacements,
+  ])
     if (request) request.onsuccess = finish
 }

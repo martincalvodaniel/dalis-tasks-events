@@ -3,12 +3,17 @@ import {
   projectSyncIncidentOverview,
   projectSyncIncidentSnapshot,
 } from "@/lib/sync/incident-snapshot"
+import {
+  overduePlacementDate,
+  taskPlacementEntityKey,
+} from "@/schemas/ordering"
 import type { Task } from "@/types/calendar-item"
 import type {
   LocalOperationOutcomeV2,
   LocalPreferenceOutcomeV2,
 } from "@/types/local-operation-outcome-v2"
 import type { OutboxEntry } from "@/types/local-sync"
+import type { ItemView, TaskPlacement } from "@/types/preferences"
 import type { RemoteShadowV2 } from "@/types/remote-shadow-v2"
 
 function fixture() {
@@ -198,7 +203,7 @@ function mixedFixture() {
     dependencies: [value.entries[1].operation.operationId],
     state: "rejected",
   }
-  const view = {
+  const view: ItemView = {
     userId: value.userId,
     itemId,
     primaryTagId: null,
@@ -251,6 +256,7 @@ function mixedFixture() {
     entries: [...value.entries, entry],
     tags: [],
     itemViews: [view],
+    taskPlacements: [] as TaskPlacement[],
     shadows,
     outcomes,
   }
@@ -269,7 +275,7 @@ test("mixed incidents route explicit families while preserving the complete cros
   expect(
     overview[1].incident.intentions.map((entry) => entry.sequence)
   ).toEqual([3])
-  const { tags, itemViews, ...legacyInput } = input
+  const { tags, itemViews, taskPlacements, ...legacyInput } = input
   const items = projectSyncIncidentSnapshot(legacyInput)
   expect(items).toHaveLength(1)
   expect(items[0].blockedByRelatedIntentions).toBe(true)
@@ -309,7 +315,7 @@ test("personal late conflict replay preserves newer observed bases without asser
 
 test("all mixed evidence rejects corruption before returning even item-only snapshots", () => {
   const input = mixedFixture()
-  const { tags, itemViews, ...itemOnly } = input
+  const { tags, itemViews, taskPlacements, ...itemOnly } = input
   for (const invalid of [
     { ...itemOnly, shadows: [...input.shadows, input.shadows[1]] },
     {
@@ -341,4 +347,190 @@ test("all mixed evidence rejects corruption before returning even item-only snap
   const changed = structuredClone(input)
   changed.entries[2].operation.baseRevision = 99
   expect(() => projectSyncIncidentOverview(changed)).toThrow("frozen")
+})
+
+function placementIncidentFixture() {
+  const input = mixedFixture()
+  const itemId = input.items[0].id
+  const timestamp = input.items[0].createdAt
+  const entityKey = taskPlacementEntityKey(itemId, "overdue", "2026-10-08")
+  const localAtOutcome: TaskPlacement = {
+    userId: input.userId,
+    occurrenceId: itemId,
+    scope: "overdue",
+    date: overduePlacementDate,
+    tagId: null,
+    position: 1024,
+    revision: 0,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    deletedAt: null,
+  }
+  const entry: OutboxEntry = {
+    ...input.entries[2],
+    entityKey,
+    sequence: 3,
+    state: "conflict",
+    attempts: 2,
+    dependencies: [input.entries[1].operation.operationId],
+    operation: {
+      operationId: crypto.randomUUID(),
+      protocolVersion: 1,
+      baseRevision: 1,
+      command: {
+        type: "task.move",
+        itemId,
+        occurrenceId: null,
+        scope: "overdue",
+        date: "2026-10-08",
+        tagId: null,
+        beforeId: null,
+        afterId: null,
+      },
+    },
+  }
+  const base = {
+    store: "taskPlacements" as const,
+    record: { ...localAtOutcome, revision: 5, position: 2048 },
+  }
+  const outcome: LocalPreferenceOutcomeV2 = {
+    version: 2,
+    kind: "preference",
+    key: `operation-outcome:${entry.operation.operationId}`,
+    operation: structuredClone(entry.operation),
+    result: {
+      kind: "preference",
+      outcome: {
+        operationId: entry.operation.operationId,
+        status: "conflict",
+        current: {
+          store: "taskPlacements",
+          record: { ...localAtOutcome, revision: 2, position: 512 },
+        },
+      },
+    },
+    local: [
+      {
+        entityKey,
+        record: { store: "taskPlacements", record: localAtOutcome },
+      },
+    ],
+    base: [{ entityKey, record: base }],
+  }
+  const remote: RemoteShadowV2 = {
+    version: 2,
+    kind: "preference",
+    entityKey,
+    record: {
+      store: "taskPlacements",
+      record: { ...base.record, revision: 8, deletedAt: timestamp },
+    },
+  }
+  input.taskPlacements = [
+    { ...localAtOutcome, revision: 9, position: 8192, deletedAt: timestamp },
+  ]
+  input.entries[2].sequence = 4
+  input.entries[2].attempts = 3
+  input.entries[2].dependencies = [entry.operation.operationId]
+  input.itemViews[0] = {
+    ...input.itemViews[0],
+    revision: 6,
+    deletedAt: timestamp,
+  }
+  const viewShadow = input.shadows[1]
+  if (viewShadow.kind !== "preference") throw new Error("Expected view shadow")
+  viewShadow.record.record.revision = 10
+  viewShadow.record.record.deletedAt = timestamp
+  input.entries.push(entry)
+  input.outcomes.push(outcome)
+  input.shadows.push(remote)
+  return input
+}
+
+function freezeEvidence(value: unknown): void {
+  if (value === null || typeof value !== "object") return
+  for (const child of Object.values(value)) freezeEvidence(child)
+  Object.freeze(value)
+}
+
+test("placement conflict overview reads newer current placements and view dependents without rewriting frozen replay evidence or tombstones", () => {
+  const input = placementIncidentFixture()
+  const before = structuredClone(input)
+  freezeEvidence(input)
+  const overview = projectSyncIncidentOverview(input)
+  expect(overview.map((value) => value.incident.entry.sequence)).toEqual([
+    1, 3, 4,
+  ])
+  const movement = overview[1]
+  const view = overview[2]
+  if (movement.kind !== "preference" || view.kind !== "preference")
+    throw new Error("Expected personal incidents")
+  const incident = movement.incident
+  expect(incident.entry.operation).toEqual(input.entries[3].operation)
+  expect(incident.entry.attempts).toBe(2)
+  expect(incident.entry.state).toBe("conflict")
+  expect(incident.local[0].record).toEqual({
+    store: "taskPlacements",
+    record: input.taskPlacements[0],
+  })
+  expect(incident.local[0].record?.record.revision).toBe(9)
+  expect(incident.localAtOutcome[0].record?.record.revision).toBe(0)
+  expect(incident.shadowAtOutcome[0].record?.record.revision).toBe(5)
+  expect(incident.remote[0].record?.record.revision).toBe(8)
+  expect(incident.local[0].record?.record.deletedAt).toBeTruthy()
+  expect(incident.remote[0].record?.record.deletedAt).toBeTruthy()
+  const outcome = input.outcomes[2]
+  if (outcome.kind !== "preference")
+    throw new Error("Expected movement outcome")
+  expect(incident.outcome).toEqual(outcome)
+  expect(incident.outcome.result.outcome.status).toBe("conflict")
+  expect(incident.local[0].entityKey).toContain(overduePlacementDate)
+  expect(incident.entry.operation.command).toEqual({
+    type: "task.move",
+    itemId: input.items[0].id,
+    occurrenceId: null,
+    scope: "overdue",
+    date: "2026-10-08",
+    tagId: null,
+    beforeId: null,
+    afterId: null,
+  })
+  expect(incident.intentions.map((entry) => entry.sequence)).toEqual([3, 4])
+  expect(incident.intentions[1]).toEqual(input.entries[2])
+  expect(view.incident.local[0].record?.record.revision).toBe(6)
+  expect(view.incident.localAtOutcome[0].record?.record.revision).toBe(0)
+  expect(view.incident.remote[0].record?.record.revision).toBe(10)
+  expect(view.incident.entry.attempts).toBe(3)
+  incident.local[0].record = null
+  incident.entry.operation.baseRevision = 999
+  incident.outcome.operation.baseRevision = 999
+  expect(input).toEqual(before)
+})
+
+test("placement overview requires complete current evidence and rejects duplicate, foreign or noncanonical records and changed attempted intentions", () => {
+  const input = placementIncidentFixture()
+  const { taskPlacements, ...missing } = input
+  const altered = structuredClone(input)
+  altered.entries[3].operation.baseRevision = 99
+  for (const invalid of [
+    missing,
+    { ...input, taskPlacements: [...taskPlacements, taskPlacements[0]] },
+    { ...input, taskPlacements: [{ ...taskPlacements[0], userId: "foreign" }] },
+    {
+      ...input,
+      taskPlacements: [{ ...taskPlacements[0], date: "2026-10-08" }],
+    },
+    { ...input, taskPlacements: [{ ...taskPlacements[0], future: true }] },
+    altered,
+  ])
+    expect(() => projectSyncIncidentOverview(invalid)).toThrow()
+  const absent = projectSyncIncidentOverview({
+    ...input,
+    taskPlacements: [],
+  })[1]
+  if (absent.kind !== "preference")
+    throw new Error("Expected movement incident")
+  expect(absent.incident.local[0].record).toBeNull()
+  expect(absent.incident.localAtOutcome[0].record?.record.revision).toBe(0)
+  expect(absent.incident.remote[0].record?.record.revision).toBe(8)
 })

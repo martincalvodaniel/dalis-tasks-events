@@ -11,17 +11,19 @@ import {
   personalShadowEntityKeySchema,
 } from "@/schemas/remote-shadow-v2"
 
+export const observedTaskPlacementSchema = taskPlacementSchema.refine(
+  (record) =>
+    record.scope !== "overdue" || record.date === overduePlacementDate,
+  "Observed overdue placements require their canonical date"
+)
+
 // Optimistic local records may still have revision zero; remote effects require positive revisions.
 export const localPreferenceRecordSchema = z.discriminatedUnion("store", [
   z.strictObject({ store: z.literal("tags"), record: tagSchema }),
   z.strictObject({ store: z.literal("itemViews"), record: itemViewSchema }),
   z.strictObject({
     store: z.literal("taskPlacements"),
-    record: taskPlacementSchema.refine(
-      (record) =>
-        record.scope !== "overdue" || record.date === overduePlacementDate,
-      "Observed overdue placements require their canonical date"
-    ),
+    record: observedTaskPlacementSchema,
   }),
   z.strictObject({ store: z.literal("settings"), record: userSettingsSchema }),
 ])
