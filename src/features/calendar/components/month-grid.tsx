@@ -74,7 +74,7 @@ export function MonthGrid({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[15rem] table-fixed border-separate border-spacing-1">
           <caption className="sr-only">
-            {title}. Selecciona un día para ver sus tareas y eventos.
+            {title}. Selecciona un día para ver sus planes.
           </caption>
           <thead>
             <tr>

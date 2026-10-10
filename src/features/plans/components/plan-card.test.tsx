@@ -72,7 +72,7 @@ test("all variants render category-colored completion shapes and visible checkli
   }
 })
 
-test("recurring parents show an explicit limitation and disable per-occurrence progress", () => {
+test("recurring parents point to appearance progress and disable per-occurrence progress", () => {
   const parent = {
     ...plan("note"),
     recurrence: {
@@ -91,7 +91,7 @@ test("recurring parents show an explicit limitation and disable per-occurrence p
     />
   )
   expect(html).toContain(
-    "Sus apariciones y progreso todavía no están disponibles aquí."
+    "Gestiona el progreso de cada aparición en el calendario."
   )
   expect(html).toMatch(/<button[^>]*disabled=""[^>]*aria-label="Completar/)
   expect(html).not.toContain('type="checkbox"')

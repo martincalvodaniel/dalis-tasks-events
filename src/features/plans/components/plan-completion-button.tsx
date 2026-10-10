@@ -20,7 +20,7 @@ export function PlanCompletionButton({
       type="button"
       aria-pressed={completed}
       disabled={busy || !onChange || Boolean(plan.recurrence)}
-      aria-label={`${completed ? "Reabrir" : "Completar"} ${plan.title}${plan.recurrence ? "; repetición pendiente de soporte por aparición" : ""}`}
+      aria-label={`${completed ? "Reabrir" : "Completar"} ${plan.title}${plan.recurrence ? "; abre una aparición en el calendario" : ""}`}
       onClick={() => {
         if (!plan.recurrence)
           onChange?.(completed ? "not_started" : "completed")

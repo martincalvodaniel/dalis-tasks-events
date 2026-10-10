@@ -2700,3 +2700,14 @@ Renovación real10oct16:24:100%5h/85%7d, reset siguiente1791660272. HEADf8d2620/
 - Paralelo seleccionado con57%5h/78%7d: worker sólo nuevos lib/calendar/plan-appearance-page y tests, schemas/plan-appearance-query. Root posee snapshot local común, features/plans/local-plans, hooks nuevos de progreso/lectura y pruebas propias; docs/integración compartida root. No caller actual activo ni solapamiento.
 - Dependencias:42de24f/4e8877b. Aceptación: snapshot único de items/apariciones/categorías/views/settings, cuenta actual antes/después, parent/slot conservados, cursor y límites explícitos incluidos intervalos de varios días; progreso de aparición usa CAS congelado y intención original, no ACK remoto. Interfaces preparadas para lista/calendario comunes.
 - Validación: pure page/intervalos/cursores y guardias; IndexedDB propio de snapshot/progreso si cambia persistencia, suite/lint/tipos/build/diff, plan/log/commitpushint/HEAD/cuotas.
+
+### 16a4c2f — Filas comunes con progreso por aparición
+
+- Objetivo: conectar lista común preparada a apariciones paginadas y categorías; progreso por aparición, edición explícita de serie y cancelación local, manteniendo orden existente y límites visibles.
+- Paralelo explícito con49%5h/77%7d: worker sólo nuevos features/plans/plan-agenda-rows y tests; root posee PlanList/Card/Agenda y componentes de confirmación estrictamente necesarios, fixture UI/hook propio, docs y archivos compartidos. Sin activación de callers actuales.
+- Dependencias:1820f40. Aceptación: filas simples/apariciones juntas por categoría y fecha/hora/tipo, keys por slot originales, iconos/checklist/progreso locales reales; editar serie no edita silenciosamente todas sus apariciones, cancelación conserva slot. Orden confirmado se muestra; drag no inventa vecinos de apariciones aún sin executor de orden. Horizonte próximo y páginas explícitos, cero repetición del padre como sustituto.
+- Validación: selección/grupos/orden/intervalos, markup y fixture React+IndexedDB propios para click/progreso/checklist/paginación/recarga; suite/lint/tipos/build/diff, plan/log/commitpushint/HEAD/cuotas. Transición/wipe y activación conjunta posterior.
+
+Para16a4c2f, tras congelar el helper puro, el mismo worker posee sólo archivos nuevos test/browser/plan-agenda-ui.tsx y scripts/plan-agenda-ui-test-server.ts. Root conserva componentes e integración. Fixture4187 propia con PlanList real/React/IndexedDB y producers, cuatro simples/cuatro series; paginación, completar un slot/checklist, cambio de día/recarga y cleanup con ownership. No sesiónGoogle ni dispositivo físico.
+
+El mismo corte16a4c2f incluye rutas root nuevas features/plans/calendar-plans y tests, components/plan-calendar-board, más caption accesible genérico de MonthGrid: calendario común preparado con conteos por intervalo/slot y límite paginado visible; no cambio de caller activo ni navegación nueva.

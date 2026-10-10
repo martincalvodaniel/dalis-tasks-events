@@ -31,6 +31,9 @@ export function PlanCard({
   onStatusChange,
   onChecklistChange,
   busy = false,
+  editLabel = "Editar",
+  deleteLabel = "Eliminar",
+  contextLabel,
 }: {
   plan: Plan
   categoryColor?: string | null
@@ -42,6 +45,9 @@ export function PlanCard({
   onDelete?: () => void
   onStatusChange?: (status: Plan["status"]) => void
   onChecklistChange?: (entryId: string, completed: boolean) => void
+  editLabel?: string
+  deleteLabel?: string
+  contextLabel?: string
   busy?: boolean
 }) {
   const start = planStartDate(plan)
@@ -96,6 +102,9 @@ export function PlanCard({
               {plan.description}
             </p>
           ) : null}
+          {contextLabel ? (
+            <p className="mt-2 text-xs text-zinc-500">{contextLabel}</p>
+          ) : null}
           {categoryControl}
           {onStatusChange && !plan.recurrence ? (
             <PlanStatusControls
@@ -111,10 +120,10 @@ export function PlanCard({
                   type="button"
                   disabled={busy}
                   onClick={onEdit}
-                  aria-label={`Editar ${plan.title}`}
+                  aria-label={`${editLabel} ${plan.title}`}
                   className="min-h-11 rounded-lg border border-zinc-300 px-3 text-sm disabled:opacity-50 dark:border-zinc-700"
                 >
-                  Editar
+                  {editLabel}
                 </button>
               ) : null}
               {onDelete ? (
@@ -122,10 +131,10 @@ export function PlanCard({
                   type="button"
                   disabled={busy}
                   onClick={onDelete}
-                  aria-label={`Eliminar ${plan.title}`}
+                  aria-label={`${deleteLabel} ${plan.title}`}
                   className="min-h-11 rounded-lg border border-zinc-300 px-3 text-sm disabled:opacity-50 dark:border-zinc-700"
                 >
-                  Eliminar
+                  {deleteLabel}
                 </button>
               ) : null}
             </div>
@@ -135,8 +144,7 @@ export function PlanCard({
       {orderControl}
       {plan.recurrence ? (
         <p className="px-3 pb-2 text-xs text-zinc-500">
-          Repetición guardada. Sus apariciones y progreso todavía no están
-          disponibles aquí.
+          Gestiona el progreso de cada aparición en el calendario.
         </p>
       ) : null}
       {plan.checklist.length ? (

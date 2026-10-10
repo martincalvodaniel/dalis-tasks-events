@@ -2,7 +2,7 @@
 
 ## Punto de partida comprobado
 
-Contenido simple de cuatro variantes, categoría/asignación, orden/progreso/checklist y tombstones convergen en dos orígenes/IndexedDB con Mongo propio (16a4b,0d9b0cb). Incluye respuesta perdida con la misma intención y ACK remoto único. No repetir esta implementación ni confundir fixture HTTP de sesión ficticia con RPC Next/autenticación. Producto activo sigue3; preparados cliente/acción/reader/policy4. Apariciones comunes tienen generación, índice/paginación y guardado CAS/outbox locales probados; conexión UI y transición siguen pendientes.
+Contenido simple de cuatro variantes, categoría/asignación, orden/progreso/checklist y tombstones convergen en dos orígenes/IndexedDB con Mongo propio (16a4b,0d9b0cb). Incluye respuesta perdida con la misma intención y ACK remoto único. No repetir esta implementación ni confundir fixture HTTP de sesión ficticia con RPC Next/autenticación. Producto activo sigue3; preparados cliente/acción/reader/policy4. Apariciones comunes tienen generación, índice/paginación y guardado CAS/outbox locales probados; lista/calendario comunes conectados y probados como componentes preparados; transición y conexión de callers siguen pendientes.
 
 ## 16a4c1 — Frontera RPC4 compilada
 
@@ -29,7 +29,7 @@ Dividir en frontera/negociación y productor/lifecycle si no cabe una entrega co
 
 ## 16a4c2 — Apariciones comunes locales
 
-Estado16a4c2a–e: núcleo, comandos, IndexedDB real, snapshot y hooks preparados; caller/lista/calendario todavía pendientes.
+Estado16a4c2a–f: núcleo, comandos, IndexedDB real, snapshot/hooks y lista/calendario preparados. Prueba UI390px de progreso/checklist por slot, cancelación y recarga aprobada. Faltan transición/callers conjuntos; series/apariciones y su orden siguen fuera de sincronización remota.
 
 Cuatro variantes tienen la misma repetición y progreso por aparición; no completar padre recurrente como sustituto ni ocultarlo del calendario. Reutilizar motor civil/reglas/excepciones existentes; fechas/zona/DST y checklist por aparición. Contrato y rutas concretos se cierran antes de editar. La sincronización remota de series permanece bloque aparte: no anunciarla al activar simples. Si un límite funcional impide cumplir equivalencia, exponerlo claramente y resolverlo antes de ofrecer el control.
 
