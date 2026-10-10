@@ -29,3 +29,7 @@ Depende sólo de16a1 y comandos task.move/tag.move existentes: sustituye handles
 
 
 Contrato concreto común en [item-model-v2.md](item-model-v2.md), cerrado documentalmente en16a2p. Aplicación y wipe siguen separados de esta decisión.16b1 adelanta el gesto actual;16a5 integrará variantes nuevas y aceptación táctil completa.
+
+### Intercalada16a1b — Descripción y pasos directamente accesibles
+
+La descripción se muestra debajo del título en los editores actuales de Tarea y Evento, antes de la planificación. Los pasos de tareas se editan sin desplegar opciones; la zona horaria del evento conserva su desplegable secundario, oculto con todo el día. Este corte no modifica contratos, datos ni sincronización. Cita/Nota, equivalencia de opciones y lista mixta siguen pendientes de16a2–4.

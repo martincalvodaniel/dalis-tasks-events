@@ -2598,3 +2598,11 @@ Bloque elegido por el usuario tras cerrar sincronización personal. Requisitos y
 - Dependencias:8319e18/a4caad9, elección humana y permiso para descartar compatibilidad de datos.
 - Aceptación: variante exclusivamente visual; opciones/progreso/fecha/calendario comunes, orden y contexto definidos; generación antigua rechazada antes de ejecutar; wipe futuro preciso preservando identidad/sesiones. No wipe ni activación ficticia, no anunciar soporte de series. Rutas/evidencia y siguiente16a2 definidos.
 - Validación: referencias/coherencia/diff; Conventional Commit y pushint/HEAD/cuotas. Entrada70%5h/2%7d: cierre documental cabe; integración de schema/runtime/sync/UI y reparación excede margen semanal observado y no se abre.
+
+### 16a1b — Descripción y pasos sin desplegable
+
+- Objetivo: adelantar un ajuste visual pequeño con el margen semanal restante.
+- `target_paths`: `src/features/{tasks,events}/components/{task-form,event-form}.tsx` según su feature; `plan/{item-editor-redesign,iterations,iteration-log}.md`.
+- Dependencias:907b652, formularios y validación actuales; sin unificación de modelo ni wipe.
+- Aceptación: descripción siempre accesible debajo del título; checklist de tareas directo; zona horaria secundaria y oculta con todo el día; conservar drafts, guardado y validación.
+- Validación completada:524pass/128opt-in skip/0fail/8104aserciones; lint561, tipos, build y worker34. Fixture aislado de evento confirma descripción antes de planificación, dialog390×844; sin auth/DB. Diff y referencias; commit/pushint, HEAD remoto y cuotas al cerrar.

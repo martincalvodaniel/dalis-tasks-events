@@ -31,10 +31,7 @@ export function EventForm({
   const schedule = initialEvent?.schedule
   const [allDay, setAllDay] = useState(schedule?.mode === "all_day")
   const [extrasOpen, setExtrasOpen] = useState(
-    Boolean(
-      initialEvent?.description ||
-        (schedule?.mode === "timed" && schedule.timeZone !== timeZone)
-    )
+    Boolean(schedule?.mode === "timed" && schedule.timeZone !== timeZone)
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
@@ -60,7 +57,7 @@ export function EventForm({
               : path.includes("localEnd")
                 ? "localEnd"
                 : "localStart"
-      if (field === "description" || field === "timeZone") setExtrasOpen(true)
+      if (field === "timeZone") setExtrasOpen(true)
       setError(
         reason === "ambiguous"
           ? "Esa hora se repite por el cambio de horario. Elige otra hora de inicio o fin."
@@ -120,6 +117,21 @@ export function EventForm({
           disabled={saving}
           placeholder="Escribe un título…"
           className="min-h-11 w-full border-b border-zinc-200 bg-transparent px-1 text-xl dark:border-zinc-700"
+        />
+      </div>
+      <div>
+        <label htmlFor={`${id}-description`} className="sr-only">
+          Descripción
+        </label>
+        <textarea
+          id={`${id}-description`}
+          name="description"
+          placeholder="Descripción"
+          defaultValue={initialEvent?.description ?? ""}
+          rows={3}
+          maxLength={10000}
+          disabled={saving}
+          className={`${inputClass} p-2`}
         />
       </div>
       <label className="flex min-h-11 items-center gap-3 text-sm font-medium">
@@ -193,31 +205,15 @@ export function EventForm({
         </div>
       </div>
       <details
+        hidden={allDay}
         open={extrasOpen}
         onToggle={(event) => setExtrasOpen(event.currentTarget.open)}
         className="rounded-lg border border-zinc-200 dark:border-zinc-800"
       >
         <summary className="min-h-11 cursor-pointer px-3 py-3 text-sm font-medium">
-          Descripción y zona horaria
+          Zona horaria
         </summary>
         <div className="space-y-3 px-3 pb-3">
-          <div>
-            <label
-              htmlFor={`${id}-description`}
-              className="text-sm font-semibold"
-            >
-              Descripción
-            </label>
-            <textarea
-              id={`${id}-description`}
-              name="description"
-              defaultValue={initialEvent?.description ?? ""}
-              rows={2}
-              maxLength={10000}
-              disabled={saving}
-              className={`${inputClass} p-2`}
-            />
-          </div>
           <div hidden={allDay}>
             <label htmlFor={`${id}-zone`} className="text-sm font-semibold">
               Zona horaria
