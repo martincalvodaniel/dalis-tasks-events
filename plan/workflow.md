@@ -273,3 +273,7 @@ El usuario elige editor/lista de cuatro variantes y long-press drag. Entrada85%5
 ### Nuevo lote de rediseño tras reinicio humano10oct
 
 El usuario reinicia cuotas y autoriza continuar hasta alcanzar un límite operativo. Lectura real100%5h/100%7d; reset5h1791642149 publicado. Continuar sólo el rediseño elegido mediante cortes completos con commit/pushint/HEAD y cuotas después de cada commit. Reservar cierre antes del límite:10%5h/1%7d conforme a AGENTS vigente, usando consumo observado y dividiendo antes de abrir tareas grandes; no agotar una ventana a mitad de entrega. No usar créditos/reinicios adicionales ni reactivar automatización pausada. Wipe por el usuario sólo si se requiere y una vez preparado/validado el procedimiento exacto.
+
+### Aprovechamiento mínimo y revisión puntual10oct
+
+Tras0d9b0cb el usuario pide aprovechar9% y continuar después del reset. Esta instrucción permite el corte documental mínimo16a4c0 por debajo de reserva habitual; no abre RPC/build/integración grande con este margen ni modifica la reserva10%5h/1%7d de la próxima ventana. Cuotas reales9%/86%, reset1791642149 (10oct16:22:29Madrid), reloj de petición13:08Madrid. Heartbeat existente comprobar-renovaci-n-de-cuota actualizado ACTIVE para16:24Madrid, puntual COUNT1/mismochat/failed_runs_only; alternativa histórica permanece pausada. Sustituye prohibición de nueva programación sólo para esta revisión; no autoriza cadena adicional. Confirmar renovación real antes de16a4c1 y consultar cuotas tras cada commitpushint. No créditos/reinicios, wipe automático ni producción.

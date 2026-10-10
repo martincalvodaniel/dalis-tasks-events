@@ -2650,3 +2650,10 @@ Bloque elegido por el usuario tras cerrar sincronización personal. Requisitos y
 - Paralelo seleccionado desdec4a2ff8/cuota30%5h89%7d, scope mínimo: worker browser sólo test/browser/plan-sync-{device,devices}.ts; worker remoto sólo scripts/plan-sync-browser-test-server.ts; root schema estricto nuevo, modo runner/documentación/integración/reparaciones. No editar código productivo salvo fallo demostrado; contrato de fixture cerrado anteseditar.
 - Aceptación: dos orígenes/IndexedDB independientes y Mongo propio, cuatro variantes guardadas offline con categoría por productor real, ACK único/replay respuesta perdida, orden/progreso/checklist/borrado y proyecciones exactas incluyendo tombstones; recursos propios limpiados. Capacidad UUID fixture no authGoogle/NextRPC ni piloto físico.
 - Validación: ejecución browser integrada real, suite/lint/tipos/build/diff, registro/commitpushint/HEAD/cuotas. No abrir activación amplia/apariciones si coste de validación/cierre excede reserva10%5h/1%7d.
+
+### 16a4c0 — Matriz concreta de activación y siguiente frontera RPC
+
+- Objetivo: cerrar el orden y la evidencia pendiente para activar el editor/lista común sin reauditar contratos ya probados.
+- `target_paths`: plan/common-plan-activation.md, item-model-v2.md, item-editor-redesign.md, master.md, workflow.md, iterations.md e iteration-log.md. Secuencial/documental.
+- Dependencias:0d9b0cb y petición humana de aprovechar9%/programar continuación. Aceptación: matriz RPC4/retirada3 con rutas reales, apariciones/transición/activación separadas y próximas pruebas inequívocas; revisión única futura desde reset observado.
+- Validación: rutas/enlaces locales, consistencia de estado, git diff --check; Conventional Commit/pushint/HEAD/cuotas. No habilitar callers ni afirmar pruebas futuras aprobadas.
