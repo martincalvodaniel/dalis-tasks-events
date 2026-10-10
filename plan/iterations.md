@@ -2693,3 +2693,10 @@ Renovación real10oct16:24:100%5h/85%7d, reset siguiente1791660272. HEADf8d2620/
 - Root `target_paths`: schemas/occurrence-content,occurrence,plan-occurrence,plan-occurrence-command,sync; types/local-sync; lib/local-db/plan-occurrence-outbox y outbox; guardias/consumidores estrictamente afectados; scripts/browser-test-server y plan. Worker de pruebas posee sólo test/browser/plan-occurrence-outbox.ts. Paralelo explícito con66%5h/80%7d y contrato puro16a4c2b cerrado; ningún archivo compartido entre agentes.
 - Dependencias:a258230 y4e8877b. Aceptación: aparición+intención+secuencia indivisibles, replay exacto sin recrear, snapshots para edición y progreso, ownership por padre, dependencia del item previa, cola intentada intacta y comandos de aparición explícitamente fuera de soporte remoto4. No caller activo, nueva query/índice ni wipe.
 - Validación: IndexedDB real propio para cuatro variantes/CAS/rollback/replay/recarga, contratos/guardias/backup, suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. Notificar sólo después del commit local exitoso.
+
+### 16a4c2e — Lectura paginada y progreso común en la agenda
+
+- Objetivo: conectar apariciones/excepciones locales al modelo de filas y guardias de cuenta, con paginación explícita que nunca oculta límites ni completa el padre.
+- Paralelo seleccionado con57%5h/78%7d: worker sólo nuevos lib/calendar/plan-appearance-page y tests, schemas/plan-appearance-query. Root posee snapshot local común, features/plans/local-plans, hooks nuevos de progreso/lectura y pruebas propias; docs/integración compartida root. No caller actual activo ni solapamiento.
+- Dependencias:42de24f/4e8877b. Aceptación: snapshot único de items/apariciones/categorías/views/settings, cuenta actual antes/después, parent/slot conservados, cursor y límites explícitos incluidos intervalos de varios días; progreso de aparición usa CAS congelado y intención original, no ACK remoto. Interfaces preparadas para lista/calendario comunes.
+- Validación: pure page/intervalos/cursores y guardias; IndexedDB propio de snapshot/progreso si cambia persistencia, suite/lint/tipos/build/diff, plan/log/commitpushint/HEAD/cuotas.

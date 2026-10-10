@@ -3,6 +3,7 @@ import { planOccurrencesPage } from "@/lib/calendar/plan-occurrences"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import { commitLocalPlanOccurrenceCommand } from "@/lib/local-db/plan-occurrence-outbox"
+import { readLocalPlanSnapshot } from "@/lib/local-db/plan-snapshot"
 import { LocalRepository } from "@/lib/local-db/repository"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { planSchema } from "@/schemas/plan-item"
@@ -566,6 +567,37 @@ async function run() {
                   entry.lease === null
               ),
             "Local common occurrence commands fabricated an ACK"
+          )
+        }
+      )
+      await check(
+        "Snapshot común lee todos los almacenes y rechaza otra partición y configuración ausente",
+        async () => {
+          await rejects(() => readLocalPlanSnapshot(database, actor))
+          await repository.put("settings", {
+            userId: actor,
+            timeZone: "Europe/Madrid",
+            weekStartsOn: 1,
+            locale: "es-ES",
+            revision: 0,
+            createdAt: "2026-10-10T12:00:00.000Z",
+            updatedAt: "2026-10-10T12:00:00.000Z",
+            deletedAt: null,
+          })
+          const snapshotRecord = await readLocalPlanSnapshot(database, actor)
+          assert(
+            snapshotRecord.items.length === 4 &&
+              snapshotRecord.occurrences.length === 6 &&
+              snapshotRecord.settings.userId === actor &&
+              snapshotRecord.views.length === 0 &&
+              snapshotRecord.tags.length === 0,
+            "Snapshot omitted persisted common records"
+          )
+          const before = await snapshot()
+          await rejects(() => readLocalPlanSnapshot(database, otherActor))
+          assert(
+            (await snapshot()) === before,
+            "Rejected snapshot changed durable state"
           )
         }
       )

@@ -4,15 +4,20 @@ import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
 import { openLocalDatabase } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
+import type { PlanOccurrenceCommitOptions } from "@/lib/local-db/plan-occurrence-outbox"
 import { commitLocalPlanSave } from "@/lib/local-db/plan-outbox"
-import { LocalRepository } from "@/lib/local-db/repository"
+import { readLocalPlanSnapshot } from "@/lib/local-db/plan-snapshot"
 import { compareRank } from "@/lib/ordering/rank"
 import {
   type PlanSaveRequest,
   planSaveRequestSchema,
 } from "@/schemas/plan-save"
-import type { LocalItemCommand } from "@/types/local-sync"
+import type {
+  LocalItemCommand,
+  LocalPlanOccurrenceCommand,
+} from "@/types/local-sync"
 import type { Plan } from "@/types/plan-item"
+import type { PlanOccurrence } from "@/types/plan-occurrence"
 
 export async function saveLocalPlan(
   account: LocalAccount,
@@ -31,25 +36,41 @@ export async function saveLocalPlan(
 
 export async function readLocalPlans(account: LocalAccount) {
   await requireActiveAccount(account)
-  const repository = await LocalRepository.open(account.userId)
+  const database = await openLocalDatabase(account.userId)
   try {
-    const [items, views, tags, settings] = await Promise.all([
-      repository.list("items"),
-      repository.list("itemViews", { includeDeleted: true }),
-      repository.list("tags"),
-      repository.get("settings", account.userId),
-    ])
-    if (!settings || settings.deletedAt)
-      throw new Error("Local settings are unavailable")
+    const snapshot = await readLocalPlanSnapshot(database, account.userId)
     await requireActiveAccount(account)
     return {
-      plans: items.filter((item) => item.kind === "plan"),
-      views,
-      tags: tags.filter((tag) => !tag.deletedAt).sort(compareRank),
-      timeZone: settings.timeZone,
+      plans: snapshot.items.filter(
+        (item): item is Plan =>
+          item.kind === "plan" &&
+          item.ownerId === account.userId &&
+          !item.deletedAt
+      ),
+      occurrences: snapshot.occurrences.filter(
+        (record): record is PlanOccurrence => record.kind === "plan"
+      ),
+      views: snapshot.views,
+      tags: snapshot.tags.filter((tag) => !tag.deletedAt).sort(compareRank),
+      timeZone: snapshot.settings.timeZone,
     }
   } finally {
-    repository.close()
+    database.close()
+  }
+}
+
+export async function changeLocalPlanOccurrence(
+  account: LocalAccount,
+  command: LocalPlanOccurrenceCommand,
+  options: PlanOccurrenceCommitOptions
+) {
+  await requireActiveAccount(account)
+  const outbox = await LocalOutbox.open(account.userId)
+  try {
+    await requireActiveAccount(account)
+    return await outbox.commitPlanOccurrenceCommand(command, options)
+  } finally {
+    outbox.close()
   }
 }
 
