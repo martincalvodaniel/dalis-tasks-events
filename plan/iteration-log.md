@@ -1746,3 +1746,7 @@ Suite573pass/153opt-in skip/0fail/8609aserciones; lint621/tipos/build aprobados,
 ### Resultado16a4c0 — Matriz RPC y continuación puntual
 
 Orden concreto/matriz en common-plan-activation: Next/action4/defaults/BetterAuth, negociación3↔4/retiro3/ID ausente, productor y replay, lifecycle4; después apariciones locales/transición/conexión conjunta. Rutas reales y evidencia pendiente distinguidas de cinco escenarios16a4b ya aprobados; ninguna nueva prueba RPC afirmada. No cambios de código/datos/callers. Revisión única del heartbeat existente ACTIVE10oct16:24Madrid desde reset real1791642149, campos/política preservados. Validación documental de referencias/consistencia/diff; Conventional Commit/pushint/HEAD y consulta de cuotas al cierre.
+
+### Resultado16a3b — Completado accesible además del color
+
+Botones de tareas activas y planes preparados exponen aria-pressed según completed; conservan acciones de completar/reabrir, color de categoría, target44px y guardias. Regresión de markup verifica estados abiertos/en proceso/completado y cuatro variantes. Sin datos/contratos/callers nuevos. Suite573pass/153opt-in skip/0fail/8632aserciones; lint621/tipos/build aprobados, worker34; diff/plan/Conventional Commit/pushint/HEAD/cuotas. Revisión puntual16:24Madrid permanece activa; siguiente corteRPC4 según common-plan-activation.

@@ -73,4 +73,17 @@ test("task rows pass category color to their accessible completion control", () 
   expect(control).toContain('stroke="#2563eb"')
   expect(control).toContain('fill="#2563eb"')
   expect(control).toContain("size-11")
+  expect(control).toContain('aria-pressed="true"')
+  for (const status of ["not_started", "in_progress"] as const) {
+    const open = renderToStaticMarkup(
+      <TaskCard
+        task={{ ...task, status, completedAt: null }}
+        categoryColor="#2563eb"
+        onStatusChange={() => undefined}
+      />
+    )
+    expect(open).toContain('aria-pressed="false"')
+    expect(open).toContain('aria-label="Completar Comprar pan"')
+    expect(open).toContain('stroke="#2563eb"')
+  }
 })

@@ -18,6 +18,7 @@ export function TaskCompletionButton({
   return (
     <button
       type="button"
+      aria-pressed={completed}
       disabled={busy}
       aria-label={`${completed ? "Reabrir" : "Completar"} ${task.title}`}
       onClick={() => onChange(completed ? "not_started" : "completed")}

@@ -2657,3 +2657,10 @@ Bloque elegido por el usuario tras cerrar sincronización personal. Requisitos y
 - `target_paths`: plan/common-plan-activation.md, item-model-v2.md, item-editor-redesign.md, master.md, workflow.md, iterations.md e iteration-log.md. Secuencial/documental.
 - Dependencias:0d9b0cb y petición humana de aprovechar9%/programar continuación. Aceptación: matriz RPC4/retirada3 con rutas reales, apariciones/transición/activación separadas y próximas pruebas inequívocas; revisión única futura desde reset observado.
 - Validación: rutas/enlaces locales, consistencia de estado, git diff --check; Conventional Commit/pushint/HEAD/cuotas. No habilitar callers ni afirmar pruebas futuras aprobadas.
+
+### 16a3b — Estado accesible de completado
+
+- Objetivo: exponer estado marcado de los controles de completado sin depender de color/forma.
+- `target_paths`: tasks/components/task-completion-button, plans/components/plan-completion-button y tests existentes de icono/plan-card; plan/iterations,workflow,iteration-log. Root/secuencial.
+- Dependencias:dc79cc2 e icono común16a3a; petición humana de aprovechar7% autoriza este corte mínimo por debajo de reserva habitual. Aceptación: aria-pressed verdadero sólo completed, falso en not_started/in_progress, mismas acciones/colores/targets y guardias. Activo en tareas actuales, preparado en planes.
+- Validación: markup semántico de estados/cuatro variantes, suite/lint/tipos/build/diff; commitpushint/HEAD/cuotas. Sin activación parcial ni datos; revisión16:24 intacta.

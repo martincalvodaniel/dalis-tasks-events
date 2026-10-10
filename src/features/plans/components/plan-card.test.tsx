@@ -49,6 +49,21 @@ test("all variants render category-colored completion shapes and visible checkli
     expect(html).toContain('aria-label="Completar Common plan"')
     expect(html).toContain('stroke="#123abc"')
     expect(html).toContain("14:30")
+    expect(html).toContain('aria-pressed="false"')
+    const completed = renderToStaticMarkup(
+      <PlanCard
+        plan={{
+          ...plan(variant),
+          status: "completed",
+          completedAt: "2026-10-10T09:30:00.000Z",
+        }}
+        categoryColor="#123abc"
+        onStatusChange={() => undefined}
+      />
+    )
+    expect(completed).toContain('aria-pressed="true"')
+    expect(completed).toContain('aria-label="Reabrir Common plan"')
+    expect(completed).toContain('stroke="#123abc"')
     expect(html.indexOf("Visible step")).toBeGreaterThan(
       html.indexOf("</details>")
     )
