@@ -118,7 +118,11 @@ function readCommandCapability(
       reason = "plan_executor_unavailable"
     else if (current?.kind === "birthday") reason = "birthday_unavailable"
     else if (current?.recurrence) reason = "recurrence_unavailable"
-    else if (command.type === "task.move" && current?.kind !== "task")
+    else if (
+      command.type === "task.move" &&
+      current?.kind !== "task" &&
+      !(allowPlans && current?.kind === "plan")
+    )
       reason = "placement_executor_unavailable"
     else if (command.type === "item.create" || command.type === "item.update") {
       if (command.input.kind === "plan" && !allowPlans)

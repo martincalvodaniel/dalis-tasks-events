@@ -19,8 +19,10 @@ const defaultPorts: AuthenticatedPullPortsV2 = {
     return readPlacementSyncIndexReadiness()
   },
   readChanges: async (actor, query) => {
-    const { readRemoteChangesV2 } = await import("@/lib/db/remote-changes-v2")
-    return readRemoteChangesV2(actor, query)
+    const { readRemotePlanChangesV2 } = await import(
+      "@/lib/db/remote-changes-v2"
+    )
+    return readRemotePlanChangesV2(actor, query)
   },
 }
 

@@ -1,26 +1,54 @@
 import { isTaskOverdue } from "@/lib/calendar/overdue"
+import { isPlanOverdue, planIncludesDate } from "@/lib/calendar/plan-selection"
+import {
+  commonItemOrderProjection,
+  compareCommonItems,
+} from "@/lib/ordering/common-item-order"
 import { orderPlacedTasks } from "@/lib/ordering/task-order"
 import { applyItemViewCommand } from "@/lib/preferences/preference-command"
 import { planTaskPlacements } from "@/lib/preferences/task-placement-command"
 import { placementDate } from "@/schemas/ordering"
 import { remotePreferenceEffectsSchema } from "@/schemas/preference-effects"
 import { revisionSchema } from "@/schemas/primitives"
-import { remoteTaskPlacementPlanningInputSchema } from "@/schemas/remote-task-placement-planning"
+import {
+  remoteTaskPlacementPlanningInputSchema,
+  taskPlacementPlanningInputSchema,
+} from "@/schemas/remote-task-placement-planning"
 import type { Task } from "@/types/calendar-item"
+import type { Plan } from "@/types/plan-item"
 import type { PreferenceEffect } from "@/types/preference-effects"
 import type { RemoteTaskPlacementPlan } from "@/types/remote-task-placement-planning"
 
 export function planRemoteTaskPlacementOperation(
-  input: unknown
+  input: unknown,
+  allowPlans = false,
+  localSnapshot = false
 ): RemoteTaskPlacementPlan {
-  const { userId, timestamp, operation, items, tags, views, placements } =
-    remoteTaskPlacementPlanningInputSchema.parse(input)
+  const { userId, timestamp, operation, items, tags, views, placements } = (
+    localSnapshot
+      ? taskPlacementPlanningInputSchema
+      : remoteTaskPlacementPlanningInputSchema
+  ).parse(input)
   const command = operation.command
   if (command.type !== "task.move" || command.occurrenceId !== null)
     return { status: "unsupported" }
   const item = items.find((record) => record.id === command.itemId)
   if (!item || item.deletedAt) return { status: "unavailable" }
-  if (item.kind !== "task" || item.recurrence) return { status: "unsupported" }
+  if (
+    (item.kind !== "task" && !(allowPlans && item.kind === "plan")) ||
+    item.recurrence
+  )
+    return { status: "unsupported" }
+  if (item.kind !== "task" && item.kind !== "plan")
+    return { status: "unsupported" }
+  const belongsToScope = (record: Task | Plan) =>
+    command.scope === "day"
+      ? record.kind === "task"
+        ? record.scheduledDate === command.date
+        : planIncludesDate(record, command.date)
+      : record.kind === "task"
+        ? isTaskOverdue(record, command.date)
+        : isPlanOverdue(record, command.date)
   const date = placementDate(command.scope, command.date)
   const scoped = placements.filter(
     (record) => record.scope === command.scope && record.date === date
@@ -34,12 +62,7 @@ export function planRemoteTaskPlacementOperation(
     return { status: "conflict", current }
   if (!current && operation.baseRevision !== 0) return { status: "unavailable" }
   // The durable command declares its civil day. A delayed upload must not use the server's current day or time zone.
-  if (
-    command.scope === "day"
-      ? item.scheduledDate !== command.date
-      : !isTaskOverdue(item, command.date)
-  )
-    return { status: "invalid_command" }
+  if (!belongsToScope(item)) return { status: "invalid_command" }
   const activeTags = new Set(
     tags.filter((tag) => !tag.deletedAt).map((tag) => tag.id)
   )
@@ -55,19 +78,26 @@ export function planRemoteTaskPlacementOperation(
   }
   try {
     const destination = items.filter(
-      (record): record is Task =>
-        record.kind === "task" &&
+      (record): record is Task | Plan =>
+        (record.kind === "task" || (allowPlans && record.kind === "plan")) &&
         !record.deletedAt &&
         !record.recurrence &&
         record.id !== item.id &&
-        (command.scope === "day"
-          ? record.scheduledDate === command.date
-          : isTaskOverdue(record, command.date)) &&
+        (record.kind === "task" || record.kind === "plan") &&
+        belongsToScope(record) &&
         effectiveTag(record.id) === command.tagId
     )
     if (effectiveTag(item.id) === command.tagId) destination.push(item)
-    const ordered = orderPlacedTasks(destination, scoped, command.tagId)
-    if (!ordered.some((record) => record.id === item.id)) ordered.push(item)
+    const ordered = orderPlacedTasks(
+      destination.map(commonItemOrderProjection),
+      scoped,
+      command.tagId,
+      allowPlans
+        ? (left, right) => compareCommonItems(left.source, right.source)
+        : undefined
+    )
+    if (!ordered.some((record) => record.id === item.id))
+      ordered.push(commonItemOrderProjection(item))
     const changed = planTaskPlacements(
       ordered,
       scoped,

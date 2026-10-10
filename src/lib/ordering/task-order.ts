@@ -21,7 +21,8 @@ export function compareDefaultTaskOrder(
 export function orderPlacedTasks<Task extends OrderableTask>(
   tasks: readonly Task[],
   placements: readonly TaskPlacement[],
-  tagId: string | null
+  tagId: string | null,
+  compareDefault: (left: Task, right: Task) => number = compareDefaultTaskOrder
 ): Task[] {
   const ranks = new Map(
     placements
@@ -38,6 +39,6 @@ export function orderPlacedTasks<Task extends OrderableTask>(
       )
     if (leftPosition !== undefined) return -1
     if (rightPosition !== undefined) return 1
-    return compareDefaultTaskOrder(left, right)
+    return compareDefault(left, right)
   })
 }

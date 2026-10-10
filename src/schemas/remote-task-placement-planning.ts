@@ -37,20 +37,22 @@ export const remoteTaskPlacementSchema = taskPlacementSchema
     "Remote overdue placements require their canonical date"
   )
 
-export const remoteTaskPlacementPlanningInputSchema = z
+export const taskPlacementPlanningInputSchema = z
   .strictObject({
     userId: userIdSchema,
     timestamp: timestampSchema,
     operation: syncOperationSchema,
-    items: z.array(remoteTaskCatalogItemSchema).max(maximumRemoteTaskCatalog),
-    tags: z
-      .array(tagSchema.safeExtend({ revision: revisionSchema.min(1) }))
-      .max(maximumRemoteTaskCatalog),
-    views: z
-      .array(itemViewSchema.extend({ revision: revisionSchema.min(1) }))
-      .max(maximumRemoteTaskCatalog),
+    items: z.array(calendarItemSchema).max(maximumRemoteTaskCatalog),
+    tags: z.array(tagSchema).max(maximumRemoteTaskCatalog),
+    views: z.array(itemViewSchema).max(maximumRemoteTaskCatalog),
     placements: z
-      .array(remoteTaskPlacementSchema)
+      .array(
+        taskPlacementSchema.refine(
+          (record) =>
+            record.scope !== "overdue" || record.date === overduePlacementDate,
+          "Overdue placements require their canonical date"
+        )
+      )
       .max(maximumRemoteTaskCatalog),
   })
   .superRefine((value, context) => {
@@ -89,5 +91,19 @@ export const remoteTaskPlacementPlanningInputSchema = z
           message: "Duplicate active category name",
         })
       names.add(tag.normalizedName)
+    }
+  })
+
+export const remoteTaskPlacementPlanningInputSchema =
+  taskPlacementPlanningInputSchema.superRefine((value, context) => {
+    for (const field of ["items", "tags", "views", "placements"] as const) {
+      for (const [index, record] of value[field].entries()) {
+        if (record.revision < 1)
+          context.addIssue({
+            code: "custom",
+            path: [field, index, "revision"],
+            message: "Remote movement context requires a positive revision",
+          })
+      }
     }
   })

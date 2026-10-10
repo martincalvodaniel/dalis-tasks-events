@@ -21,6 +21,21 @@ export async function readRemoteChangesV2(
   actorInput: unknown,
   queryInput: unknown
 ): Promise<RemoteChangesPageV2> {
+  return readChanges(actorInput, queryInput, false)
+}
+
+export async function readRemotePlanChangesV2(
+  actorInput: unknown,
+  queryInput: unknown
+): Promise<RemoteChangesPageV2> {
+  return readChanges(actorInput, queryInput, true)
+}
+
+async function readChanges(
+  actorInput: unknown,
+  queryInput: unknown,
+  allowPlans: boolean
+): Promise<RemoteChangesPageV2> {
   const actor = userIdSchema.parse(actorInput)
   const query = remotePullQuerySchema.parse(queryInput)
   const database = await getDatabase()
@@ -116,7 +131,12 @@ export async function readRemoteChangesV2(
                     date: record.date,
                   })
                   const task = await items.read(record.occurrenceId)
-                  if (!current || !task || task.kind !== "task")
+                  if (
+                    !current ||
+                    !task ||
+                    (task.kind !== "task" &&
+                      !(allowPlans && task.kind === "plan"))
+                  )
                     throw new Error(
                       "Journal task placement access is unavailable"
                     )

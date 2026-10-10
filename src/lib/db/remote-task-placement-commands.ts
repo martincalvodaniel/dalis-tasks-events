@@ -23,7 +23,8 @@ export async function stageRemoteTaskPlacementOperation(
   actorInput: unknown,
   operationInput: unknown,
   timestampInput: unknown,
-  session: ClientSession
+  session: ClientSession,
+  allowPlans = false
 ): Promise<RemoteOperationResultV2> {
   const actor = userIdSchema.parse(actorInput)
   const operation = syncOperationSchema.parse(operationInput)
@@ -31,12 +32,39 @@ export async function stageRemoteTaskPlacementOperation(
   if (!session.inTransaction())
     throw new Error("Task placement operations require an active transaction")
   const replay = await readRemoteOperationReplay(actor, operation, session)
-  if (replay) return replay
+  if (replay) {
+    if (!allowPlans && operation.command.type === "task.move") {
+      const repository = await RemoteItemRepository.open(actor, session)
+      const target = await repository.read(operation.command.itemId)
+      let containsPlan = target?.kind === "plan"
+      if (replay.kind === "preference" && replay.outcome.status === "applied")
+        for (const effect of replay.outcome.effects.effects) {
+          const itemId =
+            effect.store === "taskPlacements"
+              ? effect.record.occurrenceId
+              : effect.store === "itemViews"
+                ? effect.record.itemId
+                : null
+          if (itemId && (await repository.read(itemId))?.kind === "plan")
+            containsPlan = true
+        }
+      if (containsPlan)
+        return {
+          kind: "preference",
+          outcome: {
+            operationId: operation.operationId,
+            status: "unsupported",
+          },
+        }
+    }
+    return replay
+  }
   if (operation.command.type !== "task.move")
     return {
       kind: "preference",
       outcome: { operationId: operation.operationId, status: "unsupported" },
     }
+  const command = operation.command
 
   const itemRepository = await RemoteItemRepository.open(actor, session)
   const tagRepository = await RemoteTagRepository.open(actor, session)
@@ -47,18 +75,29 @@ export async function stageRemoteTaskPlacementOperation(
   )
   // MongoDB session operations are sequential and share one bounded snapshot.
   const items = await itemRepository.catalog()
+  if (
+    !allowPlans &&
+    items.find((item) => item.id === command.itemId)?.kind === "plan"
+  )
+    return {
+      kind: "preference",
+      outcome: { operationId: operation.operationId, status: "unsupported" },
+    }
   const tags = await tagRepository.catalog()
   const views = await viewRepository.catalog()
   const placements = await placementRepository.catalog()
-  const planned = planRemoteTaskPlacementOperation({
-    userId: actor,
-    timestamp: now,
-    operation,
-    items,
-    tags,
-    views,
-    placements,
-  })
+  const planned = planRemoteTaskPlacementOperation(
+    {
+      userId: actor,
+      timestamp: now,
+      operation,
+      items,
+      tags,
+      views,
+      placements,
+    },
+    allowPlans
+  )
   let result: RemoteOperationResultV2
   if (planned.status === "changes") {
     const previousPlacements = new Map(
@@ -120,5 +159,23 @@ export function executeRemoteTaskPlacementOperation(
     actorInput,
     operationInput,
     stageRemoteTaskPlacementOperation
+  )
+}
+
+export function executeRemotePlanTaskPlacementOperation(
+  actorInput: unknown,
+  operationInput: unknown
+): Promise<RemoteOperationResultV2> {
+  return runPreferenceTransaction(
+    actorInput,
+    operationInput,
+    (actor, operation, timestamp, session) =>
+      stageRemoteTaskPlacementOperation(
+        actor,
+        operation,
+        timestamp,
+        session,
+        true
+      )
   )
 }

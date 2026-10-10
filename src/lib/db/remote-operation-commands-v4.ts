@@ -3,6 +3,7 @@ import "server-only"
 import { executeRemotePlanOperation } from "@/lib/db/remote-item-commands"
 import { executeRemotePlanItemViewOperation } from "@/lib/db/remote-item-view-commands"
 import { executeRemoteOperationV3 } from "@/lib/db/remote-operation-commands-v3"
+import { executeRemotePlanTaskPlacementOperation } from "@/lib/db/remote-task-placement-commands"
 import { validateRemoteOperationResultV2 } from "@/lib/sync/remote-operation-result-v2"
 import { remoteOperationKind } from "@/lib/sync/remote-push-v2"
 import { userIdSchema } from "@/schemas/primitives"
@@ -26,7 +27,9 @@ export async function executeRemoteOperationV4(
         }
       : operation.command.type === "item-view.set"
         ? await executeRemotePlanItemViewOperation(actor, operation)
-        : await executeRemoteOperationV3(actor, operation),
+        : operation.command.type === "task.move"
+          ? await executeRemotePlanTaskPlacementOperation(actor, operation)
+          : await executeRemoteOperationV3(actor, operation),
     actor
   )
   if (

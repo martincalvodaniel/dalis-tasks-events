@@ -1,5 +1,6 @@
 "use client"
 
+import { planLocalPlanMove } from "@/lib/local-db/plan-move-mutation"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import {
   planLocalTaskMove,
@@ -21,7 +22,8 @@ export function commitLocalTaskMoveCommand(
   database: IDBDatabase,
   userId: string,
   input: TaskMoveCommand,
-  options: { operationId?: string; now?: Date }
+  options: { operationId?: string; now?: Date },
+  allowPlans = false
 ): Promise<OutboxEntry> {
   const parsed = syncCommandSchema.parse(input)
   if (
@@ -104,7 +106,9 @@ export function commitLocalTaskMoveCommand(
           function finish() {
             if (--remaining !== 0) return
             try {
-              const result = planLocalTaskMove(
+              const result = (
+                allowPlans ? planLocalPlanMove : planLocalTaskMove
+              )(
                 {
                   items: items.result.map((value) =>
                     parseLocalRecord("items", value, userId)
