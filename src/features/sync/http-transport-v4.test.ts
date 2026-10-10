@@ -3,6 +3,8 @@ import { syncProtocolHeader } from "@/config/sync-protocol"
 import { createHttpSyncTransportV3 } from "@/features/sync/http-transport-v3"
 import { createHttpSyncTransportV4 } from "@/features/sync/http-transport-v4"
 import { rejectRetiredSyncPushV3 } from "@/features/sync/retired-sync-push-v3"
+import { planLocalMixedPullCursor } from "@/lib/sync/local-mixed-pull-cursor"
+import { planLocalPersonalChangesPage } from "@/lib/sync/local-personal-changes-page"
 import {
   placementSyncCapabilityPolicy,
   planSyncCapabilityPolicy,
@@ -55,6 +57,30 @@ function transport(version: 3 | 4, fetchRequest: typeof fetch) {
     version === 4 ? createHttpSyncTransportV4 : createHttpSyncTransportV3
   )(actor, async () => null, fetchRequest)
 }
+
+test("atomic pull subplanners preserve common plan support without widening generation three", () => {
+  const receipt = {
+    query: { after: 0, through: null, limit: 10 },
+    page: page(),
+  }
+  const cursor = { key: "pull-cursor", after: 0, through: null }
+  const personal = {
+    receipt,
+    state: {
+      userId: actor,
+      local: [],
+      shadows: [],
+      incoming: null,
+      entries: [],
+    },
+  }
+  expect(() => planLocalMixedPullCursor(receipt, cursor, actor)).toThrow()
+  expect(() => planLocalPersonalChangesPage(personal, actor)).toThrow()
+  expect(
+    planLocalMixedPullCursor(receipt, cursor, actor, true).cursor.after
+  ).toBe(1)
+  expect(planLocalPersonalChangesPage(personal, actor, true).local).toEqual([])
+})
 
 test("common plans negotiate exclusive four before reading identity or page bodies", async () => {
   for (const [client, server] of [

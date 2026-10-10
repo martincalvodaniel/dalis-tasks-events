@@ -5,9 +5,14 @@ import { localPullCursorSchema } from "@/schemas/local-sync"
 export function planLocalMixedPullCursor(
   receiptInput: unknown,
   cursorInput: unknown,
-  expectedUserId: unknown
+  expectedUserId: unknown,
+  allowPlans = false
 ) {
-  const receipt = validateLocalChangesPageInputV2(receiptInput, expectedUserId)
+  const receipt = validateLocalChangesPageInputV2(
+    receiptInput,
+    expectedUserId,
+    allowPlans
+  )
   const cursor = localPullCursorSchema.parse(cursorInput)
   const { query, page } = receipt
   if (query.after < cursor.after && page.nextAfter <= cursor.after)

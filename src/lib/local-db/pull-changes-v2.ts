@@ -145,7 +145,8 @@ export function applyLocalChangesPageV2(
               after: 0,
               through: null,
             },
-            userId
+            userId,
+            allowPlans
           )
           if (decision.status === "ignored") {
             context.setResult("ignored")
@@ -153,7 +154,8 @@ export function applyLocalChangesPageV2(
           }
           const personal = planLocalPersonalChangesPage(
             { state, receipt },
-            userId
+            userId,
+            allowPlans
           )
           const changedItems = new Set<string>()
           for (const change of receipt.page.changes) {

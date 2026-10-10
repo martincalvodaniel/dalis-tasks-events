@@ -12,6 +12,7 @@ if (
   mode !== "database" &&
   mode !== "browser" &&
   mode !== "browser-mixed" &&
+  mode !== "browser-plan" &&
   mode !== "next" &&
   mode !== "operator" &&
   mode !== "placement-operator" &&
@@ -191,15 +192,19 @@ try {
             "./test/setup.ts",
             "scripts/next-sync-test-runner.ts",
           ]
-        : mode === "browser" || mode === "browser-mixed"
+        : mode === "browser" ||
+            mode === "browser-mixed" ||
+            mode === "browser-plan"
           ? [
               "bun",
               "--no-env-file",
               "--preload",
               "./test/setup.ts",
-              mode === "browser-mixed"
-                ? "scripts/mixed-sync-browser-test-server.ts"
-                : "scripts/sync-browser-test-server.ts",
+              mode === "browser-plan"
+                ? "scripts/plan-sync-browser-test-server.ts"
+                : mode === "browser-mixed"
+                  ? "scripts/mixed-sync-browser-test-server.ts"
+                  : "scripts/sync-browser-test-server.ts",
             ]
           : [
               "bun",
