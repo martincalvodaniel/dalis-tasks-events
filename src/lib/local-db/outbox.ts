@@ -3,6 +3,10 @@
 import { openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalItemCommand } from "@/lib/local-db/item-mutation"
 import { commitLocalTaskOccurrenceCommand } from "@/lib/local-db/occurrence-outbox"
+import {
+  commitLocalPlanOccurrenceCommand,
+  type PlanOccurrenceCommitOptions,
+} from "@/lib/local-db/plan-occurrence-outbox"
 import { commitLocalPreferenceCommand } from "@/lib/local-db/preference-outbox"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import { notifyLocalOutboxChange } from "@/lib/local-db/sync-notifications"
@@ -21,6 +25,7 @@ import type { CalendarItem, ItemOccurrence } from "@/types/calendar-item"
 import type {
   LocalItemCommand,
   LocalOccurrenceCommand,
+  LocalPlanOccurrenceCommand,
   LocalPreferenceCommand,
   OutboxEntry,
   RemoteShadow,
@@ -61,6 +66,17 @@ export class LocalOutbox {
   ): Promise<OutboxEntry> {
     return this.commitItemRecord(input, options).then((entry) =>
       this.notifyCommitted(entry)
+    )
+  }
+  commitPlanOccurrenceCommand(
+    input: LocalPlanOccurrenceCommand,
+    options: PlanOccurrenceCommitOptions
+  ): Promise<OutboxEntry> {
+    return commitLocalPlanOccurrenceCommand(
+      this.database,
+      this.userId,
+      input,
+      options
     )
   }
   private notifyCommitted(entry: OutboxEntry): OutboxEntry {

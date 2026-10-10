@@ -21,6 +21,26 @@ interface CommandCapability {
 export const syncCapabilityRegistry = {
   stores: ["items", "tags", "itemViews"] as const,
   commands: {
+    "plan.set-occurrence-status": {
+      store: "items",
+      supported: false,
+      reason: "occurrence_executor_unavailable",
+    },
+    "plan.set-occurrence-checklist-entry": {
+      store: "items",
+      supported: false,
+      reason: "occurrence_executor_unavailable",
+    },
+    "plan.update-occurrence": {
+      store: "items",
+      supported: false,
+      reason: "occurrence_executor_unavailable",
+    },
+    "plan.cancel-occurrence": {
+      store: "items",
+      supported: false,
+      reason: "occurrence_executor_unavailable",
+    },
     "plan.set-status": {
       store: "items",
       supported: false,

@@ -22,3 +22,14 @@ export type LocalOccurrenceCommand = Extract<
 >
 
 export type LocalPullCursor = z.infer<typeof localPullCursorSchema>
+
+export type LocalPlanOccurrenceCommand = Extract<
+  SyncCommand,
+  {
+    type:
+      | "plan.set-occurrence-status"
+      | "plan.set-occurrence-checklist-entry"
+      | "plan.update-occurrence"
+      | "plan.cancel-occurrence"
+  }
+>

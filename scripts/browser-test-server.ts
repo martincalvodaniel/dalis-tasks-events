@@ -15,6 +15,7 @@ if (
   suite !== "events" &&
   suite !== "occurrence-progress" &&
   suite !== "occurrence-edit" &&
+  suite !== "plan-occurrence-outbox" &&
   suite !== "task-snapshot" &&
   suite !== "occurrence-ordering"
 )

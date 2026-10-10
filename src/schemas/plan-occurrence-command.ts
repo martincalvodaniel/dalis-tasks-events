@@ -4,7 +4,7 @@ import {
   eventScheduleSchema,
   taskStatusSchema,
 } from "@/schemas/item-fields"
-import { occurrenceContentSchema } from "@/schemas/occurrence"
+import { occurrenceContentSchema } from "@/schemas/occurrence-content"
 import { entityIdSchema, occurrenceIdSchema } from "@/schemas/primitives"
 
 const reference = { itemId: entityIdSchema, occurrenceId: occurrenceIdSchema }

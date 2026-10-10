@@ -51,3 +51,5 @@ Aceptación: misma validación y estado para cuatro variantes, cambio visual sin
 16a4c2b prepara mutaciones puras de aparición: plan.set-occurrence-status/checklist-entry, plan.update-occurrence y plan.cancel-occurrence. Progreso/edición/cancelación independientes con permiso por padre y slot original; aún no añadidas al contrato de sincronización ni persistencia. Excepciones existentes conservan su original tras cambios de regla; nueva aparición sólo se genera desde una fecha real válida.
 
 Índice puro16a4c2c cerrado: apariciones/excepciones usan identidad original y ownership del padre; intervalos actuales y cursores civiles estables, sin duplicar slots suprimidos. Persistencia y callers todavía pendientes.
+
+16a4c2d: apariciones comunes y sus cuatro comandos se validan en almacenamiento/backup y outbox. Guardado CAS/rollback/replay probado IndexedDB real con cuatro variantes; no ACK remoto de series/apariciones y ninguna UI activa todavía.

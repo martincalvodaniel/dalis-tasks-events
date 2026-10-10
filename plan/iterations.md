@@ -2686,3 +2686,10 @@ Renovación real10oct16:24:100%5h/85%7d, reset siguiente1791660272. HEADf8d2620/
 - Paralelo seleccionado con cuota suficiente tras pruebaRPC4: worker posee sólo nuevos lib/calendar/plan-occurrence-selection y test, schemas/plan-occurrence-query; root posee persistencia/contratos compartidos en siguiente corte. Ningún caller activo.
 - Dependencias:0963c60. Aceptación: variante actual del padre, contenido override, excepciones/cancelaciones/tombstones siempre suprimen slot generado; intervalo actual de excepción incluso inicio anterior al rango; paginación estable/progreso si página generada filtrada, solo cuenta propia y catálogos completos limitados sin truncar.
 - Validación: tests puros de límites/propiedad/intervalos/identidad y cuatro variantes; DoD global y plan/log/commitpushint/HEAD/cuotas.
+
+### 16a4c2d — Persistencia atómica de apariciones comunes
+
+- Objetivo: persistir progreso/edición/cancelación por aparición con intención original, CAS y rollback, sin afirmar sincronización remota de series.
+- Root `target_paths`: schemas/occurrence-content,occurrence,plan-occurrence,plan-occurrence-command,sync; types/local-sync; lib/local-db/plan-occurrence-outbox y outbox; guardias/consumidores estrictamente afectados; scripts/browser-test-server y plan. Worker de pruebas posee sólo test/browser/plan-occurrence-outbox.ts. Paralelo explícito con66%5h/80%7d y contrato puro16a4c2b cerrado; ningún archivo compartido entre agentes.
+- Dependencias:a258230 y4e8877b. Aceptación: aparición+intención+secuencia indivisibles, replay exacto sin recrear, snapshots para edición y progreso, ownership por padre, dependencia del item previa, cola intentada intacta y comandos de aparición explícitamente fuera de soporte remoto4. No caller activo, nueva query/índice ni wipe.
+- Validación: IndexedDB real propio para cuatro variantes/CAS/rollback/replay/recarga, contratos/guardias/backup, suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. Notificar sólo después del commit local exitoso.

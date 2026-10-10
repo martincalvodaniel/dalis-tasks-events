@@ -11,15 +11,13 @@ import {
 import type { Plan } from "@/types/plan-item"
 import type { PlanOccurrence } from "@/types/plan-occurrence"
 
-export function applyPlanOccurrenceCommand(
+export function editablePlanOccurrence(
   seriesInput: Plan | null,
   currentInput: PlanOccurrence | null,
   commandInput: unknown,
-  userId: string,
-  timestamp: string
-): PlanOccurrence {
+  userId: string
+) {
   const actor = userIdSchema.parse(userId)
-  const now = timestampSchema.parse(timestamp)
   const command = planOccurrenceCommandSchema.parse(commandInput)
   const series = seriesInput ? planSchema.parse(seriesInput) : null
   if (
@@ -51,6 +49,24 @@ export function applyPlanOccurrenceCommand(
     current.deletedAt
   )
     throw new Error("Active plan occurrence does not exist")
+  return { series, current }
+}
+
+export function applyPlanOccurrenceCommand(
+  seriesInput: Plan | null,
+  currentInput: PlanOccurrence | null,
+  commandInput: unknown,
+  userId: string,
+  timestamp: string
+): PlanOccurrence {
+  const now = timestampSchema.parse(timestamp)
+  const command = planOccurrenceCommandSchema.parse(commandInput)
+  const { series, current } = editablePlanOccurrence(
+    seriesInput,
+    currentInput,
+    command,
+    userId
+  )
   const record = {
     ...current,
     content: current.content ?? {

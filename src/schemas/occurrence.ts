@@ -5,21 +5,18 @@ import {
   eventScheduleSchema,
   taskStatusSchema,
 } from "@/schemas/calendar-item"
+import { occurrenceContentSchema } from "@/schemas/occurrence-content"
+import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
 import {
   civilDateSchema,
-  descriptionSchema,
   entityIdSchema,
   localDateTimeSchema,
   occurrenceIdSchema,
   recordMetadataShape,
   timestampSchema,
-  titleSchema,
 } from "@/schemas/primitives"
 
-export const occurrenceContentSchema = z.strictObject({
-  title: titleSchema,
-  description: descriptionSchema,
-})
+export { occurrenceContentSchema } from "@/schemas/occurrence-content"
 export const taskOccurrenceInputSchema = z.strictObject({
   ...occurrenceContentSchema.shape,
   scheduledDate: civilDateSchema,
@@ -42,6 +39,7 @@ const base = {
 }
 export const itemOccurrenceSchema = z
   .discriminatedUnion("kind", [
+    planOccurrenceSchema,
     z.strictObject({
       ...base,
       kind: z.literal("task"),

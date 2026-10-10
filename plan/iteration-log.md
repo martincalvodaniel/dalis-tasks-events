@@ -1772,3 +1772,9 @@ Seis tests nuevos69aserciones; suite integrada589pass153skip0fail8766, lint630/t
 ### 16a4c2c — Índice de apariciones comunes cerrado
 
 Lectura pura preparada de series/ excepciones de cuatro variantes: ownership actual, intervalos y cursor estable, override de contenido, supresión de apariciones por excepciones incluso movidas/canceladas/borradas. Página generada vacía conserva continuidad. Catálogos completos10000/páginas500, sin truncado; snapshots aislados. No caller activo ni persistencia/ACK anunciado. Worker entregó tres rutas nuevas disjuntas; root integra.8tests54aserciones; suite597pass153skip0fail8820aserciones, lint633/tipos/build34 y diff aprobados. Commitpushint/HEAD y cuotas antes del siguiente corte.
+
+### 16a4c2d — Apariciones comunes durables
+
+Aparición+intención+secuencia en una TXIndexedDB, CAS de padre/aparición para todos los comandos; replay conserva intención, UUID y dependencias incluso padre borrado. Progreso/checklist/edición/cancelación independientes y ownership por padre; notificación sólo tras complete. Schema/backup genéricos admiten aparicionesplan sin ciclo; políticas2/3/4 siguen rechazando explícitamente sus comandos remotos. LocalOutbox incorpora entrada común sin activar caller. Patrón existente byEntitySequence/bySeries/bySlot, ningún índice nuevo.
+
+FixtureIndexedDB real propio:7escenarios+1recarga, cuatro variantes,18intenciones pendientes/6excepciones, CAS/foreignowner/UUIDreuse/rollback de colisión y notificación, replay tras borrado; ceroACK falso. Bases propias eliminadas y tab/servidor cerrados. Evidencia /private/tmp/dalis-common-occurrence-proof.png. Pruebas soporte+reductor8pass113aserciones; suite599pass153skip0fail8864aserciones, lint637/tipos/build34 aprobados. Plan/log mismo commitpushint/HEAD y cuotas antes de continuar.
