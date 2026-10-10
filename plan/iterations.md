@@ -2589,3 +2589,12 @@ Bloque elegido por el usuario tras cerrar sincronización personal. Requisitos y
 - Dependencias:16a1 y comandos remotos de orden actuales; sin modelo/migración/wipe.
 - Aceptación:450ms activa, desplazamiento temprano permite scroll, listas anidadas no roban gesto, controles interactivos excluidos, cancelaciones y peers/busy sin escritura, destino válido; retirar botones Arrastrar/Subir/Bajar/Ordenar de callers activos; Alt+flechas mantiene acceso por teclado.
 - Validación: umbral y vecinos, fixture React real sin DB (teclado y hold/no-op), suite/lint/tipos/build/diff, commit/push/HEAD/cuotas. Tacto/scroll en móvil físico y arrastre extremo se incluyen en aceptación del rediseño, sin atribuirlos a fixtures de ratón.
+
+
+### 16a2p — Contrato común y frontera de cambio
+
+- Objetivo: cerrar el modelo/semántica y ámbito de transición antes de comenzar una integración amplia.
+- `target_paths`: `plan/{item-model-v2,item-editor-redesign,master,iterations,iteration-log}.md`.
+- Dependencias:8319e18/a4caad9, elección humana y permiso para descartar compatibilidad de datos.
+- Aceptación: variante exclusivamente visual; opciones/progreso/fecha/calendario comunes, orden y contexto definidos; generación antigua rechazada antes de ejecutar; wipe futuro preciso preservando identidad/sesiones. No wipe ni activación ficticia, no anunciar soporte de series. Rutas/evidencia y siguiente16a2 definidos.
+- Validación: referencias/coherencia/diff; Conventional Commit y pushint/HEAD/cuotas. Entrada70%5h/2%7d: cierre documental cabe; integración de schema/runtime/sync/UI y reparación excede margen semanal observado y no se abre.

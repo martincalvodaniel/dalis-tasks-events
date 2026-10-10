@@ -26,3 +26,6 @@ Cada corte se valida y publica en int con plan/log, commit/push y lectura real d
 ## Intercalada16b1 — Reordenación sobre contenido actual
 
 Depende sólo de16a1 y comandos task.move/tag.move existentes: sustituye handles y subir/bajar por gesto sobre la fila/cabecera. Mantener pulsación450ms, cancelar al desplazarse más de8px antes de activar para conservar scroll; capturar puntero sólo tras activar. Inputs/botones/enlaces no inician arrastre; listas anidadas no activan el grupo al arrastrar una tarea. Escape/blur/pagehide/visibility/pointercancel y cambio de peers/busy cancelan sin comando. Feedback de destino, autoscroll y Alt+flechas como alternativa por teclado; sólo onDrop con vecinos válidos genera intención persistente. El nuevo modelo común reutilizará este componente; no presenta eventos aún separados como reordenables.
+
+
+Contrato concreto común en [item-model-v2.md](item-model-v2.md), cerrado documentalmente en16a2p. Aplicación y wipe siguen separados de esta decisión.16b1 adelanta el gesto actual;16a5 integrará variantes nuevas y aceptación táctil completa.
