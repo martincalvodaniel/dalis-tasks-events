@@ -13,7 +13,7 @@ export function FixtureHookEngine({
   report(engine: FixtureHookEngine): void
 }) {
   return (
-    <ActiveSyncProvider account={{...account, itemCount: 0, offlineReady: false}}> 
+    <ActiveSyncProvider account={{ ...account, itemCount: 0, offlineReady: false }}>
       <FixtureHookReporter report={report} />
     </ActiveSyncProvider>
   )
