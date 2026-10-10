@@ -1,8 +1,8 @@
 "use client"
 
 import { createContext } from "react"
-import type { useMixedSyncEngine } from "@/features/sync/hooks/use-mixed-sync-engine"
+import type { usePlacementSyncEngine } from "@/features/sync/hooks/use-placement-sync-engine"
 
 export const SyncContext = createContext<ReturnType<
-  typeof useMixedSyncEngine
+  typeof usePlacementSyncEngine
 > | null>(null)

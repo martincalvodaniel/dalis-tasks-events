@@ -1,5 +1,5 @@
-import { getAuthenticatedSyncChangesResponseV2 } from "@/features/sync/authenticated-pull-v2"
+import { getAuthenticatedSyncChangesResponseV3 } from "@/features/sync/authenticated-pull-v3"
 
 export async function GET(request: Request) {
-  return getAuthenticatedSyncChangesResponseV2(request)
+  return getAuthenticatedSyncChangesResponseV3(request)
 }

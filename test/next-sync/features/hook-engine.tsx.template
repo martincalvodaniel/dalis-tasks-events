@@ -1,7 +1,7 @@
 "use client"
 
-import { SyncContext } from "@/features/sync/sync-context"
-import { usePlacementSyncEngine } from "@/features/sync/hooks/use-placement-sync-engine"
+import { ActiveSyncProvider } from "@/features/sync/components/active-sync-provider"
+import type { usePlacementSyncEngine } from "@/features/sync/hooks/use-placement-sync-engine"
 import { FixtureHookReporter } from "@fixture/hook-reporter"
 
 export type FixtureHookEngine = ReturnType<typeof usePlacementSyncEngine>
@@ -12,10 +12,9 @@ export function FixtureHookEngine({
   account: { userId: string; epoch: string }
   report(engine: FixtureHookEngine): void
 }) {
-  const engine = usePlacementSyncEngine(account)
   return (
-    <SyncContext value={engine}>
+    <ActiveSyncProvider account={{...account, itemCount: 0, offlineReady: false}}> 
       <FixtureHookReporter report={report} />
-    </SyncContext>
+    </ActiveSyncProvider>
   )
 }

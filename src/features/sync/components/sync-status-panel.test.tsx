@@ -134,3 +134,21 @@ test("a settled mixed pass keeps unresolved personal work visible with independe
   expect(html).not.toContain("Sin cambios locales pendientes.")
   expect(html).toContain("Última revisión terminada.")
 })
+
+test("placement scope exposes simple task order without claiming recurrence support", () => {
+  const html = renderToStaticMarkup(
+    <SyncStatusPanel
+      summary={empty}
+      scope="own_content_preferences_and_task_order"
+      error={false}
+      busy={false}
+      result={null}
+      onSync={() => undefined}
+    />
+  )
+  expect(html).toContain(
+    "categorías, asignaciones y orden de tareas sin repetición"
+  )
+  expect(html).toContain("Las repeticiones siguen en este dispositivo")
+  expect(html).not.toContain("Orden de tareas y repeticiones siguen")
+})

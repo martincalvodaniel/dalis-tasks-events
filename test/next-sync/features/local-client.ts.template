@@ -8,9 +8,10 @@ import { OFFLINE_ACCOUNT_KEY } from "@/config/pwa"
 import { syncProtocolHeader } from "@/config/sync-protocol"
 import { createHttpSyncTransportV2 } from "@/features/sync/http-transport-v2"
 import { createHttpSyncTransportV3 } from "@/features/sync/http-transport-v3"
+import { dispatchSyncOperationsV2 } from "@/features/sync/client-action-v2"
 import { dispatchSyncOperationsV3 } from "@/features/sync/client-action-v3"
 import { SyncTransportError } from "@/features/sync/transport-error"
-import { rejectFixtureLegacyOperations } from "@fixture/actions"
+
 import { openLocalSyncRuntimeV2, openLocalPlacementSyncRuntime } from "@/features/sync/local-runtime-v2"
 import { createMixedSyncClientV3 } from "@/features/sync/mixed-sync-client-v3"
 import { readAccountBackup } from "@/features/workspace/local-backup"
@@ -240,9 +241,7 @@ export async function executeLocalFixtureCommand(
             active,
             createHttpSyncTransportV2(active.userId, missing ? sendMissing : async (input) => {
               dispatches++
-              return new Promise((resolve, reject) => startTransition(async () => {
-                try { resolve(await rejectFixtureLegacyOperations({ runId, input })) } catch (error) { reject(error) }
-              }))
+              return dispatchSyncOperationsV2(input)
             }, fetchRequest)
           )
           try {

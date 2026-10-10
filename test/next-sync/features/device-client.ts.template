@@ -1,10 +1,10 @@
 "use client"
 
-import { startTransition } from "react"
+import { dispatchSyncOperationsV2 } from "@/features/sync/client-action-v2"
 import { dispatchSyncOperationsV3 } from "@/features/sync/client-action-v3"
 import type { z } from "zod"
 import { nextSyncDeviceCommandSchema } from "@/schemas/next-sync-test"
-import { rejectFixtureLegacyOperations } from "@fixture/actions"
+
 import { executeLocalFixtureCommand } from "@fixture/local-client"
 
 export async function fixtureFetch(
@@ -86,17 +86,7 @@ async function executeCommand(
   if (command.type === "push") return dispatchSyncOperationsV3(command.input)
   if (command.type !== "retired-push")
     throw new Error("Fixture command is unsupported")
-  return new Promise<unknown>((resolve, reject) =>
-    startTransition(async () => {
-      try {
-        resolve(
-          await rejectFixtureLegacyOperations({ runId, input: command.input })
-        )
-      } catch {
-        reject(new Error("Compiled fixture action failed"))
-      }
-    })
-  )
+  return dispatchSyncOperationsV2(command.input)
 }
 
 let previous: Promise<unknown> = Promise.resolve()
