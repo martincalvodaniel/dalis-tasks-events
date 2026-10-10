@@ -1750,3 +1750,9 @@ Orden concreto/matriz en common-plan-activation: Next/action4/defaults/BetterAut
 ### Resultado16a3b — Completado accesible además del color
 
 Botones de tareas activas y planes preparados exponen aria-pressed según completed; conservan acciones de completar/reabrir, color de categoría, target44px y guardias. Regresión de markup verifica estados abiertos/en proceso/completado y cuatro variantes. Sin datos/contratos/callers nuevos. Suite573pass/153opt-in skip/0fail/8632aserciones; lint621/tipos/build aprobados, worker34; diff/plan/Conventional Commit/pushint/HEAD/cuotas. Revisión puntual16:24Madrid permanece activa; siguiente corteRPC4 según common-plan-activation.
+
+### Resultado16a4c2a — Generación pura de apariciones comunes
+
+Schema/tipo planOccurrence y planOccurrencesPage preparados para cuatro variantes; slots originales estables, duración civil y extremos horarios conservados, checklist/estado iniciales independientes del padre completado. Cursor consume incluso slots DST inválidos o fuera de rango sin truncar duración; cuenta/final/límites respetados. Variante y ownership quedan en padre. Extracción de occurrence-schedule compartida conserva comportamiento anterior de eventos, sin convertir planes a otro tipo. Sin caller/persistencia/apariciones remotas activos ni datos del usuario.
+
+Ocho tests nuevos/57aserciones; con cinco anteriores13pass/89aserciones. Suite581pass/153opt-in skip/0fail/8689aserciones. Primer build detectó tipo unknown insuficiente en comparación del test; corregido a PlanOccurrencePage y repetido. Lint/tipos/build y diff antes de commitpushint/HEAD/cuotas. Prueba RPC4 en paralelo tiene dueño/rutas separados y se publicará sólo tras evidencia propia; root no incorpora código fixture a este commit. Próximo núcleo: overlay de excepciones/progreso local sin modificar slot ni completar padre.

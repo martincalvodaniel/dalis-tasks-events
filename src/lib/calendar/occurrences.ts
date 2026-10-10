@@ -1,6 +1,6 @@
 import type { z } from "zod"
-import { addCivilDays, civilDateToUtc } from "@/lib/calendar/civil-date"
 import { resolveEventSchedule } from "@/lib/calendar/event-time"
+import { projectOccurrenceSchedule } from "@/lib/calendar/occurrence-schedule"
 import { recurrenceDatesPage } from "@/lib/calendar/recurrence"
 import { ZonedTimeError } from "@/lib/calendar/zoned-time"
 import { eventSchema, taskSchema } from "@/schemas/calendar-item"
@@ -18,37 +18,6 @@ export interface OccurrencePage {
   occurrences: ItemOccurrence[]
   issues: OccurrenceScheduleIssue[]
   nextAfter: string | null
-}
-
-function dayDistance(first: string, last: string): number {
-  return (
-    (civilDateToUtc(last).getTime() - civilDateToUtc(first).getTime()) /
-    86400000
-  )
-}
-function projectEventSchedule(
-  event: CalendarEvent,
-  date: string
-): CalendarEvent["schedule"] {
-  const schedule = event.schedule
-  if (schedule.mode === "all_day")
-    return {
-      mode: "all_day",
-      startDate: date,
-      endDateExclusive: addCivilDays(
-        date,
-        dayDistance(schedule.startDate, schedule.endDateExclusive)
-      ),
-    }
-  const dayOffset = dayDistance(schedule.localStart.slice(0, 10), date)
-  return {
-    mode: "timed",
-    localStart: `${date}${schedule.localStart.slice(10)}`,
-    localEnd: schedule.localEnd
-      ? `${addCivilDays(schedule.localEnd.slice(0, 10), dayOffset)}${schedule.localEnd.slice(10)}`
-      : null,
-    timeZone: schedule.timeZone,
-  }
 }
 
 // Query dates are original starts in the series zone, not account-calendar visibility.
@@ -98,7 +67,7 @@ export function occurrencesPage(
     }
     let schedule: CalendarEvent["schedule"]
     try {
-      schedule = projectEventSchedule(series, date)
+      schedule = projectOccurrenceSchedule(series.schedule, date)
     } catch (error) {
       if (!(error instanceof RangeError)) throw error
       issues.push({
