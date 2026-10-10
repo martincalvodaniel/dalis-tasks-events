@@ -11,9 +11,9 @@ Los `target_paths` describen el ámbito permitido; antes de editar, concretar ar
 | Plan y reglas | `00` | Completada; validación documental registrada en el log. |
 | Responsive y lote desatendido | `00b` | Requisitos y protocolo incorporados. |
 | Identidad y base offline | `01a–04c` | Completada; identidad, persistencia, worker/cierre y barras comprobados. Google real y dispositivos físicos siguen en el piloto. |
-| Calendario personal y creación de tareas | `05a–07b` | `05a–07a` completadas, con corrección intercalada `05c`; reordenación pendiente. |
-| Eventos, repetición y cumpleaños | `08–10` | Pendiente. |
-| Remoto, convergencia y recuperación | `11a–13c` | Pendiente. |
+| Calendario personal y creación de tareas | `05a–07b` | Completadas, incluida reordenación local; orden remoto de tareas simples activado en `11c5a18`. |
+| Eventos, repetición y cumpleaños | `08–10` | Eventos simples operativos; repetición local parcial. Backlog/programación futura, sincronización de series y cumpleaños pendientes. |
+| Remoto, convergencia y recuperación | `11a–13c` | Tareas/eventos propios simples, categorías, asignaciones y orden simple activados y probados; recuperación y backup entregados. Extensión a series y preferencias residuales pendiente. |
 | Compartición y piloto | `14a–15b` | Pendiente. |
 
 Para toda entrega con código: tipos, lint, pruebas pertinentes y build según [workflow.md](workflow.md). Los criterios siguientes añaden evidencia específica, no reemplazan esas comprobaciones. No marcar un hito terminado si falta una subentrega.
@@ -2557,3 +2557,13 @@ Identidad/pull3 exclusivo, acción3/cliente/runtime/hook/cache3 y provider/conte
 ### Ajuste de cierre11c5a18
 
 La comprobación diff detectó un espacio final en el template ya probado; retirado sin cambios semánticos. El recibo Next17 y DoD código anteriores siguen válidos; diff final corregido. La copia previa contiene8registros de items, incluidos borrados, y la UI7activos; un task.move pendiente attempts0/deps0. Este ajuste documental/formato corrige la precisión del registro anterior y no altera datos del piloto. Validación diff/referencias, commitpushint/HEAD/cuotas.
+
+
+### 11c5a19 — Cierre del objetivo de sincronización personal
+
+- Objetivo: registrar el piloto real, cerrar el lote y devolver al usuario la elección del siguiente bloque.
+- `target_paths`: `plan/{master,iterations,iteration-log,mixed-sync-activation,workflow}.md`.
+- Dependencias: código `fc152c2` publicado, deployment Ready, copia previa/posterior del piloto original y comparación visible con Chrome independiente.
+- Aceptación: ACK real del movimiento original con operación/dependencias intactas y cero pendientes; categorías visibles coincidentes; separar esta evidencia de la convergencia exacta aislada de asignaciones/orden y de dispositivos físicos. Conservar cambios remotos concurrentes. Estado vigente, estimación ponderada y orden propuesto registrados; automatización pausada sin nueva revisión ni otro bloque iniciado.
+- Validación: referencias locales, coherencia documental y `git diff --check`; Conventional Commit, push `origin/int`, HEAD remoto y cuotas. Código ya validado en `11c5a18`; no repetir la suite por un cierre documental.
+- Estado: completada; siguiente entrega requiere elección explícita del usuario.

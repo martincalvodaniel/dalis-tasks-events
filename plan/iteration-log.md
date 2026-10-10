@@ -1660,3 +1660,14 @@ Identidad/pull3 exclusivo, acción3/cliente/runtime/hook/cache3 y provider/conte
 ### Ajuste de cierre11c5a18
 
 La comprobación diff detectó un espacio final en el template ya probado; retirado sin cambios semánticos. El recibo Next17 y DoD código anteriores siguen válidos; diff final corregido. La copia previa contiene8registros de items, incluidos borrados, y la UI7activos; un task.move pendiente attempts0/deps0. Este ajuste documental/formato corrige la precisión del registro anterior y no altera datos del piloto. Validación diff/referencias, commitpushint/HEAD/cuotas.
+
+
+### Resultado11c5a19 — Sincronización personal cerrada y elección pendiente
+
+Deployment `fc152c230b8ac963077b8ed7dbe3380a2c0fac12` Ready comprobado en Vercel. Piloto Google existente del navegador integrado actualizado a generación 3, y Chrome autenticado con almacenamiento independiente. Comparación de backups del navegador original: misma cuenta, `task.move` histórico de pending/attempts0 a acknowledged/attempts1, lease vacío, operación completa y dependencias iguales a la copia previa; cero intenciones sin resolver. Una colocación recibida y seis categorías visibles en ambos navegadores. No se infiere ACK únicamente del mensaje de cola vacía.
+
+Durante la espera de descarga llegaron cambios remotos concurrentes, incluidos tombstones de items y categorías adicionales; se conservaron sin restaurar el baseline. La UI inicial tenía siete items activos; no afirmar que siguen idénticos al terminar. El backup de Chrome se descargó pero no se comparó su JSON por indisponibilidad de lectura del archivo; coincidencia de categorías comprobada en la UI. La convergencia exacta de categorías/asignaciones/placements y dependientes está probada con los diecisiete escenarios Next/React/IndexedDB/Mongo de dos particiones en `11c5a17–18`. Dos navegadores independientes no son dos dispositivos físicos; aceptación física completa queda en `15a`.
+
+Objetivo solicitado cerrado: categorías/asignaciones y orden simple activos en preproducción, sin tocar producción ni reparar/borrar datos del usuario. Automatización `comprobar-renovaci-n-de-cuota` actualizada a PAUSED con política failed_runs_only y demás campos conservados; no se programa otro lote. Estimación del plan original: 35–40% pendiente, por peso y no por número de entregas. Titulares en master: cambios del usuario primero si los elige; después repetición/sync de series, cumpleaños, compartir y cierre del MVP. Esperar elección antes de implementar otro bloque.
+
+Cierre sólo documental: referencias/coherencia/diff, Conventional Commit y push `int`, HEAD remoto y consulta de ambas cuotas. Entrada 87%5h/5%7d; reservas del lote 4%/1%. Recursos aislados cerrados; copias privadas temporales del piloto eliminadas al registrar la evidencia, backups descargados del usuario conservados.
