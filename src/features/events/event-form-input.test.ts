@@ -63,3 +63,28 @@ test("event form treats blank end as a point and validates gaps, folds and inact
       })
   }
 })
+
+test("separate date and time fields preserve the civil schedule and reject partial ends", () => {
+  const form = fields({
+    localStartDate: "2026-10-10",
+    localStartTime: "14:30",
+    localEndDate: "2026-10-11",
+    localEndTime: "08:15",
+  })
+  const parsed = parseEventForm(form)
+  expect(parsed.success).toBe(true)
+  if (parsed.success)
+    expect(parsed.data.schedule).toMatchObject({
+      localStart: "2026-10-10T14:30",
+      localEnd: "2026-10-11T08:15",
+    })
+  form.set("localEndTime", "")
+  expect(parseEventForm(form).success).toBe(false)
+  form.set("localEndDate", "")
+  expect(parseEventForm(form).success).toBe(true)
+  form.set("localStartDate", "2026-03-29")
+  form.set("localStartTime", "02:30")
+  expect(parseEventForm(form).success).toBe(false)
+  form.set("allDay", "on")
+  expect(parseEventForm(form).success).toBe(true)
+})

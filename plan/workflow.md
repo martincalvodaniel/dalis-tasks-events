@@ -264,3 +264,8 @@ Lectura real100%5h/9%7d, siguiente reset1791606925 (06:35:25Madrid). Continúa a
 ### Cierre del lote10oct — Esperar elección humana
 
 Objetivo de categorías/asignaciones cerrado con generación 3 y ACK histórico real (`11c5a19`). La automatización de continuación queda PAUSED, conservando sus campos y política failed_runs_only; no reprogramar mientras el usuario elige el siguiente bloque. El porcentaje ponderado y titulares pendientes están en [master.md](master.md). No interpretar presupuesto disponible como autorización para abrir otro bloque. La próxima iteración partirá del último HEAD publicado de `int` y de la elección del usuario, con una lectura nueva de ambas cuotas y el protocolo vigente de cierre.
+
+
+### Bloque de rediseño elegido10oct
+
+El usuario elige editor/lista de cuatro variantes y long-press drag. Entrada85%5h/5%7d. Acepta ruptura de compatibilidad antes de lanzamiento y wipe realizado por él si se solicita; no borrado automático. Permite apurar semanal al1% o menos, conservando margen real para cerrar pruebas/reparaciones/publicación. Consultar cuotas tras cada entrega, no equiparar coste porcentual de ventanas; automatización permanece pausada. El lote anterior de sincronización está cerrado y no justifica tareas ajenas al rediseño.

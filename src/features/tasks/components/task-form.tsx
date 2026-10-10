@@ -1,7 +1,8 @@
 "use client"
 
-import { type FormEvent, useId, useState } from "react"
+import { type FormEvent, type ReactNode, useId, useState } from "react"
 import { ErrorBanner } from "@/components/ui/error-banner"
+import { ItemEditorHeader } from "@/components/ui/item-editor-header"
 import { ChecklistFields } from "@/features/tasks/components/checklist-fields"
 import type { TaskDraft } from "@/features/tasks/local-tasks"
 import { taskDraftSchema } from "@/schemas/calendar-item"
@@ -12,11 +13,13 @@ export function TaskForm({
   initialTask,
   onSave,
   onCancel,
+  typeControl,
 }: {
   scheduledDate: string
   initialTask?: Task
   onSave: (draft: TaskDraft) => Promise<void>
   onCancel: () => void
+  typeControl?: ReactNode
 }) {
   const titleId = useId()
   const dateId = useId()
@@ -69,10 +72,16 @@ export function TaskForm({
     }
   }
   return (
-    <form onSubmit={submit} noValidate className="space-y-3">
+    <form onSubmit={submit} noValidate className="mx-auto max-w-2xl space-y-3">
+      <ItemEditorHeader
+        title={initialTask ? "Editar tarea" : "Nuevo plan"}
+        saving={saving}
+        onCancel={onCancel}
+      />
+      {typeControl}
       {error ? <ErrorBanner>{error}</ErrorBanner> : null}
       <div>
-        <label htmlFor={titleId} className="font-semibold">
+        <label htmlFor={titleId} className="sr-only">
           Título
         </label>
         <input
@@ -82,7 +91,8 @@ export function TaskForm({
           required
           maxLength={160}
           disabled={saving}
-          className="mt-1 min-h-11 w-full rounded-lg border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
+          placeholder="Escribe un título…"
+          className="min-h-11 w-full border-b border-zinc-200 bg-transparent px-1 text-xl dark:border-zinc-700"
         />
       </div>
       <div>
@@ -131,27 +141,6 @@ export function TaskForm({
           />
         </div>
       </details>
-      <div className="flex flex-wrap gap-2 border-t border-zinc-200 pt-3 dark:border-zinc-800">
-        <button
-          type="submit"
-          disabled={saving}
-          className="min-h-11 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-        >
-          {saving
-            ? "Guardando…"
-            : initialTask
-              ? "Guardar cambios"
-              : "Guardar tarea"}
-        </button>
-        <button
-          type="button"
-          disabled={saving}
-          onClick={onCancel}
-          className="min-h-11 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700"
-        >
-          Cancelar
-        </button>
-      </div>
     </form>
   )
 }

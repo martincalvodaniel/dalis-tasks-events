@@ -181,6 +181,7 @@ export function TaskList({
             <TaskGroup
               key={group.id}
               title={group.title}
+              color={categories?.tags.find((tag) => tag.id === group.id)?.color}
               orderId={group.id}
               orderControl={
                 canOrder &&

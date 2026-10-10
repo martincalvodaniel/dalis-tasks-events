@@ -89,13 +89,6 @@ export function TaskCard({
             </p>
           ) : null}
           {categoryControl}
-          {task.checklist.length ? (
-            <TaskChecklist
-              entries={task.checklist}
-              busy={busy}
-              onChange={onChecklistChange}
-            />
-          ) : null}
           {onStatusChange ? (
             <TaskStatusControls
               task={task}
@@ -132,6 +125,15 @@ export function TaskCard({
           ) : null}
         </div>
       </details>
+      <div className="px-3">
+        {task.checklist.length ? (
+          <TaskChecklist
+            entries={task.checklist}
+            busy={busy}
+            onChange={onChecklistChange}
+          />
+        ) : null}
+      </div>
     </article>
   )
 }

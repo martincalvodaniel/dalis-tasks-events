@@ -1,7 +1,9 @@
 "use client"
 
-import { type FormEvent, useId, useState } from "react"
+import { type FormEvent, type ReactNode, useId, useState } from "react"
+import { DateTimeFields } from "@/components/ui/date-time-fields"
 import { ErrorBanner } from "@/components/ui/error-banner"
+import { ItemEditorHeader } from "@/components/ui/item-editor-header"
 import { parseEventForm } from "@/features/events/event-form-input"
 import type { EventDraft } from "@/features/events/local-events"
 import { addCivilDays } from "@/lib/calendar/civil-date"
@@ -16,12 +18,14 @@ export function EventForm({
   initialEvent,
   onSave,
   onCancel,
+  typeControl,
 }: {
   scheduledDate: string
   timeZone: string
   initialEvent?: CalendarEvent
   onSave: (draft: EventDraft) => Promise<void>
   onCancel: () => void
+  typeControl?: ReactNode
 }) {
   const id = useId()
   const schedule = initialEvent?.schedule
@@ -76,7 +80,7 @@ export function EventForm({
       requestAnimationFrame(() =>
         form
           .querySelector<HTMLInputElement | HTMLTextAreaElement>(
-            `[name="${field}"]`
+            `[name="${field === "localStart" || field === "localEnd" ? `${field}Date` : field}"]`
           )
           ?.focus()
       )
@@ -95,10 +99,16 @@ export function EventForm({
     }
   }
   return (
-    <form onSubmit={submit} noValidate className="space-y-3">
+    <form onSubmit={submit} noValidate className="mx-auto max-w-2xl space-y-3">
+      <ItemEditorHeader
+        title={initialEvent ? "Editar evento" : "Nuevo plan"}
+        saving={saving}
+        onCancel={onCancel}
+      />
+      {typeControl}
       {error ? <ErrorBanner>{error}</ErrorBanner> : null}
       <div>
-        <label htmlFor={`${id}-title`} className="font-semibold">
+        <label htmlFor={`${id}-title`} className="sr-only">
           Título
         </label>
         <input
@@ -108,7 +118,8 @@ export function EventForm({
           required
           maxLength={160}
           disabled={saving}
-          className={inputClass}
+          placeholder="Escribe un título…"
+          className="min-h-11 w-full border-b border-zinc-200 bg-transparent px-1 text-xl dark:border-zinc-700"
         />
       </div>
       <label className="flex min-h-11 items-center gap-3 text-sm font-medium">
@@ -123,42 +134,25 @@ export function EventForm({
         Todo el día
       </label>
       <div hidden={allDay} className="space-y-3">
-        <div>
-          <label htmlFor={`${id}-start`} className="text-sm font-semibold">
-            Inicio
-          </label>
-          <input
-            id={`${id}-start`}
-            name="localStart"
-            type="datetime-local"
-            defaultValue={
-              schedule?.mode === "timed"
-                ? schedule.localStart
-                : `${scheduledDate}T09:00`
-            }
-            min="0001-01-01T00:00"
-            max="9999-12-31T23:59"
-            disabled={saving}
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label htmlFor={`${id}-end`} className="text-sm font-semibold">
-            Fin (opcional)
-          </label>
-          <input
-            id={`${id}-end`}
-            name="localEnd"
-            defaultValue={
-              schedule?.mode === "timed" ? (schedule.localEnd ?? "") : ""
-            }
-            type="datetime-local"
-            min="0001-01-01T00:00"
-            max="9999-12-31T23:59"
-            disabled={saving}
-            className={inputClass}
-          />
-        </div>
+        <DateTimeFields
+          name="localStart"
+          label="Inicio"
+          initialValue={
+            schedule?.mode === "timed"
+              ? schedule.localStart
+              : `${scheduledDate}T09:00`
+          }
+          disabled={saving}
+        />
+        <DateTimeFields
+          name="localEnd"
+          label="Fin"
+          initialValue={
+            schedule?.mode === "timed" ? (schedule.localEnd ?? "") : ""
+          }
+          disabled={saving}
+        />
+        <p className="text-xs text-zinc-500">El fin es opcional.</p>
       </div>
       <div hidden={!allDay} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
@@ -240,27 +234,6 @@ export function EventForm({
           </div>
         </div>
       </details>
-      <div className="flex flex-wrap gap-2 border-t border-zinc-200 pt-3 dark:border-zinc-800">
-        <button
-          type="submit"
-          disabled={saving}
-          className="min-h-11 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-        >
-          {saving
-            ? "Guardando…"
-            : initialEvent
-              ? "Guardar cambios"
-              : "Guardar evento"}
-        </button>
-        <button
-          type="button"
-          disabled={saving}
-          onClick={onCancel}
-          className="min-h-11 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700"
-        >
-          Cancelar
-        </button>
-      </div>
     </form>
   )
 }

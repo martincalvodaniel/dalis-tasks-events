@@ -35,6 +35,13 @@ export function EventCard({
       >
         <span className="flex items-center justify-between gap-2">
           <span className="min-w-0 text-sm font-semibold wrap-anywhere">
+            {tag?.color ? (
+              <span
+                aria-hidden="true"
+                className="mr-2 inline-block size-2.5 rounded-full"
+                style={{ backgroundColor: tag.color }}
+              />
+            ) : null}
             {event.title}
           </span>
           <svg

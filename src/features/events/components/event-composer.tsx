@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef } from "react"
 import { ErrorBanner } from "@/components/ui/error-banner"
+import { itemEditorDialogClass } from "@/config/item-editor"
 import { EventForm } from "@/features/events/components/event-form"
 import { useLocalEvents } from "@/features/events/hooks/use-local-events"
 import {
@@ -65,9 +66,9 @@ export function EventComposer({
       onCancel={(action) => {
         if (saving.current) action.preventDefault()
       }}
-      className="m-auto max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] min-w-0 max-w-xl overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-3 wrap-anywhere text-zinc-900 shadow-xl backdrop:bg-black/40 sm:p-6 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
+      className={itemEditorDialogClass}
     >
-      <h2 id={headingId} className="mb-3 text-lg font-semibold">
+      <h2 id={headingId} className="sr-only">
         Editar evento
       </h2>
       {error ? (

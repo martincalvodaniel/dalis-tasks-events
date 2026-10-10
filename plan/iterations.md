@@ -2567,3 +2567,16 @@ La comprobación diff detectó un espacio final en el template ya probado; retir
 - Aceptación: ACK real del movimiento original con operación/dependencias intactas y cero pendientes; categorías visibles coincidentes; separar esta evidencia de la convergencia exacta aislada de asignaciones/orden y de dispositivos físicos. Conservar cambios remotos concurrentes. Estado vigente, estimación ponderada y orden propuesto registrados; automatización pausada sin nueva revisión ni otro bloque iniciado.
 - Validación: referencias locales, coherencia documental y `git diff --check`; Conventional Commit, push `origin/int`, HEAD remoto y cuotas. Código ya validado en `11c5a18`; no repetir la suite por un cierre documental.
 - Estado: completada; siguiente entrega requiere elección explícita del usuario.
+
+
+## 16 — Editor común y lista de planes
+
+Bloque elegido por el usuario tras cerrar sincronización personal. Requisitos y decisión de compatibilidad en [item-editor-redesign.md](item-editor-redesign.md); secuencia `16a1 → 16a2 → 16a3 → 16a4 → 16a5`.
+
+### 16a1 — Editor de viewport completo y contenido visible
+
+- Objetivo: entregar una primera mejora visual útil sobre Tarea/Evento actuales, sin modificar contratos de datos.
+- `target_paths`: `src/components/ui/{item-editor-header,date-time-fields}.tsx`, `src/config/item-editor.ts`; formularios/composers de tareas/eventos y diálogo de creación; task-card/checklist/group/list, event-card; parser/test del formulario de evento; `plan/**`.
+- Dependencias: `11c5a19`, elección humana de rediseño y permiso para futura ruptura de compatibilidad sin wipe automático.
+- Aceptación: crear/editar a pantalla completa, acciones cruz/check accesibles y desactivadas al guardar; inicio/fin de eventos separados en fecha/hora y ocultos con todo el día; checklist visible fuera de detalles; color de categoría en grupos/eventos. La persistencia y sincronización actuales se conservan en este corte. Cita/Nota y equivalencia funcional siguen en el siguiente contrato.
+- Validación: fechas parciales/inicio/fin/DST/todo el día, markup de controles, suite, lint, tipos, build y diff; commit/push int, HEAD remoto y ambas cuotas.

@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef } from "react"
 import { ErrorBanner } from "@/components/ui/error-banner"
+import { itemEditorDialogClass } from "@/config/item-editor"
 import { TaskForm } from "@/features/tasks/components/task-form"
 import { useLocalTasks } from "@/features/tasks/hooks/use-local-tasks"
 import {
@@ -75,9 +76,9 @@ export function TaskComposer({
       onCancel={(event) => {
         if (saving.current) event.preventDefault()
       }}
-      className="m-auto max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] min-w-0 max-w-xl overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-3 wrap-anywhere text-zinc-900 shadow-xl backdrop:bg-black/40 sm:p-8 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
+      className={itemEditorDialogClass}
     >
-      <h2 id={headingId} className="mb-4 text-xl font-semibold">
+      <h2 id={headingId} className="sr-only">
         {initialTask ? "Editar tarea" : "Nueva tarea"}
       </h2>
       {error ? (

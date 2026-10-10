@@ -7,10 +7,12 @@ export function TaskGroup({
   children,
   orderControl,
   orderId,
+  color,
 }: {
   title: string
   children: ReactNode
   orderControl?: ReactNode
+  color?: string | null
   orderId?: string
 }) {
   const headingId = useId()
@@ -26,6 +28,13 @@ export function TaskGroup({
           id={headingId}
           className="wrap-anywhere text-sm sm:text-base font-semibold"
         >
+          {color ? (
+            <span
+              aria-hidden="true"
+              className="mr-2 inline-block size-2.5 rounded-full"
+              style={{ backgroundColor: color }}
+            />
+          ) : null}
           {title}
         </h3>
         {orderControl ? (

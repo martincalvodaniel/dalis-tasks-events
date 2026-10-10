@@ -8,7 +8,7 @@
 
 Deployment `fc152c2` Ready verificado. Piloto Google en navegador integrado y Chrome con almacenamiento independiente: el movimiento histórico obtiene ACK remoto, conservando operación y dependencias exactas, y la cola original queda sin pendientes. Ambos muestran las mismas seis categorías. La comparación exacta de asignaciones/orden pertenece a la prueba integrada con dos particiones; este piloto de navegadores no equivale a dos dispositivos físicos. Se observaron cambios remotos concurrentes durante el piloto y se conservaron, sin restaurar una copia anterior.
 
-Objetivo del lote cerrado. Automatización pausada; **esperar elección del usuario antes de cualquier otro bloque**. Los registros posteriores de este documento conservan la evolución histórica; este apartado define el estado vigente. Detalle del cierre en `11c5a19` de [iteration-log.md](iteration-log.md).
+Objetivo del lote de sincronización cerrado. El usuario elige el rediseño del editor/lista el 10 de octubre; alcance y cortes en [item-editor-redesign.md](item-editor-redesign.md). Automatización pausada; ejecutar sólo este bloque elegido. Los registros posteriores de este documento conservan la evolución histórica; este apartado define el estado vigente. Detalle del cierre en `11c5a19` de [iteration-log.md](iteration-log.md).
 
 ## Estimación y siguiente elección
 

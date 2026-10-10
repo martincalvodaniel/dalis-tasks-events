@@ -11,6 +11,13 @@ export function parseEventForm(fields: FormData) {
       endDateExclusive = null
     }
   }
+  function localDateTime(name: string) {
+    if (!fields.has(`${name}Date`)) return fields.get(name)
+    const date = fields.get(`${name}Date`)
+    const time = fields.get(`${name}Time`)
+    if (!date && !time) return null
+    return `${date ?? ""}T${time ?? ""}`
+  }
   return eventInputSchema.safeParse({
     kind: "event",
     title: fields.get("title"),
@@ -24,8 +31,8 @@ export function parseEventForm(fields: FormData) {
         }
       : {
           mode: "timed",
-          localStart: fields.get("localStart"),
-          localEnd: fields.get("localEnd") || null,
+          localStart: localDateTime("localStart"),
+          localEnd: localDateTime("localEnd") || null,
           timeZone: fields.get("timeZone"),
         },
   })

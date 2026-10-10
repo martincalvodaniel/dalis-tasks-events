@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react"
 import { ErrorBanner } from "@/components/ui/error-banner"
+import { itemEditorDialogClass } from "@/config/item-editor"
 import { EventForm } from "@/features/events/components/event-form"
 import { useLocalEvents } from "@/features/events/hooks/use-local-events"
 import {
@@ -89,6 +90,30 @@ export function CreateItemDialog({
     )
     onClose()
   }
+  const typeControl = (
+    <fieldset
+      aria-label="Tipo de elemento"
+      className="mb-3 flex flex-wrap gap-2"
+    >
+      {(
+        [
+          ["task", "Tarea"],
+          ["event", "Evento o cita"],
+        ] as const
+      ).map(([value, label]) => (
+        <button
+          key={value}
+          type="button"
+          aria-pressed={kind === value}
+          disabled={busy}
+          onClick={() => setKind(value)}
+          className={`min-h-11 rounded-lg border px-3 text-sm font-medium ${kind === value ? "border-emerald-700 bg-emerald-700 text-white" : "border-zinc-300 dark:border-zinc-700"}`}
+        >
+          {label}
+        </button>
+      ))}
+    </fieldset>
+  )
   return (
     <dialog
       ref={dialog}
@@ -99,33 +124,11 @@ export function CreateItemDialog({
       onCancel={(event) => {
         if (saving.current) event.preventDefault()
       }}
-      className="m-auto max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] min-w-0 max-w-xl overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-3 wrap-anywhere text-zinc-900 shadow-xl backdrop:bg-black/40 sm:p-6 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
+      className={itemEditorDialogClass}
     >
-      <h2 id={headingId} className="mb-3 text-lg font-semibold">
+      <h2 id={headingId} className="sr-only">
         Crear
       </h2>
-      <fieldset
-        aria-label="Tipo de elemento"
-        className="mb-3 flex flex-wrap gap-2"
-      >
-        {(
-          [
-            ["task", "Tarea"],
-            ["event", "Evento o cita"],
-          ] as const
-        ).map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            aria-pressed={kind === value}
-            disabled={busy}
-            onClick={() => setKind(value)}
-            className={`min-h-11 rounded-lg border px-3 text-sm font-medium ${kind === value ? "border-emerald-700 bg-emerald-700 text-white" : "border-zinc-300 dark:border-zinc-700"}`}
-          >
-            {label}
-          </button>
-        ))}
-      </fieldset>
       {tasks.error ? (
         <>
           <ErrorBanner>
@@ -145,6 +148,7 @@ export function CreateItemDialog({
           <div data-create-kind="task" hidden={kind !== "task"}>
             <TaskForm
               scheduledDate={initialDate ?? todayInTimeZone(timeZone)}
+              typeControl={typeControl}
               onSave={save}
               onCancel={onClose}
             />
@@ -153,6 +157,7 @@ export function CreateItemDialog({
             <EventForm
               scheduledDate={initialDate ?? todayInTimeZone(timeZone)}
               timeZone={timeZone}
+              typeControl={typeControl}
               onSave={save}
               onCancel={onClose}
             />

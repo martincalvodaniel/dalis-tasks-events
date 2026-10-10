@@ -12,11 +12,11 @@ export function TaskChecklist({
   onChange?: (entryId: string, completed: boolean) => void
 }) {
   return (
-    <ul aria-label="Checklist" className="mt-4 space-y-2 text-sm">
+    <ul aria-label="Checklist" className="my-1 space-y-0 text-sm">
       {entries.map((entry) => (
         <li key={entry.id} className="wrap-anywhere">
           {onChange ? (
-            <label className="flex min-h-12 cursor-pointer items-center gap-3">
+            <label className="flex min-h-11 cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={entry.completed}
