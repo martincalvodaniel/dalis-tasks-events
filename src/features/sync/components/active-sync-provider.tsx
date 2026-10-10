@@ -1,8 +1,9 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { usePlacementSyncEngine } from "@/features/sync/hooks/use-placement-sync-engine"
-import { SyncContext } from "@/features/sync/sync-context"
+import { commonPlanReleaseEnabled } from "@/config/common-plan-release"
+import { PlacementSyncProvider } from "@/features/sync/components/placement-sync-provider"
+import { PlanSyncProvider } from "@/features/sync/components/plan-sync-provider"
 import type { LocalAccount } from "@/features/workspace/local-account"
 
 export function ActiveSyncProvider({
@@ -12,6 +13,8 @@ export function ActiveSyncProvider({
   account: LocalAccount
   children: ReactNode
 }) {
-  const state = usePlacementSyncEngine(account)
-  return <SyncContext value={state}>{children}</SyncContext>
+  const Provider = commonPlanReleaseEnabled
+    ? PlanSyncProvider
+    : PlacementSyncProvider
+  return <Provider account={account}>{children}</Provider>
 }

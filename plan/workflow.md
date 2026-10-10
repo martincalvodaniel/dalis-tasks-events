@@ -283,3 +283,7 @@ Petición posterior de aprovechar7% autoriza únicamente16a3b, ajuste mínimo de
 ### Revisión puntual10oct16:24 ejecutada
 
 Renovación real100%5h/85%7d, siguiente reset1791660272. Continuación desatendida del rediseño autorizada, reservas10%5h/1%7d y cuotas tras cada commitpushint. Paralelo disjunto seleccionado eniterations, root integra. Revisión es puntual: pausar al cerrar, no cadena nueva. Partida realf8d2620, incluyendo ajuste accesible posterior al prompt del heartbeat; preservar últimos cambios completos, no volver a0d9b0cb.
+
+### Cierre16a4c3a — Reset humano antes de activación
+
+Conexión conjunta preparada con selección false y procedimiento revisable en common-plan-transition.md; ninguna eliminación/activación. Lectura de cierre22%5h/73%7d, margen conservado porque el siguiente paso depende del reset explícito de contenido Preview y de cada partición local, no de otra tarea preparatoria. Revisión puntual ejecutada: pausar heartbeat, no programar nueva cadena. Tras confirmación humana, activar conjunto y probar callers/piloto. Antes de reanudar consultar cuotas reales. Categorías/asignaciones del producto3 siguen activadas.

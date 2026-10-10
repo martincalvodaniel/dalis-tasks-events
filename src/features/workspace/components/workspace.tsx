@@ -3,9 +3,11 @@
 import { useId, useState } from "react"
 import { CreateItemButton } from "@/components/shared/create-item-button"
 import { WorkspaceNavigation } from "@/components/shared/workspace-navigation"
+import { commonPlanReleaseEnabled } from "@/config/common-plan-release"
 import { workspaceDestinations } from "@/config/navigation"
 import { CalendarScreen } from "@/features/calendar/components/calendar-screen"
 import { useCalendarDate } from "@/features/calendar/hooks/use-calendar-date"
+import { PlanComposer } from "@/features/plans/components/plan-composer"
 import { SyncIssueNotice } from "@/features/sync/components/sync-issue-notice"
 import { WorkspaceSyncProvider } from "@/features/sync/components/workspace-sync-provider"
 import { TagsScreen } from "@/features/tags/components/tags-screen"
@@ -17,6 +19,7 @@ import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import { useWorkspaceView } from "@/features/workspace/hooks/use-workspace-view"
 
 export function Workspace() {
+  const Composer = commonPlanReleaseEnabled ? PlanComposer : CreateItemDialog
   const contentId = useId()
   const view = useWorkspaceView()
   const calendarDate = useCalendarDate()
@@ -45,7 +48,7 @@ export function Workspace() {
           }
         />
         {account && composerEpoch === account.epoch ? (
-          <CreateItemDialog
+          <Composer
             key={account.epoch}
             account={account}
             initialDate={

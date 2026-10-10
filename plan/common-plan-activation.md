@@ -44,3 +44,7 @@ Aceptación móvil: cuatro tipos juntos por categoría, iconos coloreados, check
 ## Continuación programada
 
 10oct lectura9%5h/86%7d; reset publicado1791642149 (16:22:29 Europe/Madrid). Una revisión puntual del heartbeat existente a16:24 confirma cuotas/renovación reales antes de continuar16a4c1. Reservas de próxima ventana10%5h/1%7d; commit/push/HEAD/cuotas cada corte. No cadena adicional, créditos, reset manual ni tareas ajenas al rediseño.
+
+### 16a4c3a — Ensamblado listo, selección de release cerrada
+
+Todos los callers comparten `config/common-plan-release.ts`: identity, pull, retiro action3 antes readiness, proveedor/hook4 y pantallas editor/agenda/calendario. La selección permanece false: continúa producto3, no borrar ni ocultar contenido antiguo. Los hooks viven en proveedores separados; cambiar selección no altera el orden de hooks ni monta dos motores. La transición precisa confirmación del reset humano descrito en [common-plan-transition.md](common-plan-transition.md), luego un único corte cambia la selección, valida el producto ensamblado y publica. No modificar sólo anuncio ni variables de hosting. FixtureNext19 y UI preparada no sustituyen piloto de callers activos.
