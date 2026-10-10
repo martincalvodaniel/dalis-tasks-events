@@ -37,17 +37,7 @@ export function TaskGroup({
           ) : null}
           {title}
         </h3>
-        {orderControl ? (
-          <details className="min-w-0 max-w-full">
-            <summary
-              aria-label={`Ordenar grupo ${title}`}
-              className="flex min-h-11 cursor-pointer items-center rounded-lg px-3 text-xs text-zinc-600 dark:text-zinc-400"
-            >
-              Ordenar
-            </summary>
-            <div className="pb-2">{orderControl}</div>
-          </details>
-        ) : null}
+        {orderControl}
       </div>
       <ul data-order-list className="space-y-1.5">
         {children}

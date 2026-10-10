@@ -41,7 +41,6 @@ export function TagCard({
           </svg>
         </summary>
         <div className="flex flex-wrap gap-2 border-t border-zinc-200 p-3 dark:border-zinc-800">
-          {orderControl}
           <button
             type="button"
             disabled={busy}
@@ -62,6 +61,7 @@ export function TagCard({
           </button>
         </div>
       </details>
+      {orderControl}
     </article>
   )
 }

@@ -1,9 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { DragOrderHandle } from "@/components/ui/drag-order-handle"
 import { ErrorBanner } from "@/components/ui/error-banner"
-import { OrderControls } from "@/components/ui/order-controls"
+import { LongPressOrder } from "@/components/ui/long-press-order"
 import { DeleteTagDialog } from "@/features/tags/components/delete-tag-dialog"
 import { TagCard } from "@/features/tags/components/tag-card"
 import { TagForm } from "@/features/tags/components/tag-form"
@@ -15,7 +14,6 @@ import {
   type TagDraft,
 } from "@/features/tags/local-tags"
 import type { LocalAccount } from "@/features/workspace/local-account"
-import { adjacentMoveNeighbors } from "@/lib/ordering/move-neighbors"
 import type { Tag } from "@/types/preferences"
 
 export function TagManager({ account }: { account: LocalAccount }) {
@@ -102,7 +100,7 @@ export function TagManager({ account }: { account: LocalAccount }) {
             <h2 className="mb-2 text-base font-semibold">Tus categorías</h2>
             {data.tags.length ? (
               <ul data-order-list className="space-y-1.5">
-                {data.tags.map((tag, index) => (
+                {data.tags.map((tag) => (
                   <li
                     key={tag.id}
                     data-order-item={tag.id}
@@ -114,40 +112,19 @@ export function TagManager({ account }: { account: LocalAccount }) {
                       onEdit={() => setEditing(tag)}
                       onDelete={() => setPendingDelete(tag)}
                       orderControl={
-                        <>
-                          <DragOrderHandle
-                            itemId={tag.id}
-                            label={`categoría ${tag.name}`}
-                            peers={data.tags.map((record) => record.id)}
-                            busy={busy}
-                            onDrop={(neighbors) => {
-                              void ordering.change({
-                                type: "tag.move",
-                                tagId: tag.id,
-                                ...neighbors,
-                              })
-                            }}
-                          />
-                          <OrderControls
-                            label={`categoría ${tag.name}`}
-                            busy={busy}
-                            canMoveUp={index > 0}
-                            canMoveDown={index < data.tags.length - 1}
-                            onMove={(direction) => {
-                              const neighbors = adjacentMoveNeighbors(
-                                data.tags.map((record) => record.id),
-                                tag.id,
-                                direction
-                              )
-                              if (neighbors)
-                                void ordering.change({
-                                  type: "tag.move",
-                                  tagId: tag.id,
-                                  ...neighbors,
-                                })
-                            }}
-                          />
-                        </>
+                        <LongPressOrder
+                          itemId={tag.id}
+                          label={`categoría ${tag.name}`}
+                          peers={data.tags.map((record) => record.id)}
+                          busy={busy}
+                          onDrop={(neighbors) => {
+                            void ordering.change({
+                              type: "tag.move",
+                              tagId: tag.id,
+                              ...neighbors,
+                            })
+                          }}
+                        />
                       }
                     />
                   </li>

@@ -96,9 +96,8 @@ export function TaskCard({
               onChange={onStatusChange}
             />
           ) : null}
-          {onEdit || onDelete || orderControl ? (
+          {onEdit || onDelete ? (
             <div className="mt-3 flex flex-wrap gap-2">
-              {orderControl}
               {onEdit ? (
                 <button
                   type="button"
@@ -125,6 +124,7 @@ export function TaskCard({
           ) : null}
         </div>
       </details>
+      {orderControl}
       <div className="px-3">
         {task.checklist.length ? (
           <TaskChecklist

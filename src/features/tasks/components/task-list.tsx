@@ -1,9 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { DragOrderHandle } from "@/components/ui/drag-order-handle"
 import { ErrorBanner } from "@/components/ui/error-banner"
-import { OrderControls } from "@/components/ui/order-controls"
+import { LongPressOrder } from "@/components/ui/long-press-order"
 import { ItemCategorySelect } from "@/features/tags/components/item-category-select"
 import { useItemCategory } from "@/features/tags/hooks/use-item-category"
 import { useLocalTags } from "@/features/tags/hooks/use-local-tags"
@@ -29,10 +28,6 @@ import {
 } from "@/features/tasks/task-order-selection"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import type { LocalAccount } from "@/features/workspace/local-account"
-import {
-  adjacentMoveNeighbors,
-  visibleMoveNeighbors,
-} from "@/lib/ordering/move-neighbors"
 import type { Task } from "@/types/calendar-item"
 
 const allTasksSelection = { kind: "all" } as const
@@ -188,7 +183,7 @@ export function TaskList({
                 visibleTagIds.length > 1 &&
                 visibleTagIds.includes(group.id) ? (
                   <div className="flex min-w-0 flex-wrap gap-2">
-                    <DragOrderHandle
+                    <LongPressOrder
                       itemId={group.id}
                       label={`grupo ${group.title}`}
                       peers={categories?.tags.map((tag) => tag.id) ?? []}
@@ -199,29 +194,6 @@ export function TaskList({
                           tagId: group.id,
                           ...neighbors,
                         })
-                      }}
-                    />
-                    <OrderControls
-                      label={`grupo ${group.title}`}
-                      busy={busy}
-                      canMoveUp={visibleTagIds.indexOf(group.id) > 0}
-                      canMoveDown={
-                        visibleTagIds.indexOf(group.id) <
-                        visibleTagIds.length - 1
-                      }
-                      onMove={(direction) => {
-                        const neighbors = visibleMoveNeighbors(
-                          categories?.tags.map((tag) => tag.id) ?? [],
-                          visibleTagIds,
-                          group.id,
-                          direction
-                        )
-                        if (neighbors)
-                          void groupOrdering.change({
-                            type: "tag.move",
-                            tagId: group.id,
-                            ...neighbors,
-                          })
                       }}
                     />
                   </div>
@@ -272,76 +244,27 @@ export function TaskList({
                     }
                     orderControl={
                       canOrder ? (
-                        <>
-                          <DragOrderHandle
-                            itemId={task.id}
-                            label={`tarea ${task.title}`}
-                            peers={taskOrderPeers(
-                              group.tasks,
-                              selection,
-                              task
-                            ).map((record) => record.id)}
-                            busy={busy}
-                            onDrop={(neighbors) => {
-                              void ordering.change({
-                                type: "task.move",
-                                itemId: task.id,
-                                occurrenceId: null,
-                                tagId:
-                                  group.id === "uncategorized"
-                                    ? null
-                                    : group.id,
-                                ...taskOrderContext(selection, task),
-                                ...neighbors,
-                              })
-                            }}
-                          />
-                          <OrderControls
-                            label={`tarea ${task.title}`}
-                            busy={busy}
-                            canMoveUp={
-                              taskOrderPeers(
-                                group.tasks,
-                                selection,
-                                task
-                              ).findIndex((record) => record.id === task.id) > 0
-                            }
-                            canMoveDown={
-                              taskOrderPeers(
-                                group.tasks,
-                                selection,
-                                task
-                              ).findIndex((record) => record.id === task.id) <
-                              taskOrderPeers(group.tasks, selection, task)
-                                .length -
-                                1
-                            }
-                            onMove={(direction) => {
-                              const peers = taskOrderPeers(
-                                group.tasks,
-                                selection,
-                                task
-                              )
-                              const neighbors = adjacentMoveNeighbors(
-                                peers.map((record) => record.id),
-                                task.id,
-                                direction
-                              )
-                              if (neighbors)
-                                void ordering.change({
-                                  type: "task.move",
-                                  itemId: task.id,
-                                  occurrenceId: null,
-                                  tagId:
-                                    group.id === "uncategorized"
-                                      ? null
-                                      : group.id,
-                                  ...taskOrderContext(selection, task),
-                                  ...neighbors,
-                                })
-                            }}
-                          />
-                        </>
+                        <LongPressOrder
+                          itemId={task.id}
+                          label={`tarea ${task.title}`}
+                          peers={taskOrderPeers(
+                            group.tasks,
+                            selection,
+                            task
+                          ).map((record) => record.id)}
+                          busy={busy}
+                          onDrop={(neighbors) => {
+                            void ordering.change({
+                              type: "task.move",
+                              itemId: task.id,
+                              occurrenceId: null,
+                              tagId:
+                                group.id === "uncategorized" ? null : group.id,
+                              ...taskOrderContext(selection, task),
+                              ...neighbors,
+                            })
+                          }}
+                        />
                       ) : undefined
                     }
                     onStatusChange={

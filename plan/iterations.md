@@ -2580,3 +2580,12 @@ Bloque elegido por el usuario tras cerrar sincronización personal. Requisitos y
 - Dependencias: `11c5a19`, elección humana de rediseño y permiso para futura ruptura de compatibilidad sin wipe automático.
 - Aceptación: crear/editar a pantalla completa, acciones cruz/check accesibles y desactivadas al guardar; inicio/fin de eventos separados en fecha/hora y ocultos con todo el día; checklist visible fuera de detalles; color de categoría en grupos/eventos. La persistencia y sincronización actuales se conservan en este corte. Cita/Nota y equivalencia funcional siguen en el siguiente contrato.
 - Validación: fechas parciales/inicio/fin/DST/todo el día, markup de controles, suite, lint, tipos, build y diff; commit/push int, HEAD remoto y ambas cuotas.
+
+
+### 16b1 — Pulsación prolongada sobre tareas y categorías
+
+- Objetivo: adelantar el gesto independientemente de la futura unificación del modelo.
+- `target_paths`: `src/components/ui/long-press-order.tsx`, `src/lib/ordering/long-press{,.test}.ts`, task-list/group/card, tag-manager/card; `plan/**`.
+- Dependencias:16a1 y comandos remotos de orden actuales; sin modelo/migración/wipe.
+- Aceptación:450ms activa, desplazamiento temprano permite scroll, listas anidadas no roban gesto, controles interactivos excluidos, cancelaciones y peers/busy sin escritura, destino válido; retirar botones Arrastrar/Subir/Bajar/Ordenar de callers activos; Alt+flechas mantiene acceso por teclado.
+- Validación: umbral y vecinos, fixture React real sin DB (teclado y hold/no-op), suite/lint/tipos/build/diff, commit/push/HEAD/cuotas. Tacto/scroll en móvil físico y arrastre extremo se incluyen en aceptación del rediseño, sin atribuirlos a fixtures de ratón.
