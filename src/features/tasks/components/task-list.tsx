@@ -208,6 +208,9 @@ export function TaskList({
                 >
                   <TaskCard
                     task={task}
+                    categoryColor={
+                      categories?.tags.find((tag) => tag.id === group.id)?.color
+                    }
                     expanded={expandedIds.has(task.id)}
                     onExpandedChange={(expanded) => {
                       setExpandedIds((current) => {

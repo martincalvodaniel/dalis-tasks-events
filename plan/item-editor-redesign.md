@@ -35,3 +35,5 @@ Contrato concreto común en [item-model-v2.md](item-model-v2.md), cerrado docume
 ### Intercalada16a1b — Descripción y pasos directamente accesibles
 
 La descripción se muestra debajo del título en los editores actuales de Tarea y Evento, antes de la planificación. Los pasos de tareas se editan sin desplegar opciones; la zona horaria del evento conserva su desplegable secundario, oculto con todo el día. Este corte no modifica contratos, datos ni sincronización. Cita/Nota, equivalencia de opciones y lista mixta siguen pendientes de16a2–4.
+
+16a3a deja el editor común preparado y probado con las cuatro variantes, categoría, checklist, repetición y fechas persistentes al alternar todo el día. Se conectará cuando el transporte común esté validado. El color de categoría en los iconos de tareas actuales ya se aplica; iconos comunes SVG preparados para la lista mixta.

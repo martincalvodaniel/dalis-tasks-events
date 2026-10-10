@@ -2622,3 +2622,10 @@ Bloque elegido por el usuario tras cerrar sincronización personal. Requisitos y
 - Paralelo explícitamente seleccionado con cuota97%/99% y contrato16a2a cerrado: worker editor posee sólo archivos nuevos features/plans; worker iconos posee components/ui/item-completion-icon y tasks/components/task-card,task-group. No solapan con integración raíz ni publican por separado.
 - Dependencias:a8578c8; aceptación: plan validado localmente, progreso de las cuatro por mismos comandos, DST/recurrencia compartidos, categorías y backup sin reinterpretación; generación3 no afirma soporte ni confirma estos comandos. No UI activa/wipe.
 - Validación: contratos/reductor/guardias/backup, suite/lint/tipos/build/diff, commit/pushint/HEAD/cuotas. Los cambios visuales independientes se cierran en la siguiente entrega antes de activación conjunta.
+
+### 16a3a — Editor común preparado e iconos con color
+
+- Objetivo: cerrar editor de cuatro variantes reutilizable y aplicar color de categoría al icono de tareas actuales.
+- `target_paths`: features/plans/components y parser/tests nuevos; components/ui/item-completion-icon y date-time-fields; tasks/components/task-card,task-completion-button,task-list; plan. Workers del corte anterior entregan rutas disjuntas, root integra plumbing/DateTimeFields y validación.
+- Dependencias:b2b5245, schema plan-input y componentes16a1. Aceptación: todos los campos para las cuatro variantes, selección no desmonta datos, fecha persistente al alternar todo el día, categoría visible, checklist/recurrencia/progreso comunes, acciones cruz/check, iconos asociados a categoría con estado adicional accesible. No activar caller hasta persistencia/sync completos.
+- Validación: parser/markup, fixture React móvil, suite/lint/tipos/build/diff, commitpushint/HEAD y cuotas. Entrada85%5h/98%7d.

@@ -26,6 +26,7 @@ export function TaskCard({
   onStatusChange,
   onChecklistChange,
   categoryControl,
+  categoryColor,
   orderControl,
   expanded = false,
   onExpandedChange,
@@ -37,6 +38,7 @@ export function TaskCard({
   onStatusChange?: (status: Task["status"]) => void
   onChecklistChange?: (entryId: string, completed: boolean) => void
   categoryControl?: ReactNode
+  categoryColor?: string | null
   orderControl?: ReactNode
   expanded?: boolean
   onExpandedChange?: (expanded: boolean) => void
@@ -49,6 +51,7 @@ export function TaskCard({
           task={task}
           busy={busy}
           onChange={onStatusChange}
+          categoryColor={categoryColor}
         />
       ) : null}
       <details
