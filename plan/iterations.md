@@ -2614,3 +2614,11 @@ Bloque elegido por el usuario tras cerrar sincronización personal. Requisitos y
 - Dependencias:1d4eea4, contrato16a2p y autorización actual de continuación desatendida.
 - Aceptación: cuatro variantes con campos/validación iguales, fechas/DST coherentes, cambio de variante sin perder identidad/progreso, checklist por ID, autorización/estado/borrado y política civil/orden estables; sin activar clientes ni alterar datos existentes.
 - Validación: pruebas funcionales de las cuatro variantes, suite completa, lint/tipos/build/diff; commit/pushint/HEAD y lectura de cuotas antes del siguiente corte.
+
+### 16a2b — Contratos productivos capaces de almacenar planes, aún sin activación
+
+- Objetivo: añadir contenido común y comandos de progreso a la frontera de validación/reductor/persistencia genérica, conservando callers actuales y bloqueando su envío en generación3.
+- `target_paths` raíz: schemas/item-fields, calendar-item, plan-item, plan-input, sync; types/sync; lib/calendar/item-command, lib/sync capacidades/support/clave/clasificación; consumidores de backup estrictamente afectados; tests y plan. Root integra archivos compartidos.
+- Paralelo explícitamente seleccionado con cuota97%/99% y contrato16a2a cerrado: worker editor posee sólo archivos nuevos features/plans; worker iconos posee components/ui/item-completion-icon y tasks/components/task-card,task-group. No solapan con integración raíz ni publican por separado.
+- Dependencias:a8578c8; aceptación: plan validado localmente, progreso de las cuatro por mismos comandos, DST/recurrencia compartidos, categorías y backup sin reinterpretación; generación3 no afirma soporte ni confirma estos comandos. No UI activa/wipe.
+- Validación: contratos/reductor/guardias/backup, suite/lint/tipos/build/diff, commit/pushint/HEAD/cuotas. Los cambios visuales independientes se cierran en la siguiente entrega antes de activación conjunta.

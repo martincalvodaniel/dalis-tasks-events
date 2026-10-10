@@ -1,6 +1,6 @@
 import { assertBackupOwnership } from "@/lib/backup/backup-ownership"
+import { calendarItemToDraft } from "@/lib/calendar/item-draft"
 import { backupImportRecordSchema } from "@/schemas/backup-import-record"
-import { calendarItemDraftSchema } from "@/schemas/calendar-item"
 import { localBackupSchema } from "@/schemas/local-backup"
 import { syncBatchSchema } from "@/schemas/sync"
 import type {
@@ -63,25 +63,7 @@ export function validateBackupImportEvidence(
       command.type !== "item.create"
     )
       throw new Error("Archived import requires a living simple source item")
-    const draft = calendarItemDraftSchema.parse(
-      source.kind === "task"
-        ? {
-            kind: source.kind,
-            title: source.title,
-            description: source.description,
-            scheduledDate: source.scheduledDate,
-            status: source.status,
-            checklist: source.checklist,
-            recurrence: null,
-          }
-        : {
-            kind: source.kind,
-            title: source.title,
-            description: source.description,
-            schedule: source.schedule,
-            recurrence: null,
-          }
-    )
+    const draft = calendarItemToDraft(source)
     if (JSON.stringify(command.input) !== JSON.stringify(draft))
       throw new Error("Import operation does not match its archived source")
   }

@@ -11,6 +11,8 @@ export type ItemCommand = Extract<
       | "item.create"
       | "item.update"
       | "item.delete"
+      | "plan.set-status"
+      | "plan.set-checklist-entry"
       | "task.set-status"
       | "task.set-checklist-entry"
   }

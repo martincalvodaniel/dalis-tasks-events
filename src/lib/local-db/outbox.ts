@@ -76,6 +76,8 @@ export class LocalOutbox {
       parsed.type !== "item.create" &&
       parsed.type !== "item.update" &&
       parsed.type !== "item.delete" &&
+      parsed.type !== "plan.set-status" &&
+      parsed.type !== "plan.set-checklist-entry" &&
       parsed.type !== "task.set-status" &&
       parsed.type !== "task.set-checklist-entry"
     ) {

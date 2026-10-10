@@ -1,5 +1,5 @@
-import { resolveEventSchedule } from "@/lib/calendar/event-time"
 import { planCommandSchema } from "@/schemas/plan-command"
+import { planInputSchema } from "@/schemas/plan-input"
 import { planSchema } from "@/schemas/plan-item"
 import { timestampSchema, userIdSchema } from "@/schemas/primitives"
 import type { Plan } from "@/types/plan-item"
@@ -17,7 +17,7 @@ export function applyPlanCommand(
   if (command.type === "item.create") {
     if (current)
       throw new Error("Plan already exists, including deleted records")
-    resolveEventSchedule(command.input.schedule)
+    planInputSchema.parse(command.input)
     return planSchema.parse({
       ...command.input,
       id: command.itemId,
@@ -36,7 +36,7 @@ export function applyPlanCommand(
   if (command.type === "item.delete")
     return planSchema.parse({ ...current, deletedAt: now, updatedAt: now })
   if (command.type === "item.update") {
-    resolveEventSchedule(command.input.schedule)
+    planInputSchema.parse(command.input)
     return planSchema.parse({
       ...current,
       ...command.input,

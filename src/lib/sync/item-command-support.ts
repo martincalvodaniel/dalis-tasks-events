@@ -5,12 +5,21 @@ export function supportsRemoteItemCommand(
   command: SyncCommand,
   current: CalendarItem | null
 ): boolean {
-  if (current && (current.kind === "birthday" || current.recurrence))
+  if (
+    current &&
+    (current.kind === "birthday" ||
+      current.kind === "plan" ||
+      current.recurrence)
+  )
     return false
   switch (command.type) {
     case "item.create":
     case "item.update":
-      return command.input.kind !== "birthday" && !command.input.recurrence
+      return (
+        command.input.kind !== "birthday" &&
+        command.input.kind !== "plan" &&
+        !command.input.recurrence
+      )
     case "item.delete":
       return true
     case "task.set-status":

@@ -10,6 +10,7 @@ type UnsupportedReason =
   | "occurrence_executor_unavailable"
   | "recurrence_unavailable"
   | "birthday_unavailable"
+  | "plan_executor_unavailable"
 interface CommandCapability {
   store: SyncStore
   supported: boolean
@@ -20,6 +21,16 @@ interface CommandCapability {
 export const syncCapabilityRegistry = {
   stores: ["items", "tags", "itemViews"] as const,
   commands: {
+    "plan.set-status": {
+      store: "items",
+      supported: false,
+      reason: "plan_executor_unavailable",
+    },
+    "plan.set-checklist-entry": {
+      store: "items",
+      supported: false,
+      reason: "plan_executor_unavailable",
+    },
     "item.create": { store: "items", supported: true, reason: null },
     "item.update": { store: "items", supported: true, reason: null },
     "item.delete": { store: "items", supported: true, reason: null },
@@ -102,12 +113,15 @@ function readCommandCapability(
       command.occurrenceId !== null
     )
       reason = "occurrence_executor_unavailable"
+    else if (current?.kind === "plan") reason = "plan_executor_unavailable"
     else if (current?.kind === "birthday") reason = "birthday_unavailable"
     else if (current?.recurrence) reason = "recurrence_unavailable"
     else if (command.type === "task.move" && current?.kind !== "task")
       reason = "placement_executor_unavailable"
     else if (command.type === "item.create" || command.type === "item.update") {
-      if (command.input.kind === "birthday") reason = "birthday_unavailable"
+      if (command.input.kind === "plan") reason = "plan_executor_unavailable"
+      else if (command.input.kind === "birthday")
+        reason = "birthday_unavailable"
       else if (command.input.recurrence) reason = "recurrence_unavailable"
     }
   }

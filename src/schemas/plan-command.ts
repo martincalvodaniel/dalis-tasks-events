@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { taskStatusSchema } from "@/schemas/calendar-item"
+import { taskStatusSchema } from "@/schemas/item-fields"
 import { planDraftSchema } from "@/schemas/plan-item"
 import { entityIdSchema } from "@/schemas/primitives"
 

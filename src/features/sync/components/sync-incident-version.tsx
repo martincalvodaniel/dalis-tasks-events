@@ -42,7 +42,7 @@ export function SyncIncidentVersion({
                 </ul>
               ) : null}
             </>
-          ) : item.kind === "event" ? (
+          ) : item.kind === "event" || item.kind === "plan" ? (
             item.schedule.mode === "all_day" ? (
               <p>
                 Todo el día · desde {item.schedule.startDate} hasta{" "}
@@ -63,6 +63,30 @@ export function SyncIncidentVersion({
               {item.birthYear ? `/${item.birthYear}` : ""}
             </p>
           )}
+          {item.kind === "plan" ? (
+            <>
+              <p>
+                {
+                  {
+                    task: "Tarea",
+                    event: "Evento",
+                    appointment: "Cita",
+                    note: "Nota",
+                  }[item.variant]
+                }{" "}
+                · {incidentTaskStatuses[item.status]}
+              </p>
+              {item.checklist.length ? (
+                <ul aria-label="Checklist">
+                  {item.checklist.map((entry) => (
+                    <li key={entry.id}>
+                      {entry.completed ? "☑" : "☐"} {entry.text}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </>
+          ) : null}
           {"recurrence" in item && item.recurrence ? (
             <p>Con repetición (solo local por ahora).</p>
           ) : null}

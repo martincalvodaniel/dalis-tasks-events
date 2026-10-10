@@ -6,6 +6,8 @@ Decisión documentada, no activada.16a1 y16b1 están publicados; Cita/Nota y tod
 
 16a2a implementa el núcleo puro en schemas/plan-item y plan-command, tipos y reductor/selección civil; aún no se añade a los contratos productivos ni a la UI. Las pruebas verifican las cuatro variantes, conservación de opciones y progreso, autorización y DST.
 
+16a2b añade plan a validación/almacenamiento genéricos, reductor/outbox y backup. La política/ejecución remota de generación3 rechaza plan; los formularios/lista activos aún producen contenido anterior. Siguiente conexión exige envío y descarga nuevos coherentes antes de ofrecer variantes al usuario.
+
 ## Un único contenido
 
 Nueva entidad `kind: "plan"` con `variant: "task" | "event" | "appointment" | "note"`. `variant` sólo decide icono/nombre visual, nunca campos disponibles, permisos, descarga, completado o repetición. Todos los planes tienen `title`, `description`, `schedule`, `status`, `checklist`, `recurrence`, `completedAt` y metadata/owner existentes. Identidad estable independiente de variante; cambiarla no crea otro item ni pierde pasos/progreso/categoría.

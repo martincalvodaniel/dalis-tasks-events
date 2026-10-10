@@ -16,6 +16,8 @@ export function projectSyncIncident(input: unknown): SyncIncident {
     command.type !== "item.create" &&
     command.type !== "item.update" &&
     command.type !== "item.delete" &&
+    command.type !== "plan.set-status" &&
+    command.type !== "plan.set-checklist-entry" &&
     command.type !== "task.set-status" &&
     command.type !== "task.set-checklist-entry"
   )

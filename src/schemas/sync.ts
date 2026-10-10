@@ -5,6 +5,7 @@ import {
 } from "@/schemas/calendar-item"
 import { taskOccurrenceInputSchema } from "@/schemas/occurrence"
 import { taskReferenceIdSchema } from "@/schemas/ordering"
+import { planCommandSchema } from "@/schemas/plan-command"
 import { tagDraftSchema, userSettingsInputSchema } from "@/schemas/preferences"
 import {
   civilDateSchema,
@@ -14,6 +15,8 @@ import {
 } from "@/schemas/primitives"
 
 export const syncCommandSchema = z.discriminatedUnion("type", [
+  planCommandSchema.options[3],
+  planCommandSchema.options[4],
   z.strictObject({
     type: z.literal("item.create"),
     itemId: entityIdSchema,

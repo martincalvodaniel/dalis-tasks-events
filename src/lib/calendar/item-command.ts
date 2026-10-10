@@ -1,3 +1,4 @@
+import { applyPlanCommand } from "@/lib/calendar/plan-command"
 import { calendarItemSchema } from "@/schemas/calendar-item"
 import { eventInputSchema } from "@/schemas/event-input"
 import { timestampSchema, userIdSchema } from "@/schemas/primitives"
@@ -10,6 +11,17 @@ export function applyItemCommand(
   userId: string,
   timestamp: string
 ): CalendarItem {
+  if (
+    current?.kind === "plan" ||
+    ((command.type === "item.create" || command.type === "item.update") &&
+      command.input.kind === "plan") ||
+    command.type === "plan.set-status" ||
+    command.type === "plan.set-checklist-entry"
+  ) {
+    if (current && current.kind !== "plan")
+      throw new Error("Item kind cannot change")
+    return applyPlanCommand(current, command, userId, timestamp)
+  }
   const actor = userIdSchema.parse(userId)
   const now = timestampSchema.parse(timestamp)
   if (command.type === "item.create") {

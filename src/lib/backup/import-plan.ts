@@ -1,8 +1,8 @@
 import { previewLocalBackupImport } from "@/lib/backup/import-preview"
 import { validateLocalBackup } from "@/lib/backup/local-backup"
 import { applyItemCommand } from "@/lib/calendar/item-command"
+import { calendarItemToDraft } from "@/lib/calendar/item-draft"
 import { backupImportRequestSchema } from "@/schemas/backup-import"
-import { calendarItemDraftSchema } from "@/schemas/calendar-item"
 import { entityIdSchema } from "@/schemas/primitives"
 import { syncBatchSchema, syncOperationSchema } from "@/schemas/sync"
 import type { BackupImportPlan } from "@/types/backup-import"
@@ -59,25 +59,7 @@ export function planLocalBackupImport(
       command: {
         type: "item.create",
         itemId: selection.itemId,
-        input: calendarItemDraftSchema.parse(
-          source.kind === "task"
-            ? {
-                kind: source.kind,
-                title: source.title,
-                description: source.description,
-                scheduledDate: source.scheduledDate,
-                status: source.status,
-                checklist: source.checklist,
-                recurrence: null,
-              }
-            : {
-                kind: source.kind,
-                title: source.title,
-                description: source.description,
-                schedule: source.schedule,
-                recurrence: null,
-              }
-        ),
+        input: calendarItemToDraft(source),
       },
     })
     if (operation.command.type !== "item.create")

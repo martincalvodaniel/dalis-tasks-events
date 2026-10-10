@@ -38,7 +38,7 @@ function isItemCommand(command: { type: string }): command is ItemCommand {
 }
 
 function isSimpleItem(item: CalendarItem | CalendarItemDraft): boolean {
-  return item.kind !== "birthday" && !item.recurrence
+  return (item.kind === "task" || item.kind === "event") && !item.recurrence
 }
 
 class ItemCompareAndSwapError extends Error {}

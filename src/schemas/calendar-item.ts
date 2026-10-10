@@ -1,9 +1,22 @@
 import { z } from "zod"
 import {
+  checklistSchema,
+  eventScheduleSchema,
+  taskStatusSchema,
+} from "@/schemas/item-fields"
+import { planDraftSchema, planSchema } from "@/schemas/plan-item"
+
+export {
+  checklistEntrySchema,
+  checklistSchema,
+  eventScheduleSchema,
+  taskStatusSchema,
+} from "@/schemas/item-fields"
+
+import {
   civilDateSchema,
   descriptionSchema,
   entityIdSchema,
-  localDateTimeSchema,
   recordMetadataShape,
   timestampSchema,
   timeZoneSchema,
@@ -11,25 +24,6 @@ import {
   userIdSchema,
 } from "@/schemas/primitives"
 import { recurrenceSchema } from "@/schemas/recurrence"
-
-export const taskStatusSchema = z.enum([
-  "not_started",
-  "in_progress",
-  "completed",
-])
-export const checklistEntrySchema = z.strictObject({
-  id: entityIdSchema,
-  text: z.string().trim().min(1).max(500),
-  completed: z.boolean(),
-})
-export const checklistSchema = z
-  .array(checklistEntrySchema)
-  .max(100)
-  .refine(
-    (entries) =>
-      new Set(entries.map((entry) => entry.id)).size === entries.length,
-    "Duplicate checklist identifiers"
-  )
 
 const content = { title: titleSchema, description: descriptionSchema }
 export const taskDraftSchema = z
@@ -47,30 +41,6 @@ export const taskDraftSchema = z
     "Task recurrence must start on its scheduled date"
   )
 
-export const eventScheduleSchema = z.discriminatedUnion("mode", [
-  z
-    .strictObject({
-      mode: z.literal("all_day"),
-      startDate: civilDateSchema,
-      endDateExclusive: civilDateSchema,
-    })
-    .refine(
-      (schedule) => schedule.endDateExclusive > schedule.startDate,
-      "Event end must follow its start"
-    ),
-  z
-    .strictObject({
-      mode: z.literal("timed"),
-      localStart: localDateTimeSchema,
-      localEnd: localDateTimeSchema.nullable(),
-      timeZone: timeZoneSchema,
-    })
-    .refine(
-      (schedule) =>
-        !schedule.localEnd || schedule.localEnd > schedule.localStart,
-      "Event end must follow its start"
-    ),
-])
 export const eventDraftSchema = z
   .strictObject({
     ...content,
@@ -111,6 +81,7 @@ export const calendarItemDraftSchema = z.discriminatedUnion("kind", [
   taskDraftSchema,
   eventDraftSchema,
   birthdayDraftSchema,
+  planDraftSchema,
 ])
 const identity = {
   id: entityIdSchema,
@@ -127,4 +98,5 @@ export const calendarItemSchema = z.discriminatedUnion("kind", [
   taskSchema,
   eventSchema,
   birthdaySchema,
+  planSchema,
 ])

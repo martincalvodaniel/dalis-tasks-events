@@ -3,7 +3,7 @@ import {
   checklistSchema,
   eventScheduleSchema,
   taskStatusSchema,
-} from "@/schemas/calendar-item"
+} from "@/schemas/item-fields"
 import {
   descriptionSchema,
   entityIdSchema,
