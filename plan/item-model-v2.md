@@ -4,6 +4,8 @@
 
 Decisión documentada, no activada.16a1 y16b1 están publicados; Cita/Nota y todas las opciones equivalentes siguen pendientes de implementación. Este contrato sustituye la separación funcional task/event sólo para el rediseño elegido; cumpleaños conserva su entrega propia. No modifica autenticación, permisos ni stack.
 
+16a2a implementa el núcleo puro en schemas/plan-item y plan-command, tipos y reductor/selección civil; aún no se añade a los contratos productivos ni a la UI. Las pruebas verifican las cuatro variantes, conservación de opciones y progreso, autorización y DST.
+
 ## Un único contenido
 
 Nueva entidad `kind: "plan"` con `variant: "task" | "event" | "appointment" | "note"`. `variant` sólo decide icono/nombre visual, nunca campos disponibles, permisos, descarga, completado o repetición. Todos los planes tienen `title`, `description`, `schedule`, `status`, `checklist`, `recurrence`, `completedAt` y metadata/owner existentes. Identidad estable independiente de variante; cambiarla no crea otro item ni pierde pasos/progreso/categoría.
@@ -19,6 +21,8 @@ Nueva entidad `kind: "plan"` con `variant: "task" | "event" | "appointment" | "n
 Una lectura coherente para home y día mezcla todas las variantes y agrupa por categoría. Sin orden explícito: fecha/hora de inicio; planes de día completo antes de los horarios en la misma fecha; empate por task/event/appointment/note; identidad como último desempate estable. Una colocación manual explícita tiene precedencia dentro de su contexto; gesto nunca cambia fechas o tipo. Categorías mantienen su orden personal. No separar eventos en otro bloque bajo las tareas.
 
 Iconos de completado: cuadrado, círculo, calendario, nota. Calendario/nota cambian de color al completar y todas las variantes ofrecen nombre accesible y estado, sin depender sólo del color. Editor único a pantalla completa, cuatro chips compactos y cruz/check; conserva datos al cambiar variante. Reusar header/date-time-fields y LongPressOrder ya publicados. No añadir destino nuevo: navegación móvil/escritorio y botón+ actuales abren ese editor.
+
+Los cuatro iconos usan el color de la categoría asignada; neutro si no hay categoría. Completar conserva esa asociación de color y cambia relleno/forma además del nombre accesible, para no depender sólo del color.
 
 ## Transición sin compatibilidad de datos
 

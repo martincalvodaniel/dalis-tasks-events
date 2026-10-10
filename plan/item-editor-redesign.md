@@ -4,6 +4,8 @@
 
 Las variantes Tarea, Evento, Cita y Nota difieren únicamente por su presentación. Comparten estado, descripción, checklist, categoría, fecha/hora de inicio y fin, todo el día y repetición. Cuadrado para tarea, círculo para evento, calendario para cita y nota para nota; completar cambia el estado visual y el color. No confundir el tipo visual con permisos, planificación o reglas de repetición.
 
+Requisito adicional aceptado: el icono de completado de cada item usa el color de su categoría; el estado se distingue también mediante forma/relleno y etiqueta accesible. Sin categoría utiliza el color neutro de la interfaz.
+
 Editor a pantalla completa, encabezado mínimo cruz/check y campos compactos inspirados en la referencia. Inicio/fin separados en fecha y hora; horas ocultas con todo el día. Las cuatro variantes se muestran en una lista agrupada por categoría, con su color y pasos de checklist visibles. Orden predeterminado: fecha/hora y, en empate, Tarea → Evento → Cita → Nota; identidad como desempate final. Orden manual explícito prevalece dentro de su contexto. Reordenación mediante pulsación prolongada y arrastre sobre el elemento; conservar alternativa por teclado sin botones permanentes de subir/bajar/arrastrar.
 
 ## Decisión de datos

@@ -269,3 +269,7 @@ Objetivo de categorías/asignaciones cerrado con generación 3 y ACK histórico 
 ### Bloque de rediseño elegido10oct
 
 El usuario elige editor/lista de cuatro variantes y long-press drag. Entrada85%5h/5%7d. Acepta ruptura de compatibilidad antes de lanzamiento y wipe realizado por él si se solicita; no borrado automático. Permite apurar semanal al1% o menos, conservando margen real para cerrar pruebas/reparaciones/publicación. Consultar cuotas tras cada entrega, no equiparar coste porcentual de ventanas; automatización permanece pausada. El lote anterior de sincronización está cerrado y no justifica tareas ajenas al rediseño.
+
+### Nuevo lote de rediseño tras reinicio humano10oct
+
+El usuario reinicia cuotas y autoriza continuar hasta alcanzar un límite operativo. Lectura real100%5h/100%7d; reset5h1791642149 publicado. Continuar sólo el rediseño elegido mediante cortes completos con commit/pushint/HEAD y cuotas después de cada commit. Reservar cierre antes del límite:10%5h/1%7d conforme a AGENTS vigente, usando consumo observado y dividiendo antes de abrir tareas grandes; no agotar una ventana a mitad de entrega. No usar créditos/reinicios adicionales ni reactivar automatización pausada. Wipe por el usuario sólo si se requiere y una vez preparado/validado el procedimiento exacto.

@@ -2606,3 +2606,11 @@ Bloque elegido por el usuario tras cerrar sincronización personal. Requisitos y
 - Dependencias:907b652, formularios y validación actuales; sin unificación de modelo ni wipe.
 - Aceptación: descripción siempre accesible debajo del título; checklist de tareas directo; zona horaria secundaria y oculta con todo el día; conservar drafts, guardado y validación.
 - Validación completada:524pass/128opt-in skip/0fail/8104aserciones; lint561, tipos, build y worker34. Fixture aislado de evento confirma descripción antes de planificación, dialog390×844; sin auth/DB. Diff y referencias; commit/pushint, HEAD remoto y cuotas al cerrar.
+
+### 16a2a — Núcleo común de contenido
+
+- Objetivo: implementar schema y reductor puro del nuevo contenido común, antes de conectar persistencia/transportes/UI.
+- `target_paths`: `src/schemas/plan-{item,command}.ts`, `src/types/plan-item.ts`, `src/lib/calendar/plan-{command,selection}{,.test}.ts`, tests de schemas; `plan/{workflow,iterations,iteration-log,item-model-v2}.md`.
+- Dependencias:1d4eea4, contrato16a2p y autorización actual de continuación desatendida.
+- Aceptación: cuatro variantes con campos/validación iguales, fechas/DST coherentes, cambio de variante sin perder identidad/progreso, checklist por ID, autorización/estado/borrado y política civil/orden estables; sin activar clientes ni alterar datos existentes.
+- Validación: pruebas funcionales de las cuatro variantes, suite completa, lint/tipos/build/diff; commit/pushint/HEAD y lectura de cuotas antes del siguiente corte.
