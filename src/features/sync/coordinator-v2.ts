@@ -141,7 +141,8 @@ export class SyncCoordinatorV2 {
         await guard()
         const receipt = validateLocalChangesPageInputV2(
           { query, page: raw },
-          this.userId
+          this.userId,
+          this.policy.supportsPlans === true
         )
         await guard()
         await this.ports.applyPage(structuredClone(receipt))

@@ -7,14 +7,19 @@ import type { RemoteItemViewPlan } from "@/types/remote-item-view-planning"
 
 // Access checks belong to the future authenticated, own-item repository service.
 export function planRemoteItemViewOperation(
-  input: unknown
+  input: unknown,
+  allowPlans = false
 ): RemoteItemViewPlan {
   const { userId, timestamp, operation, item, current, tag } =
     remoteItemViewPlanningInputSchema.parse(input)
   const command = operation.command
   if (command.type !== "item-view.set") return { status: "unsupported" }
   if (!item || item.deletedAt) return { status: "unavailable" }
-  if (item.kind === "birthday" || item.recurrence)
+  if (
+    item.kind === "birthday" ||
+    (!allowPlans && item.kind === "plan") ||
+    item.recurrence
+  )
     return { status: "unsupported" }
   if (
     current &&

@@ -97,7 +97,8 @@ export interface SyncCommandCapability extends CommandCapability {
 function readCommandCapability(
   commandInput: unknown,
   currentItemInput: unknown,
-  registry: { commands: Record<SyncCommand["type"], CommandCapability> }
+  registry: { commands: Record<SyncCommand["type"], CommandCapability> },
+  allowPlans = false
 ): SyncCommandCapability {
   const command = syncCommandSchema.parse(commandInput)
   const current = calendarItemSchema.nullable().parse(currentItemInput)
@@ -113,13 +114,15 @@ function readCommandCapability(
       command.occurrenceId !== null
     )
       reason = "occurrence_executor_unavailable"
-    else if (current?.kind === "plan") reason = "plan_executor_unavailable"
+    else if (current?.kind === "plan" && !allowPlans)
+      reason = "plan_executor_unavailable"
     else if (current?.kind === "birthday") reason = "birthday_unavailable"
     else if (current?.recurrence) reason = "recurrence_unavailable"
     else if (command.type === "task.move" && current?.kind !== "task")
       reason = "placement_executor_unavailable"
     else if (command.type === "item.create" || command.type === "item.update") {
-      if (command.input.kind === "plan") reason = "plan_executor_unavailable"
+      if (command.input.kind === "plan" && !allowPlans)
+        reason = "plan_executor_unavailable"
       else if (command.input.kind === "birthday")
         reason = "birthday_unavailable"
       else if (command.input.recurrence) reason = "recurrence_unavailable"
@@ -160,6 +163,7 @@ export function readPlacementSyncCommandCapability(
 
 export interface SyncCapabilityPolicy {
   readonly readCommand: typeof readSyncCommandCapability
+  readonly supportsPlans?: boolean
   readonly stores: readonly SyncStore[]
 }
 export const syncCapabilityPolicy: SyncCapabilityPolicy = Object.freeze({
@@ -171,3 +175,37 @@ export const placementSyncCapabilityPolicy: SyncCapabilityPolicy =
     readCommand: readPlacementSyncCommandCapability,
     stores: placementSyncCapabilityRegistry.stores,
   })
+
+// Generation four has common content support; recurring parents and plan ordering remain separately gated.
+export const planSyncCapabilityRegistry = Object.freeze({
+  stores: placementSyncCapabilityRegistry.stores,
+  commands: Object.freeze({
+    ...placementSyncCapabilityRegistry.commands,
+    "plan.set-status": Object.freeze({
+      store: "items" as const,
+      supported: true,
+      reason: null,
+    }),
+    "plan.set-checklist-entry": Object.freeze({
+      store: "items" as const,
+      supported: true,
+      reason: null,
+    }),
+  }),
+})
+export function readPlanSyncCommandCapability(
+  commandInput: unknown,
+  currentItemInput: unknown = null
+): SyncCommandCapability {
+  return readCommandCapability(
+    commandInput,
+    currentItemInput,
+    planSyncCapabilityRegistry,
+    true
+  )
+}
+export const planSyncCapabilityPolicy: SyncCapabilityPolicy = Object.freeze({
+  readCommand: readPlanSyncCommandCapability,
+  stores: planSyncCapabilityRegistry.stores,
+  supportsPlans: true,
+})

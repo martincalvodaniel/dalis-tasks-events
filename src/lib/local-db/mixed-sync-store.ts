@@ -18,16 +18,25 @@ export class LocalMixedSyncStore {
   private constructor(
     readonly userId: string,
     private readonly database: IDBDatabase,
-    private readonly itemStore: LocalSyncStore
+    private readonly itemStore: LocalSyncStore,
+    private readonly allowPlans: boolean
   ) {}
 
-  static async open(userIdInput: string): Promise<LocalMixedSyncStore> {
+  static async open(
+    userIdInput: string,
+    allowPlans = false
+  ): Promise<LocalMixedSyncStore> {
     const userId = userIdSchema.parse(userIdInput)
     const database = await openLocalDatabase(userId)
     let itemStore: LocalSyncStore | null = null
     try {
       itemStore = await LocalSyncStore.open(userId)
-      const store = new LocalMixedSyncStore(userId, database, itemStore)
+      const store = new LocalMixedSyncStore(
+        userId,
+        database,
+        itemStore,
+        allowPlans
+      )
       store.ensurePartition()
       return store
     } catch (error) {
@@ -88,7 +97,12 @@ export class LocalMixedSyncStore {
 
   applyChangesPage(input: unknown): Promise<"applied" | "ignored"> {
     this.ensurePartition()
-    return applyLocalChangesPageV2(this.database, this.userId, input)
+    return applyLocalChangesPageV2(
+      this.database,
+      this.userId,
+      input,
+      this.allowPlans
+    )
   }
 
   applyOperationResult(input: unknown): Promise<"applied" | "replayed"> {

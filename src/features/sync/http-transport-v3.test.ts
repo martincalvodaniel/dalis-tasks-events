@@ -287,7 +287,7 @@ test("version-three reception retains strict account and checkpoint validation a
       transport.pull({ after: 6, through: 7, limit: 3 })
     ).rejects.toThrow()
   }
-  for (const invalid of [1, 4, NaN, 2.5])
+  for (const invalid of [1, 5, NaN, 2.5])
     expect(() =>
       createHttpSyncTransportForProtocol(
         invalid as 2 | 3,

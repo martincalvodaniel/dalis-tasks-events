@@ -26,7 +26,7 @@ export interface PullDependenciesV2 {
 export async function getSyncChangesResponseV2(
   request: Request,
   dependencies: PullDependenciesV2,
-  protocolVersion: 2 | 3 = 2
+  protocolVersion: 2 | 3 | 4 = 2
 ): Promise<Response> {
   const respond = (body: unknown, status: number) =>
     Response.json(body, {
@@ -78,7 +78,8 @@ export async function getSyncChangesResponseV2(
     }
     const validated = validateLocalChangesPageInputV2(
       { query, page },
-      actor.data
+      actor.data,
+      protocolVersion === 4
     )
     return respond(validated.page, 200)
   } catch {

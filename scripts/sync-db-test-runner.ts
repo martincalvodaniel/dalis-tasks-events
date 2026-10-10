@@ -222,6 +222,7 @@ try {
               "src/lib/db/remote-item-commands.integration.test.ts",
               "src/lib/db/remote-operation-commands.integration.test.ts",
               "src/lib/db/remote-operation-commands-v3.integration.test.ts",
+              "src/lib/db/remote-operation-commands-v4.integration.test.ts",
               "src/lib/db/remote-changes.integration.test.ts",
             ]
   const testProcess = Bun.spawn(argumentsForMode, {

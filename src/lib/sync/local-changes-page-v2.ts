@@ -5,7 +5,8 @@ import { userIdSchema } from "@/schemas/primitives"
 // Receiving a page neither advances a cursor nor confirms any local intention.
 export function validateLocalChangesPageInputV2(
   input: unknown,
-  expectedUserIdInput: unknown
+  expectedUserIdInput: unknown,
+  allowPlans = false
 ) {
   const userId = userIdSchema.parse(expectedUserIdInput)
   const value = localChangesPageInputV2Schema.parse(input)
@@ -28,7 +29,9 @@ export function validateLocalChangesPageInputV2(
     }
     const item = change.item
     if (
-      (item.kind !== "task" && item.kind !== "event") ||
+      (item.kind !== "task" &&
+        item.kind !== "event" &&
+        !(allowPlans && item.kind === "plan")) ||
       item.recurrence !== null ||
       item.revision < 1
     )

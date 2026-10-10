@@ -21,7 +21,8 @@ export async function stageRemoteItemViewOperation(
   actorInput: unknown,
   operationInput: unknown,
   timestampInput: unknown,
-  session: ClientSession
+  session: ClientSession,
+  allowPlans = false
 ): Promise<RemoteOperationResultV2> {
   const actor = userIdSchema.parse(actorInput)
   const operation = syncOperationSchema.parse(operationInput)
@@ -29,7 +30,22 @@ export async function stageRemoteItemViewOperation(
   if (!session.inTransaction())
     throw new Error("Item view operations require an active transaction")
   const replay = await readRemoteOperationReplay(actor, operation, session)
-  if (replay) return replay
+  if (replay) {
+    if (!allowPlans && operation.command.type === "item-view.set") {
+      const item = await (await RemoteItemRepository.open(actor, session)).read(
+        operation.command.itemId
+      )
+      if (item?.kind === "plan")
+        return {
+          kind: "preference",
+          outcome: {
+            operationId: operation.operationId,
+            status: "unsupported",
+          },
+        }
+    }
+    return replay
+  }
   const command = operation.command
   if (command.type !== "item-view.set")
     return {
@@ -40,6 +56,11 @@ export async function stageRemoteItemViewOperation(
   const item = await (await RemoteItemRepository.open(actor, session)).read(
     command.itemId
   )
+  if (!allowPlans && item?.kind === "plan")
+    return {
+      kind: "preference",
+      outcome: { operationId: operation.operationId, status: "unsupported" },
+    }
   const current = await repository.read(command.itemId)
   const tag =
     command.primaryTagId === null
@@ -47,14 +68,17 @@ export async function stageRemoteItemViewOperation(
       : await (await RemoteTagRepository.open(actor, session)).read(
           command.primaryTagId
         )
-  const planned = planRemoteItemViewOperation({
-    userId: actor,
-    timestamp: now,
-    operation,
-    item,
-    current,
-    tag,
-  })
+  const planned = planRemoteItemViewOperation(
+    {
+      userId: actor,
+      timestamp: now,
+      operation,
+      item,
+      current,
+      tag,
+    },
+    allowPlans
+  )
   let result: RemoteOperationResultV2
   if (planned.status === "changes") {
     for (const effect of planned.effects) {
@@ -100,5 +124,18 @@ export function executeRemoteItemViewOperation(
     actorInput,
     operationInput,
     stageRemoteItemViewOperation
+  )
+}
+
+// Generation four opts into common plans without changing legacy dispatch.
+export function executeRemotePlanItemViewOperation(
+  actorInput: unknown,
+  operationInput: unknown
+): Promise<RemoteOperationResultV2> {
+  return runPreferenceTransaction(
+    actorInput,
+    operationInput,
+    (actor, operation, timestamp, session) =>
+      stageRemoteItemViewOperation(actor, operation, timestamp, session, true)
   )
 }

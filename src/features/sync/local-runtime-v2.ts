@@ -11,6 +11,7 @@ import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import {
   placementSyncCapabilityPolicy,
+  planSyncCapabilityPolicy,
   type SyncCapabilityPolicy,
   syncCapabilityPolicy,
 } from "@/lib/sync/sync-capabilities"
@@ -30,7 +31,7 @@ export async function openLocalSyncRuntimeV2(
   await requireActiveAccount(account)
   const opened = await Promise.allSettled([
     LocalOutbox.open(account.userId),
-    LocalMixedSyncStore.open(account.userId),
+    LocalMixedSyncStore.open(account.userId, policy.supportsPlans === true),
   ])
   const [outboxResult, storeResult] = opened
   const closeOpened = () => {
@@ -127,4 +128,11 @@ export function openLocalPlacementSyncRuntime(
     transport,
     placementSyncCapabilityPolicy
   )
+}
+
+export function openLocalPlanSyncRuntime(
+  account: Pick<LocalAccount, "userId" | "epoch">,
+  transport: SyncTransportV2
+): Promise<LocalSyncRuntimeV2> {
+  return openLocalSyncRuntimeV2(account, transport, planSyncCapabilityPolicy)
 }

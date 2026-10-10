@@ -33,7 +33,7 @@ const defaultPorts: AuthenticatedPullPortsV2 = {
 export async function getAuthenticatedSyncChangesResponseV2(
   request: Request,
   ports: AuthenticatedPullPortsV2 = defaultPorts,
-  protocolVersion: 2 | 3 = 2
+  protocolVersion: 2 | 3 | 4 = 2
 ): Promise<Response> {
   return getSyncChangesResponseV2(
     request,

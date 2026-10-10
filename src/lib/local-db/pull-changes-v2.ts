@@ -22,14 +22,19 @@ import type { PersonalSnapshot } from "@/types/personal-snapshot"
 export function applyLocalChangesPageV2(
   database: IDBDatabase,
   actorInput: unknown,
-  receiptInput: unknown
+  receiptInput: unknown,
+  allowPlans = false
 ): Promise<"applied" | "ignored"> {
   const userId = userIdSchema.parse(actorInput)
   if (database.name !== localDatabaseName(userId))
     return Promise.reject(
       new Error("Mixed pull database belongs to another partition")
     )
-  const receipt = validateLocalChangesPageInputV2(receiptInput, userId)
+  const receipt = validateLocalChangesPageInputV2(
+    receiptInput,
+    userId,
+    allowPlans
+  )
   return runLocalTransaction(
     database,
     [

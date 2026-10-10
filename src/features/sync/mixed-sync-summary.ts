@@ -9,6 +9,7 @@ import {
 } from "@/lib/sync/queue-summary-v2"
 import {
   placementSyncCapabilityPolicy,
+  planSyncCapabilityPolicy,
   type SyncCapabilityPolicy,
   syncCapabilityPolicy,
 } from "@/lib/sync/sync-capabilities"
@@ -52,4 +53,11 @@ export function readPlacementSyncQueueSummary(
   ports: MixedSummaryPorts = defaultPorts
 ): Promise<SyncQueueSummaryV2> {
   return readMixedSyncQueueSummary(input, ports, placementSyncCapabilityPolicy)
+}
+
+export function readPlanSyncQueueSummary(
+  input: AccountIdentity,
+  ports: MixedSummaryPorts = defaultPorts
+): Promise<SyncQueueSummaryV2> {
+  return readMixedSyncQueueSummary(input, ports, planSyncCapabilityPolicy)
 }

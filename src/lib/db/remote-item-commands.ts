@@ -10,6 +10,7 @@ import { RemoteItemRepository } from "@/lib/db/remote-items"
 import { readRemoteOperationReplay } from "@/lib/db/remote-operation-receipts"
 import { syncOperationFingerprint } from "@/lib/sync/operation-fingerprint"
 import { eventInputSchema } from "@/schemas/event-input"
+import { planInputSchema } from "@/schemas/plan-input"
 import { revisionSchema, userIdSchema } from "@/schemas/primitives"
 import {
   remoteItemChangeSchema,
@@ -27,18 +28,30 @@ type ReceiptDocument = z.infer<typeof remoteOperationReceiptSchema> & {
 type ChangeDocument = z.infer<typeof remoteItemChangeSchema> & { _id: string }
 type CounterDocument = { _id: string; sequence: number }
 
-function isItemCommand(command: { type: string }): command is ItemCommand {
+function isItemCommand(
+  command: { type: string },
+  allowPlans: boolean
+): command is ItemCommand {
   return [
     "item.create",
     "item.update",
     "item.delete",
     "task.set-status",
     "task.set-checklist-entry",
+    ...(allowPlans ? ["plan.set-status", "plan.set-checklist-entry"] : []),
   ].includes(command.type)
 }
 
-function isSimpleItem(item: CalendarItem | CalendarItemDraft): boolean {
-  return (item.kind === "task" || item.kind === "event") && !item.recurrence
+function isSimpleItem(
+  item: CalendarItem | CalendarItemDraft,
+  allowPlans: boolean
+): boolean {
+  return (
+    (item.kind === "task" ||
+      item.kind === "event" ||
+      (allowPlans && item.kind === "plan")) &&
+    !item.recurrence
+  )
 }
 
 class ItemCompareAndSwapError extends Error {}
@@ -49,6 +62,22 @@ export { OperationIdentityReuseError } from "@/lib/sync/operation-identity-reuse
 export async function executeRemoteItemOperation(
   actorInput: unknown,
   operationInput: unknown
+): Promise<RemoteOperationResult> {
+  return executeItemOperation(actorInput, operationInput, false)
+}
+
+// Only the generation-four dispatcher may opt into common plan content.
+export async function executeRemotePlanOperation(
+  actorInput: unknown,
+  operationInput: unknown
+): Promise<RemoteOperationResult> {
+  return executeItemOperation(actorInput, operationInput, true)
+}
+
+async function executeItemOperation(
+  actorInput: unknown,
+  operationInput: unknown,
+  allowPlans: boolean
 ): Promise<RemoteOperationResult> {
   const actor = userIdSchema.parse(actorInput)
   const operation = syncOperationSchema.parse(operationInput)
@@ -72,16 +101,28 @@ export async function executeRemoteItemOperation(
     if (replay) {
       if (replay.kind !== "item")
         throw new Error("Stored receipt is incompatible with the item executor")
-      return remoteOperationResultSchema.parse(replay.outcome)
+      const outcome = remoteOperationResultSchema.parse(replay.outcome)
+      if (
+        !allowPlans &&
+        (operation.command.type === "plan.set-status" ||
+          operation.command.type === "plan.set-checklist-entry" ||
+          ((operation.command.type === "item.create" ||
+            operation.command.type === "item.update") &&
+            operation.command.input.kind === "plan") ||
+          (outcome.status === "applied" && outcome.item.kind === "plan") ||
+          (outcome.status === "conflict" && outcome.current.kind === "plan"))
+      )
+        return { operationId: operation.operationId, status: "unsupported" }
+      return outcome
     }
     const command = operation.command
     const result = (
       status: "unsupported" | "unavailable" | "invalid_command"
     ): RemoteOperationResult => ({ operationId: operation.operationId, status })
     if (
-      !isItemCommand(command) ||
+      !isItemCommand(command, allowPlans) ||
       ((command.type === "item.create" || command.type === "item.update") &&
-        !isSimpleItem(command.input)) ||
+        !isSimpleItem(command.input, allowPlans)) ||
       ((command.type === "task.set-status" ||
         command.type === "task.set-checklist-entry") &&
         command.occurrenceId !== null)
@@ -91,7 +132,8 @@ export async function executeRemoteItemOperation(
     const repository = await RemoteItemRepository.open(actor, session)
     const current = await repository.read(command.itemId)
     let outcome: RemoteOperationResult
-    if (current && !isSimpleItem(current)) return result("unsupported")
+    if (current && !isSimpleItem(current, allowPlans))
+      return result("unsupported")
     if (
       command.type === "item.create"
         ? Boolean(current)
@@ -118,11 +160,20 @@ export async function executeRemoteItemOperation(
       ((command.type === "item.create" || command.type === "item.update") &&
         command.input.kind === "event" &&
         !eventInputSchema.safeParse(command.input).success) ||
+      ((command.type === "item.create" || command.type === "item.update") &&
+        command.input.kind === "plan" &&
+        !planInputSchema.safeParse(command.input).success) ||
       ((command.type === "task.set-status" ||
         command.type === "task.set-checklist-entry") &&
         current?.kind !== "task") ||
       (command.type === "task.set-checklist-entry" &&
         current?.kind === "task" &&
+        !current.checklist.some((entry) => entry.id === command.entryId)) ||
+      ((command.type === "plan.set-status" ||
+        command.type === "plan.set-checklist-entry") &&
+        current?.kind !== "plan") ||
+      (command.type === "plan.set-checklist-entry" &&
+        current?.kind === "plan" &&
         !current.checklist.some((entry) => entry.id === command.entryId))
     ) {
       outcome = result("invalid_command")

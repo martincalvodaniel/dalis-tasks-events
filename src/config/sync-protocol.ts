@@ -3,4 +3,5 @@ export const syncProtocolVersion = 1
 export const syncOperationVersion = 1
 // Placement support requires a separate announcement, while DTOs remain version two.
 export const placementSyncProtocolVersion = 3
+export const planSyncProtocolVersion = 4
 export const syncProtocolHeader = "x-dalis-sync-protocol"

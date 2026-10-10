@@ -45,13 +45,13 @@ export function createHttpSyncTransportV2(
 
 // Negotiation changes independently of the mixed envelopes and durable intentions.
 export function createHttpSyncTransportForProtocol(
-  protocolVersion: 2 | 3,
+  protocolVersion: 2 | 3 | 4,
   userIdInput: string,
   sendOperations: (input: unknown) => Promise<unknown>,
   fetchRequest: typeof fetch = fetch,
   timeoutMs = 30000
 ): SyncTransportV2 {
-  if (protocolVersion !== 2 && protocolVersion !== 3)
+  if (protocolVersion !== 2 && protocolVersion !== 3 && protocolVersion !== 4)
     throw new RangeError("Invalid mixed sync transport protocol")
   const userId = userIdSchema.parse(userIdInput)
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 60000)
@@ -133,7 +133,8 @@ export function createHttpSyncTransportForProtocol(
         await check(response)
         return validateLocalChangesPageInputV2(
           { query, page: await response.json() },
-          userId
+          userId,
+          protocolVersion === 4
         ).page
       })
     },
