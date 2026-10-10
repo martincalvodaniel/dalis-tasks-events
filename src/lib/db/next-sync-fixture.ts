@@ -8,6 +8,7 @@ import {
 import {
   nextSyncBootstrapSchema,
   nextSyncCapabilitySchema,
+  nextSyncIndexControlSchema,
   nextSyncSessionCommandSchema,
   nextSyncStateQuerySchema,
 } from "@/schemas/next-sync-test"
@@ -240,7 +241,7 @@ export async function readNextSyncFixtureState(
     )
   )
     throw new Error("Next fixture actor is not owned by this run")
-  const [{ COLLECTION_NAMES, getCollection }, { readRemoteChangesV2 }] =
+  const [{ COLLECTION_NAMES, getCollection }, { readRemotePlanChangesV2 }] =
     await Promise.all([
       import("@/lib/db/collections"),
       import("@/lib/db/remote-changes-v2"),
@@ -256,6 +257,49 @@ export async function readNextSyncFixtureState(
       views: await views.countDocuments({ userId: parsed.userId }),
       receipts: await receipts.countDocuments({ actorUserId: parsed.userId }),
     },
-    page: await readRemoteChangesV2(parsed.userId, { after: 0, limit: 100 }),
+    page: await readRemotePlanChangesV2(parsed.userId, {
+      after: 0,
+      limit: 100,
+    }),
   }
+}
+
+// Fault injection is limited to the registered placement index in this run's database.
+export async function controlNextSyncFixtureReadiness(
+  request: Request,
+  input: unknown
+) {
+  const parsed = nextSyncIndexControlSchema.parse(input)
+  const { config } = validateNextSyncFixtureRequest(request, {
+    runId: parsed.runId,
+  })
+  await fixture(config)
+  const [
+    { getDatabase },
+    { ensureIndexes },
+    { selectPlacementSyncIndexSpecs },
+  ] = await Promise.all([
+    import("@/lib/db/client"),
+    import("@/lib/db/ensure-indexes"),
+    import("@/lib/db/mixed-sync-index-specs"),
+  ])
+  const database = await getDatabase()
+  if (
+    database.databaseName !== `dalis-sync-test-${config.runId}` ||
+    database.databaseName !== config.mongodbDatabase
+  )
+    throw new Error("Readiness fault injection ownership changed")
+  const selected = selectPlacementSyncIndexSpecs()
+  const placement = selected.find(
+    (spec) =>
+      spec.options.name === "task_placements_user_scope_date_occurrence_uidx"
+  )
+  if (!placement || typeof placement.options.name !== "string")
+    throw new Error("Owned readiness index is missing")
+  if (parsed.command === "block")
+    await database
+      .collection(placement.collection)
+      .dropIndex(placement.options.name)
+  else await ensureIndexes(database, selected)
+  return { complete: true }
 }

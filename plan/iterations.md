@@ -2672,3 +2672,17 @@ Renovación real10oct16:24:100%5h/85%7d, reset siguiente1791660272. HEADf8d2620/
 -16a4c1a objetivo: compilar referencia action4/defaults, dos sesiones propias BetterAuth y dos particiones; matriz3↔4/retiro3/actor y flujo simple plan/asignación/replay sin activar producto. Worker posee test/next-sync/**, scripts/next-sync-test-runner, schemas/next-sync-test y tests, lib/db/next-sync-fixture; root integra sin editar esas rutas concurrentemente. Dependencias:16a4b y matriz common-plan-activation. Aceptación y evidencia según matriz, ninguna inferencia de Google/deployment.
 -16a4c2a objetivo: núcleo puro de apariciones comunes conservando identidad/progreso independiente y offsets civiles/horarios de series de cuatro variantes. Root posee nuevos lib/calendar/plan-occurrences y tests, schemas/types sólo archivos nuevos estrictamente necesarios, y extracción de proyección temporal desde lib/calendar/occurrences a occurrence-schedule compartido. No UI/persistencia/ACK/apariciones remotas activados. Dependencias:contrato plan y motor recurrence existente; aceptación de este núcleo: reglas/DST, intervalos, identidad original/progreso inicial independiente, misma semántica cuatro variantes, padre no completado por aparición y límites acotados; overlay de excepciones y mutaciones locales se cierran después.
 - Root posee plan e integración compartida. Cierres independientes con tests pertinentes/suite/lint/tipos/build, plan/log/commitpushint/HEAD/cuotas; no instalar dependencias ni tocar datos del usuario.
+
+### 16a4c2b — Mutaciones puras por aparición común
+
+- Objetivo: completar/editar/cancelar una aparición de cualquiera de las cuatro variantes sin cambiar padre/slot original.
+- `target_paths`: nuevos schemas/plan-occurrence-command, lib/calendar/plan-occurrence-command y tests; plan. Root/secuencial en sus rutas, worker RPC sigue disjunto.
+- Dependencias:0963c60. Aceptación: autorización por padre activo/owner, slot generado real, erroresDST explícitos, timestamps/progreso/checklist independientes, edición conserva estados de pasos porID; cancelada/borrada no puede recibir progreso, identidad y revisión confirmada intactas. Comandos aún no añadidos a sync/DB/callers; no ACK/persistencia anunciada.
+- Validación: pruebas de cuatro variantes, edición/movimiento/slot/cancelación/ownership/progreso; suite/lint/tipos/build/diff, plan/log/commitpushint/HEAD/cuotas.
+
+### 16a4c2c — Lectura común de apariciones y excepciones
+
+- Objetivo: proyectar apariciones generadas y excepciones movidas/editadas sin duplicarlas; propiedad por padre actual y paginación acotada.
+- Paralelo seleccionado con cuota suficiente tras pruebaRPC4: worker posee sólo nuevos lib/calendar/plan-occurrence-selection y test, schemas/plan-occurrence-query; root posee persistencia/contratos compartidos en siguiente corte. Ningún caller activo.
+- Dependencias:0963c60. Aceptación: variante actual del padre, contenido override, excepciones/cancelaciones/tombstones siempre suprimen slot generado; intervalo actual de excepción incluso inicio anterior al rango; paginación estable/progreso si página generada filtrada, solo cuenta propia y catálogos completos limitados sin truncar.
+- Validación: tests puros de límites/propiedad/intervalos/identidad y cuatro variantes; DoD global y plan/log/commitpushint/HEAD/cuotas.

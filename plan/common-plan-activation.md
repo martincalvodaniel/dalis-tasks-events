@@ -6,6 +6,8 @@ Contenido simple de cuatro variantes, categoría/asignación, orden/progreso/che
 
 ## 16a4c1 — Frontera RPC4 compilada
 
+Estado16a4c1a:19escenarios completos aprobados con recursos propios, acción4 real/defaults/sesiones persistidas y hook4 directo. Producto todavía usa3; esta evidencia no equivale a activar proveedor/callers ni Google interactivo.
+
 Objetivo: demostrar que Next compila y referencia la acción4 real, y que sus defaults ejecutan contenido común con sesión persistida. Sin activar producto.
 
 `target_paths`: [runner Next](../scripts/next-sync-test-runner.ts), [templates](../test/next-sync), schemas/next-sync-test sólo para comandos necesarios y fixtures DB propios. Root posee templates/runner/integración; secuencial inicialmente. Dependencias:16a4b, [acción4](../src/features/sync/actions-v4.ts), [push autenticado4](../src/features/sync/authenticated-push-v4.ts), [pull autenticado4](../src/features/sync/authenticated-pull-v4.ts) y [cliente4](../src/features/sync/mixed-sync-client-v4.ts).

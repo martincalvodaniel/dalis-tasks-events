@@ -12,6 +12,7 @@ import {
   remotePushInputV2Schema,
 } from "@/schemas/remote-push-v2"
 import { validateRemotePushResultV2 } from "@/lib/sync/remote-push-v2"
+import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
 import { syncOperationSchema } from "@/schemas/sync"
 import {
   accountControlSchema,
@@ -334,13 +335,22 @@ export function FixtureController() {
           )
         }
       )
-      await check("Negociación2 y3 rechaza respuestas incompatibles antes de consumir el cuerpo", async () => {
-        for (let index = 0; index < 2; index++) {
-          await call(index, { type: "prepare-local", userId: owner })
-          const proof = await call(index, { type: "protocol-matrix" }) as { cases: number; bodies: number }
-          assert(proof.cases === 4 && proof.bodies === 0, "Four incompatible headers reject before JSON")
+      await check(
+        "Negociación3 y4 rechaza respuestas incompatibles antes de consumir el cuerpo",
+        async () => {
+          for (let index = 0; index < 2; index++) {
+            await call(index, { type: "prepare-local", userId: owner })
+            const proof = (await call(index, { type: "protocol-matrix" })) as {
+              cases: number
+              bodies: number
+            }
+            assert(
+              proof.cases === 4 && proof.bodies === 0,
+              "Four incompatible headers reject before JSON"
+            )
+          }
         }
-      })
+      )
       const batch = {
         transportVersion: 2,
         expectedUserId: "",
@@ -563,60 +573,179 @@ export function FixtureController() {
           )
         }
       )
-      await check("Movimiento histórico y dependientes convergen tras perder la respuesta de un commit remoto", async () => {
-        const before = await state(owner)
-        await call(0, { type: "commit-local", command: {
-          type: "task.move", itemId, occurrenceId: null, scope: "day", date: "2026-10-09",
-          tagId, beforeId: null, afterId: null,
-        } })
-        const dependentTag = crypto.randomUUID()
-        await call(0, { type: "commit-local", command: {
-          type: "tag.save", tagId: dependentTag, input: { name: "Categoría tras movimiento", color: "#123456", position: 3072 },
-        } })
-        await call(0, { type: "commit-local", command: {
-          type: "item-view.set", itemId, primaryTagId: dependentTag,
-        } })
-        const pending = await snapshot(0)
-        const move = pending.backup.stores.outbox.find(entry => entry.operation.command.type === "task.move")
-        assert(move?.state === "pending" && move.attempts === 0 && pending.summary.pending === 3, "Original producer creates pending move and personal dependents")
-        const tag = pending.backup.stores.outbox.find(entry => entry.operation.command.type === "tag.save" && entry.operation.command.tagId === dependentTag)
-        assert(tag?.dependencies.includes(move.operation.operationId), "Personal chain depends on historical move UUID")
-        const lost = await call(0, { type: "lost-move-response-run" }) as { status: string; uploaded: number }
-        assert(lost.status === "retry_later" && lost.uploaded === 0, "Lost response creates no local ACK")
-        const committed = await state(owner)
-        assert(committed.counts.receipts === before.counts.receipts + 1 && committed.page.through === before.page.through + 1, "Lost response still committed one remote receipt")
-        const retained = await snapshot(0)
-        const retainedMove = retained.backup.stores.outbox.find(entry => entry.operation.operationId === move.operation.operationId)
-        assert(retainedMove?.state === "pending" && retainedMove.attempts === 1 && retainedMove.lease === null && JSON.stringify(retainedMove.operation) === JSON.stringify(move.operation), "Lost response preserves historical payload and releases owned lease")
-        for (let index = 0; index < 2; index++) {
-          const result = await call(index, { type: "mixed-run" }) as { status: string }
-          assert(result.status === "settled", "Both devices finish the historical chain")
-        }
-        const stored = await state(owner)
-        assert(stored.counts.receipts === before.counts.receipts + 3 && stored.page.through === before.page.through + 3, "Replay is unique and personal dependents receive real remote receipts")
-        assert(stored.page.changes.filter(change => change.operationId === move.operation.operationId).length === 1, "Historical UUID appears once in journal")
-        const expected = { tags: new Map<string, unknown>(), itemViews: new Map<string, unknown>(), taskPlacements: new Map<string, unknown>() }
-        for (const change of stored.page.changes) if (change.kind === "preference") {
-          for (const effect of change.effects.effects) {
-            if (effect.store === "tags") expected.tags.set(effect.record.id, effect.record)
-            if (effect.store === "itemViews") expected.itemViews.set(effect.record.itemId, effect.record)
-            if (effect.store === "taskPlacements") expected.taskPlacements.set(JSON.stringify([effect.record.scope, effect.record.date, effect.record.occurrenceId]), effect.record)
+      await check(
+        "Movimiento histórico y dependientes convergen tras perder la respuesta de un commit remoto",
+        async () => {
+          const before = await state(owner)
+          await call(0, {
+            type: "commit-local",
+            command: {
+              type: "task.move",
+              itemId,
+              occurrenceId: null,
+              scope: "day",
+              date: "2026-10-09",
+              tagId,
+              beforeId: null,
+              afterId: null,
+            },
+          })
+          const dependentTag = crypto.randomUUID()
+          await call(0, {
+            type: "commit-local",
+            command: {
+              type: "tag.save",
+              tagId: dependentTag,
+              input: {
+                name: "Categoría tras movimiento",
+                color: "#123456",
+                position: 3072,
+              },
+            },
+          })
+          await call(0, {
+            type: "commit-local",
+            command: {
+              type: "item-view.set",
+              itemId,
+              primaryTagId: dependentTag,
+            },
+          })
+          const pending = await snapshot(0)
+          const move = pending.backup.stores.outbox.find(
+            (entry) => entry.operation.command.type === "task.move"
+          )
+          assert(
+            move?.state === "pending" &&
+              move.attempts === 0 &&
+              pending.summary.pending === 3,
+            "Original producer creates pending move and personal dependents"
+          )
+          const tag = pending.backup.stores.outbox.find(
+            (entry) =>
+              entry.operation.command.type === "tag.save" &&
+              entry.operation.command.tagId === dependentTag
+          )
+          assert(
+            tag?.dependencies.includes(move.operation.operationId),
+            "Personal chain depends on historical move UUID"
+          )
+          const lost = (await call(0, { type: "lost-move-response-run" })) as {
+            status: string
+            uploaded: number
           }
-        }
-        const ordered = (records: unknown[]) => JSON.stringify(records.map(record => JSON.stringify(record)).sort())
-        for (let index = 0; index < 2; index++) {
-          const confirmed = await snapshot(index)
-          for (const store of ["tags", "itemViews", "taskPlacements"] as const)
-            assert(ordered(confirmed.backup.stores[store]) === ordered([...expected[store].values()]), "Exact category/view/placement projection matches journal in both partitions")
-          assert(confirmed.cursor.after === stored.page.through && confirmed.cursor.through === null && confirmed.summary.pending === 0, "Both cursors match authoritative checkpoint")
-          if (index === 0) {
-            const ack = confirmed.backup.stores.outbox.find(entry => entry.operation.operationId === move.operation.operationId)
-            assert(ack?.state === "acknowledged" && ack.attempts === 2 && JSON.stringify(ack.operation) === JSON.stringify(move.operation) && JSON.stringify(ack.dependencies) === JSON.stringify(move.dependencies), "Remote replay ACK preserves original UUID/payload/dependencies")
+          assert(
+            lost.status === "retry_later" && lost.uploaded === 0,
+            "Lost response creates no local ACK"
+          )
+          const committed = await state(owner)
+          assert(
+            committed.counts.receipts === before.counts.receipts + 1 &&
+              committed.page.through === before.page.through + 1,
+            "Lost response still committed one remote receipt"
+          )
+          const retained = await snapshot(0)
+          const retainedMove = retained.backup.stores.outbox.find(
+            (entry) =>
+              entry.operation.operationId === move.operation.operationId
+          )
+          assert(
+            retainedMove?.state === "pending" &&
+              retainedMove.attempts === 1 &&
+              retainedMove.lease === null &&
+              JSON.stringify(retainedMove.operation) ===
+                JSON.stringify(move.operation),
+            "Lost response preserves historical payload and releases owned lease"
+          )
+          for (let index = 0; index < 2; index++) {
+            const result = (await call(index, { type: "mixed-run" })) as {
+              status: string
+            }
+            assert(
+              result.status === "settled",
+              "Both devices finish the historical chain"
+            )
           }
+          const stored = await state(owner)
+          assert(
+            stored.counts.receipts === before.counts.receipts + 3 &&
+              stored.page.through === before.page.through + 3,
+            "Replay is unique and personal dependents receive real remote receipts"
+          )
+          assert(
+            stored.page.changes.filter(
+              (change) => change.operationId === move.operation.operationId
+            ).length === 1,
+            "Historical UUID appears once in journal"
+          )
+          const expected = {
+            tags: new Map<string, unknown>(),
+            itemViews: new Map<string, unknown>(),
+            taskPlacements: new Map<string, unknown>(),
+          }
+          for (const change of stored.page.changes)
+            if (change.kind === "preference") {
+              for (const effect of change.effects.effects) {
+                if (effect.store === "tags")
+                  expected.tags.set(effect.record.id, effect.record)
+                if (effect.store === "itemViews")
+                  expected.itemViews.set(effect.record.itemId, effect.record)
+                if (effect.store === "taskPlacements")
+                  expected.taskPlacements.set(
+                    JSON.stringify([
+                      effect.record.scope,
+                      effect.record.date,
+                      effect.record.occurrenceId,
+                    ]),
+                    effect.record
+                  )
+              }
+            }
+          const ordered = (records: unknown[]) =>
+            JSON.stringify(
+              records.map((record) => JSON.stringify(record)).sort()
+            )
+          for (let index = 0; index < 2; index++) {
+            const confirmed = await snapshot(index)
+            for (const store of [
+              "tags",
+              "itemViews",
+              "taskPlacements",
+            ] as const)
+              assert(
+                ordered(confirmed.backup.stores[store]) ===
+                  ordered([...expected[store].values()]),
+                "Exact category/view/placement projection matches journal in both partitions"
+              )
+            assert(
+              confirmed.cursor.after === stored.page.through &&
+                confirmed.cursor.through === null &&
+                confirmed.summary.pending === 0,
+              "Both cursors match authoritative checkpoint"
+            )
+            if (index === 0) {
+              const ack = confirmed.backup.stores.outbox.find(
+                (entry) =>
+                  entry.operation.operationId === move.operation.operationId
+              )
+              assert(
+                ack?.state === "acknowledged" &&
+                  ack.attempts === 2 &&
+                  JSON.stringify(ack.operation) ===
+                    JSON.stringify(move.operation) &&
+                  JSON.stringify(ack.dependencies) ===
+                    JSON.stringify(move.dependencies),
+                "Remote replay ACK preserves original UUID/payload/dependencies"
+              )
+            }
+          }
+          await call(0, { type: "mixed-run" })
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(stored),
+            "No-op replay leaves all remote records intact"
+          )
         }
-        await call(0, { type: "mixed-run" })
-        assert(JSON.stringify(await state(owner)) === JSON.stringify(stored), "No-op replay leaves all remote records intact")
-      })
+      )
       await check(
         "Sesión revocada conserva la intención local y reconectar confirma una sola vez",
         async () => {
@@ -996,7 +1125,7 @@ export function FixtureController() {
           assert(
             proof.probeStatus === 404 &&
               proof.actionNotFound === "1" &&
-              proof.handshake === "captured-prior-v2" &&
+              proof.handshake === "captured-prior-v3" &&
               proof.dispatches === 1 &&
               proof.unrecognized === 1 &&
               proof.identityReads === 1 &&
@@ -1047,7 +1176,7 @@ export function FixtureController() {
         }
       )
       await check(
-        "Acción2 retirada conserva la intención tras capturar handshake2",
+        "Acción3 retirada conserva la intención tras capturar handshake3",
         async () => {
           assert(
             creation.command.type === "item.create",
@@ -1086,7 +1215,12 @@ export function FixtureController() {
             afterFirst: { backup: unknown; cursor: unknown }
             afterSecond: { backup: unknown; cursor: unknown }
           }
-          assert(proof.dispatches === 1 && proof.identityReads === 1 && proof.pageReads === 1, "Retired action receives one captured handshake")
+          assert(
+            proof.dispatches === 1 &&
+              proof.identityReads === 1 &&
+              proof.pageReads === 1,
+            "Retired action receives one captured handshake"
+          )
           assert(
             proof.first.status === "update_required" &&
               proof.first.uploaded === 0 &&
@@ -1148,6 +1282,251 @@ export function FixtureController() {
           assert(
             JSON.stringify(await state(owner)) === JSON.stringify(before),
             "Retired RPC did not mutate remote state"
+          )
+        }
+      )
+      await check(
+        "Readiness4 bloquea el ejecutor, pero acción3 retirada rechaza antes de readiness",
+        async () => {
+          const before = await state(owner)
+          const queueBefore = await snapshot(0)
+          const controlled = async (command: "block" | "restore") => {
+            const response = await fixtureFetch(
+              fixture.runId,
+              "/fixture/readiness",
+              { runId: fixture.runId, command }
+            )
+            assert(response.status === 200, "Owned readiness control failed")
+          }
+          await controlled("block")
+          try {
+            const retired = (await call(0, {
+              type: "retired-push",
+              input: batch,
+            })) as { status: string }
+            assert(
+              retired.status === "update_required",
+              "Retired generation3 consulted readiness"
+            )
+            const rejected = remotePushResultV2Schema.parse(
+              await call(0, { type: "push", input: batch })
+            )
+            assert(
+              rejected.status === "retry_later" &&
+                rejected.results.length === 0,
+              "Generation4 default readiness did not block execution"
+            )
+            const pull = (await call(0, {
+              type: "pull",
+              userId: owner,
+            })) as Reply
+            assert(
+              pull.status === 503 &&
+                pull.protocol === encodeSyncProtocolRange(4),
+              "Unready pull4 did not reject before journal"
+            )
+            const retained = await snapshot(0)
+            assert(
+              JSON.stringify(retained.backup.stores) ===
+                JSON.stringify(queueBefore.backup.stores) &&
+                JSON.stringify(retained.cursor) ===
+                  JSON.stringify(queueBefore.cursor),
+              "Readiness rejection changed local queue or cursor"
+            )
+            assert(
+              JSON.stringify(await state(owner)) === JSON.stringify(before),
+              "Readiness rejection wrote receipt or journal"
+            )
+          } finally {
+            await controlled("restore")
+          }
+        }
+      )
+      await check(
+        "Cuatro variantes con asignación convergen vía action4 después de perder su respuesta",
+        async () => {
+          const remoteBefore = await state(owner)
+          const now = new Date().toISOString()
+          const requests = (
+            ["task", "event", "appointment", "note"] as const
+          ).map((variant) => ({
+            mode: "create" as const,
+            itemId: crypto.randomUUID(),
+            contentOperationId: crypto.randomUUID(),
+            viewOperationId: crypto.randomUUID(),
+            primaryTagId: tagId,
+            now,
+            input: {
+              kind: "plan" as const,
+              variant,
+              title: `Plan RPC ${variant}`,
+              description: "Contenido común",
+              status: "not_started" as const,
+              checklist: [
+                {
+                  id: crypto.randomUUID(),
+                  text: "Paso visible",
+                  completed: false,
+                },
+              ],
+              recurrence: null,
+              schedule: {
+                mode: "all_day" as const,
+                startDate: "2026-10-10",
+                endDateExclusive: "2026-10-11",
+              },
+            },
+          }))
+          for (const request of requests)
+            await call(0, { type: "save-plan", request })
+          const pending = await snapshot(0)
+          await call(0, { type: "save-plan", request: requests[0] })
+          const replayed = await snapshot(0)
+          assert(
+            JSON.stringify(replayed.backup.stores) ===
+              JSON.stringify(pending.backup.stores) &&
+              JSON.stringify(replayed.cursor) ===
+                JSON.stringify(pending.cursor),
+            "Real atomic producer replay changed intentions"
+          )
+          assert(
+            pending.summary.pending === 8,
+            "Four plans require eight paired intentions"
+          )
+          const original = pending.backup.stores.outbox.find(
+            (entry) =>
+              entry.operation.operationId === requests[0].contentOperationId
+          )
+          assert(original, "Original common plan intention is missing")
+          const lost = (await call(0, { type: "lost-move-response-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            lost.status === "retry_later" && lost.uploaded === 0,
+            "Lost RPC response manufactured an ACK"
+          )
+          const committed = await state(owner)
+          assert(
+            committed.counts.receipts === remoteBefore.counts.receipts + 1 &&
+              committed.counts.items === remoteBefore.counts.items + 1,
+            "Lost response did not follow a real plan commit"
+          )
+          const retained = (await snapshot(0)).backup.stores.outbox.find(
+            (entry) =>
+              entry.operation.operationId === original.operation.operationId
+          )
+          assert(
+            retained?.state === "pending" &&
+              retained.attempts === 1 &&
+              retained.lease === null &&
+              JSON.stringify(retained.operation) ===
+                JSON.stringify(original.operation) &&
+              JSON.stringify(retained.dependencies) ===
+                JSON.stringify(original.dependencies),
+            "Lost response changed original intention"
+          )
+          for (let attempt = 0; attempt < 4; attempt++) {
+            const result = (await call(0, { type: "mixed-run" })) as {
+              status: string
+            }
+            if (result.status === "settled") break
+            assert(
+              result.status === "more_work",
+              "Common plan retry did not make bounded progress"
+            )
+          }
+          const authoritative = await state(owner)
+          assert(
+            authoritative.counts.receipts ===
+              remoteBefore.counts.receipts + 8 &&
+              authoritative.counts.items === remoteBefore.counts.items + 4 &&
+              authoritative.counts.views === remoteBefore.counts.views + 4,
+            "Common plan replay duplicated durable effects"
+          )
+          const expected = new Map<string, unknown>()
+          for (const change of authoritative.page.changes) {
+            if (change.kind === "item")
+              expected.set(`item:${change.item.id}`, change.item)
+            else
+              for (const effect of change.effects.effects)
+                expected.set(
+                  JSON.stringify([
+                    effect.store,
+                    ...("id" in effect.record
+                      ? [effect.record.id]
+                      : "itemId" in effect.record
+                        ? [effect.record.itemId]
+                        : []),
+                  ]),
+                  effect.record
+                )
+          }
+          const sorted = (records: unknown[]) =>
+            JSON.stringify(
+              records.map((record) => JSON.stringify(record)).sort()
+            )
+          for (let index = 0; index < 2; index++) {
+            const result = (await call(index, { type: "mixed-run" })) as {
+              status: string
+            }
+            assert(
+              result.status === "settled",
+              "Common plan pull did not settle"
+            )
+            const confirmed = await snapshot(index)
+            for (const request of requests) {
+              assert(
+                sorted(
+                  confirmed.backup.stores.items.filter(
+                    (item) => item.id === request.itemId
+                  )
+                ) === sorted([expected.get(`item:${request.itemId}`)]),
+                "Common plan projection differs from Mongo journal"
+              )
+              const remoteView = [...expected.values()].find(
+                (value) =>
+                  typeof value === "object" &&
+                  value !== null &&
+                  "itemId" in value &&
+                  value.itemId === request.itemId
+              )
+              assert(
+                sorted(
+                  confirmed.backup.stores.itemViews.filter(
+                    (view) => view.itemId === request.itemId
+                  )
+                ) === sorted([remoteView]),
+                "Plan category assignment differs from Mongo journal"
+              )
+              for (const id of [
+                request.contentOperationId,
+                request.viewOperationId,
+              ])
+                assert(
+                  authoritative.page.changes.filter(
+                    (change) => change.operationId === id
+                  ).length === 1,
+                  "Plan UUID did not journal exactly once"
+                )
+            }
+            assert(
+              confirmed.cursor.after === authoritative.page.through &&
+                confirmed.cursor.through === null &&
+                confirmed.summary.pending === 0,
+              "Common plan cursor or queue did not converge"
+            )
+          }
+          const acknowledged = (await snapshot(0)).backup.stores.outbox.find(
+            (entry) =>
+              entry.operation.operationId === original.operation.operationId
+          )
+          assert(
+            acknowledged?.state === "acknowledged" &&
+              acknowledged.attempts === 2 &&
+              JSON.stringify(acknowledged.operation) ===
+                JSON.stringify(original.operation),
+            "Common plan replay ACK changed the original operation"
           )
         }
       )
@@ -1214,7 +1593,9 @@ export function FixtureController() {
       passed = true
     })()
       .catch((error) => {
-        console.error(error instanceof Error ? error.message : "Fixture assertion failed")
+        console.error(
+          error instanceof Error ? error.message : "Fixture assertion failed"
+        )
         setStatus(
           "La prueba ha fallado o se ha bloqueado de forma segura; revisa las comprobaciones completadas"
         )
@@ -1248,7 +1629,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Diecisiete escenarios Next, React e IndexedDB correctos; cookies y recursos propios cerrados"
+            "Diecinueve escenarios Next, React e IndexedDB correctos; cookies y recursos propios cerrados"
           )
         await fetch("/fixture/finish", {
           method: "POST",

@@ -1,16 +1,15 @@
 "use client"
 
-import { useContext, useEffect } from "react"
-import { SyncContext } from "@/features/sync/sync-context"
+import { useEffect } from "react"
 import type { FixtureHookEngine } from "@fixture/hook-engine"
 
 export function FixtureHookReporter({
   report,
+  engine,
 }: {
+  engine: FixtureHookEngine
   report(engine: FixtureHookEngine): void
 }) {
-  const engine = useContext(SyncContext)
-  if (!engine) throw new Error("Fixture requires the product sync provider")
   useEffect(() => report(engine), [engine, report])
   return (
     <p role="status">

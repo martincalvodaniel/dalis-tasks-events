@@ -294,3 +294,7 @@ El usuario pide cerrar categorías/asignaciones y después recibir porcentaje es
 ## 16a4b — Prueba común de cuatro variantes
 
 `bun run scripts/sync-db-test-runner.ts browser-plan` arranca Mongo propio con descriptor validado y dos orígenes loopback/IndexedDB independientes. Abrir URL impresa y pulsar «Ejecutar prueba de planes integrada». Cinco escenarios verifican guardado offline atómico, categoría/asignación, respuesta perdida/replay/ACK único, orden/progreso/checklist/borrado y recarga; comparación exacta de proyecciones/cola/cursor con13recibos. Servidor dispone de plazo y limpieza ownership; iframe elimina únicamente bases con marcador propio. Ejecución16a4b correcta con limpieza completa. No sustituye prueba RPC Next, autenticación Google ni dispositivos físicos.
+
+## 16a4c1a — Next compilado común4
+
+`bun run scripts/sync-db-test-runner.ts next` ahora usa templates4 aisladas, sin activar producto. Manifest exige referencia real exclusiva actions-v4 y verifica ID ausente;19escenarios RPC/defaults/sesionesBetterAuth/React/IndexedDB/Mongo propios aprobados. Hook4 se prueba directamente; no es todavía el proveedor activo de producto. Rechazos3↔4/retiro3/readiness/cuenta/sesión no generanACK; guardia de fault-injection exige descriptor/DB propios antes eliminar/restaurar el índice registrado. Cuatro variantes/asignaciones convergen con replay de respuesta perdida. Recursos/cookies propios limpiados, noGoogleinteractivo/IDdeployment real.

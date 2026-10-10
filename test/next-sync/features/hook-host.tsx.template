@@ -63,7 +63,7 @@ export function hookState() {
             "dalis:sync-queue",
             requested.userId,
             requested.epoch,
-            3,
+            4,
           ])
         )
       : false,

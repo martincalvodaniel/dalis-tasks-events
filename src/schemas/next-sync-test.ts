@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { planSaveRequestSchema } from "@/schemas/plan-save"
 import { entityIdSchema, userIdSchema } from "@/schemas/primitives"
 import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
 import { syncCommandSchema } from "@/schemas/sync"
@@ -67,6 +68,9 @@ export const nextSyncBootstrapSchema = nextSyncCapabilitySchema.extend({
 export const nextSyncSessionCommandSchema = nextSyncCapabilitySchema.extend({
   command: z.enum(["revoke", "expire", "cleanup"]),
 })
+export const nextSyncIndexControlSchema = nextSyncCapabilitySchema.extend({
+  command: z.enum(["block", "restore"]),
+})
 export const nextSyncFinishSchema = nextSyncCapabilitySchema.extend({
   passed: z.boolean(),
 })
@@ -99,6 +103,10 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
         ),
       "Fixture local command is unsupported"
     ),
+  }),
+  z.strictObject({
+    type: z.literal("save-plan"),
+    request: planSaveRequestSchema,
   }),
   z.strictObject({ type: z.literal("mixed-summary") }),
   z.strictObject({ type: z.literal("mixed-run") }),

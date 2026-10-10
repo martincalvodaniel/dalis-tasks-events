@@ -250,6 +250,25 @@ try {
     )
       throw new Error("Fixture missing action reference is not verified")
   }
+  const actionReferences = Object.values(manifest.node) as {
+    filename?: string
+    exportedName?: string
+  }[]
+  if (
+    !actionReferences.some(
+      (reference) =>
+        reference.filename === "src/features/sync/actions-v4.ts" &&
+        reference.exportedName === "pushSyncOperationsV4"
+    ) ||
+    actionReferences.some(
+      (reference) =>
+        reference.filename === "src/features/sync/actions-v3.ts" &&
+        reference.exportedName === "pushSyncOperationsV3"
+    )
+  )
+    throw new Error(
+      "Compiled fixture must reference the generation-four action exclusively"
+    )
   process.stdout.write("Next sync fixture build passed\n")
   for (let index = 0; index < origins.length; index++) {
     stage = index === 0 ? "start_primary" : "start_secondary"

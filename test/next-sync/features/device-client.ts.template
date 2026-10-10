@@ -1,7 +1,7 @@
 "use client"
 
-import { dispatchSyncOperationsV2 } from "@/features/sync/client-action-v2"
-import { dispatchSyncOperationsV3 } from "@/features/sync/client-action-v3"
+import { dispatchFixtureRetiredOperations } from "@fixture/retired-client"
+import { dispatchSyncOperationsV4 } from "@/features/sync/client-action-v4"
 import type { z } from "zod"
 import { nextSyncDeviceCommandSchema } from "@/schemas/next-sync-test"
 
@@ -48,6 +48,7 @@ async function executeCommand(
     [
       "prepare-local",
       "commit-local",
+      "save-plan",
       "mixed-summary",
       "mixed-run",
       "legacy-missing-action-run",
@@ -83,10 +84,10 @@ async function executeCommand(
       runId,
       `/fixture/changes?expectedUserId=${encodeURIComponent(command.userId)}&after=0&limit=100`
     )
-  if (command.type === "push") return dispatchSyncOperationsV3(command.input)
+  if (command.type === "push") return dispatchSyncOperationsV4(command.input)
   if (command.type !== "retired-push")
     throw new Error("Fixture command is unsupported")
-  return dispatchSyncOperationsV2(command.input)
+  return dispatchFixtureRetiredOperations(command.input)
 }
 
 let previous: Promise<unknown> = Promise.resolve()
