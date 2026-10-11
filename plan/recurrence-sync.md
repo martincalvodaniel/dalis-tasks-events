@@ -107,3 +107,7 @@ applyLocalRecurringPreferenceResult preparatorio reutilizaTX actual con selecci�
 ## Raízserie local17c4c
 
 Nuevo método preparatorio valida correspondencia exacta create/update/delete común yactor/UUID/revisión, admite recurrencia sóloplan; métodoactual no cambia yprogreso de padre recurrente noACK. Padre/shadow/cola/outcome atómicos, expectedOccurrenceRevision/localaparición independientes yintencionesintentadas preservadas; sólo baseparent de dependientedirecto unattempted rebasa. Tres puretests yfixtureIndexedDB4254 nuevechecks aprueban rollback/replay/recarga/strict. Backup/diagnóstico/ordenmixto futuros siguen antes del motor5; no anuncios/callers nuevos.
+
+## Copia portable17c5a
+
+Formato backup3 preparatorio representa nuevasfamilias sin ampliar codecsactivos1/2; intención1 yshadows/outcomes2 siguen originales, versionportable separada de negociación5. Codec futuro lee3/1/2 sin normalizarhistoria. Integridad común mantiene actores/cola/counter/ACK/decisiones yvalida parents/slots/contradicciones/revisiones observadas deaparición. Cinco tests nuevos yregresiónbackups pasan; exportTX futuro17c5b yUI/consumidores aúnpendientes, sinrestore/wipe automático.

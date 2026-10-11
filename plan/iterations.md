@@ -2956,3 +2956,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias: writerremoto17b2b1/local17c2/17c4b; cuota30%5h/74%7d, reserva10%/1%.
 - Aceptación: métodoactual sigue rechazando appliedrecurrence; método futuro validaactor/UUID/target/revisión/content para serie, progreso raíz recurrente noACK. Padre/shadow/lease/outcome juntos; rebasa sólo basedependiente directo unattempted, expectedOccurrenceRevision/UUID/intenciones intentadas/occurrence intactos. Replay durable yrollback tardío.
 - Validación: puro DTOcorrespondencia/familias/mismatch yfixtureIndexedDB createACK con aparición/dependientes/replay/rollback/recarga; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. Sincallerproductivo/DBusuario/activación.
+
+## 17c5a — Copia portable de evidencia recurrente
+
+- Estado: completada11oct; cinco tests nuevos y nueve regresiones debackup aprobados.
+
+- Objetivo: formato backup3 preparatorio con aparición/shadow/outcome2 yvalidación común de integridad, conservando codecsactivos1/2.
+- target_paths: schemas/local-recurring-backup, types/local-backup; lib/backup/local-backup y nueva prueba; plan.
+- Dependencias:17c1–4 ycopiasvigentes; cuota25%5h/73%7d, reservas10%/1%.
+- Aceptación: formato portable3 separado deintenciones1/evidencia2/transportefuturo5, sinreescritura/migración/activación. Codecfuturo también lee1/2 conservándolos; export/importpuro mantiene UUID/payload/leases/deps/outcomes/tombstones/cursor exactos. Todo actor/parent/slot/estado/evidencia/size16MiB validado, missingACK/outcome/supersession nunca admitidos; codecactivo rechaza3.
+- Validación: roundtrip cuatrovariantes/cancelados/currentnull/latebase, mismatches/corrupt/foreign/limits/dependencies/legacy; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. PuertoexportTX posterior, no restore/DBusuario ni caller5.

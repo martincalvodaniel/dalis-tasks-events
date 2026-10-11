@@ -1,10 +1,15 @@
 import { assertBackupOwnership } from "@/lib/backup/backup-ownership"
 import { validateBackupImportEvidence } from "@/lib/backup/import-record"
 import { decodeLocalOperationOutcome } from "@/lib/sync/local-operation-outcome-v2"
+import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
+import { decodeLocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
+import { projectPlanOccurrenceSyncIncidents } from "@/lib/sync/recurring-incident-snapshot"
 import { decodeRemoteShadow } from "@/lib/sync/remote-shadow-v2"
 import { localBackupSchema } from "@/schemas/local-backup"
+import { planOccurrenceEntityKey } from "@/schemas/local-plan-occurrence-sync"
+import { localRecurringBackupSchema } from "@/schemas/local-recurring-backup"
 import { userIdSchema } from "@/schemas/primitives"
-import type { LocalBackup } from "@/types/local-backup"
+import type { LocalBackup, LocalRecurringBackup } from "@/types/local-backup"
 
 export const maximumBackupBytes = 16 * 1024 * 1024
 export const localBackupStoreNames = [
@@ -30,8 +35,35 @@ export function validateLocalBackup(
   input: unknown,
   expectedUserId: string
 ): LocalBackup {
+  return validateBackup(input, expectedUserId, false)
+}
+
+export function validateLocalRecurringBackup(
+  input: unknown,
+  expectedUserId: string
+): LocalRecurringBackup {
+  return validateBackup(input, expectedUserId, true)
+}
+
+function validateBackup(
+  input: unknown,
+  expectedUserId: string,
+  recurring: false
+): LocalBackup
+function validateBackup(
+  input: unknown,
+  expectedUserId: string,
+  recurring: true
+): LocalRecurringBackup
+function validateBackup(
+  input: unknown,
+  expectedUserId: string,
+  recurring: boolean
+): LocalRecurringBackup {
   const actor = userIdSchema.parse(expectedUserId)
-  const backup = localBackupSchema.parse(input)
+  const backup = recurring
+    ? localRecurringBackupSchema.parse(input)
+    : localBackupSchema.parse(input)
   if (backup.userId !== actor)
     throw new Error("Backup belongs to another account")
   assertBackupOwnership(backup.stores, actor)
@@ -77,7 +109,63 @@ export function validateLocalBackup(
     s.outbox.map((record) => record.sequence),
     "operation sequences"
   )
-  for (const shadow of s.remoteShadows) decodeRemoteShadow(shadow, actor)
+  for (const shadow of s.remoteShadows)
+    if (recurring) decodeRemoteRecurringShadow(shadow, actor)
+    else decodeRemoteShadow(shadow, actor)
+  if (recurring) {
+    projectPlanOccurrenceSyncIncidents({
+      userId: actor,
+      items: s.items,
+      occurrences: s.occurrences,
+      entries: s.outbox,
+      shadows: s.remoteShadows,
+      outcomes: s.syncMetadata.filter((record) => "result" in record),
+    })
+    const shadows = new Map(
+      s.remoteShadows.map((raw) => {
+        const shadow = decodeRemoteRecurringShadow(raw, actor)
+        return [shadow.entityKey, shadow] as const
+      })
+    )
+    for (const raw of s.syncMetadata) {
+      if (!("result" in raw)) continue
+      const outcome = decodeLocalRecurringOutcome(raw, actor)
+      if (outcome.kind !== "plan-occurrence") continue
+      const shadow = shadows.get(
+        planOccurrenceEntityKey(outcome.operation.command.occurrenceId)
+      )
+      if (shadow && shadow.kind !== "plan-occurrence")
+        throw new Error("Backup appearance shadow has another family")
+      const result = outcome.result.outcome
+      const known = [
+        outcome.base,
+        result.status === "applied"
+          ? result.occurrence
+          : result.status === "conflict"
+            ? result.current
+            : null,
+        shadow?.record ?? null,
+      ]
+      for (const first of known)
+        for (const second of known)
+          if (
+            first &&
+            second &&
+            first.revision === second.revision &&
+            JSON.stringify(first) !== JSON.stringify(second)
+          )
+            throw new Error(
+              "Backup appearance remote versions are contradictory"
+            )
+      if (
+        shadow &&
+        known.some(
+          (record) => record && record.revision > shadow.record.revision
+        )
+      )
+        throw new Error("Backup appearance shadow regresses durable evidence")
+    }
+  }
   const entries = new Map(
     s.outbox.map((entry) => [entry.operation.operationId, entry])
   )
@@ -103,7 +191,9 @@ export function validateLocalBackup(
         ? [
             [
               record.operation.operationId,
-              decodeLocalOperationOutcome(record, actor),
+              recurring
+                ? decodeLocalRecurringOutcome(record, actor)
+                : decodeLocalOperationOutcome(record, actor),
             ] as const,
           ]
         : []
@@ -193,4 +283,22 @@ export function decodeLocalBackup(json: string, userId: string): LocalBackup {
   if (new TextEncoder().encode(json).byteLength > maximumBackupBytes)
     throw new Error("Backup exceeds its size limit")
   return validateLocalBackup(JSON.parse(json), userId)
+}
+
+export function encodeLocalRecurringBackup(
+  input: unknown,
+  userId: string
+): string {
+  const json = JSON.stringify(validateLocalRecurringBackup(input, userId))
+  if (new TextEncoder().encode(json).byteLength > maximumBackupBytes)
+    throw new Error("Backup exceeds its size limit")
+  return json
+}
+export function decodeLocalRecurringBackup(
+  json: string,
+  userId: string
+): LocalRecurringBackup {
+  if (new TextEncoder().encode(json).byteLength > maximumBackupBytes)
+    throw new Error("Backup exceeds its size limit")
+  return validateLocalRecurringBackup(JSON.parse(json), userId)
 }
