@@ -2786,3 +2786,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:16c5; estado desde icono principal ya operativo, sin cambios de persistencia.
 - Aceptación: sin botón adicional Empezar/Sin empezar; acciones y selector del plan a32px, etiquetas/foco intactos; compartir sin entregas activas ni dependencia del piloto; continuación puntual15:25Europe/Madrid.
 - Validación: suite existente, lint, tipos, build y diff; sin nuevos tests para este ajuste visual reversible.
+
+## 17b2b1 — Escritor preparatorio de series con guard compartido
+
+- Estado: completada11oct; pruebas/evidencia en iteration-log.
+
+- Objetivo: permitir crear/editar/borrar series comunes mediante un executor privado, escribiendo el guard compartido en la misma TX de contenido/recibo/journal. Primer corte de17b2b; apariciones y transporte siguen desconectados.
+- target_paths: lib/db/remote-item-commands, nueva prueba remote-plan-series-commands.integration.test, scripts/sync-db-test-runner; plan/{master,workflow,iterations,iteration-log,recurrence-sync}.md.
+- Dependencias:17b1/17b2a, HEAD72e92dc con dependencias actualizadas, ventana renovada100%5h/84%7d.
+- Aceptación: replay único incluso después de borrar serie; UUID reutilizado rechazado; CAS/aislamiento/rollback incluidos guard y journal; generaciones vigentes no aceptan ni reproducen datos recurrentes; progreso de padre recurrente sin soporte. No activar endpoint/capacidades/índice usuario.
+- Validación: Mongo propio con descriptor/imagen fijada, tests actuales, lint/tipos/build; commitpushint/HEAD ycuotas. Luego DTO/replay/executor de aparición en corte propio.

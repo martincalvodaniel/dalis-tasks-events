@@ -8,6 +8,8 @@ import { getDatabase } from "@/lib/db/client"
 import { COLLECTION_NAMES, getCollection } from "@/lib/db/collections"
 import { RemoteItemRepository } from "@/lib/db/remote-items"
 import { readRemoteOperationReplay } from "@/lib/db/remote-operation-receipts"
+import { writeRemotePlanSeriesGuard } from "@/lib/db/remote-plan-series-guard"
+import { PreferenceCompareAndSwapError } from "@/lib/db/remote-preference-transactions"
 import { syncOperationFingerprint } from "@/lib/sync/operation-fingerprint"
 import { eventInputSchema } from "@/schemas/event-input"
 import { planInputSchema } from "@/schemas/plan-input"
@@ -42,15 +44,16 @@ function isItemCommand(
   ].includes(command.type)
 }
 
-function isSimpleItem(
+function isSupportedItem(
   item: CalendarItem | CalendarItemDraft,
-  allowPlans: boolean
+  allowPlans: boolean,
+  allowSeries = false
 ): boolean {
   return (
     (item.kind === "task" ||
       item.kind === "event" ||
       (allowPlans && item.kind === "plan")) &&
-    !item.recurrence
+    (!item.recurrence || (allowSeries && item.kind === "plan"))
   )
 }
 
@@ -74,10 +77,19 @@ export async function executeRemotePlanOperation(
   return executeItemOperation(actorInput, operationInput, true)
 }
 
+// Prepared for the future recurring dispatcher; active callers retain simple scope.
+export async function executeRemoteRecurringPlanOperation(
+  actorInput: unknown,
+  operationInput: unknown
+): Promise<RemoteOperationResult> {
+  return executeItemOperation(actorInput, operationInput, true, true)
+}
+
 async function executeItemOperation(
   actorInput: unknown,
   operationInput: unknown,
-  allowPlans: boolean
+  allowPlans: boolean,
+  allowSeries = false
 ): Promise<RemoteOperationResult> {
   const actor = userIdSchema.parse(actorInput)
   const operation = syncOperationSchema.parse(operationInput)
@@ -103,6 +115,16 @@ async function executeItemOperation(
         throw new Error("Stored receipt is incompatible with the item executor")
       const outcome = remoteOperationResultSchema.parse(replay.outcome)
       if (
+        !allowSeries &&
+        ((outcome.status === "applied" &&
+          outcome.item.kind === "plan" &&
+          outcome.item.recurrence) ||
+          (outcome.status === "conflict" &&
+            outcome.current.kind === "plan" &&
+            outcome.current.recurrence))
+      )
+        return { operationId: operation.operationId, status: "unsupported" }
+      if (
         !allowPlans &&
         (operation.command.type === "plan.set-status" ||
           operation.command.type === "plan.set-checklist-entry" ||
@@ -122,7 +144,7 @@ async function executeItemOperation(
     if (
       !isItemCommand(command, allowPlans) ||
       ((command.type === "item.create" || command.type === "item.update") &&
-        !isSimpleItem(command.input, allowPlans)) ||
+        !isSupportedItem(command.input, allowPlans, allowSeries)) ||
       ((command.type === "task.set-status" ||
         command.type === "task.set-checklist-entry") &&
         command.occurrenceId !== null)
@@ -132,7 +154,14 @@ async function executeItemOperation(
     const repository = await RemoteItemRepository.open(actor, session)
     const current = await repository.read(command.itemId)
     let outcome: RemoteOperationResult
-    if (current && !isSimpleItem(current, allowPlans))
+    if (current && !isSupportedItem(current, allowPlans, allowSeries))
+      return result("unsupported")
+    if (
+      current?.kind === "plan" &&
+      current.recurrence &&
+      (command.type === "plan.set-status" ||
+        command.type === "plan.set-checklist-entry")
+    )
       return result("unsupported")
     if (
       command.type === "item.create"
@@ -180,6 +209,8 @@ async function executeItemOperation(
     } else {
       const next = applyItemCommand(current, command, actor, now)
       next.revision = revisionSchema.parse(operation.baseRevision + 1)
+      if (allowSeries && next.kind === "plan")
+        await writeRemotePlanSeriesGuard(actor, next.id, session)
       const written =
         command.type === "item.create"
           ? await repository.insert(next)
@@ -237,7 +268,9 @@ async function executeItemOperation(
         (error.keyPattern?._id === 1 || error.keyPattern?.actorUserId === 1)
       if (
         attempt === 2 ||
-        (!insertRace && !(error instanceof ItemCompareAndSwapError))
+        (!insertRace &&
+          !(error instanceof ItemCompareAndSwapError) &&
+          !(error instanceof PreferenceCompareAndSwapError))
       )
         throw error
     }

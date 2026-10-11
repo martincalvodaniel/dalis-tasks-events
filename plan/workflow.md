@@ -348,3 +348,7 @@ Peticiónhumana prioriza cambio pequeño de estado directo desde lista después 
 ### Intercalada16c6 y continuación puntual
 
 Peticiónhumana11oct: cerrar detalleUI compacto y retirar compartir del alcance, aun con4%5h/85%7d observados; no abrir nuevo bloque en esta ventana. Heartbeat existente actualizado ACTIVE para11oct15:25Europe/Madrid, ejecución puntual, notificaciones failed_runs_only. Resetreal publicado1791725051 (15:24:11Madrid): verificar renovación y ambas cuotas antes de retomar17b2b, sin asumirla por reloj. Reservas del lote posterior10%5h/1%7d, commitpushint/HEAD yconsulta después de cada entrega; pausar al cierre, sin cadena adicional. Compartir14a–14c excluido también de dependencias/aceptación.
+
+### Continuación puntual11oct15:25
+
+Renovación confirmada por lectura real100%5h/84%7d, nuevo reset1791743128 (20:25:28Madrid). HEAD72e92dc limpio y remoto exacto incluye actualización humana de dependencias; conservarla. Lote secuencial autorizado para repetición remota, cortes pequeños completos con reservas10%5h/1%7d y cuota real tras cada commit/push/HEAD.17b2b se divide primero en escritor de series guardado (17b2b1), luego contrato/resultados/replay y executor de aparición. Sin activación parcial ni otra programación; heartbeat puntual se pausará al cerrar. Compartir fuera del alcance.
