@@ -58,3 +58,8 @@ TaskChecklist reutiliza ItemCompletionIcon con variante/color heredados de PlanC
 ### 16c2 — Orden desde Hoy y próximas y checklist indentada
 
 La lista principal ya permite long-press sobre planes simples, en el mismo contexto día/categoría y con vecinos completos; Todos también. Se conserva bloqueo sólo en contexto de aparición, intervalo consultado fuera de su inicio o página parcial. La checklist tiene indentación20px sin reducir44px táctiles. Fixture React/IndexedDB4251 comprueba toque corto/movimiento previo sin intención, pulsación450ms/drop con una intención task.move, refresco y recarga conservando orden; eventosPointer touch de fixture, no prueba física de móvil. Recursos propios retirados. Calendario recibe destinos en16c3.
+
+
+### 16c3 — Cambio de día desde calendario
+
+El mismo gesto del día puede soltar sobre una celda del mes del mismo board, incluso con una sola fila; destino resaltado/aria y cancelación conservados. Reprograma inicio y fin por días civiles, manteniendo horas/zona/duración civil/progreso/checklist/categoría. ValidaciónDST rechaza horas ambiguas/inexistentes sin escribir. Simple usa item.update/expectedItem y outbox existentes; una aparición usa plan.update-occurrence/expectedOccurrence/expectedItem, conserva slot y serie. Mismo inicio no genera intención. Ninguna nueva ruta/índice/dependencia ni cambio de transporte4: aparición aún local. Prueba propiaReact/IndexedDB de cancelación/mismafecha, dos drops→dos intenciones exactas, serie intacta y recarga aprobada; viewport390 sin overflow, no equivalente a móvil físico. Captura `/private/tmp/dalis-plan-calendar-drag.jpg`. Recursos propios limpiados;631tests/lint673/tipos/build34 aprobados. Repeticiónremota es siguiente bloque elegido.

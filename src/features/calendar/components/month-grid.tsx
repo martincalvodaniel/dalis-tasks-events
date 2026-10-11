@@ -30,9 +30,11 @@ export function MonthGrid({
   selectedDate,
   today,
   counts,
+  dropScope,
 }: {
   selectedDate: string
   today: string
+  dropScope?: string
   counts: ReadonlyMap<string, number>
 }) {
   const previous = adjacentMonth(selectedDate, -1)
@@ -41,6 +43,7 @@ export function MonthGrid({
   return (
     <section
       aria-label="Calendario mensual"
+      data-order-drop-scope={dropScope}
       className="rounded-2xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900"
     >
       <h2 className="text-xl font-semibold first-letter:uppercase">{title}</h2>
@@ -102,6 +105,7 @@ export function MonthGrid({
                   return (
                     <td key={cell.key} className="p-0 align-top">
                       <a
+                        data-order-drop-date={dropScope ? cell.date : undefined}
                         href={calendarHref(cell.date)}
                         aria-current={selected ? "true" : undefined}
                         aria-label={`${dayFormatter.format(civilDateToUtc(cell.date))}${isToday ? ", hoy" : ""}${selected ? ", seleccionado" : ""}, ${count} ${count === 1 ? "elemento" : "elementos"}`}

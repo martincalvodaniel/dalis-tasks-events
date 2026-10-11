@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client"
 import { SWRConfig } from "swr"
 import { OFFLINE_ACCOUNT_KEY } from "@/config/pwa"
+import { PlanCalendarBoard } from "@/features/plans/components/plan-calendar-board"
 import { PlanList } from "@/features/plans/components/plan-list"
 import { saveLocalPlan } from "@/features/plans/local-plans"
 import type { LocalAccount } from "@/features/workspace/local-account"
@@ -19,6 +20,7 @@ import { entityIdSchema } from "@/schemas/primitives"
 if (location.hostname !== "127.0.0.1" || location.port !== "4251")
   throw new Error("Plan agenda UI proof requires its isolated loopback origin")
 const query = new URLSearchParams(location.search)
+const calendarMode = query.get("mode") === "calendar"
 const runId = entityIdSchema.parse(query.get("run"))
 const userId = `browser-test-${runId}-plan-gestures`
 const databaseName = localDatabaseName(userId)
@@ -131,7 +133,7 @@ if (!reload) {
           position: (index + 1) * 1024,
         },
       })
-      for (const recurring of [false])
+      for (const recurring of calendarMode ? [false, true] : [false])
         await saveLocalPlan(account, {
           mode: "create",
           itemId: planId(index, recurring),
@@ -186,11 +188,15 @@ if (!reload) {
 const root = createRoot(rootElement)
 root.render(
   <SWRConfig value={{ shouldRetryOnError: false }}>
-    <PlanList
-      account={account}
-      selection={{ kind: "upcoming", date }}
-      heading="Hoy y próximas"
-    />
+    {calendarMode ? (
+      <PlanCalendarBoard account={account} />
+    ) : (
+      <PlanList
+        account={account}
+        selection={{ kind: "upcoming", date }}
+        heading="Hoy y próximas"
+      />
+    )}
   </SWRConfig>
 )
 status.textContent = "Preparado para pulsación prolongada sobre planes."
@@ -307,6 +313,177 @@ verify.onclick = async () => {
   }
 }
 actions.append(verify)
+const move = document.createElement("button")
+move.textContent = "Probar cambio de día"
+move.className = "min-h-11 rounded border px-3 text-sm"
+move.hidden = !calendarMode
+move.onclick = async () => {
+  move.disabled = true
+  try {
+    while (
+      rootElement.querySelector("button")?.textContent ===
+      "Completar recuento del mes"
+    ) {
+      rootElement.querySelector<HTMLButtonElement>("button")?.click()
+      await new Promise((resolve) => setTimeout(resolve, 60))
+    }
+    const destination = rootElement.querySelector<HTMLElement>(
+      '[data-order-drop-date="2026-10-12"]'
+    )
+    assert(destination, "Calendar target is missing")
+    const outbox = await LocalOutbox.open(userId)
+    const before = (await outbox.listEntries()).length
+    outbox.close()
+    async function drag(
+      key: string,
+      cancelled = false,
+      targetDate = "2026-10-12"
+    ) {
+      window.scrollTo({ top: 0, behavior: "instant" })
+      await settle()
+      const source = rootElement?.querySelector<HTMLElement>(
+        `li[data-order-item="${key}"]`
+      )
+      const title = source?.querySelector("h4")
+      const cell = rootElement?.querySelector<HTMLElement>(
+        `[data-order-drop-date="${targetDate}"]`
+      )
+      assert(source && title && cell, "Calendar drag source is missing")
+      const capture = source.setPointerCapture
+      source.setPointerCapture = () => undefined
+      const origin = title.getBoundingClientRect()
+      const dispatch = (
+        type: string,
+        x = origin.left + 8,
+        y = origin.top + 8
+      ) =>
+        title.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            isPrimary: true,
+            pointerId: 43,
+            pointerType: "touch",
+            button: 0,
+            clientX: x,
+            clientY: y,
+          })
+        )
+      try {
+        dispatch("pointerdown")
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        const target = cell.getBoundingClientRect()
+        dispatch(
+          "pointermove",
+          target.left + target.width / 2,
+          target.top + target.height / 2
+        )
+        if (cancelled)
+          source.dispatchEvent(
+            new KeyboardEvent("keydown", { key: "Escape", bubbles: true })
+          )
+        dispatch(
+          "pointerup",
+          target.left + target.width / 2,
+          target.top + target.height / 2
+        )
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        await settle()
+      } finally {
+        source.setPointerCapture = capture
+      }
+    }
+    await drag(planId(0, false), true)
+    await drag(planId(0, false), false, date)
+    await drag(planId(0, false))
+    await drag(`${planId(0, true)}:${date}`)
+    const repository = await LocalRepository.open(userId),
+      saved = await LocalOutbox.open(userId)
+    try {
+      const entries = await saved.listEntries()
+      assert(
+        entries.length === before + 2,
+        `Calendar drops must enqueue two operations: ${entries.length - before}`
+      )
+      assert(
+        entries.at(-2)?.operation.command.type === "item.update" &&
+          entries.at(-1)?.operation.command.type === "plan.update-occurrence",
+        "Calendar drops must use original producers"
+      )
+      const simple = await repository.get("items", planId(0, false)),
+        parent = await repository.get("items", planId(0, true))
+      const occurrence = await repository.get(
+        "occurrences",
+        `${planId(0, true)}:${date}`
+      )
+      assert(
+        simple?.kind === "plan" &&
+          simple.schedule.mode === "all_day" &&
+          simple.schedule.startDate === "2026-10-12" &&
+          simple.schedule.endDateExclusive === "2026-10-13",
+        "Simple interval was not moved"
+      )
+      assert(
+        parent?.kind === "plan" &&
+          parent.schedule.mode === "all_day" &&
+          parent.schedule.startDate === date,
+        "Occurrence drag moved its parent"
+      )
+      assert(
+        occurrence?.kind === "plan" &&
+          occurrence.slotKey === date &&
+          occurrence.schedule.mode === "all_day" &&
+          occurrence.schedule.startDate === "2026-10-12",
+        "Appearance identity or date was lost"
+      )
+      assert(
+        !rootElement.querySelector(
+          `li[data-order-item="${planId(0, false)}"]`
+        ) &&
+          !rootElement.querySelector(
+            `li[data-order-item="${planId(0, true)}:${date}"]`
+          ),
+        "Moved rows remain on the original day"
+      )
+      status.textContent =
+        "Calendario OK: cancelación y misma fecha sin escritura; plan y aparición movidos con dos intenciones, serie intacta."
+    } finally {
+      repository.close()
+      saved.close()
+    }
+  } catch (error) {
+    status.textContent = `Fallo: ${error instanceof Error ? error.message : "Calendar check failed"}`
+  }
+}
+actions.append(move)
+const verifyDate = document.createElement("button")
+verifyDate.textContent = "Verificar fecha guardada"
+verifyDate.className = "min-h-11 rounded border px-3 text-sm"
+verifyDate.hidden = !calendarMode
+verifyDate.onclick = async () => {
+  const repository = await LocalRepository.open(userId)
+  try {
+    const simple = await repository.get("items", planId(0, false)),
+      occurrence = await repository.get(
+        "occurrences",
+        `${planId(0, true)}:${date}`
+      )
+    assert(
+      simple?.kind === "plan" &&
+        simple.schedule.mode === "all_day" &&
+        simple.schedule.startDate === "2026-10-12" &&
+        occurrence?.kind === "plan" &&
+        occurrence.schedule.mode === "all_day" &&
+        occurrence.schedule.startDate === "2026-10-12",
+      "Reload lost moved dates"
+    )
+    status.textContent = "Fechas y aparición conservadas tras recarga."
+  } catch (error) {
+    status.textContent = `Fallo: ${error instanceof Error ? error.message : "Date check failed"}`
+  } finally {
+    repository.close()
+  }
+}
+actions.append(verifyDate)
 const cleanup = document.createElement("button")
 cleanup.textContent = "Limpiar prueba"
 cleanup.className = "ml-3 min-h-11 rounded border px-3 text-sm"
@@ -355,5 +532,7 @@ cleanup.onclick = async () => {
   cleanup.disabled = true
   run.disabled = true
   verify.disabled = true
+  move.disabled = true
+  verifyDate.disabled = true
 }
 actions.append(cleanup)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useId, useMemo } from "react"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { MonthGrid } from "@/features/calendar/components/month-grid"
 import { useAccountDay } from "@/features/calendar/hooks/use-account-day"
@@ -19,6 +19,7 @@ const dayFormatter = new Intl.DateTimeFormat("es-ES", {
 })
 
 export function PlanCalendarBoard({ account }: { account: LocalAccount }) {
+  const dropScope = useId()
   const { data, error } = useLocalPlans(account)
   const requestedDate = useCalendarDate()
   const today = useAccountDay(data?.timeZone)
@@ -61,7 +62,12 @@ export function PlanCalendarBoard({ account }: { account: LocalAccount }) {
     )
   return (
     <>
-      <MonthGrid selectedDate={selected} today={today} counts={counts} />
+      <MonthGrid
+        selectedDate={selected}
+        today={today}
+        counts={counts}
+        dropScope={dropScope}
+      />
       {appearances.nextCursor ? (
         <p role="status" className="mt-2 text-xs text-zinc-500">
           El recuento incluye las apariciones cargadas.
@@ -89,6 +95,7 @@ export function PlanCalendarBoard({ account }: { account: LocalAccount }) {
       ) : null}
       <PlanList
         account={account}
+        calendarDropScope={dropScope}
         selection={{ kind: "day", date: selected }}
         heading={dayFormatter.format(civilDateToUtc(selected))}
       />

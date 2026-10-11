@@ -13,6 +13,7 @@ import { usePlanAppearances } from "@/features/plans/hooks/use-plan-appearances"
 import { usePlanOccurrenceProgress } from "@/features/plans/hooks/use-plan-occurrence-progress"
 import { usePlanOrder } from "@/features/plans/hooks/use-plan-order"
 import { usePlanProgress } from "@/features/plans/hooks/use-plan-progress"
+import { usePlanReschedule } from "@/features/plans/hooks/use-plan-reschedule"
 import {
   changeLocalPlanOccurrence,
   deleteLocalPlan,
@@ -50,9 +51,11 @@ export function PlanList({
   account,
   selection = allPlansSelection,
   heading = "Tus planes",
+  calendarDropScope,
 }: {
   account: LocalAccount
   selection?: PlanAgendaSelection
+  calendarDropScope?: string
   heading?: string
 }) {
   const { data, error, isLoading, mutate } = useLocalPlans(account)
@@ -61,6 +64,7 @@ export function PlanList({
   const progress = usePlanProgress(account)
   const occurrenceProgress = usePlanOccurrenceProgress(account)
   const ordering = usePlanOrder(account)
+  const rescheduling = usePlanReschedule(account)
   const { data: placements, error: placementReadError } =
     useLocalTaskPlacements(account)
   const category = useLocalIntent<{ itemId: string; tagId: string | null }>(
@@ -145,6 +149,7 @@ export function PlanList({
     progress.busy ||
     occurrenceProgress.busy ||
     ordering.busy ||
+    rescheduling.busy ||
     category.busy ||
     groupOrdering.busy
   const canOrderRows = Boolean(
@@ -182,6 +187,12 @@ export function PlanList({
       <h2 className="text-base font-semibold first-letter:uppercase sm:text-xl">
         {heading}
       </h2>
+      {rescheduling.error ? (
+        <ErrorBanner>
+          No se pudo mover el plan. Puede haber cambiado o la hora no existir
+          ese día por el cambio de horario; revisa su fecha en el editor.
+        </ErrorBanner>
+      ) : null}
       {progress.error || occurrenceProgress.error ? (
         <ErrorBanner>
           No se pudo cambiar el progreso. Vuelve a intentarlo; si el plan cambió
@@ -408,17 +419,35 @@ export function PlanList({
                       ) : undefined
                     }
                     orderControl={
-                      canOrderRows &&
-                      planRowOrderPeers(group.rows, selection, row).length >
-                        1 ? (
+                      (calendarDropScope && !row.plan.recurrence) ||
+                      (canOrderRows &&
+                        planRowOrderPeers(group.rows, selection, row).length >
+                          1) ? (
                         <LongPressOrder
-                          itemId={row.series.id}
+                          itemId={row.key}
+                          dropScope={calendarDropScope}
+                          version={
+                            calendarDropScope ? JSON.stringify(row) : undefined
+                          }
+                          onDateDrop={
+                            calendarDropScope
+                              ? (date) => {
+                                  void rescheduling.change({ row, date })
+                                }
+                              : undefined
+                          }
                           label={`plan ${row.plan.title}`}
-                          peers={planRowOrderPeers(
-                            group.rows,
-                            selection,
-                            row
-                          ).map((record) => record.id)}
+                          peers={
+                            canOrderRows &&
+                            planRowOrderPeers(group.rows, selection, row)
+                              .length > 1
+                              ? planRowOrderPeers(
+                                  group.rows,
+                                  selection,
+                                  row
+                                ).map((record) => record.id)
+                              : [row.key]
+                          }
                           busy={busy}
                           onDrop={(neighbors) => {
                             void ordering.change({

@@ -16,7 +16,7 @@ import type {
   LocalItemCommand,
   LocalPlanOccurrenceCommand,
 } from "@/types/local-sync"
-import type { Plan } from "@/types/plan-item"
+import type { Plan, PlanDraft } from "@/types/plan-item"
 import type { PlanOccurrence } from "@/types/plan-occurrence"
 
 export async function saveLocalPlan(
@@ -105,6 +105,25 @@ export async function deleteLocalPlan(
     await requireActiveAccount(account)
     return await outbox.commitItemCommand(
       { type: "item.delete", itemId: expected.id },
+      { operationId, expectedItem: expected }
+    )
+  } finally {
+    outbox.close()
+  }
+}
+
+export async function updateLocalPlan(
+  account: LocalAccount,
+  expected: Plan,
+  input: PlanDraft,
+  operationId: string
+) {
+  await requireActiveAccount(account)
+  const outbox = await LocalOutbox.open(account.userId)
+  try {
+    await requireActiveAccount(account)
+    return await outbox.commitItemCommand(
+      { type: "item.update", itemId: expected.id, input },
       { operationId, expectedItem: expected }
     )
   } finally {

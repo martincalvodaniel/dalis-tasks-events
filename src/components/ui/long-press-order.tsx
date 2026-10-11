@@ -24,6 +24,8 @@ type DropTarget = {
   top: number
   left: number
   width: number
+  date?: string
+  height?: number
 }
 
 export function LongPressOrder({
@@ -32,20 +34,26 @@ export function LongPressOrder({
   peers,
   busy,
   onDrop,
+  dropScope,
+  version,
+  onDateDrop,
 }: {
   itemId: string
   label: string
   peers: readonly string[]
   busy: boolean
   onDrop: (neighbors: RankNeighbors) => void
+  dropScope?: string
+  version?: string
+  onDateDrop?: (date: string) => void
 }) {
   const anchor = useRef<HTMLSpanElement>(null)
   const gesture = useRef<Gesture | null>(null)
   const cancelGesture = useRef<() => void>(() => undefined)
   const [dragging, setDragging] = useState(false)
   const [target, setTarget] = useState<DropTarget | null>(null)
-  const fingerprint = JSON.stringify(peers)
-  const unavailable = busy || peers.length < 2
+  const fingerprint = JSON.stringify({ peers, dropScope, version })
+  const unavailable = busy || (peers.length < 2 && !onDateDrop)
   const canStart = useEffectEvent(() => !unavailable && peers.includes(itemId))
   const drop = useEffectEvent((neighbors: RankNeighbors) => {
     if (!unavailable) onDrop(neighbors)
@@ -53,6 +61,30 @@ export function LongPressOrder({
   const locate = useEffectEvent(
     (root: HTMLElement, point: Gesture): DropTarget | null => {
       if (point.fingerprint !== fingerprint || unavailable) return null
+      if (onDateDrop && dropScope) {
+        const cell = document
+          .elementFromPoint(point.x, point.y)
+          ?.closest<HTMLElement>("[data-order-drop-date]")
+        if (
+          cell?.closest<HTMLElement>("[data-order-drop-scope]")?.dataset
+            .orderDropScope === dropScope
+        ) {
+          const date = cell.dataset.orderDropDate
+          if (date) {
+            const rect = cell.getBoundingClientRect()
+            return {
+              id: date,
+              date,
+              label: cell.getAttribute("aria-label") ?? date,
+              side: "before",
+              top: rect.top,
+              left: rect.left,
+              width: rect.width,
+              height: rect.height,
+            }
+          }
+        }
+      }
       const list = root.parentElement?.closest<HTMLElement>("[data-order-list]")
       if (!list) return null
       const bounds = list.getBoundingClientRect()
@@ -86,6 +118,10 @@ export function LongPressOrder({
   )
   const finish = useEffectEvent((root: HTMLElement, point: Gesture) => {
     const destination = point.active ? locate(root, point) : null
+    if (destination?.date) {
+      if (!unavailable) onDateDrop?.(destination.date)
+      return
+    }
     const neighbors = destination
       ? dropMoveNeighbors(peers, itemId, destination.id, destination.side)
       : null
@@ -242,7 +278,7 @@ export function LongPressOrder({
     root.addEventListener("pointercancel", cancel)
     root.addEventListener("lostpointercapture", cancel)
     root.addEventListener("click", click, true)
-    root.addEventListener("touchmove", touchMove, { passive: false })
+    document.addEventListener("touchmove", touchMove, { passive: false })
     root.addEventListener("contextmenu", context)
     root.addEventListener("keydown", key)
     window.addEventListener("blur", cancel)
@@ -257,7 +293,7 @@ export function LongPressOrder({
       root.removeEventListener("pointercancel", cancel)
       root.removeEventListener("lostpointercapture", cancel)
       root.removeEventListener("click", click, true)
-      root.removeEventListener("touchmove", touchMove)
+      document.removeEventListener("touchmove", touchMove)
       root.removeEventListener("contextmenu", context)
       root.removeEventListener("keydown", key)
       window.removeEventListener("blur", cancel)
@@ -273,22 +309,26 @@ export function LongPressOrder({
   return (
     <>
       <span ref={anchor} className="sr-only">
-        Mantén pulsado para ordenar {label}. Con teclado, usa Alt y flechas
-        arriba o abajo.
+        Mantén pulsado para ordenar {label}
+        {onDateDrop ? " o moverlo a un día del calendario" : ""}. Con teclado,
+        usa Alt y flechas arriba o abajo.
       </span>
       <span role="status" className="sr-only">
         {dragging
           ? target
-            ? `Soltar ${target.side === "before" ? "antes" : "después"} de ${target.label}. Escape cancela.`
+            ? target.date
+              ? `Mover a ${target.label}. Escape cancela.`
+              : `Soltar ${target.side === "before" ? "antes" : "después"} de ${target.label}. Escape cancela.`
             : "Arrastrando. Busca un destino. Escape cancela."
           : ""}
       </span>
       {dragging && target ? (
         <div
           aria-hidden="true"
-          className="pointer-events-none fixed z-50 h-1 rounded bg-emerald-600"
+          className={`pointer-events-none fixed z-50 rounded ${target.date ? "border-2 border-emerald-500 bg-emerald-500/20" : "h-1 bg-emerald-600"}`}
           style={{
-            top: target.top - 2,
+            top: target.date ? target.top : target.top - 2,
+            height: target.height,
             left: target.left,
             width: target.width,
           }}
