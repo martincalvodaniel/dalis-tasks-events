@@ -356,3 +356,7 @@ Renovación confirmada por lectura real100%5h/84%7d, nuevo reset1791743128 (20:2
 ### Cierre de la continuación puntual del 11 de octubre
 
 Los ajustes humanos 16c7–16c9 están publicados: cuenta/avatar, arrastre sin selección y entrada directa/favicon. La recurrencia sigue preparatoria; último código completo `c6449ed`. Tras consulta real quedan 15%5h/71%7d, con reserva 10%/1%. No se inicia 17b3b porque sus pruebas Mongo, posibles reparaciones y publicación pueden cruzar la reserva. Se cierra con documentación coherente, commit/push/HEAD y lectura final de cuotas; la revisión puntual se pausa, sin otra programación. El reset publicado sigue siendo 1791743128 (20:25:28 Madrid), no una autorización de continuación automática.
+
+### Intercalada humana16c10
+
+Petición explícita posterior al cierre: gesto horizontal para cambiar mes y cabecera compacta. Lectura inicial13%5h/71%7d; corte único UI sin datos ni activación de recurrencia. Validación y publicación completas, consulta final de cuotas; automatización permanece pausada y no se abre siguiente executor por este ajuste.

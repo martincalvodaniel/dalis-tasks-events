@@ -12,6 +12,12 @@ export function calendarHref(date: string): string {
   return `/workspace?view=calendar&date=${civilDateSchema.parse(date)}`
 }
 
+export function monthSwipeOffset(dx: number, dy: number): -1 | 1 | null {
+  if (!Number.isFinite(dx) || !Number.isFinite(dy)) return null
+  if (Math.abs(dx) < 64 || Math.abs(dx) <= Math.abs(dy) * 1.5) return null
+  return dx < 0 ? 1 : -1
+}
+
 export function adjacentMonth(date: string, offset: -1 | 1): string | null {
   const current = civilDateToUtc(date)
   const day = current.getUTCDate()

@@ -2995,6 +2995,15 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: distinguir cambios UI publicados, recurrencia preparada y activación pendiente; corregir el recuento documental de aserciones; pausar la revisión puntual sin crear otra cadena.
 - Validación: referencias locales, consistencia del estado, `git diff --check`, commit/push a `int`, HEAD remoto exacto y consulta de ambas cuotas. No cambios de código ni repetición de pruebas ya aprobadas.
 
+## 16c10 — Mes por gesto horizontal y cabecera compacta
+
+- Estado: completada11oct; pruebas de reconocimiento/markup y DoD aprobados.
+- Objetivo: cambiar de mes deslizando el calendario, quitar flechas y colocar Hoy junto al mes/año.
+- target_paths: `src/features/calendar/components/month-grid.tsx`, `src/features/calendar/hooks/use-month-swipe.ts`, `src/features/calendar/month-view.ts` y su prueba; documentos de plan.
+- Dependencias: MonthGrid compartido, navegación civil existente y drop de planes16c3; petición humana explícita con13%5h/71%7d.
+- Aceptación: izquierda siguiente/derecha anterior; no cambiar por scroll vertical, tap, multitouch o gesto cancelado. No interferir con drop de planes ni selección de día. Cabecera en una fila, Hoy visualmente menor con target usable; PageUp/PageDown como alternativa de teclado sin flechas visibles. Sin cambios DB/transporte.
+- Validación: regresión de fechas/bordes y prueba del reconocimiento horizontal, lint/tipos/build y diff; commit/pushint/HEAD, después cuotas. Corte UI único, no reabrir lote ni automatización.
+
 ## 17b3b — Executor de asignación de categoría a una serie
 
 - Estado: candidata, no iniciada al cierre de esta ventana.

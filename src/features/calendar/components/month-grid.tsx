@@ -1,8 +1,7 @@
-import {
-  adjacentMonth,
-  calendarHref,
-  calendarWeeks,
-} from "@/features/calendar/month-view"
+"use client"
+
+import { useMonthSwipe } from "@/features/calendar/hooks/use-month-swipe"
+import { calendarHref, calendarWeeks } from "@/features/calendar/month-view"
 import { civilDateToUtc } from "@/lib/calendar/civil-date"
 
 const monthFormatter = new Intl.DateTimeFormat("es-ES", {
@@ -24,7 +23,7 @@ const weekdays = [
   ["Dom", "Domingo"],
 ] as const
 const controlClass =
-  "inline-flex min-h-12 items-center justify-center rounded-xl border border-zinc-300 px-3 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 dark:border-zinc-700"
+  "inline-flex min-h-11 items-center justify-center px-2 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
 
 export function MonthGrid({
   selectedDate,
@@ -37,43 +36,29 @@ export function MonthGrid({
   dropScope?: string
   counts: ReadonlyMap<string, number>
 }) {
-  const previous = adjacentMonth(selectedDate, -1)
-  const next = adjacentMonth(selectedDate, 1)
+  const swipe = useMonthSwipe(selectedDate)
   const title = monthFormatter.format(civilDateToUtc(selectedDate))
   return (
     <section
-      aria-label="Calendario mensual"
+      aria-label="Calendario mensual. Desliza para cambiar de mes o usa Re Pág y Av Pág."
+      {...swipe}
       data-order-drop-scope={dropScope}
-      className="rounded-2xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900"
+      className="touch-pan-y touch-pinch-zoom select-none rounded-2xl border border-zinc-200 bg-white p-3 sm:p-5 focus-visible:outline-2 focus-visible:outline-emerald-700 dark:border-zinc-800 dark:bg-zinc-900"
     >
-      <h2 className="text-xl font-semibold first-letter:uppercase">{title}</h2>
-      <nav aria-label="Cambiar mes" className="my-4 flex flex-wrap gap-2">
-        {previous ? (
-          <a
-            href={calendarHref(previous)}
-            aria-label="Mes anterior"
-            className={controlClass}
-          >
-            Anterior
-          </a>
-        ) : (
-          <span className={`${controlClass} opacity-50`}>Anterior</span>
-        )}
-        <a href={calendarHref(today)} className={controlClass}>
-          Hoy
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h2 className="text-base font-semibold first-letter:uppercase">
+          {title}
+        </h2>
+        <a
+          href={calendarHref(today)}
+          className={controlClass}
+          data-calendar-control
+        >
+          <span className="rounded-lg border border-zinc-300 px-3 py-1 dark:border-zinc-700">
+            Hoy
+          </span>
         </a>
-        {next ? (
-          <a
-            href={calendarHref(next)}
-            aria-label="Mes siguiente"
-            className={controlClass}
-          >
-            Siguiente
-          </a>
-        ) : (
-          <span className={`${controlClass} opacity-50`}>Siguiente</span>
-        )}
-      </nav>
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[15rem] table-fixed border-separate border-spacing-1">
           <caption className="sr-only">

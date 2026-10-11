@@ -1,12 +1,47 @@
 import { describe, expect, test } from "bun:test"
+import { createElement } from "react"
+import { renderToStaticMarkup } from "react-dom/server"
+import { MonthGrid } from "@/features/calendar/components/month-grid"
 import {
   adjacentMonth,
   calendarDateFromSearch,
   calendarHref,
   calendarWeeks,
+  monthSwipeOffset,
 } from "@/features/calendar/month-view"
 
 describe("monthly calendar navigation", () => {
+  test("changes only for deliberate horizontal movement in either direction", () => {
+    expect(monthSwipeOffset(-64, 0)).toBe(1)
+    expect(monthSwipeOffset(80, 20)).toBe(-1)
+    for (const [dx, dy] of [
+      [0, 0],
+      [63, 0],
+      [-40, 1],
+      [70, 60],
+      [60, 90],
+      [90, 60],
+      [NaN, 0],
+      [100, Infinity],
+    ])
+      expect(monthSwipeOffset(dx, dy)).toBeNull()
+  })
+  test("keeps today and the month in one header without arrow controls", () => {
+    const markup = renderToStaticMarkup(
+      createElement(MonthGrid, {
+        selectedDate: "2026-10-11",
+        today: "2026-10-11",
+        counts: new Map(),
+      })
+    )
+    expect(markup).toContain("octubre de 2026")
+    expect(markup).toContain("data-calendar-control")
+    expect(markup).toContain(">Hoy</span>")
+    expect(markup).toContain("Re Pág y Av Pág")
+    expect(markup).not.toContain(">Anterior<")
+    expect(markup).not.toContain(">Siguiente<")
+    expect(markup).toContain("touch-pan-y touch-pinch-zoom")
+  })
   test("validates URL dates and keeps a selected day when opening the workspace", () => {
     expect(calendarDateFromSearch("?view=calendar&date=2026-10-06")).toBe(
       "2026-10-06"
