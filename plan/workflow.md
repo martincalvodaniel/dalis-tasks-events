@@ -299,3 +299,7 @@ El usuario pide continuar; nueva ventana real100%5h/71%7d, reset publicado179170
 ### Cierre operacional16a4c3e
 
 Activación96a6237 publicada y Preview Ready/worker/barrera4 comprobados; lectura tras entrega64%5h/65%7d. Margen no sustituye consentimiento de borrado irreversible local: usuario dispone del diálogo Preview del IAB y pregunta específica pendiente, sesión/ajustes se conservan. No abrir piloto dependiente ni confirmar por silencio; no volver a borrar Mongo ni actuar en producción. Bloque rediseño común entregado; repetición remota/cumpleaños/compartir permanecen bloques posteriores sujetos a elección. Automatización permanece pausada sin nueva programación.
+
+### Reanudación humana11oct — Nuevas ventanas
+
+Usuario «Nuevas ventanas. Continúa» responde tras petición específica de retomar limpieza local del IAB Preview ypiloto. Renovación real100%5h/100%7d, reset5h1791725051 y semanal1792311851; partidaintce9eae3 limpio. Continúa bloque rediseño activo/piloto con reservas10%5h/1%7d y consulta real tras cada commitpushint/HEAD. Sin créditos/reinicios propios ni nueva cadenaautomática. Se retoma confirmación concreta abierta sobre la única partición de Preview de esta cuenta, preservando sesión/ajustes; no extender alcance a otrosdispositivos/producción ni repetir wipeMongo.
