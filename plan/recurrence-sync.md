@@ -131,3 +131,7 @@ La revisión de esta ventana era puntual: se pausa al cerrar. No hay una nueva e
 ## Executor de asignación17b3b
 
 Puerto futuro de vista comparte replay recurrente antes de mutar y usa el guard de serie en la misma TX que CAS/vista/journal/recibo. Callers activos mantienen su decoder y alcance. Históricos unsupported se replayean intactos, UUID de otra familia no se reutiliza. Pruebas Mongo propias demuestran cuatro variantes, asignación/limpieza/conflicto/replay, rollback tardío total y reread tras edición/borrado concurrentes. No cambia contenido/revisión del padre ni activa sincronización de repetición. Índices existentes de vista/recibo y `_id` del guard cubren las consultas; sin nueva provisión.
+
+## Replay de categorías17b3c
+
+El puerto futuro de categorías usa el decoder común de recibos recurrentes; creación/edición/movimiento/borrado conservan CAS y journal actuales. Recibos anteriores se replayean exactamente y la reutilización de un UUID de aparición se rechaza por fingerprint antes de efectos. Prueba Mongo incluye entrega concurrente única y rollback después de recibo. Callers4 intactos; índices existentes suficientes. Sigue17c5a: contrato/planner puro de orden mixto de planes simples y apariciones, antes de executor y consumidores.

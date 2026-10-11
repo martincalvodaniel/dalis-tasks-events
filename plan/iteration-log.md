@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17b3c — Replay recurrente de categorías
+
+Cerrado11oct: puerto futuro de tag usa decoder compartido de recibos antes de efectos; API activa conserva reader estricto. Mongo propio prueba replay histórico exacto, edición concurrente con recibo único, movimiento/borrado y reutilización UUID de aparición rechazada antes de catálogo/efectos; rollback trasreceipt revierte categoría/journal/contador/recibo y retry limpio. Índices existentes suficientes, sin actuación en DBusuario. Mongo121pass/0fail/1662aserciones23archivos, recursos propios retirados. Suite694pass/188opt-in skip/0fail/9670aserciones, lint735/tipos/build36/diff aprobados. Types detectó nombre erróneo de colección en cleanup de test y se corrigió antes del cierre; validación final completa aprobada. Commit/pushint/HEAD/cuotas; siguiente17c5a orden mixto recurrente puro.
+
 ## 17b3b — Asignación de serie enTX y replay común
 
 Cerrado11oct tras renovación real100%5h/69%7d, reset1791761185. Nuevo puerto preparatorio comparte implementación de vista con selección privada de replay/planner futuros, guard del padre antes de efectos y lectura completa dentroTX/retry; exports activos estrictos intactos. Históricosunsupported conservados; UUID de aparición reutilizado detectado antes de writes. Cuatro tests Mongo nuevos cubren cuatrovariantes/asignación/clear/replay/CAS/actor/rollback completo trasreceipt y carreras controladas de edición/borrado padre. Edición concurrente válida permite asignar tras reread sin alterar contenido; borrado devuelve unavailable sin vista. Índices existentes suficientes, sin DBusuario/capacidad nueva. Mongo119pass/0fail/1644aserciones23archivos, runner limpió contenedor/almacenamiento propios. Suite694pass/186opt-in skip/0fail/9670aserciones, lint735/tipos/buildNext16.4worker36/diff aprobados. Commit/pushint/HEAD/cuotas antes de abrir siguiente corte.

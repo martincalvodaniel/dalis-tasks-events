@@ -26,6 +26,8 @@ Al cerrar la continuación puntual del 11 de octubre, el código publicado llega
 
 Continuación20:26:17b3b conecta executor preparatorio de categorías de series, con guard/CAS/recibo/journal y carreras Mongo probados. Generación4 activa sin cambios; orden recurrente, integración/negociación5 y prueba conjunta siguen pendientes.
 
+17b3c cierra replay común de categorías con recibos de aparición y rollback real. Siguiente17c5a: orden mixto recurrente puro; todavía sin activar repetición remota.
+
 Nueva petición humana11oct: continuación puntual programada hoy20:26Europe/Madrid, previa comprobación real de renovación para17b3b. Código85d788c, reservas10%5h/1%7d; heartbeat existente ACTIVE sin cadena adicional.
 
 Queda aproximadamente **20–25% del alcance actual** (75–80% completado). Estimación ponderada por complejidad, no por commits ni duración. Al retirar compartir (13puntos del alcance original), quedan alrededor de20puntos sobre87: repetición remota/series/apariciones y orden10, cumpleaños5, preferencias residuales/aceptación final5. La mejora del porcentaje corresponde a una reducción de alcance, no a implementar compartir.

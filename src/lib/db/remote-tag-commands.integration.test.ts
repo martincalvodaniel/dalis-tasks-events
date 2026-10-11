@@ -5,10 +5,16 @@ import { getSyncDatabaseTestConfig } from "@/config/env"
 import { closeDatabaseConnection, getDatabase } from "@/lib/db/client"
 import { COLLECTION_NAMES, getCollection } from "@/lib/db/collections"
 import { ensureIndexes, INDEX_SPECS } from "@/lib/db/ensure-indexes"
-import { executeRemoteItemOperation } from "@/lib/db/remote-item-commands"
-import { readRemoteOperationReceipt } from "@/lib/db/remote-operation-receipts"
 import {
+  executeRemoteItemOperation,
+  executeRemoteRecurringPlanOperation,
+} from "@/lib/db/remote-item-commands"
+import { readRemoteOperationReceipt } from "@/lib/db/remote-operation-receipts"
+import { executeRemotePlanOccurrenceOperation } from "@/lib/db/remote-plan-occurrence-commands"
+import {
+  executeRemoteRecurringTagOperation,
   executeRemoteTagOperation,
+  stageRemoteRecurringTagOperation,
   stageRemoteTagOperation,
 } from "@/lib/db/remote-tag-commands"
 import { RemoteTagRepository } from "@/lib/db/remote-tags"
@@ -98,6 +104,8 @@ describe.skipIf(!config)("atomic remote category commands", () => {
       await ownedDatabase()
       for (const [collection, key] of [
         [COLLECTION_NAMES.items, "ownerId"],
+        [COLLECTION_NAMES.planOccurrences, "userId"],
+        [COLLECTION_NAMES.planSeriesGuards, "userId"],
         [COLLECTION_NAMES.tags, "userId"],
         [COLLECTION_NAMES.syncOperations, "actorUserId"],
         [COLLECTION_NAMES.syncChanges, "recipientUserId"],
@@ -109,6 +117,130 @@ describe.skipIf(!config)("atomic remote category commands", () => {
     } finally {
       await closeDatabaseConnection()
     }
+  }, 30000)
+
+  test("future categories preserve historical replay and commit each mutation once", async () => {
+    const actor = `${prefix}recurring-replay`
+    const first = create("Future category")
+    const historical = await executeRemoteTagOperation(actor, first)
+    const original = await history(actor)
+    expect(await executeRemoteRecurringTagOperation(actor, first)).toEqual(
+      historical
+    )
+    expect(await history(actor)).toEqual(original)
+    if (first.command.type !== "tag.save")
+      throw new Error("Expected category creation")
+    const update = operation(
+      { ...first.command, input: { ...first.command.input, name: "Renamed" } },
+      1
+    )
+    const [left, right] = await Promise.all([
+      executeRemoteRecurringTagOperation(actor, update),
+      executeRemoteRecurringTagOperation(actor, update),
+    ])
+    expect(left).toEqual(right)
+    expect(left.outcome.status).toBe("applied")
+    const moved = operation(
+      {
+        type: "tag.move",
+        tagId: first.command.tagId,
+        beforeId: null,
+        afterId: null,
+      },
+      2
+    )
+    expect(
+      (await executeRemoteRecurringTagOperation(actor, moved)).outcome.status
+    ).toBe("applied")
+    const deleted = operation(
+      { type: "tag.delete", tagId: first.command.tagId },
+      3
+    )
+    const result = await executeRemoteRecurringTagOperation(actor, deleted)
+    expect(result.outcome.status).toBe("applied")
+    const snapshot = await history(actor)
+    expect(snapshot.receipts).toBe(4)
+    expect(snapshot.changes).toHaveLength(4)
+    expect(await executeRemoteRecurringTagOperation(actor, deleted)).toEqual(
+      result
+    )
+    expect(await history(actor)).toEqual(snapshot)
+  }, 30000)
+
+  test("future category receipt identity rejects appearance UUID reuse before any mutation", async () => {
+    const actor = `${prefix}recurring-identity`
+    const itemId = crypto.randomUUID()
+    await executeRemoteRecurringPlanOperation(
+      actor,
+      operation({
+        type: "item.create",
+        itemId,
+        input: {
+          kind: "plan",
+          variant: "note",
+          title: "Recurring note",
+          description: "",
+          status: "not_started",
+          checklist: [],
+          schedule: {
+            mode: "all_day",
+            startDate: "2026-10-11",
+            endDateExclusive: "2026-10-12",
+          },
+          recurrence: {
+            frequency: "daily",
+            interval: 1,
+            anchorDate: "2026-10-11",
+            timeZone: "Europe/Madrid",
+            end: { type: "never" },
+          },
+        },
+      })
+    )
+    const appearance = operation(
+      {
+        type: "plan.set-occurrence-status",
+        itemId,
+        occurrenceId: `${itemId}:2026-10-11`,
+        expectedOccurrenceRevision: 0,
+        status: "in_progress",
+      },
+      1
+    )
+    expect(
+      (await executeRemotePlanOccurrenceOperation(actor, appearance)).outcome
+        .status
+    ).toBe("applied")
+    const before = await history(actor)
+    await expect(
+      executeRemoteRecurringTagOperation(actor, {
+        ...create(),
+        operationId: appearance.operationId,
+      })
+    ).rejects.toBeInstanceOf(OperationIdentityReuseError)
+    expect(await history(actor)).toEqual(before)
+    expect(await (await RemoteTagRepository.open(actor)).catalog()).toEqual([])
+    const retry = create("Retry category")
+    const database = await ownedDatabase()
+    await expect(
+      database.client.withSession((session) =>
+        session.withTransaction(async () => {
+          await stageRemoteRecurringTagOperation(
+            actor,
+            retry,
+            timestamp,
+            session
+          )
+          throw new Error("Rollback after receipt")
+        })
+      )
+    ).rejects.toThrow("Rollback after receipt")
+    expect(await history(actor)).toEqual(before)
+    expect(await (await RemoteTagRepository.open(actor)).catalog()).toEqual([])
+    expect(
+      (await executeRemoteRecurringTagOperation(actor, retry)).outcome.status
+    ).toBe("applied")
+    expect((await history(actor)).receipts).toBe(before.receipts + 1)
   }, 30000)
 
   test("commits once under duplicate delivery and replays without writing history", async () => {

@@ -3028,6 +3028,15 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17b3c — Replay de categorías dentro del namespace recurrente
+
+- Estado: completada11oct; Mongo121pass/1662aserciones y DoD aprobados.
+- Objetivo: puerto futuro de categorías que reconoce recibos de todas las familias recurrentes antes de mutar, sin ampliar callers4.
+- target_paths: `src/lib/db/remote-tag-commands.ts`, su prueba Mongo, documentos de plan.
+- Dependencias:17b3b y decoder común recurrente; entrada94%5h/68%7d, reservas10%/1%.
+- Aceptación: conservar resultados históricos, actor/fingerprint y replay exacto; UUID reutilizado entre aparición y categoría rechaza antes de catálogo/efectos. Mantener CAS/journal/recibo transaccionales y rollback de staging; API activa intacta. Índices actuales suficientes.
+- Validación: Mongo propio para creación/replay concurrente, movimiento/edición/borrado, identidad entre familias y rollback; DoDglobal, commit/pushint/HEAD/cuotas. Sin activación ni DBusuario.
+
 ## 17b3b — Executor de asignación de categoría a una serie
 
 - Estado: completada11oct; cuatro escenarios nuevos Mongo reales y DoD aprobados.
