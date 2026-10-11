@@ -14,6 +14,28 @@ import {
 } from "./ensure-indexes"
 
 describe("MongoDB index specifications", () => {
+  test("stages appearance slot uniqueness and sorted series catalogs without automatic provisioning", () => {
+    expect(
+      INDEX_SPECS.filter(
+        (spec) => spec.collection === COLLECTION_NAMES.planOccurrences
+      )
+    ).toEqual([
+      {
+        collection: COLLECTION_NAMES.planOccurrences,
+        keys: { userId: 1, seriesId: 1, slotKey: 1 },
+        options: {
+          name: "plan_occurrences_user_series_slot_uidx",
+          unique: true,
+        },
+        provisioning: "explicit",
+      },
+    ])
+    expect(
+      automaticIndexSpecs().some(
+        (spec) => spec.collection === COLLECTION_NAMES.planOccurrences
+      )
+    ).toBe(false)
+  })
   test("keeps the current bootstrap automatic selection unchanged", async () => {
     const calls: string[] = []
     const database: IndexDatabase = {

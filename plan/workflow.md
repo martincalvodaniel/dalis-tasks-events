@@ -328,3 +328,8 @@ Publicados66839ee y83136da con HEADorigin/int exactos. Tras83136da quedan40%5h/9
 ### Cierre17a2a
 
 Lectura previa34%5h/90%7d permite lectores/captura opcional y pruebaIndexedDB propia, sin activar alcance remoto. Checklist solicitada publicada25aa242;17a2a cierra con commitpushint/HEAD y consulta real antes de abrir siguientecorte. Reservas10%5h/1%7d y automatizaciónpausada se mantienen; no nueva cadena ni actuación DBusuario.
+
+
+### Cierre preparatorio17b1
+
+6b37bd3 publicado con HEADorigin/int exacto y28%5h/89%7d; margen permitió repositorio/CAS con recursos Mongo propios, reservando10%5h/1%7d.17b1 no activa series/capacidades ni provisiona índice en DBusuario. Al cerrar commitpushint/HEAD consultar cuotas antes de elegir guard/executor posterior; automatización sigue pausada.

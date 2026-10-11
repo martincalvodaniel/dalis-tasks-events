@@ -26,6 +26,7 @@ import {
   type IndexSpec,
 } from "@/lib/db/ensure-indexes"
 import { readMixedSyncIndexReadiness } from "@/lib/db/mixed-sync-index-readiness"
+import { selectMixedSyncIndexSpecs } from "@/lib/db/mixed-sync-index-specs"
 import {
   mixedSyncIndexNameSchema,
   mixedSyncIndexNames,
@@ -266,9 +267,7 @@ describe.skipIf(!config)("owned personal index operator CLI", () => {
     if (!freshDatabaseVerified)
       throw new Error("Operator test requires fresh ownership proof")
     await cleanOwnedRecords()
-    await dropTracked(
-      INDEX_SPECS.filter((spec) => spec.provisioning === "explicit")
-    )
+    await dropTracked(selectMixedSyncIndexSpecs())
   }, 30000)
 
   afterAll(async () => {
@@ -346,7 +345,12 @@ describe.skipIf(!config)("owned personal index operator CLI", () => {
       },
     })
     const baseline = await inspectIndexes()
-    expect(baseline).toEqual(expectedIndexes(INDEX_SPECS))
+    expect(baseline).toEqual(
+      expectedIndexes([
+        ...automaticIndexSpecs(),
+        ...selectMixedSyncIndexSpecs(),
+      ])
+    )
     expect(await runCli()).toEqual({
       exitCode: 0,
       receipt: {
@@ -419,6 +423,11 @@ describe.skipIf(!config)("owned personal index operator CLI", () => {
     expect(await collection.find({ userId: actor }).toArray()).toEqual([
       records[0],
     ])
-    expect(await inspectIndexes()).toEqual(expectedIndexes(INDEX_SPECS))
+    expect(await inspectIndexes()).toEqual(
+      expectedIndexes([
+        ...automaticIndexSpecs(),
+        ...selectMixedSyncIndexSpecs(),
+      ])
+    )
   }, 45000)
 })

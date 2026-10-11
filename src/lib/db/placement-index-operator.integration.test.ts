@@ -26,6 +26,7 @@ import {
   type IndexSpec,
 } from "@/lib/db/ensure-indexes"
 import { readPlacementSyncIndexReadiness } from "@/lib/db/mixed-sync-index-readiness"
+import { selectPlacementSyncIndexSpecs } from "@/lib/db/mixed-sync-index-specs"
 import {
   placementSyncIndexNameSchema,
   placementSyncIndexNames,
@@ -268,9 +269,7 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
     if (!freshDatabaseVerified)
       throw new Error("Operator test requires fresh ownership proof")
     await cleanOwnedRecords()
-    await dropTracked(
-      INDEX_SPECS.filter((spec) => spec.provisioning === "explicit")
-    )
+    await dropTracked(selectPlacementSyncIndexSpecs())
   }, 30000)
 
   afterAll(async () => {
@@ -358,7 +357,12 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
       },
     })
     const baseline = await inspectIndexes()
-    expect(baseline).toEqual(expectedIndexes(INDEX_SPECS))
+    expect(baseline).toEqual(
+      expectedIndexes([
+        ...automaticIndexSpecs(),
+        ...selectPlacementSyncIndexSpecs(),
+      ])
+    )
     expect(await runCli()).toEqual({
       exitCode: 0,
       receipt: {
@@ -438,6 +442,11 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
     expect(await collection.find({ userId: actor }).toArray()).toEqual([
       records[0],
     ])
-    expect(await inspectIndexes()).toEqual(expectedIndexes(INDEX_SPECS))
+    expect(await inspectIndexes()).toEqual(
+      expectedIndexes([
+        ...automaticIndexSpecs(),
+        ...selectPlacementSyncIndexSpecs(),
+      ])
+    )
   }, 45000)
 })
