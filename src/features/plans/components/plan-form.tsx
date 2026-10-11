@@ -175,6 +175,11 @@ export function PlanForm({
           </select>
         </div>
       </div>
+      <ChecklistFields
+        entries={checklist}
+        onChange={setChecklist}
+        disabled={saving}
+      />
       <label className="flex min-h-11 items-center justify-between gap-3 text-sm font-medium">
         Todo el día
         <input
@@ -233,11 +238,6 @@ export function PlanForm({
           <option value="completed">Completado</option>
         </select>
       </div>
-      <ChecklistFields
-        entries={checklist}
-        onChange={setChecklist}
-        disabled={saving}
-      />
       <details
         open={zoneOpen}
         onToggle={(event) => setZoneOpen(event.currentTarget.open)}

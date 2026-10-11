@@ -1865,3 +1865,8 @@ Cerrado11oct: LongPressOrder comparte captura/autoscroll/cancelación para orden
 ## 17a1 — CAS separado de serie y aparición
 
 Cerrado11oct: contrato preparatorio exige expectedOccurrenceRevision en comando, baseRevision sigue revisión de padre. Planner remoto puro reutiliza mutaciones locales para cuatrovariantes y comandos de estado/paso/edición/cancelación, propiedad/lifecycle antes de conflicto, slot generado/excepción histórica, revisión propia+1 y padre intacto. Ausencia con revisión nonzero unavailable; conflicto incluye snapshots sólo autorizados; cancel/tombstone/DST/slot/paso/overflow rechazados.6tests/47aserciones añadidas. Suite637pass/153skip/0fail/9233aserciones, lint676/tipos/build34/diffaprobados. Ningún caller/schemaactivo/DB/ACK/capacidad cambia. Intenciones históricas sin revisión explícita no se reescriben/interpretan; planrecurrence-sync define captura TX y guard compartido serie/aparición antes de executor. Se mantiene negociación4 activa y progreso remoto de simples. Siguiente17a2 lectores/outbox para preservar campo sin activar aún escritores remotos.
+
+
+## 16c4 — Checklist tras selector de categoría
+
+Cerrado11oct por peticiónhumana: reubicación única de ChecklistFields en PlanForm antes de Todo el día. Mismaestado/campos/validación/guardado de las cuatrovariantes. Pruebas existentes de formulario y suite637pass/153skip/0fail/9233aserciones, lint676/tipos/build34/diffaprobados. UIReact local4251 muestra valores conservados y categoría→checklist→fechas en edición, captura móvil390 `/private/tmp/dalis-plan-editor-checklist-under-category.jpg`. Cancelación/tab/DB/servidor propioslimpiados. Siguiente17a2 preparación local de revisión deaparición, producto4 intacto.

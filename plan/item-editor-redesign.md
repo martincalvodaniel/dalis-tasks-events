@@ -63,3 +63,8 @@ La lista principal ya permite long-press sobre planes simples, en el mismo conte
 ### 16c3 — Cambio de día desde calendario
 
 El mismo gesto del día puede soltar sobre una celda del mes del mismo board, incluso con una sola fila; destino resaltado/aria y cancelación conservados. Reprograma inicio y fin por días civiles, manteniendo horas/zona/duración civil/progreso/checklist/categoría. ValidaciónDST rechaza horas ambiguas/inexistentes sin escribir. Simple usa item.update/expectedItem y outbox existentes; una aparición usa plan.update-occurrence/expectedOccurrence/expectedItem, conserva slot y serie. Mismo inicio no genera intención. Ninguna nueva ruta/índice/dependencia ni cambio de transporte4: aparición aún local. Prueba propiaReact/IndexedDB de cancelación/mismafecha, dos drops→dos intenciones exactas, serie intacta y recarga aprobada; viewport390 sin overflow, no equivalente a móvil físico. Captura `/private/tmp/dalis-plan-calendar-drag.jpg`. Recursos propios limpiados;631tests/lint673/tipos/build34 aprobados. Repeticiónremota es siguiente bloque elegido.
+
+
+### 16c4 — Checklist tras categoría
+
+Editor común sitúa checklist inmediatamente debajo de categoría, antes de Todo el día/fechas/repetición/estado. Mismo componente/estado/guardado para creación/edición y cuatrovariantes; sin cambios de datos. Prueba UIlocal móvil390 desde editar confirma orden y valores, cancelación preserva contenido. Captura `/private/tmp/dalis-plan-editor-checklist-under-category.jpg`; recursospropioslimpiados. DoDglobal aprobado.

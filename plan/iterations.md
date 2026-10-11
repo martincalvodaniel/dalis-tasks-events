@@ -2768,3 +2768,8 @@ Objetivo: gesto común permite soltar una fila del día sobre otra celda del mes
 ## 17a1 — Revisiones de aparición y planner remoto puro
 
 Objetivo: cerrar intención de aparición con CAS propio sin confundir baseRevision de serie y preparar reducer remoto puro. target_paths nuevos schemas/remote-plan-occurrence-planning, lib/calendar/remote-plan-occurrence-plan y tests; plan/recurrence-sync,master,iterations,iteration-log,workflow. Root secuencial; dependencias83136da y reducers locales entregados. Aceptación: expectedOccurrenceRevision explícito/obligatorio, baseRevision conserva semántica padre, ownership/lifecycle antes de exponer conflicto, generación real para nuevo slot y excepción histórica para existente; revisión propia+1, padre/otrafecha intactos, DST/identidad/cancelación/pasos/overflow. No productor/capacidad/DB/ACK nuevo ni reinterpretación de pendientes. Validación purecasos de cuatrovariantes/primeramaterialización/concurrenciaCAS/padre/tombstone/DST y DoD global; commitpushint/HEAD/cuotas. Executor posterior debe compartir guard escrito con mutación de padre, no basta lectura TX.
+
+
+## 16c4 — Checklist debajo de categoría en editor
+
+Objetivo: mover bloqueChecklistFields inmediatamente tras categoría para creación/edición de cuatrovariantes. target_paths:features/plans/components/plan-form; plan/iterations,item-editor-redesign,iteration-log. Rootsecuencial, dependencia5f2cc1e ypeticiónhumana11oct. Aceptación: mismoestado/campos/opciones/validación/guardado, sólo ordenvisual/lecturateclado. Validaciónpruebasexistentes/formularioMarkup, suite/lint/tipos/build/diff y UIeditor existente; commitpushint/HEAD/cuotas. Sin testnuevo que replique JSX ni mutaciónmodelo. Después17a2 según recurrenciaremota.
