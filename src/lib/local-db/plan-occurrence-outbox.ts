@@ -12,7 +12,10 @@ import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import { outboxEntrySchema, outboxSequenceSchema } from "@/schemas/local-sync"
 import { planSchema } from "@/schemas/plan-item"
 import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
-import { planOccurrenceCommandSchema } from "@/schemas/plan-occurrence-command"
+import {
+  planOccurrenceCommandSchema,
+  planOccurrenceDurableCommandSchema,
+} from "@/schemas/plan-occurrence-command"
 import {
   entityIdSchema,
   timestampSchema,
@@ -27,6 +30,7 @@ export type PlanOccurrenceCommitOptions = {
   now?: Date
   expectedItem: Plan
   expectedOccurrence: PlanOccurrence
+  captureRemoteRevision?: boolean
 }
 
 export function commitLocalPlanOccurrenceCommand(
@@ -74,9 +78,17 @@ export function commitLocalPlanOccurrenceCommand(
         try {
           if (replay.result !== undefined) {
             const existing = parseEntry(replay.result)
+            const { expectedOccurrenceRevision, ...replayedCommand } =
+              planOccurrenceDurableCommandSchema.parse(
+                existing.operation.command
+              )
             if (
-              JSON.stringify(existing.operation.command) !==
-              JSON.stringify(command)
+              JSON.stringify(replayedCommand) !== JSON.stringify(command) ||
+              (expectedOccurrenceRevision !== undefined) !==
+                Boolean(options.captureRemoteRevision) ||
+              (options.captureRemoteRevision &&
+                (expectedOccurrenceRevision !== expectedOccurrence.revision ||
+                  existing.operation.baseRevision !== expected.revision))
             )
               throw new Error(
                 "Operation ID was reused with a different command"
@@ -149,7 +161,12 @@ export function commitLocalPlanOccurrenceCommand(
                   operationId,
                   protocolVersion: 1,
                   baseRevision: parent.revision,
-                  command,
+                  command: options.captureRemoteRevision
+                    ? planOccurrenceDurableCommandSchema.parse({
+                        ...command,
+                        expectedOccurrenceRevision: editable.current.revision,
+                      })
+                    : command,
                 },
                 dependencies:
                   previousEntry && isUnresolvedOutboxEntry(previousEntry)

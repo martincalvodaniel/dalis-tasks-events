@@ -323,3 +323,8 @@ Usuario prioriza corregir pulsación prolongada para planes y arrastrar al calen
 ### Tras intercaladas16c2–3
 
 Publicados66839ee y83136da con HEADorigin/int exactos. Tras83136da quedan40%5h/91%7d; permite cerrar17a1 contrato/pureplanner con reservas10%/1%. No reabrir sincronizaciónsimple yaentregada ni anunciar apariciónremota por pruebas de reducer. Continuar en cortescoherentes según recurrence-sync.
+
+
+### Cierre17a2a
+
+Lectura previa34%5h/90%7d permite lectores/captura opcional y pruebaIndexedDB propia, sin activar alcance remoto. Checklist solicitada publicada25aa242;17a2a cierra con commitpushint/HEAD y consulta real antes de abrir siguientecorte. Reservas10%5h/1%7d y automatizaciónpausada se mantienen; no nueva cadena ni actuación DBusuario.

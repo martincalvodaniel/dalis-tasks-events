@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test"
 import { planOccurrencesPage } from "@/lib/calendar/plan-occurrences"
+import { syncOperationFingerprint } from "@/lib/sync/operation-fingerprint"
 import { remoteOperationKind } from "@/lib/sync/remote-push-v2"
 import {
   readPlacementSyncCommandCapability,
@@ -142,5 +143,69 @@ test("backup store validation retains common occurrences and original UUID, payl
   expect(itemOccurrenceSchema.parse(occurrence)).toEqual(occurrence)
   expect(
     itemOccurrenceSchema.safeParse({ ...occurrence, completedAt: now }).success
+  ).toBe(false)
+})
+
+test("prepared appearance revisions survive durable readers and backup while every active policy rejects them", () => {
+  const entries = commands.map((command, index) =>
+    outboxEntrySchema.parse({
+      userId: plan.ownerId,
+      entityKey: `item:${itemId}`,
+      sequence: index + 1,
+      operation: {
+        operationId: `00000000-0000-4000-8000-${String(index + 20).padStart(12, "0")}`,
+        protocolVersion: 1,
+        baseRevision: 3,
+        command: { ...command, expectedOccurrenceRevision: 7 },
+      },
+      dependencies: [],
+      state: "pending",
+      attempts: 0,
+      createdAt: now,
+      lease: null,
+    })
+  )
+  for (const entry of entries) {
+    expect(syncCommandSchema.parse(entry.operation.command)).toEqual(
+      entry.operation.command
+    )
+    for (const read of [
+      readSyncCommandCapability,
+      readPlacementSyncCommandCapability,
+      readPlanSyncCommandCapability,
+    ])
+      expect(read(entry.operation.command, plan)).toMatchObject({
+        supported: false,
+        reason: "occurrence_executor_unavailable",
+      })
+    expect(
+      syncCommandSchema.safeParse({
+        ...entry.operation.command,
+        expectedOccurrenceRevision: -1,
+      }).success
+    ).toBe(false)
+  }
+  const stores = localBackupStoresSchema.parse({
+    items: [plan],
+    occurrences: [occurrence],
+    outbox: entries,
+    tags: [],
+    itemViews: [],
+    taskPlacements: [],
+    settings: [],
+    memberships: [],
+    invitations: [],
+    remoteShadows: [],
+    syncMetadata: [],
+  })
+  expect(stores.outbox).toEqual(entries)
+  expect(syncOperationFingerprint(entries[0].operation)).not.toBe(
+    syncOperationFingerprint({
+      ...entries[0].operation,
+      command: { ...commands[0], expectedOccurrenceRevision: 8 },
+    })
+  )
+  expect(
+    planOccurrenceCommandSchema.safeParse(entries[0].operation.command).success
   ).toBe(false)
 })

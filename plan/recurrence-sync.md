@@ -17,9 +17,15 @@ Colección futura de excepciones almacena identidad por usuario/serie/slot, owne
 ## Cortes y activación
 
 1. **17a1**: contrato de intención con revisión explícita + planner puro, cuatro comandos/variantes, padre/slot/progreso/CAS/DST/cancelación. Preparado, sin tocar productores/capacidades activos.
-2. **17a2**: productor local captura revisión de aparición dentro de TX; decoders/evidencia/backup preservan campo e intenciones previas, guardias de cuenta/época y rebase sólo pending no intentado. No reinterpretar revisión de comandos históricos.
+2. **17a2**: lectores durables y captura opcional TX preparados en17a2a; default/callers actuales conservan intención histórica sin campo. IndexedDB propio valida cuatrovariantes, parent3/appearance7, slotnuevo0, replay/rollback/backup/recarga. Conexión futura de writer y rebase sólo pending no intentado dependen de ACK/pull y contrato5 completo. No reinterpretar revisión de comandos históricos.
 3. **17b**: repositorio/CAS/índices de apariciones y guard compartido de serie; executor transaccional padre/aparición, replay/rollback/carreras con Mongo propio. Reader autorizado de series/excepciones/tombstones.
 4. **17c**: ACK/pull atómicos en almacén occurrences, incidentes/evidencia de aparición actual y orden mixto simple/aparición (día/atrasadas), conservando dependientes y revisions por entidad.
 5. **17d**: negociación exclusiva futura5, retiro4 y callers conjuntos, matriz estricta antes del body/cache/cursor, dos particiones/Mongo/Next real; activar sólo después. PilotoGoogle/segundo dispositivo si disponible. No anunciar convergencia por fixture o cola settled.
 
 El cliente4 no admite proyecciones de apariciones. Nueva negociación separada de sobres/journal2 e intenciones1; no cambiar protocolos de evidencia/UUID por cambiar transporte. El nombre5 representa futuro alcance, no una activación por config. Cumpleaños/compartir/cierreMVP siguen después según elección humana vigente.
+
+## Evidencia17a2a
+
+`planOccurrenceDurableCommandSchema` admite expectedOccurrenceRevision opcional en las cuatrointenciones; ausencia se preserva, no se normaliza a0. Entradas de outbox/backup/fingerprint reutilizan este decoder. El inputUI conserva schema estricto anterior. `captureRemoteRevision:true` captura la revisión de aparición leída en la misma TX que verifica snapshots y escribe aparición/outbox/secuencia; revisión local confirmada y base del padre no aumentan. Replay exige misma presencia/revisión/base y conserva UUID/payload/dependencias. Writer activo sigue false y todas las políticas remotas continúan unsupported para apariciones.
+
+Cuatro checks IndexedDB propios pasan, incluida recarga, seisintenciones exactas (cinco con campo y una histórica sin campo), rollback por overflow y CAS rechazado sin escritura. Recursos propios limpiados. No executor remoto/ACK/nueva capacidad ni DB de usuario.

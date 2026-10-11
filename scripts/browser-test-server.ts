@@ -16,6 +16,7 @@ if (
   suite !== "occurrence-progress" &&
   suite !== "occurrence-edit" &&
   suite !== "plan-occurrence-outbox" &&
+  suite !== "plan-occurrence-revision" &&
   suite !== "task-snapshot" &&
   suite !== "occurrence-ordering"
 )

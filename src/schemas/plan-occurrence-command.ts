@@ -5,7 +5,11 @@ import {
   taskStatusSchema,
 } from "@/schemas/item-fields"
 import { occurrenceContentSchema } from "@/schemas/occurrence-content"
-import { entityIdSchema, occurrenceIdSchema } from "@/schemas/primitives"
+import {
+  entityIdSchema,
+  occurrenceIdSchema,
+  revisionSchema,
+} from "@/schemas/primitives"
 
 const reference = { itemId: entityIdSchema, occurrenceId: occurrenceIdSchema }
 export const planOccurrenceInputSchema = occurrenceContentSchema.extend({
@@ -37,4 +41,20 @@ export const planOccurrenceCommandSchema = z.discriminatedUnion("type", [
     input: planOccurrenceInputSchema,
   }),
   z.strictObject({ ...reference, type: z.literal("plan.cancel-occurrence") }),
+])
+
+// Historical commands stay unchanged; only future writers capture appearance CAS.
+export const planOccurrenceDurableCommandSchema = z.discriminatedUnion("type", [
+  planOccurrenceCommandSchema.options[0].extend({
+    expectedOccurrenceRevision: revisionSchema.optional(),
+  }),
+  planOccurrenceCommandSchema.options[1].extend({
+    expectedOccurrenceRevision: revisionSchema.optional(),
+  }),
+  planOccurrenceCommandSchema.options[2].extend({
+    expectedOccurrenceRevision: revisionSchema.optional(),
+  }),
+  planOccurrenceCommandSchema.options[3].extend({
+    expectedOccurrenceRevision: revisionSchema.optional(),
+  }),
 ])

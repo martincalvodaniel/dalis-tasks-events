@@ -1870,3 +1870,8 @@ Cerrado11oct: contrato preparatorio exige expectedOccurrenceRevision en comando,
 ## 16c4 — Checklist tras selector de categoría
 
 Cerrado11oct por peticiónhumana: reubicación única de ChecklistFields en PlanForm antes de Todo el día. Mismaestado/campos/validación/guardado de las cuatrovariantes. Pruebas existentes de formulario y suite637pass/153skip/0fail/9233aserciones, lint676/tipos/build34/diffaprobados. UIReact local4251 muestra valores conservados y categoría→checklist→fechas en edición, captura móvil390 `/private/tmp/dalis-plan-editor-checklist-under-category.jpg`. Cancelación/tab/DB/servidor propioslimpiados. Siguiente17a2 preparación local de revisión deaparición, producto4 intacto.
+
+
+## 17a2a — Revisión propia durable y captura local opcional
+
+Cerrado11oct: decoder durable admite expectedOccurrenceRevision opcional validada para cuatrointenciones y conserva ausencia histórica; UIinput sigue estricto anterior. Writer captura revisión de aparición en mismaTX sólo con opción explícita, default/callers actuales intactos; base padre y revisión local confirmada conservadas. Replay mantiene UUID/payload/dependencias y rechaza cambio de generación/base/revisión; todoscapabilityreaders siguen unsupported. Prueba pura añade backup/outbox/fingerprint/invalidCAS; IndexedDB propio4179 confirma cuatrovariantes parent3/appearance7, slotnuevo0, replay/CAS/overflowrollback y recarga de seisintenciones exactas. Cuatrochecks y recarga pasan, captura `/private/tmp/dalis-plan-occurrence-revision.jpg`; tab/DB/servidor propioslimpiados. Suite638pass/153skip/0fail/9256aserciones, lint677/tipos/build34/diffaprobados. Sin ACK/capacidad/índice/DBusuario. Siguiente17b según recurrence-sync, aún preparatorio.
