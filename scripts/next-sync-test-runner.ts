@@ -22,6 +22,9 @@ if (!commonPlanReleaseEnabled || activeProductSyncProtocol !== 4)
     "Product generation-four release must be selected before this proof"
   )
 
+const recurring = process.argv[2] === "recurring"
+if (process.argv[2] !== undefined && !recurring)
+  throw new Error("Unknown isolated Next fixture scope")
 const { descriptor, path } = getNextSyncRunnerConfig()
 const root = resolve(import.meta.dir, "..")
 const directory = join(root, "build", `dalis-next-sync-${descriptor.runId}`)
@@ -206,6 +209,8 @@ try {
     JSON.stringify({ runId: descriptor.runId, directory })
   )
   await copyTemplates(join(root, "test/next-sync"), directory)
+  if (recurring)
+    await copyTemplates(join(root, "test/next-recurring-sync"), directory)
   await writeFile(
     join(directory, "package.json"),
     JSON.stringify({
@@ -241,7 +246,8 @@ try {
     })
   )
   stage = "build"
-  await runNext(["build", directory], environment)
+  await runNext(["build", "--webpack", directory], environment)
+  stage = "reference_inventory"
   const manifest = JSON.parse(
     await readFile(
       join(directory, ".next/server/server-reference-manifest.json"),
@@ -263,20 +269,33 @@ try {
     filename?: string
     exportedName?: string
   }[]
+  const referencesSource = (filename: string | undefined, source: string) =>
+    typeof filename === "string" &&
+    (filename === source ||
+      resolve(directory, filename) === resolve(root, source))
   if (
     !actionReferences.some(
       (reference) =>
-        reference.filename === "src/features/sync/actions-v4.ts" &&
-        reference.exportedName === "pushSyncOperationsV4"
+        referencesSource(
+          reference.filename,
+          `src/features/sync/actions-v${recurring ? 5 : 4}.ts`
+        ) &&
+        reference.exportedName === `pushSyncOperationsV${recurring ? 5 : 4}`
     ) ||
     !actionReferences.some(
       (reference) =>
-        reference.filename === "src/features/sync/actions-v3.ts" &&
-        reference.exportedName === "pushSyncOperationsV3"
+        (recurring
+          ? reference.filename === "features/actions.ts"
+          : referencesSource(
+              reference.filename,
+              "src/features/sync/actions-v3.ts"
+            )) &&
+        reference.exportedName ===
+          (recurring ? "rejectFixtureLegacyOperations" : "pushSyncOperationsV3")
     )
   )
     throw new Error(
-      "Compiled fixture must reference the active generation-four and retired generation-three actions"
+      "Compiled fixture must reference the selected real action and explicit retirement boundary"
     )
   process.stdout.write("Next sync fixture build passed\n")
   for (let index = 0; index < origins.length; index++) {

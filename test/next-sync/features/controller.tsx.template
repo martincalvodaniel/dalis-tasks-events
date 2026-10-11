@@ -1123,7 +1123,7 @@ export function FixtureController() {
             afterSecond: { backup: unknown; cursor: unknown }
           }
           assert(
-            proof.probeStatus === 404 &&
+            proof.probeStatus === 409 &&
               proof.actionNotFound === "1" &&
               proof.handshake === "captured-prior-v3" &&
               proof.dispatches === 1 &&

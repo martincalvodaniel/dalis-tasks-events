@@ -384,3 +384,8 @@ Petición explícita de compactar categorías, ajustes y editor tras cierre del 
 ### Continuación puntual12oct01:27
 
 Peticiónhumana tras16c12: estimación global y reactivación01:27Europe/Madrid. Lectura2%5h/53%7d, reset1791761186(01:26:26Madrid). Heartbeat existente continuar-sincronizaci-n-siguiente-ventana actualizado ACTIVE una vez, failed_runs_only conservado, sin duplicado/cadena. Comprobar renovación real al disparar; seguir17e1a con reservas10%5h/1%7d y protocolo commitpushint/HEAD/cuotas por corte. Índice de apariciónPreview requiere permiso específico todavía; no inferirlo de autorización histórica. No abrir código en ventana actual.
+
+
+### Renovación12oct01:27
+
+Cuota real100%5h/53%7d y reset1791779244; repo principal limpio ahora enmain con mismoHEAD8cfd34b queorigin/int. Se conserva main y se crea worktree gestionado recurring-sync-next desdeint, luego se selecciona int sólo en ese checkout propio; dependencias instaladas reutilizadas sin instalación. Lote puntual secuencial con reservas10%/1%, primero17e1a1 acotado fronteraNext antes pruebaIndexedDB/convergencia y activación. Sin permisoDBnuevo ni cadena adicional.

@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17e1a1 — RPC recurrente real y generación activa conservada
+
+Cerrado12oct: modoNext recurrente separado, referencia compilada action5/defaults/auth/readiness5 y dos sesiones BetterAuth/Mongo propios. Ocho escenarios prueban ausencia/revocación de sesión, actor, matrix4↔5 antesbody, missingindex5, retiro4 wrapper sinACK, serie/aparición y replay literal con2recibos/2secuencias. Primeros ensayos fallaron por decoder safeExtend demasiado estrecho, rutas relativasWebpack y assertion404 obsoleta; corregidos antes cierre. Código Next16.4 instalado confirma409+marcaaction-not-found; fixture4 también corregida,19escenarios antiguos completos pasan incluyendo React/IndexedDB/convergencia de planes simples. Nada activado; RPC5 no prueba cola/lifecycle/Google/convergencia recurrente. Suite749pass/201skip/0fail/10261aserciones, lint773/tipos/buildNext16.4Webpack/worker46/diff aprobados, configuraciónbuild sintética sincredenciales usuario. Recursos/cookies/containers propios limpios. Evidencia /private/tmp/dalis-next5-boundary-proof.png. Worktreeint propio preserva main humano; mismo commitpushint/HEAD/cuotas, sigue17e1a2 si margen.
+
 ## 17z3 — Estimación y reactivación solicitada
 
 Corte documental humano tras72d9baa: queda aproximadamente20% vigente, con repetición remota preparada pero no activada, cumpleaños y cierreMVP pendientes; compartir excluido. Cuota real2%5h/53%7d, reset1791761186(12oct01:26:26Madrid). automation_update confirmó heartbeat existente ACTIVE a01:27Europe/Madrid, puntual, failed_runs_only; no duplicado/cadena. Consulta renovación real antes17e1a, reservas10%/1%, índices de aparición todavía requieren permiso específico. Sin código/DB/producción. Referencias/coherencia/diff validados, commitpushint/HEAD y consulta final.

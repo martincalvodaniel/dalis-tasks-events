@@ -2,6 +2,7 @@ import { z } from "zod"
 import { planSaveRequestSchema } from "@/schemas/plan-save"
 import { entityIdSchema, userIdSchema } from "@/schemas/primitives"
 import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
+import { remoteRecurringChangesPageSchema } from "@/schemas/remote-recurring-changes"
 import { syncCommandSchema } from "@/schemas/sync"
 import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
 
@@ -88,6 +89,12 @@ export const nextSyncStateSchema = z.strictObject({
     receipts: z.number().int().min(0),
   }),
   page: remoteChangesPageV2Schema,
+})
+export const nextRecurringSyncStateSchema = z.strictObject({
+  counts: nextSyncStateSchema.shape.counts.extend({
+    occurrences: z.number().int().min(0),
+  }),
+  page: remoteRecurringChangesPageSchema,
 })
 export function nextSyncMissingActionId(runIdInput: unknown): string {
   return `40${entityIdSchema.parse(runIdInput).replaceAll("-", "")}00000000`

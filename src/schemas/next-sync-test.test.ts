@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test"
 import {
+  nextRecurringSyncStateSchema,
   nextSyncDeviceCommandSchema,
   nextSyncIndexControlSchema,
+  nextSyncStateSchema,
 } from "@/schemas/next-sync-test"
 import { planSaveRequestSchema } from "@/schemas/plan-save"
 
@@ -64,4 +66,55 @@ describe("compiled Next common-plan fixture input", () => {
     ])
       expect(() => nextSyncIndexControlSchema.parse(input)).toThrow()
   })
+})
+
+test("recurring fixture state admits appearances without widening generation four", () => {
+  const seriesId = request.itemId
+  const now = request.now
+  const state = {
+    counts: { items: 1, tags: 0, views: 0, receipts: 1, occurrences: 1 },
+    page: {
+      version: 2,
+      nextAfter: 1,
+      through: 1,
+      hasMore: false,
+      changes: [
+        {
+          version: 2,
+          kind: "plan-occurrence",
+          recipientUserId: "fixture-owner",
+          operationId: request.contentOperationId,
+          sequence: 1,
+          seriesRevision: 1,
+          occurrence: {
+            kind: "plan",
+            id: `${seriesId}:2026-10-10`,
+            seriesId,
+            slotKey: "2026-10-10",
+            schedule: {
+              mode: "all_day",
+              startDate: "2026-10-10",
+              endDateExclusive: "2026-10-11",
+            },
+            status: "not_started",
+            checklist: [],
+            completedAt: null,
+            cancelled: false,
+            revision: 1,
+            createdAt: now,
+            updatedAt: now,
+            deletedAt: null,
+          },
+        },
+      ],
+    },
+  }
+  expect(nextRecurringSyncStateSchema.parse(state).counts).toEqual(state.counts)
+  expect(() => nextSyncStateSchema.parse(state)).toThrow()
+  expect(() =>
+    nextRecurringSyncStateSchema.parse({
+      ...state,
+      page: { ...state.page, nextAfter: 0 },
+    })
+  ).toThrow()
 })

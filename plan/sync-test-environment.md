@@ -298,3 +298,8 @@ El usuario pide cerrar categorías/asignaciones y después recibir porcentaje es
 ## 16a4c1a — Next compilado común4
 
 `bun run scripts/sync-db-test-runner.ts next` ahora usa templates4 aisladas, sin activar producto. Manifest exige referencia real exclusiva actions-v4 y verifica ID ausente;19escenarios RPC/defaults/sesionesBetterAuth/React/IndexedDB/Mongo propios aprobados. Hook4 se prueba directamente; no es todavía el proveedor activo de producto. Rechazos3↔4/retiro3/readiness/cuenta/sesión no generanACK; guardia de fault-injection exige descriptor/DB propios antes eliminar/restaurar el índice registrado. Cuatro variantes/asignaciones convergen con replay de respuesta perdida. Recursos/cookies propios limpiados, noGoogleinteractivo/IDdeployment real.
+
+
+## 17e1a1 — Frontera Next recurrente aislada
+
+`bun --no-env-file scripts/sync-db-test-runner.ts next-recurring` reutiliza descriptor/Mongo pinned y runnerNext, con overlays test/next-recurring-sync. Webpack soportado compila referencia real action5 y wrapper retiro4; inventario resuelve la ruta relativa exacta del manifiesto, sin aceptar otra fuente. Ocho escenarios propios validan auth/actor/readiness5/matrix4↔5 antesbody/serie/aparición/replay y dos recibos exactos. Provisión/faultinjection sólo índice registrado deaparición en DB exacta del descriptor, noPreview. Cookies/sesiones/servidores/directorio/contendor limpiados. Regresión modoNext4:19casos pasan. Next16.4 IDausente usa409+marker; no preservar assertion404 desactualizada. PruebaRPC no es Googleinteractivo ni convergenciaIndexedDB5.

@@ -2,6 +2,10 @@
 
 Estado11oct: generación4 sólo sincroniza planes simples; series/apariciones/progreso/cambios de fecha siguen locales. Arrastre simple y checklist heredada entregados16c1–3. No activar parcialmente un nuevo alcance.
 
+## Evidencia Next5 — 17e1a1
+
+Modo next-recurring mantiene fixture4 y superpone únicamente fronteras futuras. Ocho escenarios compilados con acción5 real y sesiones persistidas propias prueban serie/aparición, recibo/journal único y replay entre clientes, actor/sesión/readiness y cuatro rechazos matrix antesbody. Retiro4 usa wrapper preparatorio explícito; todavía no prueba ID4 retirado en deployment. ID desconocido real en Next16.4 devuelve409 con x-nextjs-action-not-found1, según implementación instalada; generación4 fixture corregida y diecinueve escenarios regresión pasan. No ACK IndexedDB ni convergencia5 atribuidos todavía. Siguiente17e1a2: capturarhandshake4 y conservar cola/lease en cliente antiguo frente a retiro/ausencia, antes lifecycle5/proof integrada. Screenshot /private/tmp/dalis-next5-boundary-proof.png; recursos propios retirados, producto sigue4.
+
 ## Punto de continuación tras20:26
 
 Código completo publicado `cc05d20`. Cortes17b3b–17d5 cerrados: categoría/replay/orden/dispatcher/readerMongo futuros, productores/ACK/pull/evidencia/backup/consumidoresIndexedDB, policy/coordinador/runtime y HTTP/acción/authpull/client/hook/cache5 privados. Producto activo4 intacto; sin repetición remota activada ni nueva provisión enDBusuario. Última suite748pass/201skip/0fail, lint773/tipos/build36. Recursos propios cerrados; revisión puntual eliminada sin cadena adicional.

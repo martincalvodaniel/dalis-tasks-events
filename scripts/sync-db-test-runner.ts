@@ -14,6 +14,7 @@ if (
   mode !== "browser-mixed" &&
   mode !== "browser-plan" &&
   mode !== "next" &&
+  mode !== "next-recurring" &&
   mode !== "operator" &&
   mode !== "placement-operator" &&
   mode !== "indexes"
@@ -184,13 +185,14 @@ try {
               ? "src/lib/db/personal-index-operator.integration.test.ts"
               : "src/lib/db/mixed-sync-index-provisioning.integration.test.ts",
         ]
-      : mode === "next"
+      : mode === "next" || mode === "next-recurring"
         ? [
             "bun",
             "--no-env-file",
             "--preload",
             "./test/setup.ts",
             "scripts/next-sync-test-runner.ts",
+            ...(mode === "next-recurring" ? ["recurring"] : []),
           ]
         : mode === "browser" ||
             mode === "browser-mixed" ||

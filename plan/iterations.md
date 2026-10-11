@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 17e1a1 — Frontera recurrente Next aislada
+
+- Estado: completada12oct; ocho escenarios Next5/Mongo propios y regresión diecinueve escenariosNext4 aprobados; generación4 activa intacta.
+
+- Objetivo: preparar y ejecutar referencia compilada real action5/defaults con sesiones propias y matriz4↔5, retiro preparatorio4 sin efectos y guardias de actor/readiness.
+- target_paths: scripts/{sync-db-test-runner,next-sync-test-runner}.ts, test/next-recurring-sync/** overlays sobre fixture4 y test/next-sync/features/{local-client,controller} para corregir assertion409 observado en Next16.4, src/lib/db/next-sync-fixture.ts, src/schemas/next-sync-test.ts y tests, plan.
+- Dependencias:17d1–5; Mongo propio/pinnedimage revalidados; int en worktree propio porque carpeta principal humana está enmain. Renovación real100%5h/53%7d, reset1791779244, reservas10%/1%, secuencial.
+- Aceptación: fixture4 conservada; referencia realaction5; retiro4 mediante wrapper preparatorio declarado como tal, no ID de producto todavía activo4; ausencia de ID409 con marcaaction-not-found verificada en Next16.4; sesión/expectedactor/readiness5 antes ejecución; rechazo header antesbody en matrix, recibos/journal no alterados por rechazos. Cierre/cookies/recursos únicamente propios.
+- Validación: buildNext real/Webpack soportado, dos sesiones persistidas/Mongo propios, regresiones/lint/tipos/build y plan/log mismo commitpushint/HEAD/cuotas. Sin IndexedDB/lifecycle/convergencia5 atribuidos en este corte ni provisiónPreview/activación.
+
 ## 17z3 — Estimación y continuación puntual01:27
 
 - Objetivo: responder estado global y programar continuación solicitada para12oct01:27Europe/Madrid.
@@ -3055,11 +3065,11 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 
 ## 17e1a — Frontera Next5 compilada y retiro4
 
-- Estado: candidata, no iniciada en esta ventana; definir margen/alcance final antes editar.
+- Estado:17e1a1 cierra RPC/auth/readiness/matrix/serie/aparición; falta17e1a2 conservación de cola/lease tras referencia ausente o retiro4 y lifecycle/convergencia5.
 - Objetivo: evidencia de referencia real actions-v5/defaults/readiness5/sesiones BetterAuth persistidas, matrix4↔5 y rechazo de acción4 retirada sin ejecución/ACK.
 - target_paths: scripts/next-sync-test-runner.ts, test/next-sync/**/*.template, src/{schemas,config}/next-sync-test.ts, src/lib/db/next-sync-fixture.ts y tests pertinentes, plan; integración compartida de único dueño.
 - Dependencias:17d1–5 preparados; descriptor Mongo propio/imagen pinned y procedimiento de índices propios5 antes readiness. No índices/DBusuario, no API/provider productivo5.
-- Aceptación: dos orígenes/particiones y sesiones propias independientes, acción5 real compilada con actor/expectedactor/auth/readiness coherentes; header5 exclusivo antes body/cache/cursor. Capturados identity4/pull4→retirement4 devuelve update_required antes readiness/executor sin ACK y libera sólo lease propio. ID antiguo ausente404 real conserva cola/intención y siguientehandshake5 bloquea antesclaim. Matrix4↔5 conserva UUID/sobre2/intención1; errores saneados. Cleanup todos recursos propios.
+- Aceptación: dos orígenes/particiones y sesiones propias independientes, acción5 real compilada con actor/expectedactor/auth/readiness coherentes; header5 exclusivo antes body/cache/cursor. Capturados identity4/pull4→retirement4 devuelve update_required antes readiness/executor sin ACK y libera sólo lease propio. ID antiguo ausente (código exacto de Next instalado;16.4 devuelve409 con marcaaction-not-found) conserva cola/intención y siguientehandshake5 bloquea antesclaim. Matrix4↔5 conserva UUID/sobre2/intención1; errores saneados. Cleanup todos recursos propios.
 - Validación: Next real compilado/controlado, Mongo propio y browsers propios, regresiones/DoD/commitpushint/HEAD/cuotas. Fixture directo o puro no prueba esta frontera; no confundir sesiones persistidas ficticias con OAuthGoogle interactivo.
 - Cortes posteriores:17e1b lifecycle hook5 real y convergencia de productor→ACKúnico/replay/dependientes/pull en dosparticionesMongo; escenarios de fecha/timed/variante/regla/series/placement/conflicto/tombstone/offline. Luego procedimiento específico índiceAppearance Preview validado/permiso antes ejecutarlo, recuperación/UI/backup recurrentes coherentes y activación conjunta5. No declarar alcance activo por cambiar config ni borrar/migrar intenciones.
 

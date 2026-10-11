@@ -192,7 +192,7 @@ export async function executeLocalFixtureCommand(
         : new Response(null, { status: 200 })
       const actionNotFound = probe.headers.get("x-nextjs-action-not-found")
       await probe.body?.cancel()
-      if (missing && (probe.status !== 404 || actionNotFound !== "1"))
+      if (missing && (probe.status !== 409 || actionNotFound !== "1"))
         throw new Error(
           "Missing-action candidate is not absent from this fixture"
         )

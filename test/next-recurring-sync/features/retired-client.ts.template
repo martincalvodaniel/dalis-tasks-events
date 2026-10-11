@@ -1,0 +1,19 @@
+"use client"
+
+import { startTransition } from "react"
+import { rejectFixtureLegacyOperations } from "@fixture/actions"
+
+export function dispatchFixtureRetiredOperations(
+  input: unknown
+): Promise<unknown> {
+  const runId = new URLSearchParams(location.search).get("run")
+  return new Promise((resolve, reject) => {
+    startTransition(async () => {
+      try {
+        resolve(await rejectFixtureLegacyOperations({ runId, input }))
+      } catch (error) {
+        reject(error)
+      }
+    })
+  })
+}
