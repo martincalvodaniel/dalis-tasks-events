@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17d1 — Transporte HTTP5 preparado
+
+Cerrado11oct: transport privado fija generación5 exclusiva, valida header antes de JSON y DTO recurrentes antes de exponer datos. Cookies same-origin/no-store/deadline y DTO recurrentes íntegros; sobres2/intenciones1 intactos. Cuatro tests prueban identidad/pull/aparición, matrix4↔5 y rangos mixtos antesbody, errores401/426/409, cuenta/UUID/familia inválidos y timeout sin asumir rollback remoto. Constante activa4 y callers intactos. Literales de fixture ampliados inicialmente causaron errores de tipos, corregidos mediante DTO explícitos; última suite734pass/201opt-in skip/0fail/10061aserciones, lint760/tipos/buildNext16.4worker36/diff aprobados. Sin RPC/Google/DBusuario ni activación; runtime y evidencia real próximos. Commit/pushint/HEAD/cuotas.
+
 ## 17c7c — Coordinador recurrente preparatorio
 
 Cerrado11oct: coordinador privado selecciona policy y validadores recurrentes juntos, conserva límites de pasada y guards de cuenta/stop, relee claim/cola antes del envío y libera sólo su lease incluso al fallar. Mantiene fronteras4 separadas; kernel futuro aún no tiene caller/runtime activo. Cinco pruebas puras verifican cadena root→aparición→placement con históricos bloqueados intactos, contexto perdido trasclaim, cierre/cambio de cuenta después de red sinACK, revisión/familia inválida y página extranjera sin cursor. Puertos simulados no prueban convergencia; evidencia IndexedDB previa separada. Fixture inicialmente esperaba stopped en vez de account_changed al invalidar cuenta; corregida junto al warning optionalchain. Suite730pass/201opt-in skip/0fail/10014aserciones, lint758/tipos/buildNext16.4worker36/diff aprobados. Sin DBusuario ni activación. Commit/pushint/HEAD/cuotas; sigue runtime y transporte5 privados antes prueba integrada/Next/índice Preview autorizado.

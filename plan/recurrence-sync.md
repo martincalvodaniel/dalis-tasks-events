@@ -181,3 +181,7 @@ OpenRecurring privado selecciona ACK root/aparición/preference y pull recurrent
 ## Coordinador17c7c
 
 Policy y validadores futuros fijados juntos; generación4 conserva DTO/kernel estrictos. Guardias antes/después de red y cuenta/stop impiden ACK fuera de época. Claim se relee antes de envío, UUID/payload/deps originales y lease propio conservados; trabajo independiente puede avanzar pese a históricos bloqueados. Cinco pruebas puras con puertos simulados no equivalen a convergencia. Runtime, HTTP5, frontera Next y dos particiones/Mongo siguen como aceptación integrada pendiente.
+
+## Transporte17d1
+
+HTTP privado fija header5 exclusivo antes de body, cookies same-origin/no-store y deadline; matrix4↔5 rechaza sin datos/ACK y sobre2/intención1 quedan intactos. Cuatro pruebas puras cubren actor/DTO/query/deadlines; ninguna ruta o caller activo cambia. Runtime y prueba integrada siguen pendientes.

@@ -2,6 +2,8 @@
 
 ## Estado operativo actual — 11 de octubre
 
+17d1 prepara transporte5 exclusivo y validación recurrente antes de datos/ACK; matrix4↔5 y deadlines probados. Callers activos4 intactos; runtime y prueba integrada/Next pendientes antes de activar repetición remota.
+
 La raíz entra directamente en /workspace, sin landing intermedia; callbackGoogle por defecto directo al espacio. Navegación raíz offline reutiliza el shell neutral ya preparado. Favicon Dalis SVG/ICO público incluido en caché offline. Arrastre bloquea selección/callout desde montaje, preservando scroll previo y campos editables (16c8–16c9).
 
 Calendario16c10 cambia de mes al deslizar horizontalmente: izquierda al siguiente, derecha al anterior. Corrección16c10b elimina el scroll horizontal interno que interceptaba gestos sobre los días y desactiva drag nativo de enlaces; ambas direcciones desde celdas, selección de día y ausencia de cambio por gesto vertical comprobadas en navegador propio. Sin botones Anterior/Siguiente; mes/año y Hoy comparten cabecera compacta. Hoy tiene menor altura visual y target táctil44px; selección de días y scroll vertical preservados. Re Pág/Av Pág desde los enlaces del calendario permiten cambiar de mes por teclado.

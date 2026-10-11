@@ -30,3 +30,18 @@ export function acceptsSyncProtocolRange(
     return false
   }
 }
+
+// Future families require one negotiated generation, not a range spanning incompatible DTOs.
+export function acceptsExclusiveSyncProtocolRange(
+  header: string | null,
+  versionInput: unknown
+): boolean {
+  const version = syncProtocolVersionSchema.safeParse(versionInput)
+  if (!version.success || !header || header.length > 128) return false
+  try {
+    const range = syncProtocolRangeSchema.parse(JSON.parse(header))
+    return range.minimum === version.data && range.maximum === version.data
+  } catch {
+    return false
+  }
+}

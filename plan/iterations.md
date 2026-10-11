@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17d1 — Transporte HTTP recurrente privado
+
+- Estado: completada11oct; cuatro pruebas puras de HTTP/negociación y DoD aprobados.
+
+- Objetivo: cliente futuro5 con validadores recurrentes, sin cambiar anuncio/factory/caller4.
+- target_paths: config/sync-protocol constante5, features/sync/http-recurring-transport y test, plan.
+- Dependencias:17c7c y DTO recurrentes; entrada34%5h/58%7d, reservas10%/1%.
+- Aceptación: negociación exclusiva5 y header validado antes del body; mismas cookies same-origin/no-store/deadlines, actor/query completos, sobres2/intenciones1. Matrix4↔5 rechaza antes datos/ACK; resultados de tresfamilias íntegros sin mutación, fallo conserva posibilidad de replay. Sin API/provider/activación.
+- Validación: pruebas puras headers/body/cookies/query/aparición/matrix/cuenta/reintento/timeout; DoD completo, commit/pushint/HEAD/cuotas. Runtime/evidencia real después.
+
 ## 17c7c — Coordinador recurrente privado
 
 - Estado: completada11oct; cinco pruebas de guards/colas/correspondencia y DoD aprobados.
