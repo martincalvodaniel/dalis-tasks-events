@@ -12,7 +12,7 @@ Wipe de contenido remoto Preview16a4c3b cerrado antes de activar; auth/índices 
 
 Backup16a4c3g exporta datos/intenciones/evidencia y permite importar copias nuevas de los cuatro tipos simples sin repetición, conservando originales. Preview respeta marca4 y no convierte legacy; categorías, orden e historial del archivo no se aplican como estado restaurado.9checks IndexedDB propios de atomicidad/replay/rollback/guardias/recarga pasan. Última suite625pass/153opt-in skip/0fail, lint667/tipos/build34 aprobados.
 
-**Repetición y progreso por aparición funcionan localmente; series/apariciones y su orden siguen sin sincronización remota.** Cumpleaños, compartir y aceptación final permanecen bloques posteriores. Alcance entregado en [item-editor-redesign.md](item-editor-redesign.md) y [common-plan-activation.md](common-plan-activation.md). Automatización pausada; el usuario elige continuar repeticiónremota y después el orden recomendado, tras el ajuste16c1 de checklist. Los apartados siguientes registran la trayectoria histórica.
+**Repetición y progreso por aparición funcionan localmente; series/apariciones y su orden siguen sin sincronización remota.**17a1 prepara contrato de revisión explícita/planner de aparición, sin activar productores/capacidades; siguientes cortes en [recurrence-sync.md](recurrence-sync.md). Cumpleaños, compartir y aceptación final permanecen bloques posteriores. Alcance entregado en [item-editor-redesign.md](item-editor-redesign.md) y [common-plan-activation.md](common-plan-activation.md). Automatización pausada; el usuario elige continuar repeticiónremota y después el orden recomendado, tras el ajuste16c1 de checklist. Los apartados siguientes registran la trayectoria histórica.
 
 ## Estimación y siguiente elección
 

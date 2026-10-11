@@ -318,3 +318,8 @@ Usuario prioriza icono/color de pasos y después autoriza continuar orden recome
 ### Intercaladas humanas11oct — Orden y cambio de día
 
 Usuario prioriza corregir pulsación prolongada para planes y arrastrar al calendario antes de retomar repetición remota. Lectura52%5h/92%7d, reservas10%/1%. Cortes16c2/16c3 secuenciales con pruebas/commitpushint/HEAD y cuotas; automatización continúa pausada. Movimiento de aparición será local mediante comando existente; no anunciar sync remota de series.
+
+
+### Tras intercaladas16c2–3
+
+Publicados66839ee y83136da con HEADorigin/int exactos. Tras83136da quedan40%5h/91%7d; permite cerrar17a1 contrato/pureplanner con reservas10%/1%. No reabrir sincronizaciónsimple yaentregada ni anunciar apariciónremota por pruebas de reducer. Continuar en cortescoherentes según recurrence-sync.
