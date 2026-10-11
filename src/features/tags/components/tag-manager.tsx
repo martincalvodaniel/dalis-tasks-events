@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { DelayedStatus } from "@/components/ui/delayed-status"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { LongPressOrder } from "@/components/ui/long-press-order"
 import { DeleteTagDialog } from "@/features/tags/components/delete-tag-dialog"
@@ -83,7 +84,7 @@ export function TagManager({ account }: { account: LocalAccount }) {
           cambios se conservan.
         </ErrorBanner>
       ) : isLoading ? (
-        <p role="status">Leyendo categorías…</p>
+        <DelayedStatus>Leyendo categorías…</DelayedStatus>
       ) : data ? (
         <>
           <TagForm

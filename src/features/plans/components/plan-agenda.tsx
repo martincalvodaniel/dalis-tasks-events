@@ -1,5 +1,6 @@
 "use client"
 
+import { DelayedStatus } from "@/components/ui/delayed-status"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { useAccountDay } from "@/features/calendar/hooks/use-account-day"
 import { PlanList } from "@/features/plans/components/plan-list"
@@ -15,12 +16,7 @@ export function PlanAgenda({ account }: { account: LocalAccount }) {
         No se pudo abrir la agenda local. Tus planes se conservan.
       </ErrorBanner>
     )
-  if (!today)
-    return (
-      <p role="status" className="mt-4 text-sm">
-        Cargando agenda…
-      </p>
-    )
+  if (!today) return <DelayedStatus>Cargando agenda…</DelayedStatus>
   return (
     <>
       <PlanList

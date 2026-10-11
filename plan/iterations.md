@@ -3013,6 +3013,15 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: evitar contenedor de scroll horizontal que intercepte el gesto antes de llegar a la sección; desactivar drag nativo de enlaces de día. Swipe desde celdas cambia mes; tap selecciona día, scroll vertical y drop externo de planes conservados.
 - Validación: markup y prueba de gesto desde celdas en navegador propio, lint/tipos/build/diff; commit/pushint/HEAD y cuotas. Sin DB ni automatización nueva.
 
+## 16c11 — Navegación sin recarga ni estados fugaces
+
+- Estado: completada11oct; navegación con documento persistente y DoD aprobados.
+- Objetivo: eliminar flash de preparación de versión y placeholders durante navegación local.
+- target_paths: workspace/navigation y Workspace; componente UI delayed-status; boundary de release, categorías y cargas de planes/calendario; hook swipe; pruebas y fixture propias; plan.
+- Dependencias: reporte humano, shell workspace/query hooks y cache SWR existentes. Reparación acotada autorizada con7%5h/70%7d; no iniciar otros bloques.
+- Aceptación: enlaces internos actualizan History API sin recarga, preservan proveedores/cache por cuenta y atrás/adelante. Modificadores, descargas, otras rutas/orígenes/hash mantienen comportamiento nativo. Cuenta/release pendientes nunca presentan preparación como necesaria ni habilitan contenido protegido; espera corta no muestra texto, espera larga sí. Errores/consentimiento/wipe intactos.
+- Validación: prueba de navegación desde enlaces y celdas/gesto con documento persistente en navegador propio, regresión inicial pendiente y DoD; commit/pushint/HEAD/cuotas. Sin persistir nuevo cache/auth ni DB/automatización.
+
 ## 17b3b — Executor de asignación de categoría a una serie
 
 - Estado: candidata, no iniciada al cierre de esta ventana.

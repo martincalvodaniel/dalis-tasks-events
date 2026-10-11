@@ -1,8 +1,9 @@
 "use client"
 
-import { useId, useState } from "react"
+import { useEffect, useId, useState } from "react"
 import { CreateItemButton } from "@/components/shared/create-item-button"
 import { WorkspaceNavigation } from "@/components/shared/workspace-navigation"
+import { DelayedStatus } from "@/components/ui/delayed-status"
 import { commonPlanReleaseEnabled } from "@/config/common-plan-release"
 import { workspaceDestinations } from "@/config/navigation"
 import { CalendarScreen } from "@/features/calendar/components/calendar-screen"
@@ -18,6 +19,7 @@ import { WorkspaceOverview } from "@/features/workspace/components/workspace-ove
 import { useAccountProfile } from "@/features/workspace/hooks/use-account-profile"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import { useWorkspaceView } from "@/features/workspace/hooks/use-workspace-view"
+import { handleWorkspaceNavigation } from "@/features/workspace/navigation"
 
 export function Workspace() {
   const Composer = commonPlanReleaseEnabled ? PlanComposer : CreateItemDialog
@@ -27,9 +29,20 @@ export function Workspace() {
   const destination =
     workspaceDestinations.find((entry) => entry.id === view) ??
     workspaceDestinations[0]
-  const { account, refresh } = useLocalAccount()
+  const { account, refresh, isLoading } = useLocalAccount()
   const profile = useAccountProfile(account)
   const [composerEpoch, setComposerEpoch] = useState<string | null>(null)
+  useEffect(() => {
+    document.addEventListener("click", handleWorkspaceNavigation)
+    return () =>
+      document.removeEventListener("click", handleWorkspaceNavigation)
+  }, [])
+  if (!account && isLoading)
+    return (
+      <div data-offline-shell="dalis" className="min-h-dvh">
+        <DelayedStatus>Abriendo tu espacio…</DelayedStatus>
+      </div>
+    )
   return (
     <WorkspaceSyncProvider account={account}>
       <div data-offline-shell="dalis" className="min-h-dvh">

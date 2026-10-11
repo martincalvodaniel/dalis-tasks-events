@@ -1,6 +1,7 @@
 "use client"
 
 import { useId, useMemo } from "react"
+import { DelayedStatus } from "@/components/ui/delayed-status"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { MonthGrid } from "@/features/calendar/components/month-grid"
 import { useAccountDay } from "@/features/calendar/hooks/use-account-day"
@@ -55,11 +56,7 @@ export function PlanCalendarBoard({ account }: { account: LocalAccount }) {
       </ErrorBanner>
     )
   if (!today || !selected)
-    return (
-      <p role="status" className="mt-4 text-sm">
-        Cargando calendario…
-      </p>
-    )
+    return <DelayedStatus>Cargando calendario…</DelayedStatus>
   return (
     <>
       <MonthGrid

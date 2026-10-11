@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
+import { DelayedStatus } from "@/components/ui/delayed-status"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { LongPressOrder } from "@/components/ui/long-press-order"
 import type { PlanAgendaSelection } from "@/features/plans/agenda-selection"
@@ -269,7 +270,7 @@ export function PlanList({
           tus cambios se conservan.
         </ErrorBanner>
       ) : isLoading ? (
-        <p role="status">Cargando planes…</p>
+        <DelayedStatus>Cargando planes…</DelayedStatus>
       ) : rows.length ? (
         <div data-order-list className="space-y-3">
           {groups.map((group) => (

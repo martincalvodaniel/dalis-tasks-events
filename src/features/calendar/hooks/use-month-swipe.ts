@@ -7,6 +7,7 @@ import {
   calendarHref,
   monthSwipeOffset,
 } from "@/features/calendar/month-view"
+import { navigateWorkspace } from "@/features/workspace/navigation"
 
 export function useMonthSwipe(selectedDate: string) {
   const gesture = useRef<{
@@ -19,7 +20,7 @@ export function useMonthSwipe(selectedDate: string) {
 
   function changeMonth(offset: -1 | 1) {
     const date = adjacentMonth(selectedDate, offset)
-    if (date) window.location.assign(calendarHref(date))
+    if (date) navigateWorkspace(calendarHref(date))
   }
 
   function onPointerMove(event: PointerEvent<HTMLElement>) {

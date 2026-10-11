@@ -2,6 +2,7 @@
 
 import { type ReactNode, useState } from "react"
 import { useSWRConfig } from "swr"
+import { DelayedStatus } from "@/components/ui/delayed-status"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { allowsCommonPlanLocalReset } from "@/config/common-plan-reset"
 import { ConfirmLocalPlanResetDialog } from "@/features/plans/components/confirm-local-plan-reset-dialog"
@@ -19,6 +20,8 @@ export function PlanReleaseBoundary({
   const { data, error, refresh } = useLocalPlanRelease(account)
   const { mutate } = useSWRConfig()
   const [confirming, setConfirming] = useState(false)
+  if (!data && !error)
+    return <DelayedStatus>Comprobando este dispositivo…</DelayedStatus>
   if (data?.status === "ready" && !error && !confirming) return children
   async function finishPreparation() {
     await mutate(
