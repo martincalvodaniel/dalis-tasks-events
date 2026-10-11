@@ -2876,3 +2876,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17c1a/reader17b2c1; cuota59%5h/78%7d.
 - Aceptación: cola completa/actor/dependencias/shadows validados; pendiente del padre o mismaaparición preserva local, otraaparición no bloquea; conservarcancelados/tombstones/shadow másreciente. Misma revisión conrecorddistinto es error; parent observado posterior se conserva sinatribuirancestro. Leasepropio para aplicar, replay idéntico durable, conflicto/rejected/unsupported sinACK. Rebase sólo expectedOccurrenceRevision deapariciónigual en pending+attempts0 condependencia directa; UUID/baseRevisionparent/históricas/otrasapariciones/intentos intactos.
 - Validación: casospuros ACK/replay/lateoutcome/proyección/conflict/null/dependientesenserie/leases/rollbackplan ymalformados; suite/lint/tipos/build/diff; commitpushint/HEAD/cuotas. Next17c2 ACK TXIndexedDB, seguido pull atómico.
+
+## 17c2a — ACK de aparición atómico en IndexedDB
+
+- Estado: completada11oct; seis comprobaciones IndexedDB reales, incluida recarga/limpieza propias.
+
+- Objetivo: ejecutar elplan17c1b en una únicaTX de apariciones/outbox/shadow/outcome ycaptura coherente delpadre, sincallerproductivo.
+- target_paths: local-db/plan-occurrence-sync-results, test/browser/plan-occurrence-sync-results, scripts/plan-occurrence-sync-results-test-server yplan.
+- Dependencias:17c1a/b, storesIndexedDB existentes, cuota55%5h/77%7d.
+- Aceptación: partición/actor/lease/operación/snapshotbounded completos validados anteswrites; sólocompleteTX devuelveACK, falloúltimooutcome revierte todos; replay idéntico readonly, rebasecondicionado, otroactor/lease/historia/corrupción preservan DB. Recarga mantieneACK/evidencia; fixturepropia limpia sólo particionesrunowned.
+- Validación: IndexedDB navegador real enorigen4253 con commit/replay/dependientes/fallo tardío/lease/actor/corrupción/recarga, suite/lint/tipos/build/diff; commitpushint/HEAD/cuotas. Sincredenciales/redMongo/DBusuario/nuevogeneración; después17c2b pullatómico mixto.
