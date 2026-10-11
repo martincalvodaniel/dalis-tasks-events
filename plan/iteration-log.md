@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17z2 — Cierre puntual20:26
+
+Lote17b3b–17d5 publicado y cerrado, último código cc05d20. Mongo propio prueba executors/replay/guard/CAS/rollback/races; IndexedDB propio prueba productores/ACK/pull/evidencia/backup/runtime y recursos retirados. Última suite748pass/201opt-in skip/0fail/10258aserciones, lint773/tipos/build36; NextRPC5/twopartitionMongo/lifecyclehook5 pendientes, respuestas simuladas no convergencia. Producto activo4 intacto, ninguna nueva actuación enDBusuario. Lectura16%5h/56%7d; siguiente17e1a acotado no cabe prudentemente en seis puntos hastareserva10%. Reset real1791761185(12oct01:26:25Madrid), sin nueva programación: automation_update confirmó eliminación de revisión puntual. Estado actual consolidado y cierres anteriores identificados como historia, referencias/coherencia/diff validados, mismo commitpushint/HEAD y consulta final.
+
 ## 17d5 — Hook/cache5 preparados
 
 Cerrado11oct: wrapper useRecurringSyncEngine selecciona factory5 estática y reutiliza núcleo/scheduler/listeners/cleanup existentes. Core mantiene ownership por protocolo/cuenta/época y admite5; key5 separada de2/3/4 conserva posiciones e invalidación de cuenta. Ningún provider/caller/route activo cambia. Regresión de cache añade aislamiento5/invalidation/copia de actor y rechazo0/1/6/99/NaN; lifecycle real de hook5 aún pendiente y no se atribuye a evidencia4. Suite748pass/201opt-in skip/0fail/10258aserciones, lint773/tipos/buildNext16.4worker36/diff aprobados. Sin DBusuario/activación; siguiente frontera Next y prueba conjunta dosparticiones/Mongo, antes de provisión específica/activación. Commit/pushint/HEAD/cuotas.

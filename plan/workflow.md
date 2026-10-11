@@ -370,3 +370,7 @@ Corrección humana16c11: eliminar flickering de recargas/estados pendientes. Ent
 Usuario solicita reactivación11oct20:26Europe/Madrid. Heartbeat existente ACTIVE, puntual, sin duplicado/cadena y failed_runs_only conservado. Resetpublicado1791743128(20:25:28Madrid), lectura1%5h/69%7d: comprobar renovación real antes de trabajar. Código85d788c, candidata17b3b, reservas10%5h/1%7d y commitpushint/HEAD/cuotas por entrega; pausar al cierre sin nueva programación.
 
 Renovación20:26 confirmada100%5h/69%7d, nuevo reset1791761185(12oct01:26:25Madrid). HEAD0794ee7 limpio y remoto exacto. Se abre17b3b según sus rutas/aceptación, secuencial, conservando reservas10%/1% y pausando la ejecución puntual al cierre. Sin nueva cadena ni actuación de índices en DB del usuario.
+
+### Cierre del lote20:26 — 17z2
+
+Publicado código cc05d20 tras17b3b–17d5, con pruebas y commit/push/HEAD/cuotas por corte. Lectura16%5h/56%7d, reservas10%/1%; reset real publicado1791761185(12oct01:26:25Madrid) confirmado sin programar otra revisión. Siguiente17e1a frontera Next integrada requiere más margen para preparación/ejecución/reparación/cierre que seis puntos hastareserva; no abrirlo ahora. Último DoD748pass/201opt-in skip/0fail, lint773/tipos/build36. Mongo/browser propios retirados, ninguna nueva actuación en DBusuario/producción; generación4 activa/5 privada. Automatización puntual eliminada por automation_update, sin nueva cadena. Cierre documental con referencias/coherencia/diff, commitpushint/HEAD y consulta final.

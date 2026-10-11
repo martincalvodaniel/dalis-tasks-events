@@ -3028,6 +3028,24 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17z2 — Cierre de la continuación puntual20:26
+
+- Objetivo: registrar estado/código/pruebas/cuota/recursos al cerrar la ejecución puntual y concretar siguiente prueba integrada sin activación parcial.
+- target_paths: plan/{master,workflow,iterations,iteration-log,recurrence-sync}.md y automatización puntual existente.
+- Dependencias:17d5 publicado cc05d20 y HEADremoto exacto; lectura16%5h/56%7d, reservas10%/1%.
+- Aceptación: repo coherente/recursos propios retirados, estado4 activo/5 preparado inequívoco, corteNext acotado/prerrequisitos explícitos. No comenzar Next con seis puntos hastareserva; la preparación/ejecución/reparación/cierre requiere más margen según ensayos anteriores. Automatización puntual eliminada sin nueva cadena, confirmado por herramienta.
+- Validación: referencias locales/coherencia/diff; documentación mismo commitpushint/HEAD y lectura final de ambas cuotas.
+
+## 17e1a — Frontera Next5 compilada y retiro4
+
+- Estado: candidata, no iniciada en esta ventana; definir margen/alcance final antes editar.
+- Objetivo: evidencia de referencia real actions-v5/defaults/readiness5/sesiones BetterAuth persistidas, matrix4↔5 y rechazo de acción4 retirada sin ejecución/ACK.
+- target_paths: scripts/next-sync-test-runner.ts, test/next-sync/**/*.template, src/{schemas,config}/next-sync-test.ts, src/lib/db/next-sync-fixture.ts y tests pertinentes, plan; integración compartida de único dueño.
+- Dependencias:17d1–5 preparados; descriptor Mongo propio/imagen pinned y procedimiento de índices propios5 antes readiness. No índices/DBusuario, no API/provider productivo5.
+- Aceptación: dos orígenes/particiones y sesiones propias independientes, acción5 real compilada con actor/expectedactor/auth/readiness coherentes; header5 exclusivo antes body/cache/cursor. Capturados identity4/pull4→retirement4 devuelve update_required antes readiness/executor sin ACK y libera sólo lease propio. ID antiguo ausente404 real conserva cola/intención y siguientehandshake5 bloquea antesclaim. Matrix4↔5 conserva UUID/sobre2/intención1; errores saneados. Cleanup todos recursos propios.
+- Validación: Next real compilado/controlado, Mongo propio y browsers propios, regresiones/DoD/commitpushint/HEAD/cuotas. Fixture directo o puro no prueba esta frontera; no confundir sesiones persistidas ficticias con OAuthGoogle interactivo.
+- Cortes posteriores:17e1b lifecycle hook5 real y convergencia de productor→ACKúnico/replay/dependientes/pull en dosparticionesMongo; escenarios de fecha/timed/variante/regla/series/placement/conflicto/tombstone/offline. Luego procedimiento específico índiceAppearance Preview validado/permiso antes ejecutarlo, recuperación/UI/backup recurrentes coherentes y activación conjunta5. No declarar alcance activo por cambiar config ni borrar/migrar intenciones.
+
 ## 17d5 — Hook/cache recurrentes preparados
 
 - Estado: completada11oct; regresión cache/invalidation y DoD aprobados. Lifecycle5 real pendiente.

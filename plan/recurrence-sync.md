@@ -2,6 +2,12 @@
 
 Estado11oct: generación4 sólo sincroniza planes simples; series/apariciones/progreso/cambios de fecha siguen locales. Arrastre simple y checklist heredada entregados16c1–3. No activar parcialmente un nuevo alcance.
 
+## Punto de continuación tras20:26
+
+Código completo publicado `cc05d20`. Cortes17b3b–17d5 cerrados: categoría/replay/orden/dispatcher/readerMongo futuros, productores/ACK/pull/evidencia/backup/consumidoresIndexedDB, policy/coordinador/runtime y HTTP/acción/authpull/client/hook/cache5 privados. Producto activo4 intacto; sin repetición remota activada ni nueva provisión enDBusuario. Última suite748pass/201skip/0fail, lint773/tipos/build36. Recursos propios cerrados; revisión puntual eliminada sin cadena adicional.
+
+Candidata **17e1a** detallada en [iterations.md](iterations.md): frontera real compilada Next5/defaults/sesiones/readiness/matrix/retiro4, antes de lifecycle5 y convergencia de dosparticionesMongo. No comenzar con seis puntos de margen hastareserva10%; último presupuesto16%5h/56%7d. Provisión índiceAppearance Preview sólo tras procedimiento propio validado y permiso específico; activación conjunta posterior, no config aislada. Recuperación/UI/backup recurrentes deben seleccionar consumidores futuros de manera coherente antes de exponer incidencias o activar5.
+
 ## Revisión e identidad
 
 La intención local actual de aparición guarda `baseRevision` del padre y se encadena por `item:<seriesId>`. Esto no es la revisión de la aparición. Mantener esa semántica: en contrato futuro cada comando incluye `expectedOccurrenceRevision` explícito (cero sólo si no hay excepción materializada). `baseRevision` sigue siendo la revisión confirmada de la serie. No deducir ninguna revisión desde shadow/outcome ni reescribir intenciones históricas. El schema preparatorio17a1 exige el nuevo campo; los comandos antiguos sin él no obtienen ACK ni se reconstruyen automáticamente. La integración decidirá conservación/reintento explícito de pendientes según evidencia; no crear migradores caros ni wipe silencioso.
@@ -120,7 +126,7 @@ Snapshot común recibe codec/versiontipados: exportactual2 sigueestricto, nuevo 
 
 Exportfuturo permite asignar/limpiar categoría en parentcomún recurrente de cuatrovariantes usandoCAS de vista independiente; exportactivo4/legacy no se amplía, recurrenciaslegacyunsupported. Sincontenido/progreso/revisiónparentalterados; actor/parent/tagactual/deleted/CAS aprobados con tres tests nuevos. Planner no sustituye executor/guard/commit; siguiente17b3b pruebaMongo antes de integrar transporte5.
 
-## Punto de continuación al cerrar el 11 de octubre
+## Cierre histórico anterior a la continuación20:26 del 11 de octubre
 
 El último código publicado es `c6449ed`. Series y apariciones cuentan con executors preparatorios, descarga privada, ACK/pull IndexedDB, evidencia de incidentes y exportación portable probados por separado. Esto todavía no constituye sincronización de repetición activada.
 
