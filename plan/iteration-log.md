@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17d2 — Lifecycle recurrente IndexedDB real
+
+Cerrado11oct: runtime privado abre outbox/store recurrente/coordinador como unidad; exige cuenta/release antes y después de abrir y cierra recursos parciales. Época capturada, guards antes de transacciones, release sólo sender propio, stop y close idempotente esperan pasada. Seis escenarios con IndexedDB real y productor plan-occurrence-outbox prueban cuenta inactiva, coalescencia/cierre durante pull, cambio de época tras descarga, cambio tras envío, cierre durante envío y reapertura→ACK real local/pull durable de aparición. UUID/payload/CAS exactos y parent inalterado, sin ACK tardío fuera de época; respuestas sintéticas no prueban RPC/Mongo/convergencia. Origen loopback generado vacío marcado antes de usar, partición/control propios eliminados y tab/server cerrados. Fixture inicial tenía llave/import incorrectos, reparados antes del ensayo; resultado final seis checks pasan. Suite734pass/201opt-in skip/0fail/10061aserciones, lint763/tipos/buildNext16.4worker36/diff aprobados. Sin caller/DBusuario/activación; frontera Next/índices/proof conjunta pendientes. Commit/pushint/HEAD/cuotas.
+
 ## 17d1 — Transporte HTTP5 preparado
 
 Cerrado11oct: transport privado fija generación5 exclusiva, valida header antes de JSON y DTO recurrentes antes de exponer datos. Cookies same-origin/no-store/deadline y DTO recurrentes íntegros; sobres2/intenciones1 intactos. Cuatro tests prueban identidad/pull/aparición, matrix4↔5 y rangos mixtos antesbody, errores401/426/409, cuenta/UUID/familia inválidos y timeout sin asumir rollback remoto. Constante activa4 y callers intactos. Literales de fixture ampliados inicialmente causaron errores de tipos, corregidos mediante DTO explícitos; última suite734pass/201opt-in skip/0fail/10061aserciones, lint760/tipos/buildNext16.4worker36/diff aprobados. Sin RPC/Google/DBusuario ni activación; runtime y evidencia real próximos. Commit/pushint/HEAD/cuotas.

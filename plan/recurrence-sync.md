@@ -185,3 +185,7 @@ Policy y validadores futuros fijados juntos; generación4 conserva DTO/kernel es
 ## Transporte17d1
 
 HTTP privado fija header5 exclusivo antes de body, cookies same-origin/no-store y deadline; matrix4↔5 rechaza sin datos/ACK y sobre2/intención1 quedan intactos. Cuatro pruebas puras cubren actor/DTO/query/deadlines; ninguna ruta o caller activo cambia. Runtime y prueba integrada siguen pendientes.
+
+## Runtime17d2
+
+Puerto privado fija coordinador/store/policy recurrentes juntos, captura cuenta/época y release, conserva lease propio al cerrar o perder cuenta. Seis checks browser propios prueban coalescencia/stop/cambios durante red/reapertura y ACK/pull local de aparición producida realmente. Respuestas simuladas; sin activación ni prueba RPC/convergencia. Next/índice de aparición/proof conjunta siguientes.

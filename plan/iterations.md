@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17d2 — Runtime recurrente y lifecycle IndexedDB
+
+- Estado: completada11oct; seis escenarios de navegador propio y DoD aprobados.
+
+- Objetivo: abrir recursos y coordinador recurrentes como unidad privada con guardias de cuenta/época y cierre idempotente.
+- target_paths: features/sync/local-recurring-runtime.ts, test/browser/recurring-runtime.ts, scripts/recurring-runtime-test-server.ts, plan.
+- Dependencias:17c7b–17d1; entrada28%5h/58%7d, reservas10%/1%.
+- Aceptación: cuenta/release antes y después apertura, recursos parciales cerrados, coalescencia, stop/cambio época antes ACK/cursor, lease exclusivamente propio; productor real de aparición y ACK durable en partición propia. Sin caller/activación/DBusuario.
+- Validación: seis escenarios lifecycle en IndexedDB real/origen loopback generado, limpieza sólo fixture, respuestas sintéticas no RPC/Google/convergencia; DoD completo, commit/pushint/HEAD/cuotas.
+
 ## 17d1 — Transporte HTTP recurrente privado
 
 - Estado: completada11oct; cuatro pruebas puras de HTTP/negociación y DoD aprobados.
