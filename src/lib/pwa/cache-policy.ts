@@ -8,7 +8,9 @@ export function offlineCacheKey(
   if (url.origin !== origin) return null
   if (
     request.mode === "navigate" &&
-    (url.pathname === "/workspace" || url.pathname === "/workspace/")
+    (url.pathname === "/" ||
+      url.pathname === "/workspace" ||
+      url.pathname === "/workspace/")
   )
     return "/workspace"
   if (url.pathname === "/workspace" || url.search) return null

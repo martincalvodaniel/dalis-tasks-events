@@ -16,7 +16,10 @@ export const metadata: Metadata = {
   title: "Dalis Tasks & Events",
   description: "Tus tareas y fechas importantes, también sin conexión",
   appleWebApp: { capable: true, title: "Dalis" },
-  icons: { apple: "/apple-touch-icon.png" },
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: "/apple-touch-icon.png",
+  },
 }
 
 export default function RootLayout({

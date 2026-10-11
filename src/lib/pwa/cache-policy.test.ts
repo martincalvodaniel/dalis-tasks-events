@@ -12,6 +12,9 @@ test("offline cache allows only neutral navigation and listed static resources",
   }
   expect(offlineCacheKey(request, origin, assets)).toBe("/workspace")
   expect(
+    offlineCacheKey({ ...request, url: `${origin}/` }, origin, assets)
+  ).toBe("/workspace")
+  expect(
     offlineCacheKey(
       { ...request, mode: "cors", url: `${origin}/_next/static/app.js` },
       origin,

@@ -2826,3 +2826,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias: gesto/cancelación/orden existentes, peticiónhumana; lectura85%5h/82%7d.
 - Aceptación: CSSuser-select/Webkit touchcallout desactivados desde montaje en fila propia; selectstart/contextmenu cancelados antes deactivar; inputs/textarea/select/contenteditable quedan fuera; cancel/reorden/teclado sin cambios; listeners/clase restaurados al desmontar. Sin touch-action:none que impida scroll.
 - Validación: fixturebrowserIndexedDB de gesto amplía selección/contexto/campoeditable, suite/lint/tipos/build/diff y commitpushint/HEAD/cuotas.
+
+## 16c9 — Entrada directa y favicon Dalis
+
+- Estado: completada11oct, HTTP anónimo compilado y política offline aprobados.
+
+- Objetivo: entrar al espacio desde raíz sin pantalla intermedia y publicar favicon propio también offline.
+- target_paths: app/{(dashboard)/page,(offline)/page,layout,favicon.ico}, proxy, workspace/online-entry, auth/callback-url, pwa/cache-policy ytests, public/favicon.svg, scripts/build yplan.
+- Dependencias: shell neutral /workspace y marcaSVG/iconPNG existentes; cuota77%5h/81%7d.
+- Aceptación: raíz anónima redirige a /workspace, layout de rutas protegidas intacto; callback por defecto directo, navegación raíz offline reutiliza sólo shellneutral, no cacheRSC/auth/API. FaviconSVG eICO Dalis servidos públicamente yprecached, sin dependencias.
+- Validación: política/callback y regresión, lint/tipos/build, HTTP Next compilado raíz/workspace/iconos ymetadata sin consultar DBusuario; commitpushint/HEAD/cuotas. Después retomar executor deaparición17b2b3.

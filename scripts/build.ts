@@ -30,6 +30,8 @@ const buildId = (await Bun.file(".next/BUILD_ID").text()).trim()
 const assets = [
   "/workspace",
   "/manifest.webmanifest",
+  "/favicon.ico",
+  "/favicon.svg",
   "/icon-192.png",
   "/icon-512.png",
   "/apple-touch-icon.png",
