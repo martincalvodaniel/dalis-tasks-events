@@ -137,6 +137,8 @@ export function LongPressOrder({
     const root = anchor.current?.closest<HTMLElement>("[data-order-item]")
     if (!root) return
     const previousTabIndex = root.getAttribute("tabindex")
+    const hadOrderClass = root.classList.contains("dalis-orderable")
+    root.classList.add("dalis-orderable")
     root.tabIndex = 0
     let timer: ReturnType<typeof setTimeout> | undefined
     let clickTimer: ReturnType<typeof setTimeout> | undefined
@@ -145,6 +147,11 @@ export function LongPressOrder({
     const isOwnTarget = (event: Event) =>
       event.target instanceof Element &&
       event.target.closest("[data-order-item]") === root
+    const isInteractiveTarget = (event: Event) =>
+      event.target instanceof Element &&
+      Boolean(
+        event.target.closest("button,input,select,textarea,a,[contenteditable]")
+      )
     function cancel() {
       clearTimeout(timer)
       cancelAnimationFrame(frame)
@@ -189,8 +196,7 @@ export function LongPressOrder({
         gesture.current
       )
         return
-      if ((event.target as Element).closest("button,input,select,textarea,a"))
-        return
+      if (isInteractiveTarget(event)) return
       clearTimeout(clickTimer)
       suppressClick = false
       gesture.current = {
@@ -217,6 +223,9 @@ export function LongPressOrder({
         current.active = true
         root.setPointerCapture(current.pointerId)
         root.focus({ preventScroll: true })
+        const selection = window.getSelection()
+        if (selection?.anchorNode && root.contains(selection.anchorNode))
+          selection.removeAllRanges()
         root.classList.add("ring-2", "ring-emerald-500", "select-none")
         suppressClick = true
         setDragging(true)
@@ -256,7 +265,12 @@ export function LongPressOrder({
       if (gesture.current?.active && event.cancelable) event.preventDefault()
     }
     function context(event: MouseEvent) {
-      if (gesture.current?.active && isOwnTarget(event)) event.preventDefault()
+      if (gesture.current && isOwnTarget(event) && !isInteractiveTarget(event))
+        event.preventDefault()
+    }
+    function select(event: Event) {
+      if (isOwnTarget(event) && !isInteractiveTarget(event))
+        event.preventDefault()
     }
     function key(event: KeyboardEvent) {
       if (!root || event.target !== root) return
@@ -280,6 +294,7 @@ export function LongPressOrder({
     root.addEventListener("click", click, true)
     document.addEventListener("touchmove", touchMove, { passive: false })
     root.addEventListener("contextmenu", context)
+    root.addEventListener("selectstart", select)
     root.addEventListener("keydown", key)
     window.addEventListener("blur", cancel)
     window.addEventListener("pagehide", cancel)
@@ -295,12 +310,14 @@ export function LongPressOrder({
       root.removeEventListener("click", click, true)
       document.removeEventListener("touchmove", touchMove)
       root.removeEventListener("contextmenu", context)
+      root.removeEventListener("selectstart", select)
       root.removeEventListener("keydown", key)
       window.removeEventListener("blur", cancel)
       window.removeEventListener("pagehide", cancel)
       document.removeEventListener("visibilitychange", visibility)
       if (previousTabIndex === null) root.removeAttribute("tabindex")
       else root.setAttribute("tabindex", previousTabIndex)
+      if (!hadOrderClass) root.classList.remove("dalis-orderable")
     }
   }, [fingerprint])
   useEffect(() => {

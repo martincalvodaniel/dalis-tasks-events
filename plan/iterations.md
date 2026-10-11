@@ -2816,3 +2816,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias: sesiónBetterAuth vigente y cuenta local con epoch; peticiónhumana durante17b2b2, cuota89%5h/83%7d.
 - Aceptación: perfil sólo si userId coincide con cuenta activa, guardiasepoch trasred, cache local poruserId para nombre/correooffline; metadatos de presentación nunca prueban autorización. FotoHTTPSGoogle y fallbackSVG, altdecorativo/labelAjustes intactos; caché ajena no se muestra tras cierre/cambio; falloalmacenamiento/red no bloquea tareas.
 - Validación: schema/identidad/fallbackmarkup yprueba apropiada de flujo, suite/lint/tipos/build/diff; commitpushint/HEAD/cuotas. Después16c8 arrastre y16c9 entrada/favicon, antes de retomar executor de apariciones.
+
+## 16c8 — Pulsación prolongada sin selección nativa
+
+- Estado: completada11oct; fixture propia con selección/contexto/campos y orden trasrecarga aprobada.
+
+- Objetivo: impedir selección/callout antes del umbral450ms en filas arrastrables; conservar scroll previo, clic breve y campos editables.
+- target_paths: components/ui/long-press-order, app/globals.css, test/browser/plan-gestures yplan.
+- Dependencias: gesto/cancelación/orden existentes, peticiónhumana; lectura85%5h/82%7d.
+- Aceptación: CSSuser-select/Webkit touchcallout desactivados desde montaje en fila propia; selectstart/contextmenu cancelados antes deactivar; inputs/textarea/select/contenteditable quedan fuera; cancel/reorden/teclado sin cambios; listeners/clase restaurados al desmontar. Sin touch-action:none que impida scroll.
+- Validación: fixturebrowserIndexedDB de gesto amplía selección/contexto/campoeditable, suite/lint/tipos/build/diff y commitpushint/HEAD/cuotas.

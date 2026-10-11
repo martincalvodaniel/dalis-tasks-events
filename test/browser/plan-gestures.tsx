@@ -218,6 +218,35 @@ run.onclick = async () => {
     )
     const title = source?.querySelector("h4")
     assert(source && destination && title, "Gesture rows are missing")
+    assert(
+      getComputedStyle(title).userSelect === "none",
+      "Row selection must be disabled before long press starts"
+    )
+    const selection = new Event("selectstart", {
+      bubbles: true,
+      cancelable: true,
+    })
+    title.dispatchEvent(selection)
+    assert(selection.defaultPrevented, "Native row selection was not blocked")
+    const editable = document.createElement("input")
+    source.append(editable)
+    try {
+      assert(
+        getComputedStyle(editable).userSelect === "text",
+        "Editable field selection must remain available"
+      )
+      const fieldSelection = new Event("selectstart", {
+        bubbles: true,
+        cancelable: true,
+      })
+      editable.dispatchEvent(fieldSelection)
+      assert(
+        !fieldSelection.defaultPrevented,
+        "Editable field selection was intercepted"
+      )
+    } finally {
+      editable.remove()
+    }
     const capture = source.setPointerCapture
     source.setPointerCapture = () => undefined
     const origin = title.getBoundingClientRect(),
@@ -239,6 +268,15 @@ run.onclick = async () => {
     outbox.close()
     try {
       dispatch("pointerdown")
+      const menu = new MouseEvent("contextmenu", {
+        bubbles: true,
+        cancelable: true,
+      })
+      title.dispatchEvent(menu)
+      assert(
+        menu.defaultPrevented,
+        "Native callout must be blocked before the activation timer"
+      )
       dispatch("pointerup")
       dispatch("pointerdown")
       dispatch("pointermove", origin.left + 30)
