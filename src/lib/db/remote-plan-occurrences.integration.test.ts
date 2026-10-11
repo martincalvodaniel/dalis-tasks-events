@@ -104,6 +104,8 @@ describe.skipIf(!config)("owned remote plan occurrence persistence", () => {
     expect(await own.seriesCatalog(seriesId)).toEqual([first, next, timed])
     expect(await own.seriesCatalog(otherSeriesId)).toEqual([anotherSeries])
     expect(await other.seriesCatalog(otherSeriesId)).toEqual([])
+    expect(await own.catalog()).toEqual([first, next, timed, anotherSeries])
+    expect(await other.catalog()).toHaveLength(1)
     for (const invalid of [
       { id: "invalid", seriesId },
       { ...key(first), seriesId: otherSeriesId },
@@ -243,6 +245,7 @@ describe.skipIf(!config)("owned remote plan occurrence persistence", () => {
           own.read({ ...key(first), ...(change.id ? { id: change.id } : {}) })
         ).rejects.toThrow()
         await expect(own.seriesCatalog(seriesId)).rejects.toThrow()
+        await expect(own.catalog()).rejects.toThrow()
       } finally {
         await raw.replaceOne({ _id: stored._id }, stored)
       }
@@ -258,6 +261,7 @@ describe.skipIf(!config)("owned remote plan occurrence persistence", () => {
         own.read({ seriesId, id: `${seriesId}:2026-10-13` })
       ).rejects.toThrow()
       await expect(own.seriesCatalog(seriesId)).rejects.toThrow()
+      await expect(own.catalog()).rejects.toThrow()
       await expect(
         raw.insertOne({ ...stored, _id: "duplicate-slot" })
       ).rejects.toThrow()
@@ -284,9 +288,11 @@ describe.skipIf(!config)("owned remote plan occurrence persistence", () => {
     await expect(own.seriesCatalog(seriesId)).rejects.toThrow(
       "exceeds the supported limit"
     )
+    await expect(own.catalog()).rejects.toThrow("exceeds the supported limit")
     await raw.deleteOne({ _id: values.at(-1)?._id, userId: actor })
     expect(await own.seriesCatalog(seriesId)).toHaveLength(
       maximumRemotePlanOccurrenceCatalog
     )
+    expect(await own.catalog()).toHaveLength(maximumRemotePlanOccurrenceCatalog)
   }, 30000)
 })

@@ -77,6 +77,20 @@ export class RemotePlanOccurrenceRepository {
     return stored.map((document) => this.parseStored(document))
   }
 
+  // Complete bounded actor snapshot for mixed ordering; the executor authorizes every parent.
+  async catalog(): Promise<PlanOccurrence[]> {
+    const stored = await this.collection
+      .find({ userId: this.actor }, { session: this.session })
+      .sort({ seriesId: 1, slotKey: 1 })
+      .limit(maximumRemotePlanOccurrenceCatalog + 1)
+      .toArray()
+    if (stored.length > maximumRemotePlanOccurrenceCatalog)
+      throw new Error(
+        "Remote plan occurrence catalog exceeds the supported limit"
+      )
+    return stored.map((document) => this.parseStored(document))
+  }
+
   async insert(input: unknown): Promise<boolean> {
     const occurrence = planOccurrenceSchema.parse(input)
     if (

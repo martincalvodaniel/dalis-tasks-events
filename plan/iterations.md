@@ -3028,6 +3028,15 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17c5b — Catálogo y executor Mongo de orden recurrente
+
+- Estado: completada11oct; Mongo125pass/1756aserciones24archivos y DoD aprobados.
+- Objetivo: ejecutar orden mixto futuro en una única TX con replay/guard/CAS/journal/recibo, sin conectar callers4.
+- target_paths: remote-plan-occurrences y test, remote-task-placement-commands, nueva prueba de integración recurrente, runner Mongo y plan.
+- Dependencias:17c5a, guard y namespace de recibos recurrentes; entrada80%5h/66%7d, reservas10%/1%.
+- Aceptación: catálogos completos propios snapshot (incluye apariciones canceladas/tombstones), límite global10000 validado sin truncar; reutilizar índice registrado user/series/slot. Replay común primero y guard de cada padre común afectado antes de writes; CAS de cada placement/vista, contador/journal/recibo atómicos. Retry relee todos los catálogos y autorización; no cambia parent/aparición ni UUID/payload. Activo4 strict y terminales históricos intactos.
+- Validación: Mongo propio mixed simple/timed/materializada, replay/identidad/concurrente/CAS, rollback tardío completo y carrera con edición/borrado padre; límites/corrupción del catálogo; suite/lint/tipos/build, commit/pushint/HEAD/cuotas. Sin DBusuario ni activación.
+
 ## 17c5a — Contrato y planner de orden mixto recurrente
 
 - Estado: completada11oct; once pruebas nuevas, suite705pass/188skip/0fail y DoD aprobados.

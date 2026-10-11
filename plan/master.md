@@ -30,6 +30,8 @@ Continuación20:26:17b3b conecta executor preparatorio de categorías de series,
 
 17c5a prepara orden mixto simple/aparición en día/atrasadas, slots timed, CAS independiente y catálogos completos limitados. Sigue executor17c5b y consumidores antes de negociación5/activación conjunta; producto sigue4.
 
+17c5b conecta executor preparatorio de orden con guards/CAS/recibo/journal atómicos y prueba Mongo de retry/rollback. Sigue17c5c descarga autorizada de placements recurrentes y consumidores/productor futuros; aún sin activar repetición remota.
+
 Nueva petición humana11oct: continuación puntual programada hoy20:26Europe/Madrid, previa comprobación real de renovación para17b3b. Código85d788c, reservas10%5h/1%7d; heartbeat existente ACTIVE sin cadena adicional.
 
 Queda aproximadamente **20–25% del alcance actual** (75–80% completado). Estimación ponderada por complejidad, no por commits ni duración. Al retirar compartir (13puntos del alcance original), quedan alrededor de20puntos sobre87: repetición remota/series/apariciones y orden10, cumpleaños5, preferencias residuales/aceptación final5. La mejora del porcentaje corresponde a una reducción de alcance, no a implementar compartir.
