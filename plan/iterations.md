@@ -2916,3 +2916,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17c1/17c2 y decoderlegacy intacto; cuota40%5h/75%7d.
 - Aceptación: snapshot completo acotado/actor/cola/parent/slot/outcome exactos; aparición actual real separada de padre, null sólo ausencia capturada. Detectar contradicción de misma revisión, conservar replaybase posterior como observación, tombstones ypendientes relacionados. Evidencia durable corresponde estado/UUID/intención; parseractual sigue rechazando rama. Sin resolución/supersession/nuevo caller.
 - Validación: pruebas puras conflicto/rejected/null/current/latebase/parent/slot/actor/duplicate/state/legacydependientes; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. Siguiente readerTX ycompatibilidad de consumidores.
+
+## 17c3b — Captura real de incidentes en IndexedDB
+
+- Estado: completada11oct; comparación readonly persistida/recarga probadas con ocho checks de fixture propia.
+
+- Objetivo: leer aparición actual/parent/cola/evidencia en una TX readonly propia antes de proyectar comparación futura.
+- target_paths: local-db/recurring-sync-incidents; test/browser/plan-occurrence-sync-results; plan.
+- Dependencias:17c3a/17c2a; cuota37%5h/75%7d.
+- Aceptación: partición explícita, snapshot10001 rechaza exceso/corrupción, ningún write/ACK/recovery; apariciónactual tras modificación local distinta de snapshot delresultado, retorno sóloTXcomplete. Recarga conserva comparación exacta; activo4 sinnuevo caller.
+- Validación: ampliar fixture4253 con conflicto realmente persistido mediante writer17c2a, modificación actual/particiónajena/lecturareadonly/recarga; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas.

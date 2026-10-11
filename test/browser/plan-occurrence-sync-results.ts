@@ -1,6 +1,7 @@
 import { applyPlanOccurrenceCommand } from "@/lib/calendar/plan-occurrence-command"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalPlanOccurrenceResult } from "@/lib/local-db/plan-occurrence-sync-results"
+import { readLocalPlanOccurrenceSyncIncidents } from "@/lib/local-db/recurring-sync-incidents"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { planSchema } from "@/schemas/plan-item"
 import { entityIdSchema } from "@/schemas/primitives"
@@ -14,7 +15,8 @@ const query = new URLSearchParams(location.search),
 const userId = `browser-test-${runId}-appearance-results`,
   otherId = `${userId}-other`
 const marker = `dalis:appearance-result:${runId}`,
-  proofKey = `${marker}:proof`
+  proofKey = `${marker}:proof`,
+  incidentKey = `${marker}:incident`
 const stores = [
   "items",
   "occurrences",
@@ -177,6 +179,7 @@ async function cleanup() {
     })
   sessionStorage.removeItem(marker)
   sessionStorage.removeItem(proofKey)
+  sessionStorage.removeItem(incidentKey)
 }
 async function run() {
   const existing = await indexedDB.databases()
@@ -200,10 +203,19 @@ async function run() {
   let keep = false
   try {
     if (query.get("phase") === "reload") {
-      await check("ACK, aparición y evidencia exactos tras recarga", async () =>
+      await check(
+        "cola, aparición y evidencia exactas tras recarga",
+        async () =>
+          assert(
+            JSON.stringify(await snapshot(db)) ===
+              sessionStorage.getItem(proofKey)
+          )
+      )
+      await check("comparación de conflicto exacta tras recarga", async () =>
         assert(
-          JSON.stringify(await snapshot(db)) ===
-            sessionStorage.getItem(proofKey)
+          JSON.stringify(
+            await readLocalPlanOccurrenceSyncIncidents(db, userId)
+          ) === sessionStorage.getItem(incidentKey)
         )
       )
       statusElement.textContent =
@@ -348,13 +360,75 @@ async function run() {
       )
       assert(JSON.stringify(await snapshot(db)) === before)
     })
+    await check(
+      "incidente lee aparición actual y no escribe ni inventa ACK",
+      async () => {
+        const value = fixture()
+        await seed(db, value)
+        await applyLocalPlanOccurrenceResult(db, userId, {
+          ...value.submission,
+          result: {
+            kind: "plan-occurrence",
+            userId,
+            outcome: {
+              status: "conflict",
+              operationId: value.entry.operation.operationId,
+              series: value.series,
+              current: value.submission.result.outcome.occurrence,
+            },
+          },
+        })
+        const current = {
+          ...value.local,
+          content: { title: "Later local", description: "" },
+        }
+        await runLocalTransaction<void>(
+          db,
+          ["occurrences"],
+          "readwrite",
+          (context) => {
+            context.transaction.objectStore("occurrences").put(current)
+            context.setResult(undefined)
+          }
+        )
+        const before = JSON.stringify(await snapshot(db)),
+          incidents = await readLocalPlanOccurrenceSyncIncidents(db, userId)
+        assert(
+          incidents.length === 1 &&
+            JSON.stringify(incidents[0].local) === JSON.stringify(current) &&
+            JSON.stringify(incidents[0].localAtOutcome) ===
+              JSON.stringify(value.local)
+        )
+        assert(
+          JSON.stringify(await snapshot(db)) === before &&
+            incidents[0].entry.state === "conflict"
+        )
+        await refused(() => readLocalPlanOccurrenceSyncIncidents(other, userId))
+      }
+    )
     const final = fixture()
     await seed(db, final)
-    await applyLocalPlanOccurrenceResult(db, userId, final.submission)
+    await applyLocalPlanOccurrenceResult(db, userId, {
+      ...final.submission,
+      result: {
+        kind: "plan-occurrence",
+        userId,
+        outcome: {
+          status: "conflict",
+          operationId: final.entry.operation.operationId,
+          series: final.series,
+          current: null,
+        },
+      },
+    })
     sessionStorage.setItem(proofKey, JSON.stringify(await snapshot(db)))
+    sessionStorage.setItem(
+      incidentKey,
+      JSON.stringify(await readLocalPlanOccurrenceSyncIncidents(db, userId))
+    )
     keep = true
     statusElement.textContent =
-      "Cinco comprobaciones aprobadas. Falta verificar recarga."
+      "Seis comprobaciones aprobadas. Falta verificar recarga."
     const button = document.createElement("button")
     button.textContent = "Verificar recarga y limpiar"
     button.onclick = () => {

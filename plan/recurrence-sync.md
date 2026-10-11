@@ -91,3 +91,7 @@ Puerto preparatorio IndexedDB captura contenido/personal/apariciones/cola/shadow
 ## Incidentes puros17c3a
 
 Decoder futuro de outcomes y snapshot de aparición validan todo estado/evidencia antes de comparación, incluidos estados terminales legacy e intenciones congeladas. Comparación toma apariciónactual del store, nunca planpadre; conserva localalresultado/baseobservada y serie actual/observada separados. Última evidencia remota no convierte shadow enancestro, contradicción de revisión eserror, null sólose captura comoausencia. Pendientesrelacionados visibles, sin resolución/supersession/ACK. Seis tests pasan; readerTX preparatorio continúa17c3b, consumidoresactivos4 aúnstrict.
+
+## Captura de incidentes17c3b
+
+Reader privado readonly obtiene apariciónactual yparent/cola/shadows/outcomes coherentes, valida partición/catálogos antes de comparación yresuelve sólo TXcomplete. Conflicto realmente persistido yposterior modificaciónlocal verificados con browser4253, comparación exacta trasrecarga, ceroACK/escritura yrecursospropios cerrados. SinUIresolución/consumidoractivo; futuros consumidores de resultados/backup/diagnóstico requieren decoders coherentes antes activar5, junto con orden mixto deapariciones.
