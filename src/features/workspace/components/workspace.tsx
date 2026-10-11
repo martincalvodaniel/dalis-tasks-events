@@ -15,6 +15,7 @@ import { CreateItemDialog } from "@/features/workspace/components/create-item-di
 import { DeviceSettings } from "@/features/workspace/components/device-settings"
 import { UpdateNotice } from "@/features/workspace/components/update-notice"
 import { WorkspaceOverview } from "@/features/workspace/components/workspace-overview"
+import { useAccountProfile } from "@/features/workspace/hooks/use-account-profile"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import { useWorkspaceView } from "@/features/workspace/hooks/use-workspace-view"
 
@@ -27,6 +28,7 @@ export function Workspace() {
     workspaceDestinations.find((entry) => entry.id === view) ??
     workspaceDestinations[0]
   const { account, refresh } = useLocalAccount()
+  const profile = useAccountProfile(account)
   const [composerEpoch, setComposerEpoch] = useState<string | null>(null)
   return (
     <WorkspaceSyncProvider account={account}>
@@ -38,6 +40,7 @@ export function Workspace() {
           Saltar al contenido
         </a>
         <WorkspaceNavigation
+          profile={profile}
           activeView={view}
           createAction={
             account ? (
@@ -72,7 +75,7 @@ export function Workspace() {
             {destination.description}
           </p>
           {view === "settings" ? (
-            <DeviceSettings />
+            <DeviceSettings profile={profile} />
           ) : view === "tags" ? (
             <TagsScreen />
           ) : view === "calendar" ? (

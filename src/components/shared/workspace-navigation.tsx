@@ -1,13 +1,16 @@
 import type { ReactNode } from "react"
 import { NavigationLinks } from "@/components/shared/navigation-links"
 import type { WorkspaceView } from "@/config/navigation"
+import type { AccountProfile } from "@/types/account-profile"
 
 export function WorkspaceNavigation({
   activeView,
   createAction,
+  profile,
 }: {
   activeView: WorkspaceView
   createAction?: ReactNode
+  profile?: AccountProfile | null
 }) {
   return (
     <>
@@ -24,7 +27,7 @@ export function WorkspaceNavigation({
             aria-label="Navegación principal"
             className="flex min-w-0 items-center gap-2 lg:gap-4"
           >
-            <NavigationLinks activeView={activeView} />
+            <NavigationLinks activeView={activeView} profile={profile} />
             {createAction}
           </nav>
         </div>
@@ -34,7 +37,7 @@ export function WorkspaceNavigation({
         className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-2 border-t border-zinc-200 bg-white px-2 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden dark:border-zinc-800 dark:bg-zinc-900"
       >
         <div className="min-w-0 flex-1">
-          <NavigationLinks activeView={activeView} mobile />
+          <NavigationLinks activeView={activeView} mobile profile={profile} />
         </div>
         {createAction}
       </nav>

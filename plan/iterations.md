@@ -2806,3 +2806,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17a1/17b2b1; lectura93%5h/83%7d.
 - Aceptación: applied con revisiónpropia positiva, padre/slot consistentes; conflicto con padre propio y aparición opcional; recibo liga actor/UUID/fingerprint/resultado y límite512KiB; journal liga destinatario/serie/revisión/slot; adaptación de recibo legacy exacta, sin ampliar decoder actual ni metadata histórica.
 - Validación: casos puros contrato/identidad/aislamiento/corrupción y regresión/lint/tipos/build. Sinpersistencia/capacidad/ACKnuevo; siguiente replay/executor atómico.
+
+## 16c7 — Identidad visible y avatar de cuenta
+
+- Estado: completada11oct, pruebas/evidencia en iteration-log.
+
+- Objetivo: mostrar nombre/correo en Ajustes y fotoGoogle en destinoAjustes de ambas barras, sin otra consulta de sesión por cada barra.
+- target_paths: schema account-profile, types/account-profile, features/workspace/{account-profile,hooks/use-account-profile,components/account-identity}; components/shared/{account-avatar,navigation-links,workspace-navigation}; workspace/device-settings; tests de perfil y plan.
+- Dependencias: sesiónBetterAuth vigente y cuenta local con epoch; peticiónhumana durante17b2b2, cuota89%5h/83%7d.
+- Aceptación: perfil sólo si userId coincide con cuenta activa, guardiasepoch trasred, cache local poruserId para nombre/correooffline; metadatos de presentación nunca prueban autorización. FotoHTTPSGoogle y fallbackSVG, altdecorativo/labelAjustes intactos; caché ajena no se muestra tras cierre/cambio; falloalmacenamiento/red no bloquea tareas.
+- Validación: schema/identidad/fallbackmarkup yprueba apropiada de flujo, suite/lint/tipos/build/diff; commitpushint/HEAD/cuotas. Después16c8 arrastre y16c9 entrada/favicon, antes de retomar executor de apariciones.

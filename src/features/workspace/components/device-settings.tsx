@@ -3,14 +3,20 @@
 import { useId, useState } from "react"
 import { canPrepareOfflineShell } from "@/config/pwa"
 import { DeviceSyncSettings } from "@/features/sync/components/device-sync-settings"
+import { AccountIdentity } from "@/features/workspace/components/account-identity"
 import { BackupSettings } from "@/features/workspace/components/backup-settings"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import {
   closeLocalAccount,
   prepareLocalAccount,
 } from "@/features/workspace/local-account"
+import type { AccountProfile } from "@/types/account-profile"
 
-export function DeviceSettings() {
+export function DeviceSettings({
+  profile,
+}: {
+  profile?: AccountProfile | null
+}) {
   const statusHeadingId = useId()
   const {
     account,
@@ -68,6 +74,9 @@ export function DeviceSettings() {
   }
   return (
     <div>
+      {account && profile?.userId === account.userId ? (
+        <AccountIdentity profile={profile} />
+      ) : null}
       <section
         className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8 dark:border-zinc-800 dark:bg-zinc-900"
         aria-labelledby={statusHeadingId}
