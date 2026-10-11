@@ -127,3 +127,7 @@ El último código publicado es `c6449ed`. Series y apariciones cuentan con exec
 El siguiente corte es **17b3b**, descrito en [iterations.md](iterations.md): asignación de categoría a series con replay común, guard del padre y commit atómico. Después quedan el orden mixto de apariciones, consumidores y política coherentes, negociación5 conjunta, índices de aparición en Preview según procedimiento autorizado y prueba integrada de dos particiones Mongo/Next antes de activar. Mantener separadas las pruebas de fixture y el piloto Google/dispositivos físicos.
 
 La revisión de esta ventana era puntual: se pausa al cerrar. No hay una nueva ejecución programada.
+
+## Executor de asignación17b3b
+
+Puerto futuro de vista comparte replay recurrente antes de mutar y usa el guard de serie en la misma TX que CAS/vista/journal/recibo. Callers activos mantienen su decoder y alcance. Históricos unsupported se replayean intactos, UUID de otra familia no se reutiliza. Pruebas Mongo propias demuestran cuatro variantes, asignación/limpieza/conflicto/replay, rollback tardío total y reread tras edición/borrado concurrentes. No cambia contenido/revisión del padre ni activa sincronización de repetición. Índices existentes de vista/recibo y `_id` del guard cubren las consultas; sin nueva provisión.

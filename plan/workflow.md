@@ -368,3 +368,5 @@ Corrección humana16c11: eliminar flickering de recargas/estados pendientes. Ent
 ### Continuación puntual20:26
 
 Usuario solicita reactivación11oct20:26Europe/Madrid. Heartbeat existente ACTIVE, puntual, sin duplicado/cadena y failed_runs_only conservado. Resetpublicado1791743128(20:25:28Madrid), lectura1%5h/69%7d: comprobar renovación real antes de trabajar. Código85d788c, candidata17b3b, reservas10%5h/1%7d y commitpushint/HEAD/cuotas por entrega; pausar al cierre sin nueva programación.
+
+Renovación20:26 confirmada100%5h/69%7d, nuevo reset1791761185(12oct01:26:25Madrid). HEAD0794ee7 limpio y remoto exacto. Se abre17b3b según sus rutas/aceptación, secuencial, conservando reservas10%/1% y pausando la ejecución puntual al cierre. Sin nueva cadena ni actuación de índices en DB del usuario.

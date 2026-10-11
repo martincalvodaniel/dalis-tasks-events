@@ -6,16 +6,22 @@ import { applyItemCommand } from "@/lib/calendar/item-command"
 import { closeDatabaseConnection, getDatabase } from "@/lib/db/client"
 import { COLLECTION_NAMES, getCollection } from "@/lib/db/collections"
 import { ensureIndexes, INDEX_SPECS } from "@/lib/db/ensure-indexes"
+import { executeRemoteRecurringPlanOperation } from "@/lib/db/remote-item-commands"
 import {
   executeRemoteItemViewOperation,
+  executeRemotePlanItemViewOperation,
+  executeRemoteRecurringItemViewOperation,
   stageRemoteItemViewOperation,
+  stageRemoteRecurringItemViewOperation,
 } from "@/lib/db/remote-item-view-commands"
 import { RemoteItemViewRepository } from "@/lib/db/remote-item-views"
 import { RemoteItemRepository } from "@/lib/db/remote-items"
 import { readRemoteOperationReceipt } from "@/lib/db/remote-operation-receipts"
+import { executeRemotePlanOccurrenceOperation } from "@/lib/db/remote-plan-occurrence-commands"
 import { RemoteTagRepository } from "@/lib/db/remote-tags"
 import { OperationIdentityReuseError } from "@/lib/sync/operation-identity-reuse"
 import type { CalendarItemDraft } from "@/types/calendar-item"
+import type { PlanDraft } from "@/types/plan-item"
 import type { SyncOperation } from "@/types/sync"
 
 const config = getSyncDatabaseTestConfig()
@@ -69,6 +75,42 @@ async function tagFixture(actor: string, name: string) {
   expect(await (await RemoteTagRepository.open(actor)).insert(tag)).toBe(true)
   return tag
 }
+function recurringDraft(variant: PlanDraft["variant"]): PlanDraft {
+  return {
+    kind: "plan",
+    variant,
+    title: "Recurring plan",
+    description: "Owned series",
+    status: "not_started",
+    checklist: [],
+    schedule: {
+      mode: "all_day",
+      startDate: "2026-10-08",
+      endDateExclusive: "2026-10-09",
+    },
+    recurrence: {
+      frequency: "daily",
+      interval: 1,
+      anchorDate: "2026-10-08",
+      timeZone: "Europe/Madrid",
+      end: { type: "never" },
+    },
+  }
+}
+async function seriesGuard(actor: string, itemId: string) {
+  return (
+    await getCollection<{ _id: string; token: string }>(
+      COLLECTION_NAMES.planSeriesGuards
+    )
+  ).findOne({ _id: JSON.stringify([actor, itemId]) })
+}
+function deferred() {
+  let resolve!: () => void
+  const promise = new Promise<void>((done) => {
+    resolve = done
+  })
+  return { promise, resolve }
+}
 async function ownedDatabase() {
   if (!config) throw new Error("Sync test configuration is required")
   const database = await getDatabase()
@@ -112,6 +154,7 @@ describe.skipIf(!config)("atomic remote item views", () => {
         [COLLECTION_NAMES.items, "ownerId"],
         [COLLECTION_NAMES.tags, "userId"],
         [COLLECTION_NAMES.itemViews, "userId"],
+        [COLLECTION_NAMES.planSeriesGuards, "userId"],
         [COLLECTION_NAMES.syncOperations, "actorUserId"],
         [COLLECTION_NAMES.syncChanges, "recipientUserId"],
         [COLLECTION_NAMES.syncCounters, "_id"],
@@ -354,5 +397,263 @@ describe.skipIf(!config)("atomic remote item views", () => {
     await expect(
       executeRemoteItemViewOperation(actor, { ...unsupported, extra: true })
     ).rejects.toThrow()
+  }, 30000)
+
+  test("future series assignment preserves terminal history, parent content and a single replayed commit", async () => {
+    for (const variant of ["task", "event", "appointment", "note"] as const) {
+      const actor = `${prefix}series-${variant}`
+      const item = await itemFixture(actor, recurringDraft(variant))
+      const tag = await tagFixture(actor, "Series category")
+      const historical = setView(item.id, tag.id)
+      const old = await executeRemotePlanItemViewOperation(actor, historical)
+      expect(old.outcome.status).toBe("unsupported")
+      expect(
+        await executeRemoteRecurringItemViewOperation(actor, historical)
+      ).toEqual(old)
+      expect(await seriesGuard(actor, item.id)).toBeNull()
+      const operation = setView(item.id, tag.id)
+      const [first, replay] = await Promise.all([
+        executeRemoteRecurringItemViewOperation(actor, operation),
+        executeRemoteRecurringItemViewOperation(actor, operation),
+      ])
+      expect(first).toEqual(replay)
+      expect(first.outcome.status).toBe("applied")
+      const guard = await seriesGuard(actor, item.id)
+      expect(guard).not.toBeNull()
+      const views = await RemoteItemViewRepository.open(actor)
+      expect(await views.read(item.id)).toMatchObject({
+        primaryTagId: tag.id,
+        revision: 1,
+      })
+      expect(
+        (
+          await executeRemoteRecurringItemViewOperation(
+            actor,
+            setView(item.id, null)
+          )
+        ).outcome.status
+      ).toBe("conflict")
+      expect(await seriesGuard(actor, item.id)).toEqual(guard)
+      expect(
+        (
+          await executeRemoteRecurringItemViewOperation(
+            actor,
+            setView(item.id, null, 1)
+          )
+        ).outcome.status
+      ).toBe("applied")
+      expect(await views.read(item.id)).toMatchObject({
+        primaryTagId: null,
+        revision: 2,
+      })
+      expect((await seriesGuard(actor, item.id))?.token).not.toBe(guard?.token)
+      const before = await history(actor)
+      const guardBeforeReplay = await seriesGuard(actor, item.id)
+      expect(
+        await executeRemoteRecurringItemViewOperation(actor, operation)
+      ).toEqual(first)
+      expect(await history(actor)).toEqual(before)
+      expect(before).toMatchObject({ receipts: 4, counter: { sequence: 2 } })
+      expect(before.changes).toHaveLength(2)
+      expect(await seriesGuard(actor, item.id)).toEqual(guardBeforeReplay)
+      expect(
+        await (await RemoteItemRepository.open(actor)).read(item.id)
+      ).toEqual(item)
+      await expect(
+        executeRemoteRecurringItemViewOperation(actor, {
+          ...operation,
+          baseRevision: 1,
+        })
+      ).rejects.toBeInstanceOf(OperationIdentityReuseError)
+    }
+  }, 30000)
+
+  test("future view receipts share appearance identity and retain ownership authorization", async () => {
+    const actor = `${prefix}series-identity`,
+      foreign = `${prefix}series-foreign`
+    const item = await itemFixture(actor, recurringDraft("task"))
+    const foreignItem = await itemFixture(foreign, recurringDraft("note"))
+    const ownTag = await tagFixture(actor, "Own series category")
+    const foreignTag = await tagFixture(foreign, "Foreign series category")
+    expect(
+      (
+        await executeRemoteRecurringItemViewOperation(
+          actor,
+          setView(foreignItem.id, null)
+        )
+      ).outcome.status
+    ).toBe("unavailable")
+    expect(
+      (
+        await executeRemoteRecurringItemViewOperation(
+          actor,
+          setView(item.id, foreignTag.id)
+        )
+      ).outcome.status
+    ).toBe("invalid_command")
+    expect(await seriesGuard(actor, item.id)).toBeNull()
+    const appearance: SyncOperation = {
+      protocolVersion: 1,
+      operationId: crypto.randomUUID(),
+      baseRevision: 1,
+      command: {
+        type: "plan.set-occurrence-status",
+        itemId: item.id,
+        occurrenceId: `${item.id}:2026-10-08`,
+        expectedOccurrenceRevision: 0,
+        status: "completed",
+      },
+    }
+    expect(
+      (await executeRemotePlanOccurrenceOperation(actor, appearance)).outcome
+        .status
+    ).toBe("applied")
+    const before = await history(actor),
+      guard = await seriesGuard(actor, item.id)
+    await expect(
+      executeRemoteRecurringItemViewOperation(actor, {
+        ...setView(item.id, ownTag.id),
+        operationId: appearance.operationId,
+      })
+    ).rejects.toBeInstanceOf(OperationIdentityReuseError)
+    expect(await history(actor)).toEqual(before)
+    expect(await seriesGuard(actor, item.id)).toEqual(guard)
+    expect(
+      await (await RemoteItemViewRepository.open(actor)).read(item.id)
+    ).toBeNull()
+  }, 30000)
+
+  test("future series view rollback includes its guard and late receipt, then retry commits exactly once", async () => {
+    const actor = `${prefix}series-rollback`
+    const item = await itemFixture(actor, recurringDraft("appointment"))
+    const op = setView(item.id, null)
+    const database = await ownedDatabase()
+    await database.client.withSession(async (session) => {
+      await expect(
+        stageRemoteRecurringItemViewOperation(actor, op, timestamp, session)
+      ).rejects.toThrow("active transaction")
+      await expect(
+        session.withTransaction(async () => {
+          expect(
+            (
+              await stageRemoteRecurringItemViewOperation(
+                actor,
+                op,
+                timestamp,
+                session
+              )
+            ).outcome.status
+          ).toBe("applied")
+          expect(
+            await readRemoteOperationReceipt(actor, op.operationId, session)
+          ).not.toBeNull()
+          expect(
+            await readRemoteOperationReceipt(actor, op.operationId)
+          ).toBeNull()
+          expect(await seriesGuard(actor, item.id)).toBeNull()
+          throw new Error("Intentional failure after recurring view receipt")
+        })
+      ).rejects.toThrow("Intentional failure after recurring view receipt")
+    })
+    expect(await seriesGuard(actor, item.id)).toBeNull()
+    expect(await history(actor)).toEqual({
+      receipts: 0,
+      changes: [],
+      counter: null,
+    })
+    expect(
+      await (await RemoteItemViewRepository.open(actor)).read(item.id)
+    ).toBeNull()
+    const first = await executeRemoteRecurringItemViewOperation(actor, op)
+    expect(first.outcome.status).toBe("applied")
+    expect(await executeRemoteRecurringItemViewOperation(actor, op)).toEqual(
+      first
+    )
+    expect(await history(actor)).toMatchObject({
+      receipts: 1,
+      counter: { sequence: 1 },
+    })
+  }, 30000)
+
+  test("parent changes overlapping view snapshots force a full reread before commit", async () => {
+    for (const deletion of [false, true]) {
+      const actor = `${prefix}series-race-${deletion}`
+      const input = recurringDraft("event")
+      const item = await itemFixture(actor, input)
+      const paused = deferred(),
+        resume = deferred()
+      const read = RemoteItemRepository.prototype.read
+      let first = true,
+        reads = 0
+      RemoteItemRepository.prototype.read = async function (id) {
+        const current = await read.call(this, id)
+        if (current?.id === item.id && current.ownerId === actor) {
+          reads++
+          if (first) {
+            first = false
+            paused.resolve()
+            await resume.promise
+          }
+        }
+        return current
+      }
+      let running:
+        | ReturnType<typeof executeRemoteRecurringItemViewOperation>
+        | undefined
+      try {
+        running = executeRemoteRecurringItemViewOperation(
+          actor,
+          setView(item.id, null)
+        )
+        await paused.promise
+        const changed = await executeRemoteRecurringPlanOperation(actor, {
+          protocolVersion: 1,
+          operationId: crypto.randomUUID(),
+          baseRevision: 1,
+          command: deletion
+            ? { type: "item.delete", itemId: item.id }
+            : {
+                type: "item.update",
+                itemId: item.id,
+                input: { ...input, title: "Concurrent edit" },
+              },
+        })
+        expect(changed.status).toBe("applied")
+        const guard = await seriesGuard(actor, item.id)
+        resume.resolve()
+        expect((await running).outcome.status).toBe(
+          deletion ? "unavailable" : "applied"
+        )
+        expect(reads).toBeGreaterThanOrEqual(3)
+        const view = await (await RemoteItemViewRepository.open(actor)).read(
+          item.id
+        )
+        if (deletion) {
+          expect(view).toBeNull()
+          expect(await seriesGuard(actor, item.id)).toEqual(guard)
+        } else {
+          expect(view?.revision).toBe(1)
+          expect((await seriesGuard(actor, item.id))?.token).not.toBe(
+            guard?.token
+          )
+        }
+        expect(await history(actor)).toMatchObject({
+          receipts: 2,
+          counter: { sequence: deletion ? 1 : 2 },
+        })
+        expect(
+          await read.call(await RemoteItemRepository.open(actor), item.id)
+        ).toMatchObject({
+          revision: 2,
+          ...(deletion
+            ? { deletedAt: expect.any(String) }
+            : { title: "Concurrent edit" }),
+        })
+      } finally {
+        resume.resolve()
+        await running?.catch(() => undefined)
+        RemoteItemRepository.prototype.read = read
+      }
+    }
   }, 30000)
 })

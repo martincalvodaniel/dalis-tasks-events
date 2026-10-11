@@ -4,14 +4,19 @@ import type { ClientSession } from "mongodb"
 import { RemoteItemViewRepository } from "@/lib/db/remote-item-views"
 import { RemoteItemRepository } from "@/lib/db/remote-items"
 import { readRemoteOperationReplay } from "@/lib/db/remote-operation-receipts"
+import { writeRemotePlanSeriesGuard } from "@/lib/db/remote-plan-series-guard"
 import {
   PreferenceCompareAndSwapError,
   runPreferenceTransaction,
   stagePreferenceJournal,
   stagePreferenceReceipt,
 } from "@/lib/db/remote-preference-transactions"
+import { readRemoteRecurringOperationReplay } from "@/lib/db/remote-recurring-operation-receipts"
 import { RemoteTagRepository } from "@/lib/db/remote-tags"
-import { planRemoteItemViewOperation } from "@/lib/preferences/remote-item-view-plan"
+import {
+  planRemoteItemViewOperation,
+  planRemoteRecurringItemViewOperation,
+} from "@/lib/preferences/remote-item-view-plan"
 import { timestampSchema, userIdSchema } from "@/schemas/primitives"
 import { syncOperationSchema } from "@/schemas/sync"
 import type { RemoteOperationResultV2 } from "@/types/remote-operation-result-v2"
@@ -24,13 +29,54 @@ export async function stageRemoteItemViewOperation(
   session: ClientSession,
   allowPlans = false
 ): Promise<RemoteOperationResultV2> {
+  return stageItemViewOperation(
+    actorInput,
+    operationInput,
+    timestampInput,
+    session,
+    allowPlans,
+    false
+  )
+}
+
+// Future scope only; a staged result requires the owner to commit the transaction.
+export function stageRemoteRecurringItemViewOperation(
+  actorInput: unknown,
+  operationInput: unknown,
+  timestampInput: unknown,
+  session: ClientSession
+): Promise<RemoteOperationResultV2> {
+  return stageItemViewOperation(
+    actorInput,
+    operationInput,
+    timestampInput,
+    session,
+    true,
+    true
+  )
+}
+
+async function stageItemViewOperation(
+  actorInput: unknown,
+  operationInput: unknown,
+  timestampInput: unknown,
+  session: ClientSession,
+  allowPlans: boolean,
+  allowSeries: boolean
+): Promise<RemoteOperationResultV2> {
   const actor = userIdSchema.parse(actorInput)
   const operation = syncOperationSchema.parse(operationInput)
   const now = timestampSchema.parse(timestampInput)
   if (!session.inTransaction())
     throw new Error("Item view operations require an active transaction")
-  const replay = await readRemoteOperationReplay(actor, operation, session)
+  const replay = await (allowSeries
+    ? readRemoteRecurringOperationReplay(actor, operation, session)
+    : readRemoteOperationReplay(actor, operation, session))
   if (replay) {
+    if (replay.kind === "plan-occurrence")
+      throw new Error(
+        "Stored receipt is incompatible with the item view executor"
+      )
     if (!allowPlans && operation.command.type === "item-view.set") {
       const item = await (await RemoteItemRepository.open(actor, session)).read(
         operation.command.itemId
@@ -68,19 +114,21 @@ export async function stageRemoteItemViewOperation(
       : await (await RemoteTagRepository.open(actor, session)).read(
           command.primaryTagId
         )
-  const planned = planRemoteItemViewOperation(
-    {
-      userId: actor,
-      timestamp: now,
-      operation,
-      item,
-      current,
-      tag,
-    },
-    allowPlans
-  )
+  const input = {
+    userId: actor,
+    timestamp: now,
+    operation,
+    item,
+    current,
+    tag,
+  }
+  const planned = allowSeries
+    ? planRemoteRecurringItemViewOperation(input)
+    : planRemoteItemViewOperation(input, allowPlans)
   let result: RemoteOperationResultV2
   if (planned.status === "changes") {
+    if (allowSeries && item?.kind === "plan")
+      await writeRemotePlanSeriesGuard(actor, item.id, session)
     for (const effect of planned.effects) {
       if (effect.store !== "itemViews")
         throw new Error("Item view plan contains a foreign effect")
@@ -137,5 +185,17 @@ export function executeRemotePlanItemViewOperation(
     operationInput,
     (actor, operation, timestamp, session) =>
       stageRemoteItemViewOperation(actor, operation, timestamp, session, true)
+  )
+}
+
+// Prepared recurring dispatcher only; active generation four remains unchanged.
+export function executeRemoteRecurringItemViewOperation(
+  actorInput: unknown,
+  operationInput: unknown
+): Promise<RemoteOperationResultV2> {
+  return runPreferenceTransaction(
+    actorInput,
+    operationInput,
+    stageRemoteRecurringItemViewOperation
   )
 }

@@ -3030,7 +3030,7 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 
 ## 17b3b — Executor de asignación de categoría a una serie
 
-- Estado: candidata, no iniciada al cierre de esta ventana.
+- Estado: completada11oct; cuatro escenarios nuevos Mongo reales y DoD aprobados.
 - Objetivo: conectar el planner 17b3a a un executor preparatorio transaccional, separado de los callers activos.
 - target_paths: `src/lib/db/remote-item-view-commands.ts`, su prueba de integración Mongo y documentos de plan.
 - Dependencias: 17b3a, replay común recurrente y guard compartido de serie probados en 17b2.

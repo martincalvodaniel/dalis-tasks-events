@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17b3b — Asignación de serie enTX y replay común
+
+Cerrado11oct tras renovación real100%5h/69%7d, reset1791761185. Nuevo puerto preparatorio comparte implementación de vista con selección privada de replay/planner futuros, guard del padre antes de efectos y lectura completa dentroTX/retry; exports activos estrictos intactos. Históricosunsupported conservados; UUID de aparición reutilizado detectado antes de writes. Cuatro tests Mongo nuevos cubren cuatrovariantes/asignación/clear/replay/CAS/actor/rollback completo trasreceipt y carreras controladas de edición/borrado padre. Edición concurrente válida permite asignar tras reread sin alterar contenido; borrado devuelve unavailable sin vista. Índices existentes suficientes, sin DBusuario/capacidad nueva. Mongo119pass/0fail/1644aserciones23archivos, runner limpió contenedor/almacenamiento propios. Suite694pass/186opt-in skip/0fail/9670aserciones, lint735/tipos/buildNext16.4worker36/diff aprobados. Commit/pushint/HEAD/cuotas antes de abrir siguiente corte.
+
 ## 17z2 — Continuación puntual20:26
 
 11oct: petición humana programa continuación hoy20:26Europe/Madrid. automation_update confirma ACTIVE del heartbeat existente; conserva chat/política failed_runs_only, una ejecución, sin cadena nueva. Reset publicado1791743128(20:25:28Madrid); verificar cuotas/renovación antes de17b3b desde85d788c, reservas10%5h/1%7d. Documentación coherente, referencias/diff validados y commit/pushint/HEAD/cuotas; sin código ni repetición de pruebas aprobadas.
