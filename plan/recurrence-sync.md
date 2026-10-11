@@ -83,3 +83,7 @@ applyLocalPlanOccurrenceResult preparatorio captura padre/aparición/cola/shadow
 ## Planner de pull17c2b1
 
 Página mixta futura se valida y proyecta entera antes de escribir: checkpoint congelado, actor/cola/snapshot completo, identidad/revisión por entidad y padre propio con revisión disponible. Aparición pendiente preservada, progreso de otra aparición independiente, cancelados/tombstones y cache legacy conservados. Descarga no confirma comandos ni cambia payloads/outcomes. Seis pruebas puras pasan; TX local con cursor final continúa17c2b2, callers4 siguen intactos.
+
+## TX de pull17c2b2
+
+Puerto preparatorio IndexedDB captura contenido/personal/apariciones/cola/shadows/cursor coherentemente, valida toda página/snapshot y escribe cursor último enmismaTX. NoACK/rebase/outcome ni eliminación de datosnull; writes sólo de records cambiados y replayignored sinput. Fallo cursor revierte todos los cambios, retry limpio. Siete comprobaciones realesbrowser4254 incluyen partialcheckpoint/pending/actor/corrupción/tombstones/cachelegacy/recarga exacta, particiones propias limpiadas. Sin API/caller/generación5 activa; siguiente17c3 evidencia/incidentes yconsumidores futuros, después negociación conjunta yprueba dosparticiones.

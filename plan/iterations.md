@@ -2896,3 +2896,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias: reader17b2c1/proyección17c1b/ACK17c2a; cuota52%5h/77%7d.
 - Aceptación: seriescomunes admitidas sinampliar parseractivo, revisionesporentidad avanzan, checkpoint/rango coherentes; snapshotcompleto/actor/cola/identidades validated también para páginasignoradas. Padre propio/correspondencia de revisión remota antesaparición; pending/root preservados, tombstones/legacycache/intentadas/outcomes intactos. Pull nuncaACK/reescribe cola; límite10000 yerrorwholepage.
 - Validación: casospuros bootstrap/incremental/checkpoint/latepage/pending/otro slot/faltapadre/corrupción/revisión/queue/cancelación/borrado; suite/lint/tipos/build/diff; commitpushint/HEAD/cuotas. SiguienteTXIndexedDB conrollbackcursor yrecarga17c2b2.
+
+## 17c2b2 — Descarga recurrente atómica en IndexedDB
+
+- Estado: completada11oct; siete comprobaciones IndexedDB reales y recursos propios cerrados.
+
+- Objetivo: ejecutar planner17c2b1 en una TX única, cursor al final y sin ACK/reescritura de intenciones.
+- target_paths: local-db/pull-recurring-changes; test/browser/recurring-pull; scripts/recurring-pull-test-server; plan.
+- Dependencias:17c2b1/17c2a y stores existentes; cuota45%5h/76%7d, reservas10%/1%.
+- Aceptación: partición/actor/página validados antesTX, snapshots10001 rechazan exceso; contenido/personal/aparición/shadows/cursor juntos, retorno sólo complete; fallo último cursor revierte todos, replay ignorado sin writes. Mantener pendientes, outcomes, tombstones, cache legacy y cola exacta. Sin caller5/activación ni DBusuario.
+- Validación: IndexedDB real propio bootstrap/partial/checkpoint/replay/pending/rollback/aislamiento/corrupción/cancelación/recarga y cleanup; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas.
