@@ -2,7 +2,7 @@
 
 ## Estado operativo actual — 11 de octubre
 
-**Editor común y sincronización de planes simples activados en preproducción.** Tarea, Evento, Cita y Nota comparten formulario de pantalla completa, cruz/check, descripción, checklist, categoría, fechas/horas separadas y todo el día. Lista/calendario mezclan variantes por categoría y fecha/hora/tipo, muestran pasos de checklist y color de categoría en los iconos de completado. Pulsación prolongada y arrastre sustituyen los controles anteriores en categorías y filas con contexto completo; alternativa por teclado accesible.
+**Editor común y sincronización de planes simples activados en preproducción.** Tarea, Evento, Cita y Nota comparten formulario de pantalla completa, cruz/check, descripción, checklist, categoría, fechas/horas separadas y todo el día. Lista/calendario mezclan variantes por categoría y fecha/hora/tipo, muestran pasos de checklist con el mismo icono y color de categoría del plan padre, además de sus iconos de completado. Pulsación prolongada y arrastre sustituyen los controles anteriores en categorías y filas con contexto completo; alternativa por teclado accesible.
 
 **Categorías, asignaciones y orden de planes simples se sincronizan.** Generación4 exclusiva conecta identidad/pull, acciones/cliente/runtime/hook/cache/provider y pantallas comunes; acción3 retirada antes del executor, intenciones1 y sobres/journal2 conservados. Diecinueve escenarios Next compilado con callers productivos, BetterAuth persistido, dos particiones IndexedDB y Mongo propio pasan: cuatro variantes/asignaciones, replay tras respuesta perdida, ACK único, guardias de cuenta/época/retirada/readiness y proyecciones exactas. Esto no equivale a dos dispositivos físicos ni a Google interactivo.
 
@@ -12,7 +12,7 @@ Wipe de contenido remoto Preview16a4c3b cerrado antes de activar; auth/índices 
 
 Backup16a4c3g exporta datos/intenciones/evidencia y permite importar copias nuevas de los cuatro tipos simples sin repetición, conservando originales. Preview respeta marca4 y no convierte legacy; categorías, orden e historial del archivo no se aplican como estado restaurado.9checks IndexedDB propios de atomicidad/replay/rollback/guardias/recarga pasan. Última suite625pass/153opt-in skip/0fail, lint667/tipos/build34 aprobados.
 
-**Repetición y progreso por aparición funcionan localmente; series/apariciones y su orden siguen sin sincronización remota.** Cumpleaños, compartir y aceptación final permanecen bloques posteriores. Alcance entregado en [item-editor-redesign.md](item-editor-redesign.md) y [common-plan-activation.md](common-plan-activation.md). Automatización pausada; una vez cerrado este bloque se pide elección humana antes de iniciar otro. Los apartados siguientes registran la trayectoria histórica.
+**Repetición y progreso por aparición funcionan localmente; series/apariciones y su orden siguen sin sincronización remota.** Cumpleaños, compartir y aceptación final permanecen bloques posteriores. Alcance entregado en [item-editor-redesign.md](item-editor-redesign.md) y [common-plan-activation.md](common-plan-activation.md). Automatización pausada; el usuario elige continuar repeticiónremota y después el orden recomendado, tras el ajuste16c1 de checklist. Los apartados siguientes registran la trayectoria histórica.
 
 ## Estimación y siguiente elección
 

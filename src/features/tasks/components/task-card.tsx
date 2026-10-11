@@ -131,6 +131,7 @@ export function TaskCard({
       <div className="px-3">
         {task.checklist.length ? (
           <TaskChecklist
+            categoryColor={categoryColor}
             entries={task.checklist}
             busy={busy}
             onChange={onChecklistChange}

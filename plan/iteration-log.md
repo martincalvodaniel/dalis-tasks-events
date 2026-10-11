@@ -1845,3 +1845,8 @@ Paralelo disjunto pure+fixture/root integración.15tests puros/248aserciones apr
 ### 16a4c3h — Cierre de textos del producto común
 
 Ajustes usa scope explícito own_plans_preferences_and_order sólo cuando selección4 activa: tareas/eventos/citas/notas simples, categorías/asignaciones/orden y repeticiónlocal. Scope3 previo conserva su explicación. Categorías dejan de exigir asignación después de guardar; calendario usa elementos/completados sin excluir Cita/Nota. Sin nueva pantalla/nav, mutación/índice/dependencia ni actuación de datos. Estado master/decisiones y rediseño actualizados para no confundir registros históricos con producto vigente; estimación original30–35% pendiente ponderada, siguientes bloques bajo elección humana. Suite625pass/153skip/0fail/9127aserciones, lint667/tipos/build34/diff aprobados. Commitpushint/HEAD/cuotas y comprobar textos Preview; automatización pausada.
+
+
+### 16c1 — Pasos con icono y color del plan
+
+TaskChecklist reutiliza ItemCompletionIcon con variante/color heredados de PlanCard y TaskCard. Cada paso conserva completado propio y casilla nativa accesible/teclado/estado disabled, foco visible y fila táctil44px; modo readonly usa mismoSVG. Apariciones proyectadas reciben variante/categoría del padre por mismoPlanCard. Sin mutación nueva/esquema/índice/dependencia. Prueba markup verifica cuatroiconos/color/checked/disabled/readonly; React+IndexedDB propio4217 confirma check de paso/completar aparición conservan padres/otrasfechas/cola, recarga y limpiezaúnicamentepropia. Captura `/private/tmp/dalis-checklist-parent-icons.jpg`. Suite626pass/153skip/0fail/9158aserciones, lint667/tipos/build34/diff aprobados; commitpushint/HEAD/cuotas y continuar repeticiónremota elegida.

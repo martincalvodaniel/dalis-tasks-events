@@ -150,6 +150,8 @@ export function PlanCard({
       {plan.checklist.length ? (
         <div className="px-3">
           <TaskChecklist
+            variant={plan.variant}
+            categoryColor={categoryColor}
             entries={plan.checklist}
             busy={busy}
             onChange={plan.recurrence ? undefined : onChecklistChange}

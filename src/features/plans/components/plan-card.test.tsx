@@ -97,3 +97,41 @@ test("recurring parents point to appearance progress and disable per-occurrence 
   expect(html).not.toContain('type="checkbox"')
   expect(html).not.toContain('aria-label="Empezar')
 })
+
+test("checklist steps inherit the parent shape and color while keeping independent native state", () => {
+  for (const variant of ["task", "event", "appointment", "note"] as const) {
+    const parent = plan(variant)
+    parent.checklist.push({
+      id: crypto.randomUUID(),
+      text: "Finished step",
+      completed: true,
+    })
+    const html = renderToStaticMarkup(
+      <PlanCard
+        plan={parent}
+        categoryColor="#123abc"
+        busy
+        onChecklistChange={() => undefined}
+      />
+    )
+    const checklist = html.slice(html.indexOf('<ul aria-label="Checklist"'))
+    expect((checklist.match(/stroke="#123abc"/g) ?? []).length).toBe(2)
+    expect((checklist.match(/type="checkbox"/g) ?? []).length).toBe(2)
+    expect((checklist.match(/checked=""/g) ?? []).length).toBe(1)
+    expect((checklist.match(/disabled=""/g) ?? []).length).toBe(2)
+    expect(checklist).toContain('aria-label="Completar paso: Visible step"')
+    if (variant === "event")
+      expect((checklist.match(/<circle/g) ?? []).length).toBe(2)
+    if (variant === "note")
+      expect((checklist.match(/M5 3h10l4 4v14H5z/g) ?? []).length).toBe(2)
+    if (variant === "appointment")
+      expect((checklist.match(/M3 9h18M7 3v4M17 3v4/g) ?? []).length).toBe(2)
+    const readonly = renderToStaticMarkup(
+      <PlanCard plan={parent} categoryColor="#123abc" />
+    )
+    expect(
+      readonly.slice(readonly.indexOf('<ul aria-label="Checklist"'))
+    ).not.toContain('type="checkbox"')
+    expect(readonly).toContain('stroke="#123abc"')
+  }
+})

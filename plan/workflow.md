@@ -308,3 +308,8 @@ Usuario «Nuevas ventanas. Continúa» responde tras petición específica de re
 ### Cierre del bloque común11oct
 
 PilotoGoogle y copias nuevas simples cerrados; siguiente elección humana antes de recurrenciaremota/cumpleaños/compartir/aceptaciónfinal. Automatización permanece PAUSED, sin cadena nueva. Margen de cuota no abre alcance ajeno. Consultar después de commitpush/HEAD y comunicar estado/porcentaje ponderado actual de master; conservar screenshot/piloto identificados y no volver a borrar DB/local.
+
+
+### Elección humana11oct — Checklist y repetición remota
+
+Usuario prioriza icono/color de pasos y después autoriza continuar orden recomendado: repetición/series/apariciones, cumpleaños, compartir y cierreMVP según dependencias, mediante cortescompletos. Entrada62%5h/94%7d, reservas10%/1%, commitpushint/HEAD ycuota tras entrega; no renovarcréditos ni reactivarautomatización sin petición. Secuencialpor defecto yparelizaciónsólo seleccionadarutasdisjuntas.

@@ -48,3 +48,8 @@ La descripción se muestra debajo del título en los editores actuales de Tarea 
 ## Cierre operativo11oct —16a4c3f–h
 
 Cuatro variantes/editor/lista/calendario4 ya activos y pilotoGooglePreview cerrado con14ACK/outcomes remotos. Categoría/color/checklist, fechas/horas/todoeldía, edición/progreso y orden simple persistidos trasrecarga. Importación simple como copias nuevas de cuatrotipos validada con IndexedDB y textos auxiliares actualizados. Repetición/apariciones siguen locales: su sincronización/orden constituyen siguiente bloque recomendado, sujeto a elecciónhumana. No confundir registros preparatorios anteriores con pendientes del editor entregado; gesto sin botones ya conectado, no se inventa orden para listas parciales/apariciones remotas sin soporte.
+
+
+### 16c1 — Pasos con icono y color del plan
+
+TaskChecklist reutiliza ItemCompletionIcon con variante/color heredados de PlanCard y TaskCard. Cada paso conserva completado propio y casilla nativa accesible/teclado/estado disabled, foco visible y fila táctil44px; modo readonly usa mismoSVG. Apariciones proyectadas reciben variante/categoría del padre por mismoPlanCard. Sin mutación nueva/esquema/índice/dependencia. Prueba markup verifica cuatroiconos/color/checked/disabled/readonly; React+IndexedDB propio4217 confirma check de paso/completar aparición conservan padres/otrasfechas/cola, recarga y limpiezaúnicamentepropia. Captura `/private/tmp/dalis-checklist-parent-icons.jpg`. Suite626pass/153skip/0fail/9158aserciones, lint667/tipos/build34/diff aprobados; commitpushint/HEAD/cuotas y continuar repeticiónremota elegida.
