@@ -3,7 +3,13 @@ import { calendarItemSchema } from "@/schemas/calendar-item"
 import { syncCommandSchema } from "@/schemas/sync"
 import type { SyncCommand } from "@/types/sync"
 
-type SyncStore = "items" | "tags" | "itemViews" | "taskPlacements" | "settings"
+type SyncStore =
+  | "items"
+  | "tags"
+  | "itemViews"
+  | "taskPlacements"
+  | "settings"
+  | "occurrences"
 type UnsupportedReason =
   | "placement_executor_unavailable"
   | "settings_executor_unavailable"
@@ -11,6 +17,7 @@ type UnsupportedReason =
   | "recurrence_unavailable"
   | "birthday_unavailable"
   | "plan_executor_unavailable"
+  | "occurrence_revision_missing"
 interface CommandCapability {
   store: SyncStore
   supported: boolean
@@ -109,7 +116,7 @@ export const placementSyncCapabilityRegistry = Object.freeze({
 })
 
 export interface SyncCommandCapability extends CommandCapability {
-  kind: "item" | "preference"
+  kind: "item" | "preference" | "plan-occurrence"
   contextKnown: boolean
   requiresRemoteValidation: true
 }
@@ -188,6 +195,7 @@ export function readPlacementSyncCommandCapability(
 export interface SyncCapabilityPolicy {
   readonly readCommand: typeof readSyncCommandCapability
   readonly supportsPlans?: boolean
+  readonly supportsRecurrence?: boolean
   readonly stores: readonly SyncStore[]
 }
 export const syncCapabilityPolicy: SyncCapabilityPolicy = Object.freeze({

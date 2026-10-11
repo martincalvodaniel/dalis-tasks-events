@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17c7a — Política futura coherente
+
+Cerrado11oct: bundle inmutable preparado declara occurrences y plan-occurrence explícitos, mantiene4 estricto y permite series comunes/slots canónicos/placement de aparición. CAS propio obligatorio: histórico sincampo conserva payload y bloquea sus dependientes; raíz de serie no admite progreso global, legacyrecurrence/settings/birthday siguen unsupported. Regla retirada o softdelete no impiden seleccionar replay, permiso/aceptación siempre remoto. Cuatro tests cubren cuatrovariantes/familias/canon/immutability/rootlegacy y diagnóstico/resumen futuro con cola completa; suite725pass/201opt-in skip/0fail/9977aserciones, lint756/tipos/buildNext16.4worker36/diff aprobados. Ningún caller/runtime activo ni DBusuario. Commit/pushint/HEAD/cuotas; sigue consumidor/coordinador recurrente privado y evidencia integrada antes negociación5.
+
 ## 17c6c — Sesión, batch y readiness futuros
 
 Cerrado11oct: servicio privado conserva sobre2/intención1, valida sesión/cuenta/envelope/batch antes de inspección de cinco índices registrados exactos. Defaults usan sesión autorizada/singleton/dispatcher recurrente; inspección sólo lee definiciones, no provisiona. Readiness una vez antes executor, retry conserva prefijo y UUID/actor/familia de identity_reuse correctos; respuesta incompatible jamás entra al prefijo. Seis pruebas de frontera y tres de readiness cubren auth/matrix/errores/missing/incompatible/retry/identidad/correspondencia/clones; warning de nonnull en fixture eliminado antes del cierre. Suite721pass/201opt-in skip/0fail, lint754/tipos/buildNext16.4worker36/diff aprobados. No ruta/action5 ni DBusuario/activación/provisión. Commit/pushint/HEAD/cuotas; sigue policy/diagnóstico/coordinador/runtime futuro coherente, después negociación y evidencia dosparticiones.

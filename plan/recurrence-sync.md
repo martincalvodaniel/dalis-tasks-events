@@ -169,3 +169,7 @@ Switch futuro usa exclusivamente executors preparados recurrentes y corresponden
 ## Servicio autenticado17c6c
 
 Defaults privados validan sesión autorizada, expectedUserId, versiones y batch completo antes de readiness. Selección futura añade únicamente índice de aparición registrado a los cuatro personales; inspección exacta readonly sin crear índices. Retry preserva prefijo y posibilidad de replay tras respuesta perdida; errores no exponen secretos. Generación4 sigue inspección/executor/schemas propios. Falta política/consumidores y negociación5 conjunta; provisión de índice de aparición Preview requiere procedimiento y permiso específico antes de activación, no se ha ejecutado en DBusuario.
+
+## Policy17c7a
+
+Bundle futuro declara occurrences/kindplan-occurrence sin activar consumidores. ReadCommand permite contenido de serie/aparición/vista/placement según executors y conserva el contexto actual sólo como selector, no propiedad. FaltaCAS histórico bloquea explícitamente sin normalización; rootstatus de serie/legacy/settings/birthday fuera. Slots canónicos se conservan tras regla retirada/borrado para permitir replay remoto. Diagnóstico/resumen futuros sólo si se solicita bundle explícito; policy4 intacta. Sigue store/coordinador/runtime futuro coherente y pruebas conjuntas antes de5.

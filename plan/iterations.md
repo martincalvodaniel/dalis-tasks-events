@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17c7a — Política recurrente y diagnóstico puro
+
+- Estado: completada11oct; cuatro pruebas nuevas con matriz de variantes/cadenas y DoD aprobados.
+
+- Objetivo: registro/readCommand futuro coherente para series/apariciones/orden, sin ampliar política activa4.
+- target_paths: sync/recurring-sync-capabilities y test, interfaces sync-capabilities, plan.
+- Dependencias:17c6c y executors futuros reales; entrada46%5h/60%7d, reservas10%/1%.
+- Aceptación: stores incluyen occurrences, kind de aparición explícito, CAS propio obligatorio sin normalizar históricos. Contenido/serie/tag/vista/placement según executors; rootstatus de serie y legacyrecurrence/settings/birthday unsupported. Contexto local no acredita propiedad/commit; regla retirada permite replay con slot canónico, remoto decide. Diagnóstico/resumen actuales admiten bundle futuro sólo si solicitado explícitamente y conservan cola/UUID/deps.
+- Validación: matriz variantes/familias/slots/history/immutability/dependientes y regresión4, DoD completo, commit/pushint/HEAD/cuotas. Runtime/coordinador/rutas futuros posteriores.
+
 ## 17c6c — Frontera autenticada y readiness recurrentes
 
 - Estado: completada11oct; nueve pruebas nuevas de frontera/readiness y DoD aprobados.
