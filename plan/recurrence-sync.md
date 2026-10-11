@@ -95,3 +95,7 @@ Decoder futuro de outcomes y snapshot de aparición validan todo estado/evidenci
 ## Captura de incidentes17c3b
 
 Reader privado readonly obtiene apariciónactual yparent/cola/shadows/outcomes coherentes, valida partición/catálogos antes de comparación yresuelve sólo TXcomplete. Conflicto realmente persistido yposterior modificaciónlocal verificados con browser4253, comparación exacta trasrecarga, ceroACK/escritura yrecursospropios cerrados. SinUIresolución/consumidoractivo; futuros consumidores de resultados/backup/diagnóstico requieren decoders coherentes antes activar5, junto con orden mixto deapariciones.
+
+## ACK personal preparatorio17c4a
+
+Planner futuro valida todaslasfamilias/actor/parent/cola antes del plannerpersonal, conserva shadowsitem/aparición exactos yaplica límiteglobal10000 tras nuevos efectos. ACKpersonal/replay/lease/outcome/rebasecondicionado existentes intactos, no rebase deapariciones ni deintentadas. Cuatrotests aprueban mixedshadow/strict/actor/corrupción/parent/dependientes/unsupported; puertoTX futuro continúa17c4b. Sinampliación de parser/calleractual4.

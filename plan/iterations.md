@@ -2926,3 +2926,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17c3a/17c2a; cuota37%5h/75%7d.
 - Aceptación: partición explícita, snapshot10001 rechaza exceso/corrupción, ningún write/ACK/recovery; apariciónactual tras modificación local distinta de snapshot delresultado, retorno sóloTXcomplete. Recarga conserva comparación exacta; activo4 sinnuevo caller.
 - Validación: ampliar fixture4253 con conflicto realmente persistido mediante writer17c2a, modificación actual/particiónajena/lecturareadonly/recarga; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas.
+
+## 17c4a — ACK personal con evidencia recurrente
+
+- Estado: completada11oct; cuatro pruebas puras y decoderactivo intacto.
+
+- Objetivo: planner preparatorio de ACK personal que admite y conserva shadows de aparición sin ampliar parseractivo.
+- target_paths: schemas/recurring-preference-result-plan, sync/recurring-preference-result-plan ytest; plan.
+- Dependencias: plannerpersonal existente/17c1–3; cuota35%5h/74%7d.
+- Aceptación: validar snapshot completo/actor/parent/cola/duplicados antes de delegar ACK, conservar shadows de otrasfamilias y límite global10000. Rebase personal sólo dependientedirecto pending+attempts0 con efecto de mismaentidad; aparición/basepadre/intentadas intactas. Replay/outcome exacto ylease actual, null/unsupported sinACK; caller4 estricto.
+- Validación: tests puro mixedshadow/applied/replay/deps/lease/actor/corrupt/limit/parent/unsupported; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. Siguiente puertoTX personal futuro.
