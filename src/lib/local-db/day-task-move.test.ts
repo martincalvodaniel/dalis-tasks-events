@@ -116,14 +116,18 @@ test("day movement mixes virtual occurrences and simple neighbors without materi
   expect(() =>
     planLocalTaskMove(snapshot, { ...command, scope: "overdue" }, userId, now)
   ).toThrow()
-  for (const neighbor of [
-    "missing",
-    `${parent.id}:2026-02-30`,
-    `${parent.id}:2026-10-07T09:00`,
-  ])
+  for (const neighbor of ["missing", `${parent.id}:2026-02-30`])
     expect(
       syncCommandSchema.safeParse({ ...simpleMove, beforeId: neighbor }).success
     ).toBe(false)
+  const timedNeighbor = {
+    ...simpleMove,
+    beforeId: `${parent.id}:2026-10-07T09:00`,
+  }
+  expect(syncCommandSchema.safeParse(timedNeighbor).success).toBe(true)
+  expect(() =>
+    planLocalTaskMove(snapshot, timedNeighbor, userId, now)
+  ).toThrow()
 })
 
 test("day identity validation honors cancellations, tombstones, reprogramming and series category semantics", () => {

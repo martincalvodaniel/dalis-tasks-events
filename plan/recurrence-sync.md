@@ -135,3 +135,9 @@ Puerto futuro de vista comparte replay recurrente antes de mutar y usa el guard 
 ## Replay de categorías17b3c
 
 El puerto futuro de categorías usa el decoder común de recibos recurrentes; creación/edición/movimiento/borrado conservan CAS y journal actuales. Recibos anteriores se replayean exactamente y la reutilización de un UUID de aparición se rechaza por fingerprint antes de efectos. Prueba Mongo incluye entrega concurrente única y rollback después de recibo. Callers4 intactos; índices existentes suficientes. Sigue17c5a: contrato/planner puro de orden mixto de planes simples y apariciones, antes de executor y consumidores.
+
+## Orden mixto puro17c5a
+
+Contexto futuro valida propiedad, identidad y revisión positiva de todos los catálogos durables antes de seleccionar; apariciones implícitas se generan con revisión0 únicamente como candidatos. Paginación completa por serie evita volver a parsear todas las series en cada página. Máximo10000 candidatos/catálogos y efectos512KiB: overflow o issue civil rechaza todo, nunca una lista parcial. Día incluye intervalos multidía; atrasadas usa fecha declarada y sentinel permanente, no reloj remoto. Cancelaciones/tombstones/reprogramaciones sustituyen slot original; excepciones explícitas permanecen visibles aunque cambie la regla vigente.
+
+Rank manual comparte kernel actual, defaultfecha/hora/variante/identidad. CAS primario es posición, independiente de serie/aparición/vista; efectos no modifican contenido/progreso/slot. Categoría es del padre; cambio de grupo contempla sus otras apariciones visibles y actualiza su vista. Referencias de intención/efecto admiten canónicamente slots de hora para representar este futuro; los callers/políticas activos4 no amplían alcance y legacy comprueba rechazo del vecino timed fuera de su catálogo. Siguiente17c5b: catálogo Mongo/executor con guards y commit atómico; después autorización de descarga/ACK/pull y negociación5.

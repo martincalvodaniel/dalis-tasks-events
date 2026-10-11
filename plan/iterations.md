@@ -3028,6 +3028,17 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17c5a — Contrato y planner de orden mixto recurrente
+
+- Estado: completada11oct; once pruebas nuevas, suite705pass/188skip/0fail y DoD aprobados.
+- Objetivo: ordenar planes simples y apariciones comunes en día/atrasadas usando catálogos completos y CAS de placement; no activar callers.
+- target_paths: schema nuevo de contexto recurrente, referencia canónica de orden en schemas/ordering, planner/catalog puro bajo preferences y pruebas, regresión day-task-move.test; plan.
+- Dependencias:17b3c, paginación común de apariciones y kernel de ranking existente; entrada88%5h/67%7d, reservas10%/1%.
+- Aceptación: propiedad/identidad/revisión estrictas, excepciones persistidas reemplazan generación por slot, canceladas/tombstones nunca resurgen. Día civil declarado y sentinel overdue, sin reloj servidor. Cuatro variantes juntas con default fecha/hora/tipo/identidad y ranks manuales; categoría deriva del padre. Cambio de grupo actualiza vista del padre y considera sus otras apariciones del catálogo, sin alterar contenido/slot/progreso/revisión del padre/aparición. Catálogos/efectos limitados rechazan overflow/errores en vez de truncar. Activo4 sigue strict.
+- Validación: pruebas puras mixed peers/multidía/excepción reprogramada/CAS/metadata/grupos/actor/cancelados/deleted/reglas/límites/immutability; DoDglobal, commit/pushint/HEAD/cuotas. Executor/guard/lectores/ACK y activación futuros.
+
+Hallazgo de contrato: referencias durables de vecino/efecto sólo admitían slot fecha, pese a que el plan timed usa fecha+hora. Se amplía únicamente formato canónico UUID:fecha o UUID:fechaT09:30 para permitir serializar intención/evidencia futura; validación real usa localDateTimeSchema (hora válida). Políticas/executors activos siguen rechazando apariciones y lectores siguen autorizando padre; aceptar el formato no habilita sincronización. Regresión legacy comprueba que un vecino timed parseable permanece fuera de su catálogo. No cambian UUID/fingerprint/metadata de registros existentes.
+
 ## 17b3c — Replay de categorías dentro del namespace recurrente
 
 - Estado: completada11oct; Mongo121pass/1662aserciones y DoD aprobados.

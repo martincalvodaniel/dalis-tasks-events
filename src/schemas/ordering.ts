@@ -2,6 +2,7 @@ import { z } from "zod"
 import {
   civilDateSchema,
   entityIdSchema,
+  localDateTimeSchema,
   occurrenceIdSchema,
 } from "@/schemas/primitives"
 
@@ -12,9 +13,10 @@ export const taskReferenceIdSchema = z.union([
     return (
       separator > 0 &&
       entityIdSchema.safeParse(value.slice(0, separator)).success &&
-      civilDateSchema.safeParse(value.slice(separator + 1)).success
+      (civilDateSchema.safeParse(value.slice(separator + 1)).success ||
+        localDateTimeSchema.safeParse(value.slice(separator + 1)).success)
     )
-  }, "Invalid task occurrence reference"),
+  }, "Invalid item occurrence reference"),
 ])
 
 export const overduePlacementDate = "0001-01-01"
