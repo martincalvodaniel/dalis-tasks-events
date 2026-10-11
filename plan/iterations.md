@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17c6b — Dispatcher recurrente Mongo
+
+- Estado: completada11oct; Mongo130pass/1823aserciones25archivos y DoD aprobados.
+
+- Objetivo: conectar de forma preparatoria todas las familias a executors recurrentes reales y validar cada respuesta antes de retornarla.
+- target_paths: db/remote-recurring-operation-commands y prueba integración nueva, runner Mongo, plan.
+- Dependencias:17c6a y executors atómicos de series/apariciones/categorías/vistas/placements; entrada55%5h/62%7d, reservas10%/1%.
+- Aceptación: actor/input validados, switch explícito y namespace común sin fallback a executors4; replay exacto/fingerprint antes efectos. Históricos incompatibles conservados y rechazo sin relabel/ACK; settings/legacyrecurrence unsupported. Callers4 intactos.
+- Validación: Mongo propio familias completas/duplicados/actor/CAS/UUID/recibo histórico; suite/lint/tipos/build y commit/pushint/HEAD/cuotas. Sin API/DBusuario/activación.
+
 ## 17c6a — Contrato de envío recurrente
 
 - Estado: completada11oct; cinco pruebas nuevas, regresión ACK y DoD aprobados.

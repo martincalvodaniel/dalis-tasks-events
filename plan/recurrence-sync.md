@@ -161,3 +161,7 @@ Puerto IndexedDB futuro conserva revisión confirmada de posición y lee context
 ## Frontera de envío17c6a
 
 Contrato puro recurrente conserva sobre2 e intenciones1; resultado ordenado puede ser contenido, preferencia o aparición. Prefix retry y éxito completo se validan sin truncar; actor/UUID/familia/slot/revisiones/efectos exactos con límites UTF8. Correspondencia de aparición compartida con ACK local; históricos sinCAS sólo conservan terminales/conflicto, nunca crean aplicado. No habilita permisos/callers ni ACK. Sigue17c6b dispatcher remoto antes de servicios/política5.
+
+## Dispatcher17c6b
+
+Switch futuro usa exclusivamente executors preparados recurrentes y correspondencia común. Mongo real confirma doce comandos de contenido/aparición/checklist/edición/cancelación/categoría/asignación/orden/borrado, replay íntegro sin writes incluso después de borrados y UUID/actor/historia estrictos. Root4 rechaza recurrencia sin persistir recibo; si existe recibo histórico incompatible el futuro lo conserva y rechaza sin relabel. Sin rutas5/activación; sigue servicio autenticado y readiness del índice de aparición registrado.

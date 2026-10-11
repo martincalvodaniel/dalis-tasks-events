@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17c6b — Dispatcher recurrente real
+
+Cerrado11oct: switch privado conecta root/aparición/tag/vista/placement a executors futuros con namespace común y valida resultado exacto antes de exponerlo. Sin caller/API4 ni negociación nuevos. Tres tests Mongo prueban doce operaciones de todas las familias, replay íntegro después de borrar padre/tag y una historia por operación, UUID entre familias/actor extranjero y recibos incompatibles conservados sin relabel. Primera fixture asumía envelope record para documento plano y que rechazo root4 persistía recibo: corregida para sembrar historia durable explícita y distinguir rechazo no durable. Última ejecución Mongo130pass/0fail/1823aserciones25archivos y cleanup own confirmado; suite712pass/201opt-in skip/0fail/9775aserciones, lint750/tipos/buildNext16.4worker36/diff aprobados. Sin DBusuario/activación. Commit/pushint/HEAD/cuotas; sigue servicio autenticado/readiness recurrentes antes de consumidores/política5.
+
 ## 17c6a — Correspondencia de envío recurrente
 
 Cerrado11oct: contrato privado mantiene sobre2/intención1 y admite tres familias; valida actor/UUID/prefijo ordenado/efecto primario e identidad/revisiones/efecto de aparición. Correspondencia compartida con ACK evita validadores divergentes; históricos unsupported sin expectedOccurrenceRevision se preservan, aplicado sinCAS rechaza. Decoder4 intacto. Cinco pruebas nuevas cubren mezcla, retry/duplicados/reorden, actor/slot/revisiones/efecto, historia y bytesUTF8 completos; fixture inicialmente usó groupTagId en vez de tagId y literales abiertos, reparados antes de DoD. Suite712pass/196opt-in skip/0fail, lint748/tipos/buildNext16.4worker36/diff aprobados. Ningún caller/ACK/permiso nuevo ni DBusuario. Commit/pushint/HEAD/cuotas; sigue dispatcher remoto recurrente con prueba Mongo antes servicio.

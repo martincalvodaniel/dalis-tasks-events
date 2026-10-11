@@ -228,6 +228,7 @@ try {
               "src/lib/db/remote-operation-commands.integration.test.ts",
               "src/lib/db/remote-operation-commands-v3.integration.test.ts",
               "src/lib/db/remote-operation-commands-v4.integration.test.ts",
+              "src/lib/db/remote-recurring-operation-commands.integration.test.ts",
               "src/lib/db/remote-plan-placements.integration.test.ts",
               "src/lib/db/remote-recurring-placements.integration.test.ts",
               "src/lib/db/remote-plan-occurrences.integration.test.ts",
