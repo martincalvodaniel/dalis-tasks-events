@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17e1b1 — Cliente predeterminado y convergencia real
+
+Cerrado12oct: diez escenarios Next5/IndexedDB/Mongo propios pasan. Cliente5/runtime/action/defaults confirma cuatro intenciones originales de root/vista tras intentos antiguos rechazados; UUID/payload/dependencias/evidencia exactos, ACK remotos reales únicos. Dos particiones alcanzan journal6 y cinco proyecciones completas iguales al fold remoto, incluida serie/aparición RPCprevia. Runtime cerrado/reabierto idle no añade writes ni recibos y conserva stores. Sin fixturecorrected en este corte; no lifecyclehook5 ni productorlocal de aparición/Google todavía. Suite749pass/201skip/0fail/10261aserciones, lint773/tipos/buildWebpack/worker46/diff aprobados. Recursos propios/cookies cerrados, screenshot /private/tmp/dalis-next5-convergence-proof.png; producto4 intacto, sin DBusuario. Mismo commitpushint/HEAD ycuotas; sigue17e1b2 si margen.
+
 ## 17e1a2 — Cola durable tras handshake antiguo
 
 Cerrado12oct: fixtureFuture local por cuenta/origen, productor atómico de plan+vista y backup3/guardias. Dos particiones reales prueban referenciaNext desconocida409 reconocida y wrapperretire4 después de capturar identity/pull4 reales. Runtime4 libera sólo su lease y suma unattempt sobre root, conserva resto de todosstores/cursor/UUID/payload/deps/outcomes; siguientehandshake5 bloquea antesclaim. Mongo sin efectos. Nueve escenarios completos pasan. Ensayo inicial corrigió nombresstate/dependencies del DTO y bootstrap del checkpoint vacío previo al snapshot; cleanup local obligatorio agregado antes ejecutar. Todo recurso/cookie/partición propio limpiado; noGoogle ni recuperación/ACK/convergencia5 todavía. Suite749pass/201skip/0fail/10261aserciones, lint773/tipos/buildWebpack/worker46/diff aprobados. Evidencia /private/tmp/dalis-next5-queue-proof.png. Mismo commitpushint/HEAD ycuotas; sigue17e1b si margen.

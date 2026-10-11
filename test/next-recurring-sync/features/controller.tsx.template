@@ -538,6 +538,169 @@ export function FixtureController() {
         }
       )
       await check(
+        "Cliente5 recupera las intenciones originales y converge con Mongo",
+        async () => {
+          const remoteBefore = await state(owner)
+          const snapshots = async (index: number) => {
+            const value = (await call(index, { type: "local-snapshot" })) as {
+              backup: unknown
+              cursor: unknown
+            }
+            return {
+              backup: validateLocalRecurringBackup(value.backup, owner),
+              cursor: localPullCursorSchema.parse(value.cursor),
+            }
+          }
+          const queued = [await snapshots(0), await snapshots(1)]
+          for (let index = 0; index < 2; index++) {
+            assert(
+              queued[index].backup.stores.outbox.length === 2 &&
+                queued[index].backup.stores.outbox.every(
+                  (entry) => entry.state === "pending" && entry.lease === null
+                ),
+              "Recovery starts with both original pending intentions"
+            )
+            const recovered = (await call(index, { type: "mixed-run" })) as {
+              status: string
+              uploaded: number
+            }
+            assert(
+              recovered.status === "settled" && recovered.uploaded === 2,
+              "Default generation-five client did not ACK both intentions"
+            )
+          }
+          const authoritative = await state(owner)
+          assert(
+            authoritative.counts.receipts ===
+              remoteBefore.counts.receipts + 4 &&
+              authoritative.counts.items === remoteBefore.counts.items + 2 &&
+              authoritative.counts.views === remoteBefore.counts.views + 2 &&
+              authoritative.page.through === remoteBefore.page.through + 4,
+            "Recovery did not commit exactly four original operations"
+          )
+          const projection = {
+            items: new Map<string, unknown>(),
+            occurrences: new Map<string, unknown>(),
+            tags: new Map<string, unknown>(),
+            itemViews: new Map<string, unknown>(),
+            taskPlacements: new Map<string, unknown>(),
+          }
+          for (const change of authoritative.page.changes) {
+            if (change.kind === "item")
+              projection.items.set(change.item.id, change.item)
+            else if (change.kind === "plan-occurrence")
+              projection.occurrences.set(
+                change.occurrence.id,
+                change.occurrence
+              )
+            else
+              for (const effect of change.effects.effects) {
+                if (effect.store === "tags")
+                  projection.tags.set(effect.record.id, effect.record)
+                else if (effect.store === "itemViews")
+                  projection.itemViews.set(effect.record.itemId, effect.record)
+                else if (effect.store === "taskPlacements")
+                  projection.taskPlacements.set(
+                    `${effect.record.scope}:${effect.record.date}:${effect.record.occurrenceId}`,
+                    effect.record
+                  )
+              }
+          }
+          const canonical = (value: unknown): string => {
+            if (Array.isArray(value))
+              return `[${value.map(canonical).join(",")}]`
+            if (value !== null && typeof value === "object")
+              return `{${Object.entries(value)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(
+                  ([key, entry]) => `${JSON.stringify(key)}:${canonical(entry)}`
+                )
+                .join(",")}}`
+            return JSON.stringify(value)
+          }
+          const ordered = (records: unknown[]) =>
+            JSON.stringify(records.map(canonical).sort())
+          for (let index = 0; index < 2; index++) {
+            const idle = (await call(index, { type: "mixed-run" })) as {
+              status: string
+              uploaded: number
+            }
+            assert(
+              idle.status === "settled" && idle.uploaded === 0,
+              "Converging pass repeated an upload"
+            )
+            const complete = await snapshots(index)
+            assert(
+              complete.cursor.after === authoritative.page.through &&
+                complete.cursor.through === null,
+              "Local cursor does not reach authoritative checkpoint"
+            )
+            for (const store of [
+              "items",
+              "occurrences",
+              "tags",
+              "itemViews",
+              "taskPlacements",
+            ] as const)
+              assert(
+                ordered(complete.backup.stores[store]) ===
+                  ordered([...projection[store].values()]),
+                `Local ${store} projection differs from Mongo journal`
+              )
+            for (const original of queued[index].backup.stores.outbox) {
+              const acknowledged = complete.backup.stores.outbox.find(
+                (entry) =>
+                  entry.operation.operationId === original.operation.operationId
+              )
+              assert(
+                acknowledged?.state === "acknowledged" &&
+                  acknowledged.lease === null &&
+                  canonical(acknowledged.operation) ===
+                    canonical(original.operation) &&
+                  canonical(acknowledged.dependencies) ===
+                    canonical(original.dependencies),
+                "ACK rewrote or lost an original intention or dependent"
+              )
+              assert(
+                authoritative.page.changes.filter(
+                  (change) =>
+                    change.operationId === original.operation.operationId
+                ).length === 1,
+                "Original UUID lacks a single real remote journal commit"
+              )
+              const outcome = complete.backup.stores.syncMetadata.find(
+                (record) =>
+                  record.key ===
+                  `operation-outcome:${original.operation.operationId}`
+              )
+              assert(
+                outcome &&
+                  "operation" in outcome &&
+                  canonical(outcome.operation) ===
+                    canonical(original.operation),
+                "ACK lacks exact durable remote outcome evidence"
+              )
+            }
+            const stable = canonical(complete.backup.stores)
+            const again = (await call(index, { type: "mixed-run" })) as {
+              status: string
+              uploaded: number
+            }
+            assert(
+              again.status === "settled" &&
+                again.uploaded === 0 &&
+                canonical((await snapshots(index)).backup.stores) === stable,
+              "Closed and reopened idle runtime changed durable history"
+            )
+          }
+          assert(
+            JSON.stringify(await state(owner)) ===
+              JSON.stringify(authoritative),
+            "Idle recovery created extra receipts or journal versions"
+          )
+        }
+      )
+      await check(
         "Revocar sesión bloquea RPC sin alterar datos confirmados",
         async () => {
           const before = await state(owner)
@@ -597,7 +760,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Nueve escenarios de frontera Next5 correctos; sesiones propias cerradas"
+            "Diez escenarios de frontera Next5 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

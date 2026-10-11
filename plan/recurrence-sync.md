@@ -2,6 +2,10 @@
 
 Estado11oct: generación4 sólo sincroniza planes simples; series/apariciones/progreso/cambios de fecha siguen locales. Arrastre simple y checklist heredada entregados16c1–3. No activar parcialmente un nuevo alcance.
 
+## Recuperación y convergencia — 17e1b1
+
+Cliente5/defaults reales recupera cuatro intenciones originales guardadas por productor atómico y antes rechazadas por cliente4. ACKs/evidencia durables conservan UUID/payload/deps; rawRPC de serie/aparición complementan journal con seis operaciones únicas. Ambos runtimes reabiertos alcanzan cursor6 y proyecciones completas items/occurrences/tags/views/placements iguales al fold autoritativo. Idle conserva todosstores y Mongo. Diez escenariosNext compilado/Mongo propios pasan; noGoogle ni lifecyclehook5/productor local de aparición declarados. Siguiente17e1b2 cubre esos límites antes provisión/activación; screenshot /private/tmp/dalis-next5-convergence-proof.png.
+
 ## Cola conservada — 17e1a2
 
 Fixture con dos particiones y productor atómico real de plan/asignación. Bootstrap4 vacío inicializa su checkpoint durable antes del snapshot; luego identity/pull4 autenticados se capturan realmente y sólo se entregan una vez al runtime4. Referencia ausente409 marcado o wrapperretiro4 noACK, sólo root incrementaattempts y libera lease propio; handshake5 posterior bloquea antesclaim. Comparación de todosstores/cursor/UUID/payload/deps/outcomes exacta con única excepción prevista deattempts; Mongo intacto. Nueve escenariosNext5 pasan. No se recupera/sincroniza aún esa cola mediante5 en este corte; sigue lifecycle/convergencia17e1b. Particiones/control/sesiones/servidores/container propios retirados, screenshot /private/tmp/dalis-next5-queue-proof.png.

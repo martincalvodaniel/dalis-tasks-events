@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 17e1b1 — Recuperación por defecto5 y convergencia durable
+
+- Estado: completada12oct; diez escenarios Next5 reales pasan, seis recibos/journal y cinco proyecciones exactas en dos particiones.
+
+- Objetivo: recuperar raíces/vistas exactas conservadas por17e1a2 usando cliente/runtime/action5 predeterminados y converger dos particiones con serie/aparición Mongo reales.
+- target_paths: test/next-recurring-sync/features/controller.tsx.template y plan. Dependencias:17e1a1–2; entrada69%5h/48%7d, secuencial/reservas10%/1%.
+- Aceptación: ACKs remotos únicos de las cuatro intenciones originales, UUID/payload y dependencia intactos, dos runtimes cerrados/reabiertos, cursor y proyección exactos para items/tags/views/placements/occurrences contra journalMongo; idle sin nuevos recibos. No afirmar todavía productores locales de aparición ni lifecyclehook5/Google.
+- Validación: Next compilado/IndexedDB/Mongo propios, regresiones/lint/tipos/build/worker/diff, plan/log mismo commitpushint/HEAD/cuotas. Sin DBusuario ni activación.
+
 ## 17e1a2 — Cola conservada ante retiro4 y referencia ausente
 
 - Estado: completada12oct; nueve escenarios Next5/IndexedDB/Mongo propios pasan, sinACK antiguo y sin mutaciónremota por rechazos.
