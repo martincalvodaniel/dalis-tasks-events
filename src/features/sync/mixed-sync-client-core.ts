@@ -9,25 +9,25 @@ import { userIdSchema } from "@/schemas/primitives"
 import { accountControlSchema } from "@/schemas/workspace"
 
 export type AccountIdentity = Pick<LocalAccount, "userId" | "epoch">
-export interface MixedClientPorts {
+export interface MixedClientPorts<Transport = SyncTransportV2> {
   requireActive(account: AccountIdentity): Promise<void>
   readSummary(account: AccountIdentity): Promise<SyncQueueSummaryV2>
   openRuntime(
     account: AccountIdentity,
-    transport: SyncTransportV2
+    transport: Transport
   ): Promise<LocalSyncRuntimeV2>
   sendOperations(input: unknown): Promise<unknown>
   fetchRequest: typeof fetch
 }
 // Capture immutable account identity across transport, runtime and refresh.
-export function createMixedSyncClientWithTransport(
+export function createMixedSyncClientWithTransport<Transport>(
   input: AccountIdentity,
-  ports: MixedClientPorts,
+  ports: MixedClientPorts<Transport>,
   createTransport: (
     userId: string,
-    sendOperations: MixedClientPorts["sendOperations"],
+    sendOperations: MixedClientPorts<Transport>["sendOperations"],
     fetchRequest: typeof fetch
-  ) => SyncTransportV2
+  ) => Transport
 ) {
   const account = Object.freeze({
     userId: userIdSchema.parse(input.userId),

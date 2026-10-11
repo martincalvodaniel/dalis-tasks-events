@@ -193,3 +193,7 @@ Puerto privado fija coordinador/store/policy recurrentes juntos, captura cuenta/
 ## Fronteras17d3
 
 Descarga privada usa readiness5/reader recurrente y header5 exclusivo antes de datos; sesión/query/expectedactor primero y errores saneados. Acción5 preparada y retiro4 sin ejecución/ACK, ninguno conectado al producto activo. Ocho pruebas puras incluyen página recurrente y lease/intención intactos tras handshake4 capturado. Referencias RPC compiladas y dosparticiones/Mongo siguen pendientes.
+
+## Cliente17d4
+
+Factory5 privado selecciona acción/transporte/runtime/resumen recurrentes juntos; core tipa transporte sin ampliar DTO4. Identidad inmutable, guards y cleanup conservados. Resumen futuro exige release/store/policy coherentes, históricos sinCAS bloqueados sin rewriting. Seis pruebas nuevas puras; hook/cache y RPC/Next aún pendientes.

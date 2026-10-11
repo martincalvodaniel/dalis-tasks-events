@@ -2,6 +2,8 @@
 
 ## Estado operativo actual — 11 de octubre
 
+17d4 compone cliente5 privado con acción/transporte/runtime/resumen recurrentes coherentes, identidad capturada y guards de refresh probados. Hook/cache, Next y dosparticiones/Mongo aún pendientes; no caller ni activación nuevos.
+
 17d3 deja preparada descarga autenticada5/acción5/retiro4, con ocho pruebas puras y build. Rutas y proveedor activos4 intactos; falta prueba RPC real de esas referencias, integración conjunta y prerrequisito del índice de apariciones.
 
 17d2 prepara runtime recurrente con seis escenarios IndexedDB de cuenta/época/cierre/reapertura y ACK/pull locales reales. Respuestas simuladas; fronteras Next y prueba integrada de dos particiones/Mongo pendientes. Repetición remota aún no activada.

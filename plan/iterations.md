@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17d4 — Composición privada del cliente recurrente
+
+- Estado: completada11oct; seis pruebas nuevas composición/resumen y DoD aprobados.
+
+- Objetivo: fijar transporte5/acción5/runtime/policy/resumen recurrentes como una unidad, con identidad inmutable y guardias de refresh.
+- target_paths: features/sync/{mixed-sync-client-core,mixed-sync-client-v5,client-action-v5,mixed-sync-summary} y pruebas, plan.
+- Dependencias:17d1–17d3; entrada20%5h/56%7d, reservas10%/1%.
+- Aceptación: core parametriza tipo de transporte sin ampliar DTO/validadores activos; default futuro usa release/cuenta y store recurrente. Intención1/sobre2 sin reescritura, epoch/actor inmutables, matrix4↔5 antes body/dispatch, cierre/stop/refresh coherentes. Sin provider/hook/rutas activos.
+- Validación: pruebas puras composición/correspondencia/recurrence-summary/guards/fallos; skill React best practices y guía Next leídas, DoD completo. Hook/lifecycle Next real y dosparticiones/Mongo posteriores.
+
 ## 17d3 — Fronteras de servidor preparadas5
 
 - Estado: completada11oct; ocho pruebas puras y DoD aprobados, sin rutas activas modificadas.

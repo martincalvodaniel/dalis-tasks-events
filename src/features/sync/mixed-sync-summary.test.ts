@@ -2,11 +2,107 @@ import { expect, test } from "bun:test"
 import {
   readMixedSyncQueueSummary,
   readPlacementSyncQueueSummary,
+  readPlanSyncQueueSummary,
+  readRecurringSyncQueueSummary,
 } from "@/features/sync/mixed-sync-summary"
 import { applyItemCommand } from "@/lib/calendar/item-command"
+import { planSchema } from "@/schemas/plan-item"
 import type { OutboxEntry } from "@/types/local-sync"
 
 const identity = { userId: "mixed-summary-account", epoch: "current-epoch" }
+
+test("recurring summary selects its policy and preserves historical missing-CAS intentions and dependent chains", async () => {
+  const timestamp = "2026-10-11T13:00:00.000Z"
+  const item = planSchema.parse({
+    kind: "plan",
+    variant: "note",
+    id: crypto.randomUUID(),
+    ownerId: identity.userId,
+    title: "Series",
+    description: "",
+    status: "not_started",
+    completedAt: null,
+    checklist: [],
+    schedule: {
+      mode: "all_day",
+      startDate: "2026-10-11",
+      endDateExclusive: "2026-10-12",
+    },
+    recurrence: {
+      frequency: "daily",
+      interval: 1,
+      anchorDate: "2026-10-11",
+      timeZone: "Europe/Madrid",
+      end: { type: "never" },
+    },
+    revision: 1,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    deletedAt: null,
+  })
+  const entry = pendingTag()
+  entry.entityKey = `item:${item.id}`
+  entry.operation.baseRevision = 1
+  entry.operation.command = {
+    type: "plan.set-occurrence-status",
+    itemId: item.id,
+    occurrenceId: `${item.id}:2026-10-11`,
+    expectedOccurrenceRevision: 0,
+    status: "completed",
+  }
+  const historical = structuredClone(entry)
+  historical.operation.operationId = crypto.randomUUID()
+  historical.sequence = 2
+  const { expectedOccurrenceRevision, ...command } = entry.operation.command
+  expect(expectedOccurrenceRevision).toBe(0)
+  historical.operation.command = command
+  historical.attempts = 1
+  const dependent = structuredClone(entry)
+  dependent.operation.operationId = crypto.randomUUID()
+  dependent.sequence = 3
+  dependent.dependencies = [historical.operation.operationId]
+  const state = { entries: [entry, historical, dependent], items: [item] }
+  const before = structuredClone(state),
+    events: string[] = []
+  const ports = {
+    requireActive: async () => {
+      events.push("guard")
+    },
+    openStore: async () => ({
+      readQueueState: async () => state,
+      close: () => {
+        events.push("close")
+      },
+    }),
+  }
+  expect(await readPlanSyncQueueSummary(identity, ports)).toMatchObject({
+    ready: 0,
+    unsupported: 3,
+  })
+  expect(await readRecurringSyncQueueSummary(identity, ports)).toMatchObject({
+    ready: 1,
+    unsupported: 1,
+  })
+  expect(events).toEqual(["guard", "guard", "close", "guard", "guard", "close"])
+  expect(state).toEqual(before)
+  let guards = 0,
+    closed = 0
+  await expect(
+    readRecurringSyncQueueSummary(identity, {
+      requireActive: async () => {
+        if (++guards === 2) throw new Error("Account changed")
+      },
+      openStore: async () => ({
+        readQueueState: async () => state,
+        close: () => {
+          closed++
+        },
+      }),
+    })
+  ).rejects.toThrow("Account changed")
+  expect(closed).toBe(1)
+  expect(state).toEqual(before)
+})
 function pendingTag(): OutboxEntry {
   const tagId = crypto.randomUUID()
   return {

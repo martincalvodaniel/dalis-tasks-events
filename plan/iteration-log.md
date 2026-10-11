@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17d4 — Cliente recurrente privado coherente
+
+Cerrado11oct: composición5 fija HTTP/acción/runtime/resumen/policy recurrentes juntos. Core parametriza transporte sin cambiar DTO/parsers activos; reader futuro exige cuenta/release y openRecurring. Acción despachada mediante startTransition según guía Next/skill vercel-react-best-practices, sin referencia en provider actual. Seis pruebas nuevas comprueban intención1/sobre2, actor/época capturados pese a mutación externa, generación5 exclusiva, stop/coalescencia/refreshfallido/cierre y resumen de aparición histórica sinCAS/dependiente bloqueados sin rewriting. Pruebas puras, no lifecycle de hook5 ni RPC/Google. Suite748pass/201opt-in skip/0fail/10247aserciones, lint772/tipos/buildNext16.4worker36/diff aprobados. Sin DBusuario/activación; hook/cache5 y prueba integrada/Next/índice futuro pendientes. Commit/pushint/HEAD/cuotas.
+
 ## 17d3 — Descarga autenticada y retiro4 preparados
 
 Cerrado11oct: servicio privado recurrente usa sesión autorizada/expectedactor/query antes readiness5 y reader completo; header5 exclusivo/no-store y páginas recurrentes validadas, cursorAhead409/error503 saneados. Acción5 pasa headers Next reales al servicio, sin referencia en producto activo; retiro4 sólo auth/envelope2/update_required, sin storage/ACK. Guía Next Server Actions instalada leída. Ocho pruebas puras136aserciones cubren página parent/aparición, actor/revisión/duplicados/query/cursor, sesión/índices y handshake4capturado→retiro/noACK/leasepropio→siguiente5antesclaim. Fixture de factory tenía orden de argumentos errado, corregido antes suite. Pruebas puras no son RPC/Next/Google. Suite742pass/201opt-in skip/0fail/10197aserciones, lint769/tipos/buildNext16.4worker36/diff aprobados. API/provider activos4 intactos y no DBusuario; cliente/hook futuros y frontera Next conjunta pendientes antes activación. Commit/pushint/HEAD/cuotas.

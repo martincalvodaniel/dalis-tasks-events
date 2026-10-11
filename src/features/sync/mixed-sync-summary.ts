@@ -1,5 +1,6 @@
 "use client"
 
+import { requireActivePlanAccount } from "@/features/plans/local-plan-release"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
 import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
@@ -7,6 +8,7 @@ import {
   type SyncQueueSummaryV2,
   summarizeSyncQueueV2,
 } from "@/lib/sync/queue-summary-v2"
+import { recurringSyncCapabilityPolicy } from "@/lib/sync/recurring-sync-capabilities"
 import {
   placementSyncCapabilityPolicy,
   planSyncCapabilityPolicy,
@@ -60,4 +62,17 @@ export function readPlanSyncQueueSummary(
   ports: MixedSummaryPorts = defaultPorts
 ): Promise<SyncQueueSummaryV2> {
   return readMixedSyncQueueSummary(input, ports, planSyncCapabilityPolicy)
+}
+
+const recurringPorts: MixedSummaryPorts = {
+  requireActive: requireActivePlanAccount,
+  openStore: (userId) => LocalMixedSyncStore.openRecurring(userId),
+}
+
+// Prepared reader and policy are selected together without changing active summary defaults.
+export function readRecurringSyncQueueSummary(
+  input: AccountIdentity,
+  ports: MixedSummaryPorts = recurringPorts
+): Promise<SyncQueueSummaryV2> {
+  return readMixedSyncQueueSummary(input, ports, recurringSyncCapabilityPolicy)
 }
