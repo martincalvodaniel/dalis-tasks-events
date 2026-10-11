@@ -119,3 +119,11 @@ Snapshot común recibe codec/versiontipados: exportactual2 sigueestricto, nuevo 
 ## Planner de asignación17b3a
 
 Exportfuturo permite asignar/limpiar categoría en parentcomún recurrente de cuatrovariantes usandoCAS de vista independiente; exportactivo4/legacy no se amplía, recurrenciaslegacyunsupported. Sincontenido/progreso/revisiónparentalterados; actor/parent/tagactual/deleted/CAS aprobados con tres tests nuevos. Planner no sustituye executor/guard/commit; siguiente17b3b pruebaMongo antes de integrar transporte5.
+
+## Punto de continuación al cerrar el 11 de octubre
+
+El último código publicado es `c6449ed`. Series y apariciones cuentan con executors preparatorios, descarga privada, ACK/pull IndexedDB, evidencia de incidentes y exportación portable probados por separado. Esto todavía no constituye sincronización de repetición activada.
+
+El siguiente corte es **17b3b**, descrito en [iterations.md](iterations.md): asignación de categoría a series con replay común, guard del padre y commit atómico. Después quedan el orden mixto de apariciones, consumidores y política coherentes, negociación5 conjunta, índices de aparición en Preview según procedimiento autorizado y prueba integrada de dos particiones Mongo/Next antes de activar. Mantener separadas las pruebas de fixture y el piloto Google/dispositivos físicos.
+
+La revisión de esta ventana era puntual: se pausa al cerrar. No hay una nueva ejecución programada.

@@ -2986,3 +2986,20 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17b2/17c4; cuota20%5h/72%7d, reservas10%/1%.
 - Aceptación: permitir cuatrovariantes recurrentes sólo en exportpreparatorio; generación4/legacy yrecurrencias legacy siguenunsupported. Vista/CAS/tag autorizados yrevisiones independientes, cero efecto contenido/aparición/parentrevision. Nullclear, missing/deleted/foreign yconflict correctos.
 - Validación: pruebas puras cuatrovariantes/CAS/null/actor/tag/familias/immutability yDoDglobal; commitpushint/HEAD/cuotas. ExecutorTX/replay/guard/Mongo posteriores según margen, sinACK/caller/DBusuario.
+
+## 17z1 — Cierre de la continuación puntual del 11 de octubre
+
+- Objetivo: registrar el estado entregado y un siguiente corte ejecutable sin activar funciones preparatorias.
+- target_paths: `plan/master.md`, `plan/workflow.md`, `plan/iterations.md`, `plan/recurrence-sync.md`, `plan/iteration-log.md`.
+- Dependencias: último código completo `c6449ed`; cuota comprobada 15%5h/71%7d y reservas 10%/1%.
+- Aceptación: distinguir cambios UI publicados, recurrencia preparada y activación pendiente; corregir el recuento documental de aserciones; pausar la revisión puntual sin crear otra cadena.
+- Validación: referencias locales, consistencia del estado, `git diff --check`, commit/push a `int`, HEAD remoto exacto y consulta de ambas cuotas. No cambios de código ni repetición de pruebas ya aprobadas.
+
+## 17b3b — Executor de asignación de categoría a una serie
+
+- Estado: candidata, no iniciada al cierre de esta ventana.
+- Objetivo: conectar el planner 17b3a a un executor preparatorio transaccional, separado de los callers activos.
+- target_paths: `src/lib/db/remote-item-view-commands.ts`, su prueba de integración Mongo y documentos de plan.
+- Dependencias: 17b3a, replay común recurrente y guard compartido de serie probados en 17b2.
+- Aceptación: replay común antes de mutar; autorización del padre y categoría actuales en la misma TX; guard compartido antes del write de vista; CAS, recibo y journal atómicos. Retry relee todo el snapshot. Conservar resultados históricos terminales y UUID/payload, sin reinterpretar operaciones ni modificar contenido/progreso/revisión del padre.
+- Validación: Mongo propio con cuatro variantes, replay/identidad entre familias, conflicto de vista, rollback y carrera con edición/borrado del padre; regresión de callers activos estrictos, suite/lint/tipos/build, commit/push/HEAD y cuotas. Evaluar índices centrales existentes; sin provisión ni actuación en DB del usuario, sin activación de generación5.

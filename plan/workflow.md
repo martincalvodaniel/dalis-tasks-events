@@ -352,3 +352,7 @@ Peticiónhumana11oct: cerrar detalleUI compacto y retirar compartir del alcance,
 ### Continuación puntual11oct15:25
 
 Renovación confirmada por lectura real100%5h/84%7d, nuevo reset1791743128 (20:25:28Madrid). HEAD72e92dc limpio y remoto exacto incluye actualización humana de dependencias; conservarla. Lote secuencial autorizado para repetición remota, cortes pequeños completos con reservas10%5h/1%7d y cuota real tras cada commit/push/HEAD.17b2b se divide primero en escritor de series guardado (17b2b1), luego contrato/resultados/replay y executor de aparición. Sin activación parcial ni otra programación; heartbeat puntual se pausará al cerrar. Compartir fuera del alcance.
+
+### Cierre de la continuación puntual del 11 de octubre
+
+Los ajustes humanos 16c7–16c9 están publicados: cuenta/avatar, arrastre sin selección y entrada directa/favicon. La recurrencia sigue preparatoria; último código completo `c6449ed`. Tras consulta real quedan 15%5h/71%7d, con reserva 10%/1%. No se inicia 17b3b porque sus pruebas Mongo, posibles reparaciones y publicación pueden cruzar la reserva. Se cierra con documentación coherente, commit/push/HEAD y lectura final de cuotas; la revisión puntual se pausa, sin otra programación. El reset publicado sigue siendo 1791743128 (20:25:28 Madrid), no una autorización de continuación automática.
