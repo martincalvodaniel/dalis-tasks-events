@@ -2796,3 +2796,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17b1/17b2a, HEAD72e92dc con dependencias actualizadas, ventana renovada100%5h/84%7d.
 - Aceptación: replay único incluso después de borrar serie; UUID reutilizado rechazado; CAS/aislamiento/rollback incluidos guard y journal; generaciones vigentes no aceptan ni reproducen datos recurrentes; progreso de padre recurrente sin soporte. No activar endpoint/capacidades/índice usuario.
 - Validación: Mongo propio con descriptor/imagen fijada, tests actuales, lint/tipos/build; commitpushint/HEAD ycuotas. Luego DTO/replay/executor de aparición en corte propio.
+
+## 17b2b2 — DTO de resultado, recibo y journal de aparición
+
+- Estado: completada11oct, evidencia en iteration-log.
+
+- Objetivo: extender el contrato preparatorio con rama plan-occurrence, revision propia y revisión observada del padre, manteniendo versiones de sobres/journal2 e intenciones1. Decoders vigentes siguen estrictos; sólo decoder futuro admite rama nueva.
+- target_paths: nuevos schemas/remote-plan-occurrence-result, types/remote-recurring-sync, lib/sync/remote-recurring-receipt ytest; plan/{recurrence-sync,iterations,iteration-log,master}.md.
+- Dependencias:17a1/17b2b1; lectura93%5h/83%7d.
+- Aceptación: applied con revisiónpropia positiva, padre/slot consistentes; conflicto con padre propio y aparición opcional; recibo liga actor/UUID/fingerprint/resultado y límite512KiB; journal liga destinatario/serie/revisión/slot; adaptación de recibo legacy exacta, sin ampliar decoder actual ni metadata histórica.
+- Validación: casos puros contrato/identidad/aislamiento/corrupción y regresión/lint/tipos/build. Sinpersistencia/capacidad/ACKnuevo; siguiente replay/executor atómico.

@@ -48,3 +48,8 @@ Colección plan_series_guards usa sólo igualdad por _id; índice único nativo 
 ## Escritor de series17b2b1
 
 executeRemoteRecurringPlanOperation reutiliza namespace/recibo/journal deitems y habilita recurrencia sólo para planes, detrás de función preparatoria sin caller activo. Guarda el guard compartido en cada mutación de plan de este camino, incluso al quitar repetición; misma TX de contenido/CAS/contador/journal/recibo. Progreso del padre recurrente sigue unsupported y no deja ACK. Replay retorna recibo exacto antes de escribir guard, incluye tombstone y rechaza reutilizarUUID. Generación4 y legacy conservan rechazo de payload/recibo recurrente. Carrera de edición admite un ganador; fallo tardío de journal revierte guard nuevo o previo y contenido/recibo/contador. Mongo propio107pass/1342aserciones, sin provisiónPreview ni activación. Aparición aún requiere DTO/recibo/replay explícitos y executor con el mismo guard antes de conectar consumidores.
+
+
+## Contrato de evidencia17b2b2
+
+Rama preparatoria plan-occurrence mantiene sobres/recibos/journal2 y usa userId explícito porque aparición deriva propiedad del padre y no almacenaowner. Applied lleva record confirmado/revisión propia>=1, seriesRevision observada>=1 ysequence; conflicto lleva padrepropio yapariciónmaterializada opcional (null significa ausencia), con relaciónserie validada. Recibo ligaactor/UUID/fingerprint/resultado; journal registra originalslot/serie ymetadata decommit; límite512KiB comocontratos existentes. Decoderfuturo admite recibos anteriores sin reescribirlos; decoderactual sigue rechazando rama nueva. No persistencia/ACK/capacidad activa por parsear DTO; nextcorte conecta replayyexecutor usando estos contratos.
