@@ -165,3 +165,7 @@ Contrato puro recurrente conserva sobre2 e intenciones1; resultado ordenado pued
 ## Dispatcher17c6b
 
 Switch futuro usa exclusivamente executors preparados recurrentes y correspondencia común. Mongo real confirma doce comandos de contenido/aparición/checklist/edición/cancelación/categoría/asignación/orden/borrado, replay íntegro sin writes incluso después de borrados y UUID/actor/historia estrictos. Root4 rechaza recurrencia sin persistir recibo; si existe recibo histórico incompatible el futuro lo conserva y rechaza sin relabel. Sin rutas5/activación; sigue servicio autenticado y readiness del índice de aparición registrado.
+
+## Servicio autenticado17c6c
+
+Defaults privados validan sesión autorizada, expectedUserId, versiones y batch completo antes de readiness. Selección futura añade únicamente índice de aparición registrado a los cuatro personales; inspección exacta readonly sin crear índices. Retry preserva prefijo y posibilidad de replay tras respuesta perdida; errores no exponen secretos. Generación4 sigue inspección/executor/schemas propios. Falta política/consumidores y negociación5 conjunta; provisión de índice de aparición Preview requiere procedimiento y permiso específico antes de activación, no se ha ejecutado en DBusuario.

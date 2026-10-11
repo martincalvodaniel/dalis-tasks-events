@@ -78,3 +78,36 @@ export function selectPlacementSyncIndexSpecs(): IndexSpec[] {
   validateIndexSpecs(selected)
   return selected
 }
+
+// The future recurring boundary inspects one additional registered identity index, without provisioning it.
+export function selectRecurringSyncIndexSpecs(): IndexSpec[] {
+  const selected = selectPlacementSyncIndexSpecs()
+  const name = "plan_occurrences_user_series_slot_uidx"
+  const candidates = INDEX_SPECS.filter((spec) => spec.options.name === name)
+  const occurrence = candidates[0]
+  const keys = ["userId", "seriesId", "slotKey"]
+  if (
+    candidates.length !== 1 ||
+    occurrence.collection !== COLLECTION_NAMES.planOccurrences ||
+    occurrence.provisioning !== "explicit" ||
+    occurrence.options.unique !== true ||
+    Object.keys(occurrence.options).some(
+      (option) => option !== "name" && option !== "unique"
+    ) ||
+    Object.entries(occurrence.keys).length !== keys.length ||
+    Object.entries(occurrence.keys).some(
+      ([key, direction], index) => key !== keys[index] || direction !== 1
+    ) ||
+    INDEX_SPECS.filter(
+      (spec) =>
+        spec.provisioning === "explicit" &&
+        spec.collection === COLLECTION_NAMES.planOccurrences
+    ).length !== 1
+  )
+    throw new Error(
+      "Recurring sync requires its exact registered appearance identity index"
+    )
+  selected.push(structuredClone(occurrence))
+  validateIndexSpecs(selected)
+  return selected
+}

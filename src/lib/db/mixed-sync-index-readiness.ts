@@ -6,6 +6,7 @@ import type { IndexSpec } from "@/lib/db/ensure-indexes"
 import {
   selectMixedSyncIndexSpecs,
   selectPlacementSyncIndexSpecs,
+  selectRecurringSyncIndexSpecs,
 } from "@/lib/db/mixed-sync-index-specs"
 
 export interface MixedSyncIndexInspection {
@@ -153,4 +154,13 @@ export function readMixedSyncIndexReadiness(): Promise<MixedSyncIndexReadiness> 
 
 export function readPlacementSyncIndexReadiness(): Promise<MixedSyncIndexReadiness> {
   return inspectPlacementSyncIndexReadiness(mongoIndexInspection)
+}
+
+export function inspectRecurringSyncIndexReadiness(
+  inspection: MixedSyncIndexInspection
+): Promise<MixedSyncIndexReadiness> {
+  return inspectIndexReadiness(inspection, selectRecurringSyncIndexSpecs())
+}
+export function readRecurringSyncIndexReadiness(): Promise<MixedSyncIndexReadiness> {
+  return inspectRecurringSyncIndexReadiness(mongoIndexInspection)
 }

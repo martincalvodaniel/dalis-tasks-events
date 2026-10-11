@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17c6c — Frontera autenticada y readiness recurrentes
+
+- Estado: completada11oct; nueve pruebas nuevas de frontera/readiness y DoD aprobados.
+
+- Objetivo: servicio privado de envío que comprueba sesión/cuenta/sobre/batch/readiness antes de dispatch, con recibos mixtos y retries de prefijo.
+- target_paths: features/sync/push-recurring-batch y authenticated-recurring-push con tests, db/mixed-sync-index-specs/readiness y prueba futura, plan.
+- Dependencias:17c6b y contrato17c6a; entrada48%5h/61%7d, reservas10%/1%.
+- Aceptación: cinco índices registrados exactos, inspección sin provisión; sesión autorizada/expectedUserId antes almacenamiento, errores saneados. Readiness una vez antes executor; UUID reutilizado devuelve identidad en familia correcta, fallo/respuesta inválida conserva prefijo sin ACK inventado. Defaults server-only actuales de auth/singleton, sin acción/ruta5 activa.
+- Validación: pruebas de auth/matrix/envelope/missing/incompatible/retry/correspondencia/índices/bytes; DoD completo, commit/pushint/HEAD/cuotas. Provisión Preview excluida y posterior específica.
+
 ## 17c6b — Dispatcher recurrente Mongo
 
 - Estado: completada11oct; Mongo130pass/1823aserciones25archivos y DoD aprobados.

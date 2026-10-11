@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17c6c — Sesión, batch y readiness futuros
+
+Cerrado11oct: servicio privado conserva sobre2/intención1, valida sesión/cuenta/envelope/batch antes de inspección de cinco índices registrados exactos. Defaults usan sesión autorizada/singleton/dispatcher recurrente; inspección sólo lee definiciones, no provisiona. Readiness una vez antes executor, retry conserva prefijo y UUID/actor/familia de identity_reuse correctos; respuesta incompatible jamás entra al prefijo. Seis pruebas de frontera y tres de readiness cubren auth/matrix/errores/missing/incompatible/retry/identidad/correspondencia/clones; warning de nonnull en fixture eliminado antes del cierre. Suite721pass/201opt-in skip/0fail, lint754/tipos/buildNext16.4worker36/diff aprobados. No ruta/action5 ni DBusuario/activación/provisión. Commit/pushint/HEAD/cuotas; sigue policy/diagnóstico/coordinador/runtime futuro coherente, después negociación y evidencia dosparticiones.
+
 ## 17c6b — Dispatcher recurrente real
 
 Cerrado11oct: switch privado conecta root/aparición/tag/vista/placement a executors futuros con namespace común y valida resultado exacto antes de exponerlo. Sin caller/API4 ni negociación nuevos. Tres tests Mongo prueban doce operaciones de todas las familias, replay íntegro después de borrar padre/tag y una historia por operación, UUID entre familias/actor extranjero y recibos incompatibles conservados sin relabel. Primera fixture asumía envelope record para documento plano y que rechazo root4 persistía recibo: corregida para sembrar historia durable explícita y distinguir rechazo no durable. Última ejecución Mongo130pass/0fail/1823aserciones25archivos y cleanup own confirmado; suite712pass/201opt-in skip/0fail/9775aserciones, lint750/tipos/buildNext16.4worker36/diff aprobados. Sin DBusuario/activación. Commit/pushint/HEAD/cuotas; sigue servicio autenticado/readiness recurrentes antes de consumidores/política5.
