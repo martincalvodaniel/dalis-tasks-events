@@ -6,6 +6,7 @@ import {
 } from "@/lib/backup/local-backup"
 import type {
   BackupImportClassification,
+  BackupImportItemPolicy,
   BackupImportPreview,
   BackupImportRow,
   BackupRecord,
@@ -46,14 +47,18 @@ function classify(
 
 function support(
   store: BackupStoreName,
-  record: BackupRecord
+  record: BackupRecord,
+  itemPolicy: BackupImportItemPolicy
 ): BackupImportRow["support"] {
   if (
     store === "items" &&
     "kind" in record &&
-    (record.kind === "task" || record.kind === "event") &&
+    (record.kind === "plan" ||
+      (itemPolicy === "all_simple" &&
+        (record.kind === "task" || record.kind === "event"))) &&
     "recurrence" in record &&
-    record.recurrence === null
+    record.recurrence === null &&
+    record.deletedAt === null
   )
     return "simple_item"
   if (
@@ -72,7 +77,8 @@ function support(
 export function previewLocalBackupImport(
   sourceJson: string,
   currentInput: unknown,
-  userId: string
+  userId: string,
+  itemPolicy: BackupImportItemPolicy = "all_simple"
 ): BackupImportPreview {
   const source = decodeLocalBackup(sourceJson, userId)
   const current = validateLocalBackup(currentInput, userId)
@@ -90,7 +96,7 @@ export function previewLocalBackupImport(
         return {
           key,
           classification: classify(record, destination),
-          support: support(store, record),
+          support: support(store, record, itemPolicy),
           source: record,
           current: destination,
         }

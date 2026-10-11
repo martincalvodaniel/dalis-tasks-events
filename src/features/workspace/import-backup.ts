@@ -5,13 +5,18 @@ import { readAccountBackup } from "@/features/workspace/local-backup"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
 import { planLocalBackupImport } from "@/lib/backup/import-plan"
 import { previewLocalBackupImport } from "@/lib/backup/import-preview"
-import { LocalBackupImporter } from "@/lib/local-db/backup-import"
+import {
+  LocalBackupImporter,
+  readLocalBackupImportPolicy,
+} from "@/lib/local-db/backup-import"
+import { openLocalDatabase } from "@/lib/local-db/client"
 import {
   backupImportPreparationSchema,
   backupImportRequestSchema,
 } from "@/schemas/backup-import"
 import type {
   BackupImportComparison,
+  BackupImportItemPolicy,
   BackupImportPlan,
 } from "@/types/backup-import"
 
@@ -23,7 +28,20 @@ export async function readAccountBackupImportPreview(
 ): Promise<BackupImportComparison> {
   const owner = { userId: account.userId, epoch: account.epoch }
   const expected = await readAccountBackup(owner)
-  const preview = previewLocalBackupImport(sourceJson, expected, owner.userId)
+  const database = await openLocalDatabase(owner.userId)
+  let policy: BackupImportItemPolicy
+  try {
+    await requireActiveAccount(owner)
+    policy = await readLocalBackupImportPolicy(database, owner.userId)
+  } finally {
+    database.close()
+  }
+  const preview = previewLocalBackupImport(
+    sourceJson,
+    expected,
+    owner.userId,
+    policy
+  )
   await requireActiveAccount(owner)
   return { sourceJson, expected, preview }
 }

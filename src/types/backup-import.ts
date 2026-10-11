@@ -7,6 +7,7 @@ import type { SyncOperation } from "@/types/sync"
 
 export type BackupStoreName = keyof LocalBackup["stores"]
 export type BackupRecord = LocalBackup["stores"][BackupStoreName][number]
+export type BackupImportItemPolicy = "all_simple" | "common_plans"
 export type BackupImportClassification =
   | "new"
   | "identical"

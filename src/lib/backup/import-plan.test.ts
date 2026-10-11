@@ -68,6 +68,98 @@ function request(
   }
 }
 
+function commonFixture(): LocalBackup {
+  const source = fixture()
+  source.version = 2
+  source.stores.items = (["task", "event", "appointment", "note"] as const).map(
+    (variant, index) => {
+      const item = applyItemCommand(
+        null,
+        {
+          type: "item.create",
+          itemId: crypto.randomUUID(),
+          input: {
+            kind: "plan",
+            variant,
+            title: `Imported ${variant}`,
+            description: "Keep description and progress",
+            status:
+              index === 0
+                ? "not_started"
+                : index === 1
+                  ? "in_progress"
+                  : "completed",
+            schedule:
+              index === 0 || index === 3
+                ? {
+                    mode: "all_day",
+                    startDate: "2026-10-07",
+                    endDateExclusive: "2026-10-09",
+                  }
+                : {
+                    mode: "timed",
+                    localStart: "2026-10-07T11:30",
+                    localEnd: index === 1 ? null : "2026-10-07T12:45",
+                    timeZone: "Europe/Madrid",
+                  },
+            checklist: [
+              {
+                id: crypto.randomUUID(),
+                text: "Completed step",
+                completed: true,
+              },
+              {
+                id: crypto.randomUUID(),
+                text: "Pending step",
+                completed: false,
+              },
+            ],
+            recurrence: null,
+          },
+        },
+        userId,
+        originalDate
+      )
+      return { ...item, revision: 37 }
+    }
+  )
+  const tag = {
+    id: crypto.randomUUID(),
+    userId,
+    name: "Original category",
+    normalizedName: "original category",
+    color: "#2563eb",
+    position: 5,
+    revision: 8,
+    createdAt: originalDate,
+    updatedAt: originalDate,
+    deletedAt: null,
+  }
+  source.stores.tags = [tag]
+  source.stores.itemViews = source.stores.items.map((item) => ({
+    itemId: item.id,
+    userId,
+    primaryTagId: tag.id,
+    revision: 11,
+    createdAt: originalDate,
+    updatedAt: originalDate,
+    deletedAt: null,
+  }))
+  source.stores.taskPlacements = source.stores.items.map((item, position) => ({
+    userId,
+    occurrenceId: item.id,
+    scope: "day",
+    date: "2026-10-07",
+    tagId: tag.id,
+    position,
+    revision: 13,
+    createdAt: originalDate,
+    updatedAt: originalDate,
+    deletedAt: null,
+  }))
+  return source
+}
+
 test("import plans preserve original evidence while creating only new base-zero intentions", () => {
   const source = fixture()
   source.stores.items.push(
@@ -329,4 +421,87 @@ test("cross-generation import retains personal evidence and creates only fresh i
   expect(() =>
     planLocalBackupImport(input, JSON.stringify(legacy), changed)
   ).toThrow("comparison changed")
+})
+
+test("common imports preserve four variants, schedules and progress under fresh identities only", () => {
+  const source = commonFixture()
+  const current = fixture()
+  const input = request(source, current)
+  const before = JSON.stringify({ source, current, input })
+  const sourceJson = JSON.stringify(source)
+  const plan = planLocalBackupImport(input, sourceJson, current)
+  expect(plan.copies).toHaveLength(4)
+  for (const [index, copy] of plan.copies.entries()) {
+    const original = source.stores.items[index]
+    const copied = copy.item
+    if (original.kind !== "plan" || copied.kind !== "plan")
+      throw new Error("Fixture common plan missing")
+    expect(copied.variant).toBe(original.variant)
+    expect(copied.title).toBe(original.title)
+    expect(copied.description).toBe(original.description)
+    expect(copied.schedule).toEqual(original.schedule)
+    expect(copied.status).toBe(original.status)
+    expect(copied.checklist).toEqual(original.checklist)
+    expect(copied.recurrence).toBeNull()
+    expect(copied.completedAt).toBe(copied.status === "completed" ? now : null)
+    expect(copied.id).toBe(input.copies[index].itemId)
+    expect(copied.id).not.toBe(original.id)
+    expect(copied.ownerId).toBe(userId)
+    expect(copied.createdAt).toBe(now)
+    expect(copied.updatedAt).toBe(now)
+    expect(copied.revision).toBe(0)
+    expect(copied.deletedAt).toBeNull()
+    expect(copy.operation.operationId).toBe(input.copies[index].operationId)
+    expect(copy.operation.protocolVersion).toBe(1)
+    expect(copy.operation.baseRevision).toBe(0)
+    expect(copy.operation.command.type).toBe("item.create")
+    expect(copied).not.toHaveProperty("primaryTagId")
+    expect(copied).not.toHaveProperty("position")
+    expect(copy).not.toHaveProperty("outcome")
+    expect(copy).not.toHaveProperty("state")
+  }
+  expect(planLocalBackupImport(input, sourceJson, current)).toEqual(plan)
+  const first = plan.copies[0].item
+  if (first.kind !== "plan") throw new Error("Fixture common plan missing")
+  first.checklist[0].text = "Detached checklist"
+  expect(JSON.stringify({ source, current, input })).toBe(before)
+})
+
+test("common-plan imports reject reused checklist identities, stale state and unsupported sources without changes", () => {
+  const source = commonFixture()
+  const current = fixture()
+  const input = request(source, current)
+  const before = JSON.stringify({ source, current, input })
+  const first = source.stores.items[0]
+  if (first.kind !== "plan") throw new Error("Fixture common plan missing")
+  const reused = structuredClone(input)
+  reused.copies[0].operationId = first.checklist[0].id
+  expect(() =>
+    planLocalBackupImport(reused, JSON.stringify(source), current)
+  ).toThrow("new and distinct")
+  const changed = structuredClone(current)
+  changed.stores.items[0].description = "Concurrent destination edit"
+  expect(() =>
+    planLocalBackupImport(input, JSON.stringify(source), changed)
+  ).toThrow("comparison changed")
+  for (const kind of ["deleted", "recurring"] as const) {
+    const unsupported = structuredClone(source)
+    const item = unsupported.stores.items[0]
+    if (item.kind !== "plan") throw new Error("Fixture common plan missing")
+    if (kind === "deleted") item.deletedAt = now
+    else
+      item.recurrence = {
+        frequency: "daily",
+        anchorDate: "2026-10-07",
+        timeZone: "Europe/Madrid",
+        interval: 1,
+        end: { type: "never" },
+      }
+    const unchanged = JSON.stringify(unsupported)
+    expect(() =>
+      planLocalBackupImport(input, JSON.stringify(unsupported), current)
+    ).toThrow("living non-recurring")
+    expect(JSON.stringify(unsupported)).toBe(unchanged)
+  }
+  expect(JSON.stringify({ source, current, input })).toBe(before)
 })

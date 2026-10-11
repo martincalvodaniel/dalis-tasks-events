@@ -67,9 +67,10 @@ export function BackupImportSelection({
         </div>
       ) : null}
       <p className="text-xs text-zinc-600 dark:text-zinc-400">
-        Solo tareas y eventos sin repetición y sin borrar. Las categorías, el
-        orden y los demás datos del archivo se conservan como parte de la copia
-        de seguridad, pero no se aplican ({extraRecords} registros).
+        Solo tareas, eventos, citas y notas sin repetición y sin borrar. Las
+        categorías, el orden y los demás datos del archivo se conservan como
+        parte de la copia de seguridad, pero no se aplican ({extraRecords}{" "}
+        registros).
       </p>
     </div>
   )

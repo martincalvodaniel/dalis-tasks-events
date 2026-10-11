@@ -7,6 +7,7 @@ import {
 import { applyItemCommand } from "@/lib/calendar/item-command"
 import type { CalendarItem } from "@/types/calendar-item"
 import type { LocalBackup } from "@/types/local-backup"
+import type { PlanVariant } from "@/types/plan-item"
 
 const userId = "backup-preview-test"
 const now = "2026-10-08T00:00:00.000Z"
@@ -29,6 +30,32 @@ function task(): CalendarItem {
         description: "",
         scheduledDate: "2026-10-08",
         status: "in_progress",
+        checklist: [],
+        recurrence: null,
+      },
+    },
+    userId,
+    now
+  )
+}
+
+function commonPlan(variant: PlanVariant): CalendarItem {
+  return applyItemCommand(
+    null,
+    {
+      type: "item.create",
+      itemId: crypto.randomUUID(),
+      input: {
+        kind: "plan",
+        variant,
+        title: `Common ${variant}`,
+        description: "Portable common content",
+        schedule: {
+          mode: "all_day",
+          startDate: "2026-10-08",
+          endDateExclusive: "2026-10-09",
+        },
+        status: "not_started",
         checklist: [],
         recurrence: null,
       },
@@ -377,4 +404,106 @@ test("portable generations compare exact mixed evidence without promoting it to 
   expect(personal?.classification).toBe("new")
   expect(personal?.source).toEqual(versioned.stores.remoteShadows[1])
   expect(personal?.current).toBeNull()
+})
+
+test("common-plan policy selects all four simple variants without converting legacy or evidence", () => {
+  const source = fixture()
+  const variants = ["task", "event", "appointment", "note"] as const
+  source.stores.items.push(...variants.map(commonPlan))
+  source.stores.items.push(
+    applyItemCommand(
+      null,
+      {
+        type: "item.create",
+        itemId: crypto.randomUUID(),
+        input: {
+          kind: "event",
+          title: "Legacy event",
+          description: "",
+          recurrence: null,
+          schedule: {
+            mode: "all_day",
+            startDate: "2026-10-08",
+            endDateExclusive: "2026-10-09",
+          },
+        },
+      },
+      userId,
+      now
+    )
+  )
+  const current = fixture()
+  const before = JSON.stringify({ source, current })
+  const sourceJson = JSON.stringify(source)
+  const defaultPreview = previewLocalBackupImport(sourceJson, current, userId)
+  const explicitPreview = previewLocalBackupImport(
+    sourceJson,
+    current,
+    userId,
+    "all_simple"
+  )
+  expect(explicitPreview).toEqual(defaultPreview)
+  expect(
+    defaultPreview.stores.items.every((row) => row.support === "simple_item")
+  ).toBe(true)
+  const commonPreview = previewLocalBackupImport(
+    sourceJson,
+    current,
+    userId,
+    "common_plans"
+  )
+  expect(
+    commonPreview.stores.items.filter((row) => row.support === "simple_item")
+  ).toHaveLength(4)
+  expect(
+    commonPreview.stores.items.filter((row) => row.support === "unsupported")
+  ).toHaveLength(2)
+  expect(
+    commonPreview.stores.items.find(
+      (row) => row.key === source.stores.items[0].id
+    )?.support
+  ).toBe("unsupported")
+  for (const row of commonPreview.stores.items) {
+    if (!("kind" in row.source)) throw new Error("Fixture item missing")
+    if (row.support === "simple_item") expect(row.source.kind).toBe("plan")
+  }
+  expect(commonPreview.stores.outbox).toEqual(defaultPreview.stores.outbox)
+  expect(commonPreview.stores.remoteShadows).toEqual(
+    defaultPreview.stores.remoteShadows
+  )
+  expect(commonPreview.stores.tags).toEqual(defaultPreview.stores.tags)
+  expect(JSON.stringify({ source, current })).toBe(before)
+})
+
+test("recurring and deleted common plans stay visible but cannot be selected", () => {
+  const source = fixture()
+  const recurring = commonPlan("appointment")
+  if (recurring.kind !== "plan") throw new Error("Fixture plan missing")
+  recurring.recurrence = {
+    frequency: "daily",
+    anchorDate: "2026-10-08",
+    timeZone: "Europe/Madrid",
+    interval: 1,
+    end: { type: "never" },
+  }
+  const deleted = { ...commonPlan("note"), deletedAt: now }
+  source.stores.items = [recurring, deleted]
+  const current = fixture()
+  const before = JSON.stringify({ source, current })
+  for (const policy of ["all_simple", "common_plans"] as const) {
+    const preview = previewLocalBackupImport(
+      JSON.stringify(source),
+      current,
+      userId,
+      policy
+    )
+    expect(preview.stores.items).toHaveLength(2)
+    expect(
+      preview.stores.items.every((row) => row.support === "unsupported")
+    ).toBe(true)
+    expect(
+      preview.stores.items.find((row) => row.key === deleted.id)?.classification
+    ).toBe("source_deleted")
+  }
+  expect(JSON.stringify({ source, current })).toBe(before)
 })

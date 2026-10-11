@@ -41,8 +41,8 @@ export function BackupSettings({
       <div className="space-y-2 pb-3">
         <p className="text-xs text-zinc-600 dark:text-zinc-400">
           Descarga los datos de este dispositivo y sus cambios pendientes,
-          también sin conexión. Puedes importar tareas y eventos simples como
-          copias nuevas.
+          también sin conexión. Puedes importar tareas, eventos, citas y notas
+          sin repetición como copias nuevas.
         </p>
         <button
           type="button"

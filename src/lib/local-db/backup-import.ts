@@ -15,7 +15,42 @@ import { backupImportRequestSchema } from "@/schemas/backup-import"
 import { commonPlanLocalReleaseSchema } from "@/schemas/common-plan-local-release"
 import { outboxEntrySchema, outboxSequenceSchema } from "@/schemas/local-sync"
 import { userIdSchema } from "@/schemas/primitives"
-import type { LocalBackupImportResult } from "@/types/backup-import"
+import type {
+  BackupImportItemPolicy,
+  LocalBackupImportResult,
+} from "@/types/backup-import"
+
+export function readLocalBackupImportPolicy(
+  database: IDBDatabase,
+  userIdInput: string
+): Promise<BackupImportItemPolicy> {
+  const userId = userIdSchema.parse(userIdInput)
+  if (database.name !== localDatabaseName(userId))
+    throw new Error("Import policy belongs to another account partition")
+  return runLocalTransaction<BackupImportItemPolicy>(
+    database,
+    ["syncMetadata"],
+    "readonly",
+    (context) => {
+      const request = context.transaction
+        .objectStore("syncMetadata")
+        .get("common-plan-release")
+      request.onsuccess = () => {
+        try {
+          if (request.result === undefined) context.setResult("all_simple")
+          else {
+            const marker = commonPlanLocalReleaseSchema.parse(request.result)
+            if (marker.userId !== userId)
+              throw new Error("Local release belongs to another account")
+            context.setResult("common_plans")
+          }
+        } catch (error) {
+          context.fail(error)
+        }
+      }
+    }
+  )
+}
 
 export function importLocalBackupCopies(
   database: IDBDatabase,
@@ -42,6 +77,12 @@ export function importLocalBackupCopies(
         userId,
         request.createdAt,
         (current) => {
+          const marker =
+            release.result === undefined
+              ? null
+              : commonPlanLocalReleaseSchema.parse(release.result)
+          if (marker && marker.userId !== userId)
+            throw new Error("Local release belongs to another account")
           const existing = current.stores.syncMetadata.find(
             (record) => record.key === `backup-import:${request.importId}`
           )
@@ -69,12 +110,8 @@ export function importLocalBackupCopies(
             return
           }
           const plan = planLocalBackupImport(request, sourceJson, current)
-          if (release.result !== undefined) {
-            const marker = commonPlanLocalReleaseSchema.parse(release.result)
-            if (
-              marker.userId !== userId ||
-              plan.copies.some((copy) => copy.item.kind !== "plan")
-            )
+          if (marker) {
+            if (plan.copies.some((copy) => copy.item.kind !== "plan"))
               throw new Error(
                 "Previous-generation copies cannot enter a prepared plan partition"
               )

@@ -51,7 +51,7 @@ export function planLocalBackupImport(
       !("recurrence" in source) ||
       source.deletedAt !== null
     )
-      throw new Error("Import requires a living non-recurring task or event")
+      throw new Error("Import requires a living non-recurring supported item")
     const operation = syncOperationSchema.parse({
       operationId: selection.operationId,
       protocolVersion: 1,
