@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17c7b — Store mixto recurrente privado
+
+Cerrado11oct: openRecurring explícito comparte lifecycle/partición/snapshot con store mixto, enrutando root/aparición/preference a sus puertos recurrentes y pull aTX completa. Open4 estricto intacto; schema compartido valida sender/op/resultado y correspondencia antes de seleccionar. Fixtures previas pasan ahora por store futuro: diez checks4253 (ACK/rebase/rollback/actor/lease/evidencia/backup/recarga) y diez4254 (pull/cursor/pendientes/tombstones/ACK root/personal/readQueue/cierre/recarga). Respuestas sintéticas prueban almacenamiento, no RPC/convergencia. Particiones propias eliminadas, tabs/servidores/launcher propios cerrados. Suite725pass/201opt-in skip/0fail/9977aserciones, lint756/tipos/buildNext16.4worker36/diff aprobados. Sin caller5/DBusuario. Commit/pushint/HEAD/cuotas; sigue coordinador futuro con policy/validadores coherentes y guards antes de runtime/negociación/prueba conjunta.
+
 ## 17c7a — Política futura coherente
 
 Cerrado11oct: bundle inmutable preparado declara occurrences y plan-occurrence explícitos, mantiene4 estricto y permite series comunes/slots canónicos/placement de aparición. CAS propio obligatorio: histórico sincampo conserva payload y bloquea sus dependientes; raíz de serie no admite progreso global, legacyrecurrence/settings/birthday siguen unsupported. Regla retirada o softdelete no impiden seleccionar replay, permiso/aceptación siempre remoto. Cuatro tests cubren cuatrovariantes/familias/canon/immutability/rootlegacy y diagnóstico/resumen futuro con cola completa; suite725pass/201opt-in skip/0fail/9977aserciones, lint756/tipos/buildNext16.4worker36/diff aprobados. Ningún caller/runtime activo ni DBusuario. Commit/pushint/HEAD/cuotas; sigue consumidor/coordinador recurrente privado y evidencia integrada antes negociación5.

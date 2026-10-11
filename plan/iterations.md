@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17c7b — Consumidor local recurrente
+
+- Estado: completada11oct; veinte checks IndexedDB reales en dos orígenes propios y DoD aprobados.
+
+- Objetivo: apertura privada del store mixto que enruta pull y ACK de las tres familias a transacciones recurrentes ya probadas, sin modificar open activo4.
+- target_paths: local-db/mixed-sync-store, schema localRecurringSyncResultInput, fixtures recurring-pull/plan-occurrence-sync-results y plan.
+- Dependencias:17c7a y puertos ACK/pull previos; entrada43%5h/60%7d, reservas10%/1%.
+- Aceptación: openRecurring explícito, actor/partición/cierre/sender/resultado validados; referencias4 strict. Todos resultados usan su TX propia real, no ACK adelantado. Cola/cursor snapshot completos; root/aparición/preference no se confunden. Recursos cerrados incluso apertura parcial.
+- Validación: fixtures own IndexedDB reutilizadas pasando por store futuro (pull/ACK root/preference/aparición, rollback/replay/recarga), regresiones y DoD, commit/pushint/HEAD/cuotas. Resultado sintético no equivale a RPC/convergencia.
+
 ## 17c7a — Política recurrente y diagnóstico puro
 
 - Estado: completada11oct; cuatro pruebas nuevas con matriz de variantes/cadenas y DoD aprobados.

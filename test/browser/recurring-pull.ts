@@ -1,10 +1,11 @@
 import { applyPlanOccurrenceCommand } from "@/lib/calendar/plan-occurrence-command"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
+import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
 import {
   applyLocalPreferenceResult,
-  applyLocalRecurringPreferenceResult,
+  applyLocalRecurringPreferenceResult as applyLocalRecurringPreferenceResultDirect,
 } from "@/lib/local-db/preference-sync-results"
-import { applyLocalRecurringChangesPage } from "@/lib/local-db/pull-recurring-changes"
+import { applyLocalRecurringChangesPage as applyLocalRecurringChangesPageDirect } from "@/lib/local-db/pull-recurring-changes"
 import { LocalSyncStore } from "@/lib/local-db/sync-store"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { localRecurringChangesPageInputSchema } from "@/schemas/local-recurring-pull"
@@ -20,6 +21,33 @@ const query = new URLSearchParams(location.search),
   runId = entityIdSchema.parse(query.get("run"))
 const userId = `browser-test-${runId}-recurring-pull`,
   otherId = `${userId}-other`
+let futureStore: LocalMixedSyncStore | null = null
+function requireFutureStore() {
+  if (!futureStore) throw new Error("Prepared recurring store is not open")
+  return futureStore
+}
+function applyLocalRecurringChangesPage(
+  db: IDBDatabase,
+  actor: string,
+  input: unknown
+) {
+  return futureStore &&
+    actor === userId &&
+    db.name === localDatabaseName(userId)
+    ? futureStore.applyChangesPage(input)
+    : applyLocalRecurringChangesPageDirect(db, actor, input)
+}
+function applyLocalRecurringPreferenceResult(
+  db: IDBDatabase,
+  actor: string,
+  input: unknown
+) {
+  return futureStore &&
+    actor === userId &&
+    db.name === localDatabaseName(userId)
+    ? futureStore.applyOperationResult(input)
+    : applyLocalRecurringPreferenceResultDirect(db, actor, input)
+}
 const marker = `dalis:recurring-pull:${runId}`,
   proofKey = `${marker}:proof`
 const stores = [
@@ -260,6 +288,7 @@ async function run() {
     other = await openLocalDatabase(otherId)
   let keep = false
   try {
+    futureStore = await LocalMixedSyncStore.openRecurring(userId)
     if (query.get("phase") === "reload") {
       await check("snapshot y cursor exactos tras recarga", async () =>
         assert(
@@ -705,14 +734,21 @@ async function run() {
             return put.call(this, value, key)
           }
           try {
-            await refused(() => store.applyRecurringOperationResult(submission))
+            await refused(() =>
+              requireFutureStore().applyOperationResult({
+                ...submission,
+                result: { kind: "item", outcome: submission.result },
+              })
+            )
           } finally {
             IDBObjectStore.prototype.put = put
           }
           assert(JSON.stringify(await snapshot(db)) === before)
           assert(
-            (await store.applyRecurringOperationResult(submission)) ===
-              "applied"
+            (await requireFutureStore().applyOperationResult({
+              ...submission,
+              result: { kind: "item", outcome: submission.result },
+            })) === "applied"
           )
           const stored = await snapshot(db),
             entries = stored.outbox as OutboxEntry[]
@@ -745,8 +781,10 @@ async function run() {
           )
           const exact = JSON.stringify(stored)
           assert(
-            (await store.applyRecurringOperationResult(submission)) ===
-              "replayed"
+            (await requireFutureStore().applyOperationResult({
+              ...submission,
+              result: { kind: "item", outcome: submission.result },
+            })) === "replayed"
           )
           assert(JSON.stringify(await snapshot(db)) === exact)
         } finally {
@@ -754,10 +792,27 @@ async function run() {
         }
       }
     )
+    await check(
+      "store futuro lee snapshot completo y rechaza trabajo tras cierre",
+      async () => {
+        const stored = await snapshot(db),
+          prepared = requireFutureStore()
+        assert(
+          JSON.stringify(await prepared.readQueueState()) ===
+            JSON.stringify({ entries: stored.outbox, items: stored.items })
+        )
+        prepared.close()
+        prepared.close()
+        await refused(async () => prepared.readQueueState())
+        await refused(async () => prepared.applyChangesPage(fixture().receipt))
+        futureStore = await LocalMixedSyncStore.openRecurring(userId)
+        assert(JSON.stringify(await snapshot(db)) === JSON.stringify(stored))
+      }
+    )
     sessionStorage.setItem(proofKey, JSON.stringify(await snapshot(db)))
     keep = true
     statusElement.textContent =
-      "Ocho comprobaciones aprobadas. Falta verificar recarga."
+      "Nueve comprobaciones aprobadas. Falta verificar recarga."
     const button = document.createElement("button")
     button.textContent = "Verificar recarga y limpiar"
     button.onclick = () => {
@@ -765,6 +820,8 @@ async function run() {
     }
     actionElement.append(button)
   } finally {
+    futureStore?.close()
+    futureStore = null
     db.close()
     other.close()
     if (!keep) {

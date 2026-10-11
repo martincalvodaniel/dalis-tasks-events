@@ -2,6 +2,13 @@ import { z } from "zod"
 import { entityIdSchema } from "@/schemas/primitives"
 import { remoteRecurringOperationResultSchema } from "@/schemas/remote-plan-occurrence-result"
 import { maximumRemotePushResultV2Bytes } from "@/schemas/remote-push-v2"
+import { syncOperationSchema } from "@/schemas/sync"
+
+export const localRecurringSyncResultInputSchema = z.strictObject({
+  operation: syncOperationSchema,
+  senderId: entityIdSchema,
+  result: remoteRecurringOperationResultSchema,
+})
 
 // Negotiation is independent of intention and evidence versions. No active route uses this contract.
 export const remoteRecurringPushResultSchema = z

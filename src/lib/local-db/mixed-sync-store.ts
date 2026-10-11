@@ -1,13 +1,20 @@
 "use client"
 
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
-import { applyLocalPreferenceResult } from "@/lib/local-db/preference-sync-results"
+import { applyLocalPlanOccurrenceResult } from "@/lib/local-db/plan-occurrence-sync-results"
+import {
+  applyLocalPreferenceResult,
+  applyLocalRecurringPreferenceResult,
+} from "@/lib/local-db/preference-sync-results"
 import { applyLocalChangesPageV2 } from "@/lib/local-db/pull-changes-v2"
+import { applyLocalRecurringChangesPage } from "@/lib/local-db/pull-recurring-changes"
 import { LocalSyncStore } from "@/lib/local-db/sync-store"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { validateLocalSyncResultInputV2 } from "@/lib/sync/local-sync-result-v2"
+import { validateRemoteRecurringOperationResult } from "@/lib/sync/remote-recurring-push"
 import { personalQueueDiagnosticsInputSchema } from "@/schemas/personal-queue-diagnostics"
 import { userIdSchema } from "@/schemas/primitives"
+import { localRecurringSyncResultInputSchema } from "@/schemas/remote-recurring-push"
 import type { CalendarItem } from "@/types/calendar-item"
 import type { LocalPullCursor, OutboxEntry } from "@/types/local-sync"
 
@@ -19,12 +26,26 @@ export class LocalMixedSyncStore {
     readonly userId: string,
     private readonly database: IDBDatabase,
     private readonly itemStore: LocalSyncStore,
-    private readonly allowPlans: boolean
+    private readonly allowPlans: boolean,
+    private readonly allowSeries: boolean
   ) {}
 
   static async open(
     userIdInput: string,
     allowPlans = false
+  ): Promise<LocalMixedSyncStore> {
+    return LocalMixedSyncStore.openForScope(userIdInput, allowPlans, false)
+  }
+
+  // Prepared only: future callers must also select recurring policy and negotiated transport.
+  static openRecurring(userIdInput: string): Promise<LocalMixedSyncStore> {
+    return LocalMixedSyncStore.openForScope(userIdInput, true, true)
+  }
+
+  private static async openForScope(
+    userIdInput: string,
+    allowPlans: boolean,
+    allowSeries: boolean
   ): Promise<LocalMixedSyncStore> {
     const userId = userIdSchema.parse(userIdInput)
     const database = await openLocalDatabase(userId)
@@ -35,7 +56,8 @@ export class LocalMixedSyncStore {
         userId,
         database,
         itemStore,
-        allowPlans
+        allowPlans,
+        allowSeries
       )
       store.ensurePartition()
       return store
@@ -97,6 +119,8 @@ export class LocalMixedSyncStore {
 
   applyChangesPage(input: unknown): Promise<"applied" | "ignored"> {
     this.ensurePartition()
+    if (this.allowSeries)
+      return applyLocalRecurringChangesPage(this.database, this.userId, input)
     return applyLocalChangesPageV2(
       this.database,
       this.userId,
@@ -107,6 +131,28 @@ export class LocalMixedSyncStore {
 
   applyOperationResult(input: unknown): Promise<"applied" | "replayed"> {
     this.ensurePartition()
+    if (this.allowSeries) {
+      const submission = localRecurringSyncResultInputSchema.parse(input)
+      const result = validateRemoteRecurringOperationResult(
+        submission.result,
+        this.userId,
+        submission.operation
+      )
+      if (result.kind === "plan-occurrence")
+        return applyLocalPlanOccurrenceResult(this.database, this.userId, {
+          ...submission,
+          result,
+        })
+      if (result.kind === "preference")
+        return applyLocalRecurringPreferenceResult(this.database, this.userId, {
+          ...submission,
+          result,
+        })
+      return this.itemStore.applyRecurringOperationResult({
+        ...submission,
+        result: result.outcome,
+      })
+    }
     const submission = validateLocalSyncResultInputV2(input, this.userId)
     return submission.result.kind === "preference"
       ? applyLocalPreferenceResult(this.database, this.userId, submission)

@@ -173,3 +173,7 @@ Defaults privados validan sesión autorizada, expectedUserId, versiones y batch 
 ## Policy17c7a
 
 Bundle futuro declara occurrences/kindplan-occurrence sin activar consumidores. ReadCommand permite contenido de serie/aparición/vista/placement según executors y conserva el contexto actual sólo como selector, no propiedad. FaltaCAS histórico bloquea explícitamente sin normalización; rootstatus de serie/legacy/settings/birthday fuera. Slots canónicos se conservan tras regla retirada/borrado para permitir replay remoto. Diagnóstico/resumen futuros sólo si se solicita bundle explícito; policy4 intacta. Sigue store/coordinador/runtime futuro coherente y pruebas conjuntas antes de5.
+
+## Consumidor17c7b
+
+OpenRecurring privado selecciona ACK root/aparición/preference y pull recurrentes de forma conjunta; apertura normal4 permanece strict. Actor/partición/sender/correspondencia/cierre se validan, TX existentes confirman todo antes de ACK/cursor. Veinte checks reales en4253/4254 reutilizan fixtures con almacenamiento sintético, incluyendo root/personal/appearance/rebase/rollback/recarga/cierre y comparación/backup intactos; todos recursos propios limpiados. Sigue coordinador/runtime futuro y negociación5 con pruebas de dosparticiones/Mongo/Next antes de activar.

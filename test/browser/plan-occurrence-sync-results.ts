@@ -8,7 +8,8 @@ import {
   readLocalRecurringBackup,
 } from "@/lib/local-db/backup"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
-import { applyLocalPlanOccurrenceResult } from "@/lib/local-db/plan-occurrence-sync-results"
+import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
+import { applyLocalPlanOccurrenceResult as applyLocalPlanOccurrenceResultDirect } from "@/lib/local-db/plan-occurrence-sync-results"
 import { readLocalPlanOccurrenceSyncIncidents } from "@/lib/local-db/recurring-sync-incidents"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { planSchema } from "@/schemas/plan-item"
@@ -22,6 +23,18 @@ const query = new URLSearchParams(location.search),
   runId = entityIdSchema.parse(query.get("run"))
 const userId = `browser-test-${runId}-appearance-results`,
   otherId = `${userId}-other`
+let futureStore: LocalMixedSyncStore | null = null
+function applyLocalPlanOccurrenceResult(
+  db: IDBDatabase,
+  actor: string,
+  input: unknown
+) {
+  return futureStore &&
+    actor === userId &&
+    db.name === localDatabaseName(userId)
+    ? futureStore.applyOperationResult(input)
+    : applyLocalPlanOccurrenceResultDirect(db, actor, input)
+}
 const marker = `dalis:appearance-result:${runId}`,
   proofKey = `${marker}:proof`,
   incidentKey = `${marker}:incident`,
@@ -212,6 +225,7 @@ async function run() {
     other = await openLocalDatabase(otherId)
   let keep = false
   try {
+    futureStore = await LocalMixedSyncStore.openRecurring(userId)
     if (query.get("phase") === "reload") {
       await check(
         "cola, aparición y evidencia exactas tras recarga",
@@ -511,6 +525,8 @@ async function run() {
     }
     actionElement.append(button)
   } finally {
+    futureStore?.close()
+    futureStore = null
     db.close()
     other.close()
     if (!keep) {

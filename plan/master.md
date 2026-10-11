@@ -42,6 +42,8 @@ Continuación20:26:17b3b conecta executor preparatorio de categorías de series,
 
 17c7a cierra policy y diagnóstico/resumen futuros, con familia propia de aparición y bloqueo explícito de históricos sinCAS. Sigue consumidor/coordinador/runtime preparatorio, luego prueba integrada y negociación5; todavía4 activo.
 
+17c7b cierra apertura y enrutado del store futuro con veinte checks reales IndexedDB. Falta coordinador/runtime/transporte5 y evidencia conjunta Mongo/Next antes activación; no confundir pruebas locales sintéticas con convergencia.
+
 Nueva petición humana11oct: continuación puntual programada hoy20:26Europe/Madrid, previa comprobación real de renovación para17b3b. Código85d788c, reservas10%5h/1%7d; heartbeat existente ACTIVE sin cadena adicional.
 
 Queda aproximadamente **20–25% del alcance actual** (75–80% completado). Estimación ponderada por complejidad, no por commits ni duración. Al retirar compartir (13puntos del alcance original), quedan alrededor de20puntos sobre87: repetición remota/series/apariciones y orden10, cumpleaños5, preferencias residuales/aceptación final5. La mejora del porcentaje corresponde a una reducción de alcance, no a implementar compartir.
