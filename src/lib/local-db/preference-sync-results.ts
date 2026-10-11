@@ -2,8 +2,10 @@
 
 import { localDatabaseName } from "@/lib/local-db/client"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
 import { validateLocalSyncResultInputV2 } from "@/lib/sync/local-sync-result-v2"
 import { planLocalPreferenceResult } from "@/lib/sync/preference-result-plan"
+import { planLocalRecurringPreferenceResult } from "@/lib/sync/recurring-preference-result-plan"
 import { decodeRemoteShadow } from "@/lib/sync/remote-shadow-v2"
 import { taskPlacementEntityKey } from "@/schemas/ordering"
 import {
@@ -18,6 +20,24 @@ export function applyLocalPreferenceResult(
   database: IDBDatabase,
   userIdInput: unknown,
   input: unknown
+): Promise<"applied" | "replayed"> {
+  return applyPreferenceResult(database, userIdInput, input, false)
+}
+
+// Prepared generation-five port; active callers retain the strict reader above.
+export function applyLocalRecurringPreferenceResult(
+  database: IDBDatabase,
+  userIdInput: unknown,
+  input: unknown
+): Promise<"applied" | "replayed"> {
+  return applyPreferenceResult(database, userIdInput, input, true)
+}
+
+function applyPreferenceResult(
+  database: IDBDatabase,
+  userIdInput: unknown,
+  input: unknown,
+  allowRecurringEvidence: boolean
 ): Promise<"applied" | "replayed"> {
   const userId = userIdSchema.parse(userIdInput)
   if (database.name !== localDatabaseName(userId))
@@ -67,6 +87,7 @@ export function applyLocalPreferenceResult(
       "outbox",
       "remoteShadows",
       "syncMetadata",
+      ...(allowRecurringEvidence ? ["items"] : []),
     ],
     "readwrite",
     (context) => {
@@ -85,12 +106,27 @@ export function applyLocalPreferenceResult(
         outcome: metadata.get(
           `operation-outcome:${submission.operation.operationId}`
         ),
+        items: allowRecurringEvidence
+          ? context.transaction.objectStore("items").getAll(undefined, 10001)
+          : null,
       }
-      let remaining = 6
+      let remaining = allowRecurringEvidence ? 7 : 6
       function finish() {
         if (--remaining) return
         try {
-          const plan = planLocalPreferenceResult({
+          for (const request of [
+            requests.tags,
+            requests.views,
+            requests.placements,
+            requests.entries,
+            requests.shadows,
+            requests.items,
+          ])
+            if (request && request.result.length > 10000)
+              throw new Error(
+                "Personal result snapshot exceeds its record limit"
+              )
+          const state = {
             userId,
             submission,
             local: [
@@ -121,11 +157,19 @@ export function applyLocalPreferenceResult(
               }),
             ],
             shadows: requests.shadows.result.map((record: unknown) =>
-              decodeRemoteShadow(record, userId)
+              allowRecurringEvidence
+                ? decodeRemoteRecurringShadow(record, userId)
+                : decodeRemoteShadow(record, userId)
             ),
             entries: requests.entries.result,
             existingOutcome: requests.outcome.result ?? null,
-          })
+          }
+          const plan = allowRecurringEvidence
+            ? planLocalRecurringPreferenceResult({
+                ...state,
+                items: requests.items?.result,
+              })
+            : planLocalPreferenceResult(state)
           if (plan.status === "replayed") {
             context.setResult("replayed")
             return
@@ -137,7 +181,15 @@ export function applyLocalPreferenceResult(
             else if (entry.record?.store === "taskPlacements")
               placements.put(entry.record.record)
           }
-          for (const shadow of plan.shadows) shadows.put(shadow)
+          const oldShadows = new Map(
+            requests.shadows.result.map((record) => [
+              record.entityKey,
+              JSON.stringify(record),
+            ])
+          )
+          for (const shadow of plan.shadows)
+            if (oldShadows.get(shadow.entityKey) !== JSON.stringify(shadow))
+              shadows.put(shadow)
           const previous = new Map(
             requests.entries.result.map((entry) => [
               entry.operation.operationId,
@@ -156,7 +208,8 @@ export function applyLocalPreferenceResult(
           context.fail(error)
         }
       }
-      for (const request of Object.values(requests)) request.onsuccess = finish
+      for (const request of Object.values(requests))
+        if (request) request.onsuccess = finish
     }
   )
 }

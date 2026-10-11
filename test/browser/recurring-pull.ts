@@ -1,5 +1,9 @@
 import { applyPlanOccurrenceCommand } from "@/lib/calendar/plan-occurrence-command"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
+import {
+  applyLocalPreferenceResult,
+  applyLocalRecurringPreferenceResult,
+} from "@/lib/local-db/preference-sync-results"
 import { applyLocalRecurringChangesPage } from "@/lib/local-db/pull-recurring-changes"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { localRecurringChangesPageInputSchema } from "@/schemas/local-recurring-pull"
@@ -509,10 +513,133 @@ async function run() {
         )
       }
     )
+    await check(
+      "ACK de categoría conserva aparición y su intención; puerto anterior rechaza",
+      async () => {
+        const value = fixture()
+        await seed(db)
+        await applyLocalRecurringChangesPage(db, userId, value.receipt)
+        const before = await snapshot(db),
+          tag = before.tags[0] as { id: string },
+          senderId = crypto.randomUUID()
+        const entry = outboxEntrySchema.parse({
+          ...value.entry,
+          state: "sending",
+          attempts: 1,
+          lease: { ownerId: senderId, expiresAt: "2026-10-11T13:01:00.000Z" },
+          entityKey: `tag:${tag.id}`,
+          operation: {
+            ...value.entry.operation,
+            operationId: crypto.randomUUID(),
+            baseRevision: 1,
+            command: { type: "tag.delete", tagId: tag.id },
+          },
+        })
+        const dependent = {
+          ...value.entry,
+          sequence: 2,
+          dependencies: [entry.operation.operationId],
+        }
+        const submission = {
+          senderId,
+          operation: entry.operation,
+          result: {
+            kind: "preference",
+            outcome: {
+              status: "applied",
+              operationId: entry.operation.operationId,
+              effects: {
+                version: 1,
+                userId,
+                operationId: entry.operation.operationId,
+                sequence: 4,
+                effects: [
+                  {
+                    store: "tags",
+                    record: {
+                      ...(before.tags[0] as object),
+                      revision: 2,
+                      deletedAt: timestamp,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        }
+        await seed(db, { ...before, outbox: [entry, dependent] })
+        const frozen = JSON.stringify(await snapshot(db))
+        await refused(() => applyLocalPreferenceResult(db, userId, submission))
+        assert(JSON.stringify(await snapshot(db)) === frozen)
+        const put = IDBObjectStore.prototype.put
+        IDBObjectStore.prototype.put = function (value, key) {
+          if (this.name === "syncMetadata")
+            throw new Error("Injected recurring personal outcome failure")
+          return put.call(this, value, key)
+        }
+        try {
+          await refused(() =>
+            applyLocalRecurringPreferenceResult(db, userId, submission)
+          )
+        } finally {
+          IDBObjectStore.prototype.put = put
+        }
+        assert(JSON.stringify(await snapshot(db)) === frozen)
+        assert(
+          (await applyLocalRecurringPreferenceResult(
+            db,
+            userId,
+            submission
+          )) === "applied"
+        )
+        const stored = await snapshot(db),
+          entries = stored.outbox as OutboxEntry[]
+        assert(
+          entries.find(
+            (record) =>
+              record.operation.operationId === entry.operation.operationId
+          )?.state === "acknowledged"
+        )
+        assert(
+          JSON.stringify(
+            entries.find(
+              (record) =>
+                record.operation.operationId === dependent.operation.operationId
+            )
+          ) === JSON.stringify(dependent)
+        )
+        assert(
+          JSON.stringify(stored.items) === JSON.stringify(before.items) &&
+            JSON.stringify(stored.occurrences) ===
+              JSON.stringify(before.occurrences)
+        )
+        const appearance = (records: unknown[]) =>
+          records.filter(
+            (record) =>
+              record &&
+              typeof record === "object" &&
+              "kind" in record &&
+              record.kind === "plan-occurrence"
+          )
+        assert(
+          JSON.stringify(appearance(stored.remoteShadows)) ===
+            JSON.stringify(appearance(before.remoteShadows))
+        )
+        const exact = JSON.stringify(stored)
+        assert(
+          (await applyLocalRecurringPreferenceResult(
+            db,
+            userId,
+            submission
+          )) === "replayed"
+        )
+        assert(JSON.stringify(await snapshot(db)) === exact)
+      }
+    )
     sessionStorage.setItem(proofKey, JSON.stringify(await snapshot(db)))
     keep = true
     statusElement.textContent =
-      "Seis comprobaciones aprobadas. Falta verificar recarga."
+      "Siete comprobaciones aprobadas. Falta verificar recarga."
     const button = document.createElement("button")
     button.textContent = "Verificar recarga y limpiar"
     button.onclick = () => {

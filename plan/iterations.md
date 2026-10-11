@@ -2936,3 +2936,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias: plannerpersonal existente/17c1–3; cuota35%5h/74%7d.
 - Aceptación: validar snapshot completo/actor/parent/cola/duplicados antes de delegar ACK, conservar shadows de otrasfamilias y límite global10000. Rebase personal sólo dependientedirecto pending+attempts0 con efecto de mismaentidad; aparición/basepadre/intentadas intactas. Replay/outcome exacto ylease actual, null/unsupported sinACK; caller4 estricto.
 - Validación: tests puro mixedshadow/applied/replay/deps/lease/actor/corrupt/limit/parent/unsupported; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. Siguiente puertoTX personal futuro.
+
+## 17c4b — Puerto personal recurrente en TX
+
+- Estado: completada11oct; ocho checks IndexedDB reales, puertos activos strict preservados.
+
+- Objetivo: aplicar resultado personal en presencia de shadows deaparición, reutilizando TX existente con selector privado explícito.
+- target_paths: local-db/preference-sync-results; test/browser/recurring-pull; plan.
+- Dependencias:17c4a ypuerto17c2b2, cuota33%5h/74%7d, reservas10%/1%.
+- Aceptación: export actual conserva rechazo estricto; nuevo export valida parent/cola/shadowsglobales enmismaTX, no modifica aparición/item/outcomes ajenos. ACKpersonal/shadow/outcome juntos, rollbackfallotardío/replayexacto; payload/base/expectedaparición intactos.
+- Validación: fixtureIndexedDB4254 categoríaACK conaparición/dependiente, fallbackactivoestricto, replay/rollback/recarga/cleanup; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. Sincaller5/capacidad/DBusuario.

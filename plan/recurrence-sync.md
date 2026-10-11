@@ -99,3 +99,7 @@ Reader privado readonly obtiene apariciónactual yparent/cola/shadows/outcomes c
 ## ACK personal preparatorio17c4a
 
 Planner futuro valida todaslasfamilias/actor/parent/cola antes del plannerpersonal, conserva shadowsitem/aparición exactos yaplica límiteglobal10000 tras nuevos efectos. ACKpersonal/replay/lease/outcome/rebasecondicionado existentes intactos, no rebase deapariciones ni deintentadas. Cuatrotests aprueban mixedshadow/strict/actor/corrupción/parent/dependientes/unsupported; puertoTX futuro continúa17c4b. Sinampliación de parser/calleractual4.
+
+## PuertoTX personal17c4b
+
+applyLocalRecurringPreferenceResult preparatorio reutilizaTX actual con selección privada explícita, captura parentitems enmismaTX yvalida todaslasfamilias antes ACK. Puertoactualstrict intacto; futuro conservaaparición/parent/intención intentada exactos yshadow no modificado, últimooutcome atómico. Ocho checksbrowser4254 incluyenrechazoactivo/rollback/retry/replay/recarga ylimpieza propias. Callers4 sin cambios; raízserie/backup/diagnóstico/ordenmixto futuros aún requieren cierre coherente antes activación5.
