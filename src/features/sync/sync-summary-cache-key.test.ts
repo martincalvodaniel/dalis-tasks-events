@@ -7,6 +7,15 @@ test("summary cache separates negotiation while retaining account-wide invalidat
   const oldKey = mixedSyncSummaryCacheKey(account, 2)
   const newKey = mixedSyncSummaryCacheKey(account, 3)
   const planKey = mixedSyncSummaryCacheKey(account, 4)
+  const recurringKey = mixedSyncSummaryCacheKey(account, 5)
+  expect(recurringKey).toEqual([
+    "dalis:sync-queue",
+    account.userId,
+    account.epoch,
+    5,
+  ])
+  expect(recurringKey).not.toEqual(planKey)
+  expect(recurringKey).not.toEqual(newKey)
   expect(planKey).toEqual([
     "dalis:sync-queue",
     account.userId,
@@ -17,7 +26,7 @@ test("summary cache separates negotiation while retaining account-wide invalidat
   expect(oldKey).toEqual(["dalis:sync-queue", account.userId, account.epoch, 2])
   expect(newKey).toEqual(["dalis:sync-queue", account.userId, account.epoch, 3])
   expect(newKey).not.toEqual(oldKey)
-  for (const key of [oldKey, newKey, planKey]) {
+  for (const key of [oldKey, newKey, planKey, recurringKey]) {
     expect(isAccountSyncCacheKey(key, account.userId, account.epoch)).toBe(true)
     expect(isAccountSyncCacheKey(key, "another-owner", account.epoch)).toBe(
       false
@@ -28,6 +37,7 @@ test("summary cache separates negotiation while retaining account-wide invalidat
   }
   account.userId = "changed-owner"
   expect(newKey[1]).toBe("cache-owner")
+  expect(recurringKey[1]).toBe("cache-owner")
 })
 
 test("summary cache rejects invalid account identity and unsupported negotiation", () => {
@@ -38,5 +48,6 @@ test("summary cache rejects invalid account identity and unsupported negotiation
   expect(() =>
     mixedSyncSummaryCacheKey({ ...account, epoch: "invalid" }, 3)
   ).toThrow()
-  expect(() => mixedSyncSummaryCacheKey(account, 5 as 3)).toThrow()
+  for (const protocol of [0, 1, 6, 99, Number.NaN])
+    expect(() => mixedSyncSummaryCacheKey(account, protocol as 5)).toThrow()
 })

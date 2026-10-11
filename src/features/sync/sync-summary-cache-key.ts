@@ -7,9 +7,9 @@ import { accountControlSchema } from "@/schemas/workspace"
 // Negotiation generations never share an SWR summary entry; account positions remain stable.
 export function mixedSyncSummaryCacheKey(
   account: AccountIdentity,
-  protocol: 2 | 3 | 4
+  protocol: 2 | 3 | 4 | 5
 ) {
-  if (protocol !== 2 && protocol !== 3 && protocol !== 4)
+  if (protocol !== 2 && protocol !== 3 && protocol !== 4 && protocol !== 5)
     throw new Error("Unsupported mixed sync cache generation")
   return [
     "dalis:sync-queue",

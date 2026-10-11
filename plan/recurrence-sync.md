@@ -197,3 +197,7 @@ Descarga privada usa readiness5/reader recurrente y header5 exclusivo antes de d
 ## Cliente17d4
 
 Factory5 privado selecciona acción/transporte/runtime/resumen recurrentes juntos; core tipa transporte sin ampliar DTO4. Identidad inmutable, guards y cleanup conservados. Resumen futuro exige release/store/policy coherentes, históricos sinCAS bloqueados sin rewriting. Seis pruebas nuevas puras; hook/cache y RPC/Next aún pendientes.
+
+## Hook17d5
+
+Wrapper5 privado comparte scheduler/listeners/cleanup pero separa cache y ownership de generación4 por actor/época/protocolo. Regresión de invalidación aprobada, sin provider activo. Lifecycle real5 y acción compilada Next/two-partitionMongo siguen como prueba próxima antes activar.

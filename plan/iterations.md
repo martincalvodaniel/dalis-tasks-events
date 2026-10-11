@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17d5 — Hook/cache recurrentes preparados
+
+- Estado: completada11oct; regresión cache/invalidation y DoD aprobados. Lifecycle5 real pendiente.
+
+- Objetivo: wrapper privado5 reutiliza scheduler/listeners/cleanup existentes con caché separada por negociación/cuenta/época.
+- target_paths: features/sync/hooks/{use-mixed-sync-engine-core,use-recurring-sync-engine}, sync-summary-cache-key y test, plan.
+- Dependencias:17d4; entrada18%5h/56%7d, reservas10%/1%.
+- Aceptación: cache5 distinta de4 conservando posiciones de actor/época e invalidación compartida; protocolo5 ownership de estado/control; wrapper selecciona factory5 estático. Ningún provider/caller activo cambia; sin duplicar listeners ni activar5.
+- Validación: regresión de claves/invalidation/identidad/protocolos, tipos/lint/suite/build. Lifecycle real hook5/Next y RPC siguen pendientes, sin extrapolar evidencia4; skill React leída.
+
 ## 17d4 — Composición privada del cliente recurrente
 
 - Estado: completada11oct; seis pruebas nuevas composición/resumen y DoD aprobados.

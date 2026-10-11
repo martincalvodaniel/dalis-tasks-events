@@ -2,6 +2,8 @@
 
 ## Estado operativo actual — 11 de octubre
 
+17d5 prepara hook/cache5 separados por cuenta/época/negociación, sin provider activo nuevo. Próximo corte: prueba compilada Next de fronteras5/retiro4 y lifecycle5, seguida de convergencia real con dos particiones/Mongo propios y prerrequisito del índice Preview. Repetición remota aún no activada.
+
 17d4 compone cliente5 privado con acción/transporte/runtime/resumen recurrentes coherentes, identidad capturada y guards de refresh probados. Hook/cache, Next y dosparticiones/Mongo aún pendientes; no caller ni activación nuevos.
 
 17d3 deja preparada descarga autenticada5/acción5/retiro4, con ocho pruebas puras y build. Rutas y proveedor activos4 intactos; falta prueba RPC real de esas referencias, integración conjunta y prerrequisito del índice de apariciones.

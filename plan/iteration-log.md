@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17d5 — Hook/cache5 preparados
+
+Cerrado11oct: wrapper useRecurringSyncEngine selecciona factory5 estática y reutiliza núcleo/scheduler/listeners/cleanup existentes. Core mantiene ownership por protocolo/cuenta/época y admite5; key5 separada de2/3/4 conserva posiciones e invalidación de cuenta. Ningún provider/caller/route activo cambia. Regresión de cache añade aislamiento5/invalidation/copia de actor y rechazo0/1/6/99/NaN; lifecycle real de hook5 aún pendiente y no se atribuye a evidencia4. Suite748pass/201opt-in skip/0fail/10258aserciones, lint773/tipos/buildNext16.4worker36/diff aprobados. Sin DBusuario/activación; siguiente frontera Next y prueba conjunta dosparticiones/Mongo, antes de provisión específica/activación. Commit/pushint/HEAD/cuotas.
+
 ## 17d4 — Cliente recurrente privado coherente
 
 Cerrado11oct: composición5 fija HTTP/acción/runtime/resumen/policy recurrentes juntos. Core parametriza transporte sin cambiar DTO/parsers activos; reader futuro exige cuenta/release y openRecurring. Acción despachada mediante startTransition según guía Next/skill vercel-react-best-practices, sin referencia en provider actual. Seis pruebas nuevas comprueban intención1/sobre2, actor/época capturados pese a mutación externa, generación5 exclusiva, stop/coalescencia/refreshfallido/cierre y resumen de aparición histórica sinCAS/dependiente bloqueados sin rewriting. Pruebas puras, no lifecycle de hook5 ni RPC/Google. Suite748pass/201opt-in skip/0fail/10247aserciones, lint772/tipos/buildNext16.4worker36/diff aprobados. Sin DBusuario/activación; hook/cache5 y prueba integrada/Next/índice futuro pendientes. Commit/pushint/HEAD/cuotas.
