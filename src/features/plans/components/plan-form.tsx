@@ -103,7 +103,11 @@ export function PlanForm({
   }
 
   return (
-    <form onSubmit={submit} noValidate className="mx-auto max-w-2xl space-y-3">
+    <form
+      onSubmit={submit}
+      noValidate
+      className="dalis-compact-controls mx-auto max-w-2xl space-y-2"
+    >
       <ItemEditorHeader
         title={initialPlan ? "Editar plan" : "Nuevo plan"}
         saving={saving}
@@ -138,7 +142,7 @@ export function PlanForm({
           id={`${id}-description`}
           name="description"
           defaultValue={initialPlan?.description ?? ""}
-          rows={3}
+          rows={2}
           maxLength={10000}
           disabled={saving}
           placeholder="Descripción"
@@ -180,7 +184,7 @@ export function PlanForm({
         onChange={setChecklist}
         disabled={saving}
       />
-      <label className="flex min-h-11 items-center justify-between gap-3 text-sm font-medium">
+      <label className="flex min-h-9 items-center justify-between gap-3 text-sm font-medium">
         Todo el día
         <input
           name="allDay"

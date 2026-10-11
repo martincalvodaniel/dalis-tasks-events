@@ -73,15 +73,15 @@ export function DeviceSettings({
     }
   }
   return (
-    <div>
+    <div className="dalis-compact-controls">
       {account && profile?.userId === account.userId ? (
         <AccountIdentity profile={profile} />
       ) : null}
       <section
-        className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8 dark:border-zinc-800 dark:bg-zinc-900"
+        className="rounded-xl border border-zinc-200 bg-white p-3 text-sm shadow-sm sm:p-4 dark:border-zinc-800 dark:bg-zinc-900"
         aria-labelledby={statusHeadingId}
       >
-        <h2 id={statusHeadingId} className="text-xl font-semibold">
+        <h2 id={statusHeadingId} className="text-base font-semibold">
           {state === "ready"
             ? account?.offlineReady
               ? "Disponible sin conexión"
@@ -153,7 +153,7 @@ export function DeviceSettings({
         ) : null}
       </section>
       {state === "ready" ? (
-        <div className="mt-5 flex flex-wrap gap-4">
+        <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => close()}

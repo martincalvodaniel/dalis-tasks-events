@@ -2,6 +2,8 @@
 
 ## Estado operativo actual — 11 de octubre
 
+Ajuste visual16c12: acciones de categorías/ajustes y controles del editor común reducidos a36px, con extensión invisible del target de botones a44px. Menos espaciado, descripción inicial de dos líneas y tarjeta de ajustes más compacta; navegación y comportamiento conservados. Validación en navegador propio con componentes reales y CSS compilado; tipos/lint/suite y buildWebpack aprobados.
+
 Continuación20:26 cerrada en código `cc05d20`: executors de serie/aparición/asignación/orden, dispatcher y readers autorizados preparados con Mongo propio; ACK/pull, evidencia/backup y productor de orden preparados con IndexedDB real. Cliente/transporte/acción/runtime/hook/cache futuros5 coherentes y privados. Suite748pass/201opt-in skip/0fail, lint773/tipos/build36 aprobados. Seis escenarios recientes de runtime IndexedDB pasan; respuestas sintéticas no prueban RPC/convergencia. **Generación4 sigue activa; repetición remota todavía no activada.**
 
 Siguiente **17e1a**: frontera compilada Next5/defaults/readiness/sesiones/retiro4/matrix, luego lifecycle5 y convergencia de dosparticionesMongo. Provisión específica de índice de apariciones Preview requiere procedimiento validado y permiso específico antes de ejecutar; ninguna nueva actuación en DBusuario en este lote. Lectura16%5h/56%7d con reservas10%/1%; no abrir prueba integrada con seis puntos hastareserva. Revisión puntual eliminada al concluir, sin nueva ejecución programada. Detalle en [recurrence-sync.md](recurrence-sync.md) y [iterations.md](iterations.md).

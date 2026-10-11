@@ -63,7 +63,7 @@ export function PlanRecurrenceFields({
           {weekdays.map((day, index) => (
             <label
               key={day}
-              className="flex min-h-11 items-center gap-1 rounded-full px-1 text-xs"
+              className="flex min-h-9 items-center gap-1 rounded-full px-1 text-xs"
             >
               <input
                 name="weekdays"

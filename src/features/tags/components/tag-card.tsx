@@ -15,7 +15,7 @@ export function TagCard({
   orderControl?: ReactNode
 }) {
   return (
-    <article className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <article className="dalis-compact-controls rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
       <details className="group">
         <summary
           aria-label={`Opciones de categoría ${tag.name}`}

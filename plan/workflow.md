@@ -374,3 +374,8 @@ Renovación20:26 confirmada100%5h/69%7d, nuevo reset1791761185(12oct01:26:25Madr
 ### Cierre del lote20:26 — 17z2
 
 Publicado código cc05d20 tras17b3b–17d5, con pruebas y commit/push/HEAD/cuotas por corte. Lectura16%5h/56%7d, reservas10%/1%; reset real publicado1791761185(12oct01:26:25Madrid) confirmado sin programar otra revisión. Siguiente17e1a frontera Next integrada requiere más margen para preparación/ejecución/reparación/cierre que seis puntos hastareserva; no abrirlo ahora. Último DoD748pass/201opt-in skip/0fail, lint773/tipos/build36. Mongo/browser propios retirados, ninguna nueva actuación en DBusuario/producción; generación4 activa/5 privada. Automatización puntual eliminada por automation_update, sin nueva cadena. Cierre documental con referencias/coherencia/diff, commitpushint/HEAD y consulta final.
+
+
+### Intercalada humana16c12
+
+Petición explícita de compactar categorías, ajustes y editor tras cierre del lote. Entrada13%5h/55%7d; corte visual único, sin retomar17e1a ni crear automatización. Validación completa y fallbackWebpack soportado por bloqueo de puerto interno Turbopack en el entorno, sin cambio de configuración. Commit/pushint/HEAD y consulta final; vuelve protocolo normal de preguntar ambas ventanas antes de elegir otra entrega.

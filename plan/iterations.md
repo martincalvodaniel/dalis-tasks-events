@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 16c12 — Controles y editor más compactos
+
+- Estado: completada; botones y controles de36px comprobados con CSS compilado y componentes reales en navegador propio.
+
+- Objetivo: petición humana de menor altura en acciones de categorías/ajustes y controles del editor común de planes.
+- target_paths: app/globals.css, features/{tags,workspace,plans}/components/{tag-form,tag-card,device-settings,plan-form,plan-recurrence-fields}.tsx y plan.
+- Dependencias:16c6/editor común activo; lectura13%5h/55%7d. Corte visual único solicitado, sin retomar sincronización ni automatización.
+- Aceptación: botones/selectores/campos36px en esos ámbitos, área de botón44px mediante extensión invisible sin solapar filas; espaciado y descripción reducidos, foco/labels/acciones/tipos/estado preservados. Fuera de estos ámbitos, controles actuales intactos.
+- Validación: inspección visual/control de CSS compilado, regresiones existentes, lint/tipos/build/diff; sin pruebas nuevas que sólo reflejen clases, plan/log y commitpushint/HEAD. Al cerrar preguntar ambas ventanas según protocolo normal.
+
 Cada identificador, incluidas letras (`01a`, `01b`), representa una entrega con **su propio commit y pregunta de presupuesto**. No ejecutar automáticamente todo un bloque numerado. El orden es secuencial salvo decisión explícita conforme a [workflow.md](workflow.md).
 
 Los `target_paths` describen el ámbito permitido; antes de editar, concretar archivos y leer instrucciones anidadas. Las rutas de pruebas se colocan junto al módulo cuando proceda. No crear todas las carpetas ni archivos vacíos por anticipado.
