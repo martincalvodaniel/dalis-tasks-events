@@ -87,3 +87,7 @@ Página mixta futura se valida y proyecta entera antes de escribir: checkpoint c
 ## TX de pull17c2b2
 
 Puerto preparatorio IndexedDB captura contenido/personal/apariciones/cola/shadows/cursor coherentemente, valida toda página/snapshot y escribe cursor último enmismaTX. NoACK/rebase/outcome ni eliminación de datosnull; writes sólo de records cambiados y replayignored sinput. Fallo cursor revierte todos los cambios, retry limpio. Siete comprobaciones realesbrowser4254 incluyen partialcheckpoint/pending/actor/corrupción/tombstones/cachelegacy/recarga exacta, particiones propias limpiadas. Sin API/caller/generación5 activa; siguiente17c3 evidencia/incidentes yconsumidores futuros, después negociación conjunta yprueba dosparticiones.
+
+## Incidentes puros17c3a
+
+Decoder futuro de outcomes y snapshot de aparición validan todo estado/evidencia antes de comparación, incluidos estados terminales legacy e intenciones congeladas. Comparación toma apariciónactual del store, nunca planpadre; conserva localalresultado/baseobservada y serie actual/observada separados. Última evidencia remota no convierte shadow enancestro, contradicción de revisión eserror, null sólose captura comoausencia. Pendientesrelacionados visibles, sin resolución/supersession/ACK. Seis tests pasan; readerTX preparatorio continúa17c3b, consumidoresactivos4 aúnstrict.

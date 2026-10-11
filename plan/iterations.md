@@ -2906,3 +2906,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17c2b1/17c2a y stores existentes; cuota45%5h/76%7d, reservas10%/1%.
 - Aceptación: partición/actor/página validados antesTX, snapshots10001 rechazan exceso; contenido/personal/aparición/shadows/cursor juntos, retorno sólo complete; fallo último cursor revierte todos, replay ignorado sin writes. Mantener pendientes, outcomes, tombstones, cache legacy y cola exacta. Sin caller5/activación ni DBusuario.
 - Validación: IndexedDB real propio bootstrap/partial/checkpoint/replay/pending/rollback/aislamiento/corrupción/cancelación/recarga y cleanup; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas.
+
+## 17c3a — Evidencia e incidentes puros de apariciones
+
+- Estado: completada11oct; seis pruebas puras, sin reader/UI nuevo activo.
+
+- Objetivo: leer outcomes futuros y proyectar comparación actual/local-al-resultado/base-observada/remote de cada aparición fallida, sin ofrecer recuperación ni ACK.
+- target_paths: schemas/recurring-sync-incident, types/recurring-sync-incident, sync/{local-recurring-outcome,recurring-incident-snapshot} ytests; plan.
+- Dependencias:17c1/17c2 y decoderlegacy intacto; cuota40%5h/75%7d.
+- Aceptación: snapshot completo acotado/actor/cola/parent/slot/outcome exactos; aparición actual real separada de padre, null sólo ausencia capturada. Detectar contradicción de misma revisión, conservar replaybase posterior como observación, tombstones ypendientes relacionados. Evidencia durable corresponde estado/UUID/intención; parseractual sigue rechazando rama. Sin resolución/supersession/nuevo caller.
+- Validación: pruebas puras conflicto/rejected/null/current/latebase/parent/slot/actor/duplicate/state/legacydependientes; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. Siguiente readerTX ycompatibilidad de consumidores.
