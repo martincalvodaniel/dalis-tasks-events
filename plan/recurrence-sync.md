@@ -157,3 +157,7 @@ Dos escenarios Mongo prueban all_day/timed sin excepción, categorías de serie 
 ## Productor de orden17c5d
 
 Puerto IndexedDB futuro conserva revisión confirmada de posición y lee contexto/categorías/apariciones/cola en mismaTX antes de escribir optimismo y outbox. Identidad/slot/payload/sequence/tail/deps exactos; no cambia padre/aparición. Replay readonly y rollback tardío probados; ACK personal futuro sólo rebasa pendiente nointentado directamente dependiente y mantiene optimismo. Siete checks browser reales incluyen recarga/snapshot exacto y limpieza own; resultado ACK sintético no equivale a convergencia remota. Caller4 intacto. Siguen envío/consumidores/política/transporte5 y pruebas conjuntas.
+
+## Frontera de envío17c6a
+
+Contrato puro recurrente conserva sobre2 e intenciones1; resultado ordenado puede ser contenido, preferencia o aparición. Prefix retry y éxito completo se validan sin truncar; actor/UUID/familia/slot/revisiones/efectos exactos con límites UTF8. Correspondencia de aparición compartida con ACK local; históricos sinCAS sólo conservan terminales/conflicto, nunca crean aplicado. No habilita permisos/callers ni ACK. Sigue17c6b dispatcher remoto antes de servicios/política5.

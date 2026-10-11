@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17c6a — Contrato de envío recurrente
+
+- Estado: completada11oct; cinco pruebas nuevas, regresión ACK y DoD aprobados.
+
+- Objetivo: validar sobres de envío futuros con resultados item/preference/plan-occurrence y correspondencia exacta de cada prefijo, sin activar rutas5 ni modificar formatos durables.
+- target_paths: schemas/types/remote-recurring-push, sync/remote-recurring-push y pruebas, correspondencia compartida de aparición, plan.
+- Dependencias:17c5d y schema/result/evidencia recurrente previos; entrada60%5h/63%7d, reservas10%/1%.
+- Aceptación: sobre sigue2/intención1; actor/UUID/familia/slot/revisiones/efecto/prefijo/límites UTF8 estrictos. Históricos unsupported sin CAS no se reescriben. Validación compartida con ACK no crea ACK ni permisos. Decoder4 sigue rechazando aparición; ningún caller nuevo.
+- Validación: pruebas puras de mezcla, prefijos y corrupción/revisiones/actor/bytes/historia; DoD completo, plan/log, commit/pushint/HEAD/cuotas. Dispatcher y servicio autenticado posteriores.
+
 ## 17c5d — Productor local de orden recurrente
 
 - Estado: completada11oct; siete comprobaciones IndexedDB reales, dos pruebas puras y DoD aprobados.

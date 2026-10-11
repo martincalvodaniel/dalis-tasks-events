@@ -34,6 +34,8 @@ Continuación20:26:17b3b conecta executor preparatorio de categorías de series,
 
 17c5c prepara descarga autorizada por padre propio de posiciones recurrentes implícitas/timed e historia conservada tras cambio de regla/borrado.17c5d cierra productor IndexedDB futuro con replay/dependencias/rollback/ACK personal y recarga reales. Siguen frontera de envío, consumidores/política y negociación5/prueba conjunta. Activo4 intacto.
 
+17c6a cierra validación pura de envío con tres familias y correspondencia compartida de aparición, sin cambiar sobre2/intención1 ni callers4. Sigue dispatcher Mongo, servicios/política y negociación5 conjunta.
+
 Nueva petición humana11oct: continuación puntual programada hoy20:26Europe/Madrid, previa comprobación real de renovación para17b3b. Código85d788c, reservas10%5h/1%7d; heartbeat existente ACTIVE sin cadena adicional.
 
 Queda aproximadamente **20–25% del alcance actual** (75–80% completado). Estimación ponderada por complejidad, no por commits ni duración. Al retirar compartir (13puntos del alcance original), quedan alrededor de20puntos sobre87: repetición remota/series/apariciones y orden10, cumpleaños5, preferencias residuales/aceptación final5. La mejora del porcentaje corresponde a una reducción de alcance, no a implementar compartir.

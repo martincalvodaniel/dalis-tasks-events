@@ -7,21 +7,30 @@ import {
   localPlanOccurrenceResultInputSchema,
   remotePlanOccurrenceShadowSchema,
 } from "@/schemas/local-plan-occurrence-sync"
+import { planOccurrenceDurableCommandSchema } from "@/schemas/plan-occurrence-command"
 import { userIdSchema } from "@/schemas/primitives"
+import { remotePlanOccurrenceResultSchema } from "@/schemas/remote-plan-occurrence-result"
+import { syncOperationSchema } from "@/schemas/sync"
 import type {
   LocalPlanOccurrenceOutcome,
   LocalPlanOccurrenceResultInput,
+  RemotePlanOccurrenceResult,
   RemoteRecurringShadow,
 } from "@/types/remote-recurring-sync"
 
 // Correspondence cannot establish a sender lease, a remote commit or a durable local ACK.
-function validateCorrespondence(
-  value: Pick<LocalPlanOccurrenceResultInput, "operation" | "result">,
-  actor: string
-) {
-  const { operation, result } = value
-  const command = operation.command,
+export function validateRemotePlanOccurrenceOperationResult(
+  input: unknown,
+  actorInput: unknown,
+  operationInput: unknown
+): RemotePlanOccurrenceResult {
+  const actor = userIdSchema.parse(actorInput)
+  const operation = syncOperationSchema.parse(operationInput)
+  const result = remotePlanOccurrenceResultSchema.parse(input)
+  const command = planOccurrenceDurableCommandSchema.parse(operation.command),
     outcome = result.outcome
+  if (outcome.operationId !== operation.operationId)
+    throw new Error("Appearance result must match its submitted operation")
   if (result.userId !== actor)
     throw new Error("Appearance result belongs to another account")
   if (outcome.status === "conflict") {
@@ -31,12 +40,13 @@ function validateCorrespondence(
     )
       throw new Error("Appearance conflict targets another series or slot")
   }
-  if (outcome.status !== "applied") return
+  if (outcome.status !== "applied") return result
   const record = outcome.occurrence
   if (
     record.seriesId !== command.itemId ||
     record.id !== command.occurrenceId ||
     outcome.seriesRevision !== operation.baseRevision ||
+    command.expectedOccurrenceRevision === undefined ||
     record.revision !== command.expectedOccurrenceRevision + 1
   )
     throw new Error(
@@ -79,6 +89,7 @@ function validateCorrespondence(
       )
         throw new Error("Appearance edit result does not match its command")
   }
+  return result
 }
 export function validateLocalPlanOccurrenceResultInput(
   input: unknown,
@@ -86,7 +97,11 @@ export function validateLocalPlanOccurrenceResultInput(
 ): LocalPlanOccurrenceResultInput {
   const actor = userIdSchema.parse(expectedUserIdInput)
   const value = localPlanOccurrenceResultInputSchema.parse(input)
-  validateCorrespondence(value, actor)
+  validateRemotePlanOccurrenceOperationResult(
+    value.result,
+    actor,
+    value.operation
+  )
   return value
 }
 export function validateLocalPlanOccurrenceOutcome(
@@ -95,7 +110,11 @@ export function validateLocalPlanOccurrenceOutcome(
 ): LocalPlanOccurrenceOutcome {
   const actor = userIdSchema.parse(expectedUserIdInput)
   const value = localPlanOccurrenceOutcomeSchema.parse(input)
-  validateCorrespondence(value, actor)
+  validateRemotePlanOccurrenceOperationResult(
+    value.result,
+    actor,
+    value.operation
+  )
   const command = value.operation.command
   for (const record of [value.local, value.base])
     if (

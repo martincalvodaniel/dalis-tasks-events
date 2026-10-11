@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17c6a — Correspondencia de envío recurrente
+
+Cerrado11oct: contrato privado mantiene sobre2/intención1 y admite tres familias; valida actor/UUID/prefijo ordenado/efecto primario e identidad/revisiones/efecto de aparición. Correspondencia compartida con ACK evita validadores divergentes; históricos unsupported sin expectedOccurrenceRevision se preservan, aplicado sinCAS rechaza. Decoder4 intacto. Cinco pruebas nuevas cubren mezcla, retry/duplicados/reorden, actor/slot/revisiones/efecto, historia y bytesUTF8 completos; fixture inicialmente usó groupTagId en vez de tagId y literales abiertos, reparados antes de DoD. Suite712pass/196opt-in skip/0fail, lint748/tipos/buildNext16.4worker36/diff aprobados. Ningún caller/ACK/permiso nuevo ni DBusuario. Commit/pushint/HEAD/cuotas; sigue dispatcher remoto recurrente con prueba Mongo antes servicio.
+
 ## 17c5d — Productor recurrente en IndexedDB
 
 Cerrado11oct: puerto privado guarda movimiento mixto simple/aparición, optimismo y outbox en mismaTX, con revisión confirmada de posición independiente del padre/aparición. Partición/actor/settings/catálogos completos estrictos; atrasadas nuevas usan día civil local actual, payload durable conserva as-of. UUID/slot/sequence/dependencias intactos; caller4 no cambia. Siete checks reales4256 prueban rechazo sinwrites, commit/replay readonly, cadena de movimientos, rollback tardío, ACK personal futuro atómico con rollback/rebase sólo nointentado, dependencia de edición de serie y snapshot exacto tras recarga. ACK sintético es prueba local, no Mongo/Next/convergencia. Particiones/tab/server/script propios retirados. Dos tests puros nuevos; suite707pass/196opt-in skip/0fail/9732aserciones, lint744/tipos/buildNext16.4worker36/diff aprobados. Sin DBusuario/activación; commit/pushint/HEAD/cuotas y siguiente frontera de envío/consumidores recurrentes.
