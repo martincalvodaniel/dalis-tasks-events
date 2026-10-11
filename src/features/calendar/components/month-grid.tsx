@@ -125,8 +125,8 @@ export function MonthGrid({
         </table>
       </div>
       <p className="hidden md:block mt-3 text-sm text-zinc-600 dark:text-zinc-400">
-        Los números indican las tareas y los eventos de cada día, incluidas las
-        tareas completadas.
+        Los números indican los elementos de cada día, incluidos los
+        completados.
       </p>
     </section>
   )

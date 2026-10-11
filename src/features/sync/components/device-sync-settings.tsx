@@ -1,6 +1,7 @@
 "use client"
 
 import { useContext } from "react"
+import { commonPlanReleaseEnabled } from "@/config/common-plan-release"
 import { SyncIncidentDetails } from "@/features/sync/components/sync-incident-details"
 import { SyncStatusPanel } from "@/features/sync/components/sync-status-panel"
 import { SyncContext } from "@/features/sync/sync-context"
@@ -18,7 +19,11 @@ export function DeviceSyncSettings({ account }: { account: LocalAccount }) {
     <>
       <SyncStatusPanel
         {...state}
-        scope="own_content_preferences_and_task_order"
+        scope={
+          commonPlanReleaseEnabled
+            ? "own_plans_preferences_and_order"
+            : "own_content_preferences_and_task_order"
+        }
         onSync={() => {
           void state.synchronize()
         }}

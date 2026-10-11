@@ -59,7 +59,8 @@ export function TagManager({ account }: { account: LocalAccount }) {
   return (
     <div className="space-y-4">
       <p className="hidden md:block text-sm text-zinc-600 dark:text-zinc-300">
-        Crea tus categorías y elígelas en cada tarea después de guardarla.
+        Agrupa tus planes por categoría. Mantén pulsada una categoría para
+        reordenarla.
       </p>
       {ordering.error ? (
         <ErrorBanner>

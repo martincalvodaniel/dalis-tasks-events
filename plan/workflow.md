@@ -303,3 +303,8 @@ Activación96a6237 publicada y Preview Ready/worker/barrera4 comprobados; lectur
 ### Reanudación humana11oct — Nuevas ventanas
 
 Usuario «Nuevas ventanas. Continúa» responde tras petición específica de retomar limpieza local del IAB Preview ypiloto. Renovación real100%5h/100%7d, reset5h1791725051 y semanal1792311851; partidaintce9eae3 limpio. Continúa bloque rediseño activo/piloto con reservas10%5h/1%7d y consulta real tras cada commitpushint/HEAD. Sin créditos/reinicios propios ni nueva cadenaautomática. Se retoma confirmación concreta abierta sobre la única partición de Preview de esta cuenta, preservando sesión/ajustes; no extender alcance a otrosdispositivos/producción ni repetir wipeMongo.
+
+
+### Cierre del bloque común11oct
+
+PilotoGoogle y copias nuevas simples cerrados; siguiente elección humana antes de recurrenciaremota/cumpleaños/compartir/aceptaciónfinal. Automatización permanece PAUSED, sin cadena nueva. Margen de cuota no abre alcance ajeno. Consultar después de commitpush/HEAD y comunicar estado/porcentaje ponderado actual de master; conservar screenshot/piloto identificados y no volver a borrar DB/local.

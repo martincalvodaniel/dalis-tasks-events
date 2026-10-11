@@ -43,3 +43,8 @@ La descripción se muestra debajo del título en los editores actuales de Tarea 
 16a3a deja el editor común preparado y probado con las cuatro variantes, categoría, checklist, repetición y fechas persistentes al alternar todo el día. Se conectará cuando el transporte común esté validado. El color de categoría en los iconos de tareas actuales ya se aplica; iconos comunes SVG preparados para la lista mixta.
 
 16a4b completa la prueba integrada simple de dos particiones/Mongo, incluido replay/orden/checklist y borrado. Callers actuales siguen3. Siguiente frontera y matriz de activación en [common-plan-activation.md](common-plan-activation.md); no repetir pruebas ya cerradas ni afirmar RPC/Google a partir del fixture.
+
+
+## Cierre operativo11oct —16a4c3f–h
+
+Cuatro variantes/editor/lista/calendario4 ya activos y pilotoGooglePreview cerrado con14ACK/outcomes remotos. Categoría/color/checklist, fechas/horas/todoeldía, edición/progreso y orden simple persistidos trasrecarga. Importación simple como copias nuevas de cuatrotipos validada con IndexedDB y textos auxiliares actualizados. Repetición/apariciones siguen locales: su sincronización/orden constituyen siguiente bloque recomendado, sujeto a elecciónhumana. No confundir registros preparatorios anteriores con pendientes del editor entregado; gesto sin botones ya conectado, no se inventa orden para listas parciales/apariciones remotas sin soporte.
