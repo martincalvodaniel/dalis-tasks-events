@@ -2856,3 +2856,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17b2b3/contrato2, reader mixto vigente, cuota68%5h/79%7d.
 - Aceptación: legacy adaptado sin reescritura; evidencia2/negociación futura separadas; páginas acotadas/contiguas/checkpoint congelado, no filtrado de errores ni cursor parcial. Aparición histórica yactual requieren padre propio actual yregistrodurable actual, incluso cancelados/tombstones; ausencia/corrupción no es permiso. Historia válida tras edición/reglaretirada/borrado suave de padre; lectores activos rechazan nueva rama.
 - Validación: invariantes puras yMongo propio bootstrap/incremental/aislamiento/ausencia/corrupción/huecos/retenciónhistórica, suite/lint/tipos/build/diff; commitpushint/HEAD/cuotas. No API/capacidad nueva/índice usuario; siguiente ACK/pull local17c.
+
+## 17c1a — Correspondencia y evidencia local de aparición
+
+- Estado: completada11oct, cinco pruebas puras; noACKlocal ni calleractivo.
+
+- Objetivo: contratos puros de submission/outcome/shadow preparatorios, revisiones y entidades distintas del padre; no escribir ACK aún.
+- target_paths: schemas/local-plan-occurrence-sync, sync/local-plan-occurrence-sync ytest, types/remote-recurring-sync; plan.
+- Dependencias:17b2b3/17b2c1, captura opcional17a2a; cuota62%5h/79%7d.
+- Aceptación: actor/UUID/slot/serie exactos, applied exige parentbase yappearanceexpected+1, estado/cancelación/checklist/edición corresponden al comando. Shadow con identidad propia/revisión confirmada/actor explícito; observedbase no se convierte en ancestro, replay tardío puede seranterior. Outcome captura apariciónlocal/base yserie actualnullable, validando aislamiento yrelación; decoderactual no se amplía.
+- Validación: pruebas puras de cuatrofamilias, mismatch/corrupción/terminal/conflict/null/baseposterior/versiones/legacy; regresión/lint/tipos/build/diff; commitpushint/HEAD/cuotas. Siguiente proyección/rebase puro17c1b, luegoTXlocal17c2.

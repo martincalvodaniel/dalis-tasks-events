@@ -1,5 +1,11 @@
 import type { z } from "zod"
 import type {
+  localPlanOccurrenceOutcomeSchema,
+  localPlanOccurrenceResultInputSchema,
+  remotePlanOccurrenceShadowSchema,
+  remoteRecurringShadowSchema,
+} from "@/schemas/local-plan-occurrence-sync"
+import type {
   remotePlanOccurrenceChangeSchema,
   remotePlanOccurrenceResultSchema,
   remoteRecurringOperationReceiptSchema,
@@ -26,3 +32,13 @@ export type RemoteRecurringChange = z.infer<typeof remoteRecurringChangeSchema>
 export type RemoteRecurringChangesPage = z.infer<
   typeof remoteRecurringChangesPageSchema
 >
+export type LocalPlanOccurrenceResultInput = z.infer<
+  typeof localPlanOccurrenceResultInputSchema
+>
+export type LocalPlanOccurrenceOutcome = z.infer<
+  typeof localPlanOccurrenceOutcomeSchema
+>
+export type RemotePlanOccurrenceShadow = z.infer<
+  typeof remotePlanOccurrenceShadowSchema
+>
+export type RemoteRecurringShadow = z.infer<typeof remoteRecurringShadowSchema>
