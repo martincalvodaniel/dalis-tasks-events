@@ -79,3 +79,7 @@ Plan de resultado requiere leasepropio o replayACKidéntico/outcomedurable. Capt
 ## TXlocal17c2a
 
 applyLocalPlanOccurrenceResult preparatorio captura padre/aparición/cola/shadows/outcome enmismaTX IndexedDB yvalida partición/actor/lease/snapshotbounded; sólo transactioncomplete resuelveapplied/replayed. Cola/shadow/outcome/aparición se escriben juntos; replayidéntico noescribe, falloúltimooutcome reviertewrites yaencolados. No cambia padre ni borrarecordsnull/historia; epoch sigue responsabilidad delcaller futuro. Seischecks enbrowserreal4253 pruebancommit/replay/rebase/fallotardío/actorlease/corrupción/recarga, sólo particionesrunpropias limpiadas. Respuestas de esta fixture son sintéticas: no equivalen aconvergencia/RPC/Google; executorremoto ya probado aparteconMongo. Siguiente17c2b pullmixto atómico antes de conectarmotor5.
+
+## Planner de pull17c2b1
+
+Página mixta futura se valida y proyecta entera antes de escribir: checkpoint congelado, actor/cola/snapshot completo, identidad/revisión por entidad y padre propio con revisión disponible. Aparición pendiente preservada, progreso de otra aparición independiente, cancelados/tombstones y cache legacy conservados. Descarga no confirma comandos ni cambia payloads/outcomes. Seis pruebas puras pasan; TX local con cursor final continúa17c2b2, callers4 siguen intactos.

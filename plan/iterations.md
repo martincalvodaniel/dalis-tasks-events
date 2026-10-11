@@ -2886,3 +2886,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17c1a/b, storesIndexedDB existentes, cuota55%5h/77%7d.
 - Aceptación: partición/actor/lease/operación/snapshotbounded completos validados anteswrites; sólocompleteTX devuelveACK, falloúltimooutcome revierte todos; replay idéntico readonly, rebasecondicionado, otroactor/lease/historia/corrupción preservan DB. Recarga mantieneACK/evidencia; fixturepropia limpia sólo particionesrunowned.
 - Validación: IndexedDB navegador real enorigen4253 con commit/replay/dependientes/fallo tardío/lease/actor/corrupción/recarga, suite/lint/tipos/build/diff; commitpushint/HEAD/cuotas. Sincredenciales/redMongo/DBusuario/nuevogeneración; después17c2b pullatómico mixto.
+
+## 17c2b1 — Planner de descarga mixta recurrente
+
+- Estado: completada11oct; seis pruebas puras, TXlocal sigue siguiente.
+
+- Objetivo: planificar proyección conjunta contenido/personal/aparición/shadows/cursor con contrato futuro estricto.
+- target_paths: schemas/local-recurring-pull, sync/local-recurring-pull ytest; plan.
+- Dependencias: reader17b2c1/proyección17c1b/ACK17c2a; cuota52%5h/77%7d.
+- Aceptación: seriescomunes admitidas sinampliar parseractivo, revisionesporentidad avanzan, checkpoint/rango coherentes; snapshotcompleto/actor/cola/identidades validated también para páginasignoradas. Padre propio/correspondencia de revisión remota antesaparición; pending/root preservados, tombstones/legacycache/intentadas/outcomes intactos. Pull nuncaACK/reescribe cola; límite10000 yerrorwholepage.
+- Validación: casospuros bootstrap/incremental/checkpoint/latepage/pending/otro slot/faltapadre/corrupción/revisión/queue/cancelación/borrado; suite/lint/tipos/build/diff; commitpushint/HEAD/cuotas. SiguienteTXIndexedDB conrollbackcursor yrecarga17c2b2.
