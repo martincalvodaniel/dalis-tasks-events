@@ -10,6 +10,7 @@ import { RemoteItemRepository } from "@/lib/db/remote-items"
 import { readRemoteOperationReplay } from "@/lib/db/remote-operation-receipts"
 import { writeRemotePlanSeriesGuard } from "@/lib/db/remote-plan-series-guard"
 import { PreferenceCompareAndSwapError } from "@/lib/db/remote-preference-transactions"
+import { readRemoteRecurringOperationReplay } from "@/lib/db/remote-recurring-operation-receipts"
 import { syncOperationFingerprint } from "@/lib/sync/operation-fingerprint"
 import { eventInputSchema } from "@/schemas/event-input"
 import { planInputSchema } from "@/schemas/plan-input"
@@ -109,7 +110,9 @@ async function executeItemOperation(
   async function transact(
     session: ClientSession
   ): Promise<RemoteOperationResult> {
-    const replay = await readRemoteOperationReplay(actor, operation, session)
+    const replay = await (allowSeries
+      ? readRemoteRecurringOperationReplay(actor, operation, session)
+      : readRemoteOperationReplay(actor, operation, session))
     if (replay) {
       if (replay.kind !== "item")
         throw new Error("Stored receipt is incompatible with the item executor")

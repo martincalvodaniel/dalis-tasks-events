@@ -12,6 +12,7 @@ import { remoteOperationReceiptV2Schema } from "@/schemas/remote-operation-recei
 import { syncOperationSchema } from "@/schemas/sync"
 import type { PreferenceEffect } from "@/types/preference-effects"
 import type { RemoteOperationResultV2 } from "@/types/remote-operation-result-v2"
+import type { RemoteRecurringOperationResult } from "@/types/remote-recurring-sync"
 import type { SyncOperation } from "@/types/sync"
 
 export class PreferenceCompareAndSwapError extends Error {}
@@ -88,7 +89,9 @@ export async function stagePreferenceReceipt(
   return receipt.result
 }
 
-export async function runPreferenceTransaction(
+export async function runPreferenceTransaction<
+  Result extends RemoteRecurringOperationResult,
+>(
   actorInput: unknown,
   operationInput: unknown,
   stage: (
@@ -96,8 +99,8 @@ export async function runPreferenceTransaction(
     operation: SyncOperation,
     now: string,
     session: ClientSession
-  ) => Promise<RemoteOperationResultV2>
-): Promise<RemoteOperationResultV2> {
+  ) => Promise<Result>
+): Promise<Result> {
   const actor = userIdSchema.parse(actorInput)
   const operation = syncOperationSchema.parse(operationInput)
   const now = new Date().toISOString()

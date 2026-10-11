@@ -2836,3 +2836,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias: shell neutral /workspace y marcaSVG/iconPNG existentes; cuota77%5h/81%7d.
 - Aceptación: raíz anónima redirige a /workspace, layout de rutas protegidas intacto; callback por defecto directo, navegación raíz offline reutiliza sólo shellneutral, no cacheRSC/auth/API. FaviconSVG eICO Dalis servidos públicamente yprecached, sin dependencias.
 - Validación: política/callback y regresión, lint/tipos/build, HTTP Next compilado raíz/workspace/iconos ymetadata sin consultar DBusuario; commitpushint/HEAD/cuotas. Después retomar executor deaparición17b2b3.
+
+## 17b2b3 — Executor preparatorio de apariciones
+
+- Estado: completada11oct, cinco escenarios nuevos Mongo reales aprobados.
+
+- Objetivo: replay común yguard/CAS/recibo/journal/contador atómicos para cuatro comandos deaparición, sin dispatcher activo.
+- target_paths: db/{remote-recurring-operation-receipts,remote-plan-occurrence-commands,remote-preference-transactions,remote-item-commands}, nueva integraciónMongo yrunner; plan/{master,recurrence-sync,iterations,iteration-log}.
+- Dependencias:17b1/17b2a/17b2b1–2; cuotas75%5h/81%7d ycontratos preparados.
+- Aceptación: actor sólo desde servidor, padre vigente autorizado enTX, expectedOccurrenceRevision explícita; replay único en namespace común antes de nueva autorización, UUIDalterado rechazado incluso entre ramas; guardcompartido obliga releer padre tras carreraedición/borrado; revisiónpadre intacta por progreso, revisionaparición+1, cancelación durable, rollback total trasfallotardío. Histórico sin revisiónunsupported sinACK ni reinterpretación.
+- Validación: Mongo propio cuatrovariantes/comandos/replay/aislamiento/CAS/rollback/carrera controlada de snapshots con writerreal de serie; regresión/lint/tipos/build/diff; commitpushint/HEAD/cuotas. Sin índice/DBusuario ni generación5activada.
