@@ -5,6 +5,10 @@ import type {
   remoteRecurringOperationReceiptSchema,
   remoteRecurringOperationResultSchema,
 } from "@/schemas/remote-plan-occurrence-result"
+import type {
+  remoteRecurringChangeSchema,
+  remoteRecurringChangesPageSchema,
+} from "@/schemas/remote-recurring-changes"
 
 export type RemotePlanOccurrenceResult = z.infer<
   typeof remotePlanOccurrenceResultSchema
@@ -17,4 +21,8 @@ export type RemoteRecurringOperationReceipt = z.infer<
 >
 export type RemotePlanOccurrenceChange = z.infer<
   typeof remotePlanOccurrenceChangeSchema
+>
+export type RemoteRecurringChange = z.infer<typeof remoteRecurringChangeSchema>
+export type RemoteRecurringChangesPage = z.infer<
+  typeof remoteRecurringChangesPageSchema
 >

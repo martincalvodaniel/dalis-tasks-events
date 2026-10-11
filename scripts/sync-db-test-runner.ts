@@ -233,6 +233,7 @@ try {
               "src/lib/db/remote-plan-series-guard.integration.test.ts",
               "src/lib/db/remote-plan-series-commands.integration.test.ts",
               "src/lib/db/remote-plan-occurrence-commands.integration.test.ts",
+              "src/lib/db/remote-recurring-changes.integration.test.ts",
               "src/lib/db/remote-changes.integration.test.ts",
             ]
   const testProcess = Bun.spawn(argumentsForMode, {

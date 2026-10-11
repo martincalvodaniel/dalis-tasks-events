@@ -2846,3 +2846,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17b1/17b2a/17b2b1–2; cuotas75%5h/81%7d ycontratos preparados.
 - Aceptación: actor sólo desde servidor, padre vigente autorizado enTX, expectedOccurrenceRevision explícita; replay único en namespace común antes de nueva autorización, UUIDalterado rechazado incluso entre ramas; guardcompartido obliga releer padre tras carreraedición/borrado; revisiónpadre intacta por progreso, revisionaparición+1, cancelación durable, rollback total trasfallotardío. Histórico sin revisiónunsupported sinACK ni reinterpretación.
 - Validación: Mongo propio cuatrovariantes/comandos/replay/aislamiento/CAS/rollback/carrera controlada de snapshots con writerreal de serie; regresión/lint/tipos/build/diff; commitpushint/HEAD/cuotas. Sin índice/DBusuario ni generación5activada.
+
+## 17b2c1 — Descarga preparatoria de series y apariciones
+
+- Estado: completada11oct, tres pruebas puras y tres escenarios Mongo reales.
+
+- Objetivo: journal/página mixta futuros con decoder yreader privado autorizado, sin alterar contratos/clientes activos4.
+- target_paths: schemas/remote-recurring-changes, types/remote-recurring-sync, sync/{remote-recurring-changes,remote-changes-page-range,remote-changes-page-v2} ytest; db/remote-changes-v2 y nueva integración, runner yplan.
+- Dependencias:17b2b3/contrato2, reader mixto vigente, cuota68%5h/79%7d.
+- Aceptación: legacy adaptado sin reescritura; evidencia2/negociación futura separadas; páginas acotadas/contiguas/checkpoint congelado, no filtrado de errores ni cursor parcial. Aparición histórica yactual requieren padre propio actual yregistrodurable actual, incluso cancelados/tombstones; ausencia/corrupción no es permiso. Historia válida tras edición/reglaretirada/borrado suave de padre; lectores activos rechazan nueva rama.
+- Validación: invariantes puras yMongo propio bootstrap/incremental/aislamiento/ausencia/corrupción/huecos/retenciónhistórica, suite/lint/tipos/build/diff; commitpushint/HEAD/cuotas. No API/capacidad nueva/índice usuario; siguiente ACK/pull local17c.

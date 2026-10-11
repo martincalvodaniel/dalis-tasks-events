@@ -6,36 +6,72 @@ import { COLLECTION_NAMES, getCollection } from "@/lib/db/collections"
 import { RemoteCursorAheadError } from "@/lib/db/remote-changes"
 import { RemoteItemViewRepository } from "@/lib/db/remote-item-views"
 import { RemoteItemRepository } from "@/lib/db/remote-items"
+import { RemotePlanOccurrenceRepository } from "@/lib/db/remote-plan-occurrences"
 import { RemoteTagRepository } from "@/lib/db/remote-tags"
 import { RemoteTaskPlacementRepository } from "@/lib/db/remote-task-placements"
 import { decodeRemoteChange } from "@/lib/sync/remote-change-v2"
 import { validateRemoteChangesPageV2 } from "@/lib/sync/remote-changes-page-v2"
+import {
+  decodeRemoteRecurringChange,
+  validateRemoteRecurringChangesPage,
+} from "@/lib/sync/remote-recurring-changes"
 import { revisionSchema, userIdSchema } from "@/schemas/primitives"
 import { maximumRemoteChangesPageBytes } from "@/schemas/remote-changes-page-v2"
 import { remotePullQuerySchema } from "@/schemas/remote-sync"
-import type { RemoteChangeV2 } from "@/types/remote-change-v2"
 import type { RemoteChangesPageV2 } from "@/types/remote-changes-page-v2"
+import type {
+  RemoteRecurringChange,
+  RemoteRecurringChangesPage,
+} from "@/types/remote-recurring-sync"
 
 // Envelope generation is independent of negotiation; new producers require compatible clients.
 export async function readRemoteChangesV2(
   actorInput: unknown,
   queryInput: unknown
 ): Promise<RemoteChangesPageV2> {
-  return readChanges(actorInput, queryInput, false)
+  return readChanges(
+    actorInput,
+    queryInput,
+    false,
+    decodeRemoteChange,
+    validateRemoteChangesPageV2
+  )
 }
 
 export async function readRemotePlanChangesV2(
   actorInput: unknown,
   queryInput: unknown
 ): Promise<RemoteChangesPageV2> {
-  return readChanges(actorInput, queryInput, true)
+  return readChanges(
+    actorInput,
+    queryInput,
+    true,
+    decodeRemoteChange,
+    validateRemoteChangesPageV2
+  )
 }
 
-async function readChanges(
+// Private generation-five preparation; not referenced by any active route.
+export async function readRemoteRecurringChangesV2(
+  actorInput: unknown,
+  queryInput: unknown
+): Promise<RemoteRecurringChangesPage> {
+  return readChanges(
+    actorInput,
+    queryInput,
+    true,
+    decodeRemoteRecurringChange,
+    validateRemoteRecurringChangesPage
+  )
+}
+
+async function readChanges<Change extends RemoteRecurringChange, Page>(
   actorInput: unknown,
   queryInput: unknown,
-  allowPlans: boolean
-): Promise<RemoteChangesPageV2> {
+  allowPlans: boolean,
+  decode: (input: unknown, actor: string) => Change,
+  validate: (input: unknown, actor: string, query: unknown) => Page
+): Promise<Page> {
   const actor = userIdSchema.parse(actorInput)
   const query = remotePullQuerySchema.parse(queryInput)
   const database = await getDatabase()
@@ -70,13 +106,17 @@ async function readChanges(
           actor,
           session
         )
-        const changes: RemoteChangeV2[] = []
+        const occurrences = await RemotePlanOccurrenceRepository.open(
+          actor,
+          session
+        )
+        const changes: Change[] = []
         let recordsBytes = 0
         let stoppedForBytes = false
         try {
           for await (const document of cursor) {
             const { _id, ...value } = document
-            const change = decodeRemoteChange(value, actor)
+            const change = decode(value, actor)
             if (change.sequence !== query.after + changes.length + 1)
               throw new Error(
                 "Stored mixed journal contains a missing sequence"
@@ -108,6 +148,23 @@ async function readChanges(
             if (change.kind === "item") {
               if (!(await items.read(change.item.id)))
                 throw new Error("Journal item access is unavailable")
+            } else if (change.kind === "plan-occurrence") {
+              const record = change.occurrence
+              const parent = await items.read(record.seriesId)
+              const current = await occurrences.read({
+                seriesId: record.seriesId,
+                id: record.id,
+              })
+              // Tombstones and a removed recurrence rule retain ownership of history.
+              if (parent?.kind !== "plan" || !current)
+                throw new Error("Journal appearance access is unavailable")
+              if (
+                parent.revision < change.seriesRevision ||
+                current.revision < record.revision
+              )
+                throw new Error(
+                  "Journal appearance evidence exceeds its current revisions"
+                )
             } else
               for (const effect of change.effects.effects) {
                 if (effect.store === "tags") {
@@ -164,7 +221,7 @@ async function readChanges(
         )
           throw new Error("Committed mixed journal contains a missing sequence")
         const nextAfter = changes.at(-1)?.sequence ?? query.after
-        return validateRemoteChangesPageV2(
+        return validate(
           {
             version: 2,
             changes,
