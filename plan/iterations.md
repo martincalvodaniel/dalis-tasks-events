@@ -2866,3 +2866,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17b2b3/17b2c1, captura opcional17a2a; cuota62%5h/79%7d.
 - Aceptación: actor/UUID/slot/serie exactos, applied exige parentbase yappearanceexpected+1, estado/cancelación/checklist/edición corresponden al comando. Shadow con identidad propia/revisión confirmada/actor explícito; observedbase no se convierte en ancestro, replay tardío puede seranterior. Outcome captura apariciónlocal/base yserie actualnullable, validando aislamiento yrelación; decoderactual no se amplía.
 - Validación: pruebas puras de cuatrofamilias, mismatch/corrupción/terminal/conflict/null/baseposterior/versiones/legacy; regresión/lint/tipos/build/diff; commitpushint/HEAD/cuotas. Siguiente proyección/rebase puro17c1b, luegoTXlocal17c2.
+
+## 17c1b — Proyección yplan de ACK de aparición
+
+- Estado: completada11oct, siete pruebas puras; sin escrituraACK aún.
+
+- Objetivo: conservar intenciónlocal/cola yplanificar writes deaparición/shadow/outcome/ACK sin ejecutarTX.
+- target_paths: schemas/plan-occurrence-projection, sync/{plan-occurrence-projection,plan-occurrence-result-plan} ytests; plan.
+- Dependencias:17c1a/reader17b2c1; cuota59%5h/78%7d.
+- Aceptación: cola completa/actor/dependencias/shadows validados; pendiente del padre o mismaaparición preserva local, otraaparición no bloquea; conservarcancelados/tombstones/shadow másreciente. Misma revisión conrecorddistinto es error; parent observado posterior se conserva sinatribuirancestro. Leasepropio para aplicar, replay idéntico durable, conflicto/rejected/unsupported sinACK. Rebase sólo expectedOccurrenceRevision deapariciónigual en pending+attempts0 condependencia directa; UUID/baseRevisionparent/históricas/otrasapariciones/intentos intactos.
+- Validación: casospuros ACK/replay/lateoutcome/proyección/conflict/null/dependientesenserie/leases/rollbackplan ymalformados; suite/lint/tipos/build/diff; commitpushint/HEAD/cuotas. Next17c2 ACK TXIndexedDB, seguido pull atómico.
