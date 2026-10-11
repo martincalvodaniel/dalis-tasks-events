@@ -333,3 +333,8 @@ Lectura previa34%5h/90%7d permite lectores/captura opcional y pruebaIndexedDB pr
 ### Cierre preparatorio17b1
 
 6b37bd3 publicado con HEADorigin/int exacto y28%5h/89%7d; margen permitió repositorio/CAS con recursos Mongo propios, reservando10%5h/1%7d.17b1 no activa series/capacidades ni provisiona índice en DBusuario. Al cerrar commitpushint/HEAD consultar cuotas antes de elegir guard/executor posterior; automatización sigue pausada.
+
+
+### Cierre de ventana tras17b2a
+
+1f247a1 publicado con HEADexacto y22%5h/88%7d permite último corte acotado de guard transaccional y prueba de carrera antes de cierre. No empezar executor/journal/ACK más amplio en margen final; conservar reservas10%5h/1%7d y repositoriocoherente. Automatización permanecePAUSED, sin nueva cadena solicitada. Consultar cuotas reales tras commitpush/HEAD; continuidad posterior desde guard probado yconexión pendiente de amboswriters, sin anunciar recurrenciaremota completada.

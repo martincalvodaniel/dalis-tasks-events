@@ -11,6 +11,7 @@ export const COLLECTION_NAMES = {
   itemViews: "item_views",
   taskPlacements: "task_placements",
   planOccurrences: "plan_occurrences",
+  planSeriesGuards: "plan_series_guards",
   syncOperations: "sync_operations",
   syncChanges: "sync_changes",
   syncCounters: "sync_counters",

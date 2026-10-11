@@ -18,7 +18,7 @@ Colección futura de excepciones almacena identidad por usuario/serie/slot, owne
 
 1. **17a1**: contrato de intención con revisión explícita + planner puro, cuatro comandos/variantes, padre/slot/progreso/CAS/DST/cancelación. Preparado, sin tocar productores/capacidades activos.
 2. **17a2**: lectores durables y captura opcional TX preparados en17a2a; default/callers actuales conservan intención histórica sin campo. IndexedDB propio valida cuatrovariantes, parent3/appearance7, slotnuevo0, replay/rollback/backup/recarga. Conexión futura de writer y rebase sólo pending no intentado dependen de ACK/pull y contrato5 completo. No reinterpretar revisión de comandos históricos.
-3. **17b**: repositorio/CAS/índice explícito de apariciones preparado y validado en17b1; sigue guard compartido de serie y executor transaccional padre/aparición, replay/rollback/carreras con Mongo propio. Reader autorizado de series/excepciones/tombstones.
+3. **17b**: repositorio/CAS/índice explícito de apariciones preparado y validado en17b1; guard compartido preparatorio17b2a validado; sigue conexión obligatoria a ambos escritores y executor transaccional padre/aparición, replay/rollback/carreras con Mongo propio. Reader autorizado de series/excepciones/tombstones.
 4. **17c**: ACK/pull atómicos en almacén occurrences, incidentes/evidencia de aparición actual y orden mixto simple/aparición (día/atrasadas), conservando dependientes y revisions por entidad.
 5. **17d**: negociación exclusiva futura5, retiro4 y callers conjuntos, matriz estricta antes del body/cache/cursor, dos particiones/Mongo/Next real; activar sólo después. PilotoGoogle/segundo dispositivo si disponible. No anunciar convergencia por fixture o cola settled.
 
@@ -36,3 +36,10 @@ Cuatro checks IndexedDB propios pasan, incluida recarga, seisintenciones exactas
 RemotePlanOccurrenceRepository aísla por actor y conserva identidad original serie/slot. Read y catálogo incluyen cancelaciones/tombstones; catálogo de una serie valida todos los registros y rechaza10001 sin truncar. Insert exige revisión1 y metadata inicial; replace exige base+1, createdAt original, slot y registro vivo/no cancelado. Sesión opcional integra commit/rollback reales; duplicado dentro deTX se propaga para abortar, fuera devuelve false. Usuario se añade en persistencia y se retira después de validar el registro, no cambia schema local de aparición ni propiedad derivada del padre. Este primitivo no autoriza el padre, no escribe guard compartido ni emite recibo/journal/ACK.
 
 Colección plan_occurrences e índice único plan_occurrences_user_series_slot_uidx (userId/seriesId/slotKey) registrados explícitos. Singleton automático y selectores de provisión3/4 no incluyen este índice. Ninguna provisión Preview/producción en este corte. Executor/reader futuros deben autorizar padre vigente en mismaTX y escribir guard compartido también desde mutación de serie antes de aceptar esta persistencia.
+
+
+## Guard compartido17b2a
+
+writeRemotePlanSeriesGuard exige TXactiva y valida registro infra por _id canónico [actor,seriesId]. Cada adquisición escribe un tokenUUID nuevo, sin tocar revisión/contenido de serie. Guard permanecedurable, no es lease ni prueba de propiedad; ningún writer productivo lo usa todavía. Futuro executor debe releer propiedad/CAS tras cualquier retry y mutaciones de serie/aparición deben escribir el mismo guard en la TX de contenido/recibo/journal. Duplicado de primera creación no se absorbe dentroTX: el retry del wrapper debe abarcar autorización y todaslaslecturas.
+
+Colección plan_series_guards usa sólo igualdad por _id; índice único nativo suficiente, siníndiceextra ni nueva provisiónPreview. Prueba controlada de snapshot previo demuestra reintento completo tras edición/borrado del padre, revisiónobservada1→2 y ceroapariciones nuevas; no equivale a activación/executor productivo.
