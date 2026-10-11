@@ -3028,6 +3028,15 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17c5c — Descarga autorizada del orden recurrente
+
+- Estado: completada11oct; Mongo127pass/1780aserciones y DoD aprobados.
+- Objetivo: permitir sólo al reader futuro descargar placements de slots comunes implícitos/materializados/timed con autorización actual del padre, sin ampliar rutas4.
+- target_paths: `src/lib/db/remote-changes-v2.ts`, prueba remote-recurring-changes.integration, plan.
+- Dependencias:17c5b y reader futuro mixto existente; entrada73%5h/65%7d, reservas10%/1%.
+- Aceptación: current placement/padre propio y categorías actual/histórica obligatorios; versión actual no inferior a historia. Un slot implícito no necesita excepción materializada; no regenerar regla actual para autorizar historia. Cambio de regla/softdelete/cancelación/tombstones no elimina propiedad; ausencia/corrupción/actor extranjero bloquea toda página sin filtrar/avanzar cursor. Rutas/readers4 siguen strict.
+- Validación: Mongo real mixed journal completo, checkpoint congelado, slot timed/implícito, replay tras cambios de regla/borrado/cancelación, faltante/actor/revisión/categoría histórica/corrupción/hueco; DoDglobal, commit/pushint/HEAD/cuotas. Sin DBusuario ni capacidades activas.
+
 ## 17c5b — Catálogo y executor Mongo de orden recurrente
 
 - Estado: completada11oct; Mongo125pass/1756aserciones24archivos y DoD aprobados.

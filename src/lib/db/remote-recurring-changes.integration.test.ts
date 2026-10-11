@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto"
 import { getSyncDatabaseTestConfig } from "@/config/env"
 import { closeDatabaseConnection, getDatabase } from "@/lib/db/client"
 import { COLLECTION_NAMES, getCollection } from "@/lib/db/collections"
+import { ensureIndexes, INDEX_SPECS } from "@/lib/db/ensure-indexes"
 import { RemoteCursorAheadError } from "@/lib/db/remote-changes"
 import {
   readRemotePlanChangesV2,
@@ -13,6 +14,7 @@ import {
 import { executeRemoteRecurringPlanOperation } from "@/lib/db/remote-item-commands"
 import { executeRemotePlanOccurrenceOperation } from "@/lib/db/remote-plan-occurrence-commands"
 import { executeRemoteTagOperation } from "@/lib/db/remote-tag-commands"
+import { executeRemoteRecurringTaskPlacementOperation } from "@/lib/db/remote-task-placement-commands"
 import type { PlanDraft } from "@/types/plan-item"
 import type { SyncCommand } from "@/types/sync"
 
@@ -84,12 +86,207 @@ async function seed() {
   return { actor, itemId, occurrenceId, input }
 }
 const query = { after: 0, through: null, limit: 100 }
+const deletionTimestamp = "2026-10-11T12:00:00.000Z"
+
+async function seedPlacement(timed = false) {
+  const seeded = await seed()
+  const itemId = randomUUID()
+  const input: PlanDraft = {
+    ...seeded.input,
+    ...(timed
+      ? {
+          schedule: {
+            mode: "timed",
+            localStart: "2026-10-11T09:00",
+            localEnd: "2026-10-11T09:30",
+            timeZone: "Europe/Madrid",
+          },
+        }
+      : {}),
+  }
+  await executeRemoteRecurringPlanOperation(
+    seeded.actor,
+    operation({ type: "item.create", itemId, input })
+  )
+  const occurrenceId = `${itemId}:2026-10-11${timed ? "T09:00" : ""}`
+  const tagId = randomUUID()
+  await executeRemoteTagOperation(
+    seeded.actor,
+    operation({
+      type: "tag.save",
+      tagId,
+      input: { name: "Placement", color: "#654321", position: 2048 },
+    })
+  )
+  const move = operation({
+    type: "task.move",
+    itemId,
+    occurrenceId,
+    scope: "day",
+    date: "2026-10-11",
+    tagId,
+    beforeId: null,
+    afterId: null,
+  })
+  // Destination has no peers because the series changes to its own category.
+  expect(
+    (await executeRemoteRecurringTaskPlacementOperation(seeded.actor, move))
+      .outcome.status
+  ).toBe("applied")
+  return { ...seeded, itemId, occurrenceId, input, tagId, move }
+}
 
 describe.skipIf(!config)(
   "prepared authorized recurring change download",
   () => {
-    beforeAll(ownedDatabase, 30000)
+    beforeAll(async () => {
+      await ensureIndexes(
+        await ownedDatabase(),
+        INDEX_SPECS.filter((spec) =>
+          [
+            COLLECTION_NAMES.tags,
+            COLLECTION_NAMES.itemViews,
+            COLLECTION_NAMES.taskPlacements,
+            COLLECTION_NAMES.planOccurrences,
+          ].some((name) => spec.collection === name)
+        )
+      )
+    }, 30000)
     afterAll(closeDatabaseConnection)
+
+    test("implicit and timed position history survives removed rules, parent deletion and placement tombstones", async () => {
+      for (const timed of [false, true]) {
+        const { actor, itemId, occurrenceId, input, move } =
+          await seedPlacement(timed)
+        const first = await readRemoteRecurringChangesV2(actor, {
+          ...query,
+          after: 5,
+        })
+        expect(first.changes).toHaveLength(1)
+        expect(first.changes[0]).toMatchObject({
+          kind: "preference",
+          effects: {
+            effects: [
+              {
+                store: "taskPlacements",
+                record: { occurrenceId, revision: 1 },
+              },
+              { store: "itemViews", record: { itemId } },
+            ],
+          },
+        })
+        expect(
+          await (
+            await getCollection(COLLECTION_NAMES.planOccurrences)
+          ).countDocuments({ userId: actor, seriesId: itemId })
+        ).toBe(0)
+        await expect(
+          readRemotePlanChangesV2(actor, { ...query, after: 5 })
+        ).rejects.toThrow()
+        await executeRemoteRecurringPlanOperation(
+          actor,
+          operation(
+            {
+              type: "item.update",
+              itemId,
+              input: { ...input, recurrence: null },
+            },
+            1
+          )
+        )
+        await executeRemoteRecurringPlanOperation(
+          actor,
+          operation({ type: "item.delete", itemId }, 2)
+        )
+        const placements = await getCollection(COLLECTION_NAMES.taskPlacements)
+        await placements.updateOne(
+          { userId: actor, occurrenceId },
+          {
+            $set: {
+              revision: 2,
+              deletedAt: deletionTimestamp,
+              updatedAt: deletionTimestamp,
+            },
+          }
+        )
+        const replay = await readRemoteRecurringChangesV2(actor, {
+          ...query,
+          after: 5,
+          through: 6,
+        })
+        expect(replay).toEqual(first)
+        expect(
+          await executeRemoteRecurringTaskPlacementOperation(actor, move)
+        ).toMatchObject({ outcome: { status: "applied" } })
+        expect(
+          (await readRemoteRecurringChangesV2(actor, query)).nextAfter
+        ).toBe(8)
+      }
+    }, 30000)
+
+    test("position download requires current own parent, placement revision and historical category for the entire page", async () => {
+      const { actor, itemId, occurrenceId, tagId, move } =
+        await seedPlacement(true)
+      await executeRemoteRecurringTaskPlacementOperation(actor, {
+        ...move,
+        operationId: randomUUID(),
+        baseRevision: 1,
+      })
+      const placementQuery = { ...query, after: 5 }
+      const before = await readRemoteRecurringChangesV2(actor, placementQuery)
+      const placements = await getCollection(COLLECTION_NAMES.taskPlacements)
+      const filter = { userId: actor, occurrenceId }
+      const stored = await placements.findOne(filter)
+      if (!stored) throw new Error("Owned placement fixture is missing")
+      for (const change of [
+        { revision: 1 },
+        { revision: 0 },
+        { revision: 2, extra: true },
+      ]) {
+        await placements.replaceOne(filter, { ...stored, ...change })
+        try {
+          await expect(
+            readRemoteRecurringChangesV2(actor, placementQuery)
+          ).rejects.toThrow()
+        } finally {
+          await placements.replaceOne({ _id: stored._id }, stored)
+        }
+      }
+      await placements.deleteOne(filter)
+      try {
+        await expect(
+          readRemoteRecurringChangesV2(actor, placementQuery)
+        ).rejects.toThrow("placement access is unavailable")
+      } finally {
+        await placements.insertOne(stored)
+      }
+      const items = await getCollection(COLLECTION_NAMES.items)
+      await items.updateOne(
+        { id: itemId, ownerId: actor },
+        { $set: { ownerId: randomUUID() } }
+      )
+      try {
+        await expect(
+          readRemoteRecurringChangesV2(actor, placementQuery)
+        ).rejects.toThrow("access is unavailable")
+      } finally {
+        await items.updateOne({ id: itemId }, { $set: { ownerId: actor } })
+      }
+      const tags = await getCollection(COLLECTION_NAMES.tags)
+      const tag = await tags.findOne({ id: tagId, userId: actor })
+      if (!tag) throw new Error("Owned category fixture is missing")
+      await tags.deleteOne({ id: tagId, userId: actor })
+      try {
+        await expect(
+          readRemoteRecurringChangesV2(actor, placementQuery)
+        ).rejects.toThrow("access is unavailable")
+      } finally {
+        await tags.insertOne(tag)
+      }
+      expect(await readRemoteRecurringChangesV2(actor, placementQuery)).toEqual(
+        before
+      )
+    }, 30000)
 
     test("mixed bootstrap freezes its checkpoint and retains old appearance history after parent edits and deletion", async () => {
       const { actor, itemId, occurrenceId, input } = await seed()

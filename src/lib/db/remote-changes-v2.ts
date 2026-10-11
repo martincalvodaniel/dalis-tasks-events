@@ -61,7 +61,8 @@ export async function readRemoteRecurringChangesV2(
     queryInput,
     true,
     decodeRemoteRecurringChange,
-    validateRemoteRecurringChangesPage
+    validateRemoteRecurringChangesPage,
+    true
   )
 }
 
@@ -70,7 +71,8 @@ async function readChanges<Change extends RemoteRecurringChange, Page>(
   queryInput: unknown,
   allowPlans: boolean,
   decode: (input: unknown, actor: string) => Change,
-  validate: (input: unknown, actor: string, query: unknown) => Page
+  validate: (input: unknown, actor: string, query: unknown) => Page,
+  allowSeries = false
 ): Promise<Page> {
   const actor = userIdSchema.parse(actorInput)
   const query = remotePullQuerySchema.parse(queryInput)
@@ -187,16 +189,29 @@ async function readChanges<Change extends RemoteRecurringChange, Page>(
                     scope: record.scope,
                     date: record.date,
                   })
-                  const task = await items.read(record.occurrenceId)
+                  const separator = record.occurrenceId.indexOf(":")
+                  const isAppearance = separator > 0
+                  const task = await items.read(
+                    allowSeries && isAppearance
+                      ? record.occurrenceId.slice(0, separator)
+                      : record.occurrenceId
+                  )
                   if (
                     !current ||
                     !task ||
                     (task.kind !== "task" &&
-                      !(allowPlans && task.kind === "plan"))
+                      !(allowPlans && task.kind === "plan")) ||
+                    (isAppearance && (!allowSeries || task?.kind !== "plan"))
                   )
                     throw new Error(
                       "Journal task placement access is unavailable"
                     )
+                  if (allowSeries && current.revision < record.revision)
+                    throw new Error(
+                      "Journal placement evidence exceeds its current revision"
+                    )
+                  // A placement can belong to an implicit slot with no materialized exception.
+                  // Never regenerate today's rule to authorize a durable historical position.
                   // Historical and current category ownership must both remain available.
                   // Later completion, reprogramming or soft deletion cannot invalidate history.
                   for (const tagId of new Set([record.tagId, current.tagId]))
