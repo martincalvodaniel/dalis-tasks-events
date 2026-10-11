@@ -1,5 +1,6 @@
 "use client"
 
+import { requireActivePlanAccount } from "@/features/plans/local-plan-release"
 import { dispatchSyncOperationsV4 } from "@/features/sync/client-action-v4"
 import { createHttpSyncTransportV4 } from "@/features/sync/http-transport-v4"
 import { openLocalPlanSyncRuntime } from "@/features/sync/local-runtime-v2"
@@ -9,10 +10,9 @@ import {
   type MixedClientPorts,
 } from "@/features/sync/mixed-sync-client-core"
 import { readPlanSyncQueueSummary } from "@/features/sync/mixed-sync-summary"
-import { requireActiveAccount } from "@/features/workspace/require-active-account"
 
 const defaultPorts: MixedClientPorts = {
-  requireActive: requireActiveAccount,
+  requireActive: requireActivePlanAccount,
   readSummary: readPlanSyncQueueSummary,
   openRuntime: openLocalPlanSyncRuntime,
   sendOperations: dispatchSyncOperationsV4,

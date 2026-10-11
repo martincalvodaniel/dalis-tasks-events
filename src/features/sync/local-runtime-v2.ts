@@ -1,5 +1,6 @@
 "use client"
 
+import { requireActivePlanAccount } from "@/features/plans/local-plan-release"
 import {
   SyncCoordinatorV2,
   type SyncPassResultV2,
@@ -28,7 +29,10 @@ export async function openLocalSyncRuntimeV2(
   policy: SyncCapabilityPolicy = syncCapabilityPolicy
 ): Promise<LocalSyncRuntimeV2> {
   const account = { userId: accountInput.userId, epoch: accountInput.epoch }
-  await requireActiveAccount(account)
+  const requireAccount = policy.supportsPlans
+    ? requireActivePlanAccount
+    : requireActiveAccount
+  await requireAccount(account)
   const opened = await Promise.allSettled([
     LocalOutbox.open(account.userId),
     LocalMixedSyncStore.open(account.userId, policy.supportsPlans === true),
@@ -46,7 +50,7 @@ export async function openLocalSyncRuntimeV2(
     throw new Error("Mixed sync resources could not be opened")
   }
   try {
-    await requireActiveAccount(account)
+    await requireAccount(account)
   } catch (error) {
     closeOpened()
     throw error
@@ -56,7 +60,7 @@ export async function openLocalSyncRuntimeV2(
   let closing: Promise<void> | null = null
   const guard = async () => {
     if (closing) throw new Error("Mixed sync runtime is closing")
-    await requireActiveAccount(account)
+    await requireAccount(account)
   }
   const coordinator = new SyncCoordinatorV2(
     account.userId,

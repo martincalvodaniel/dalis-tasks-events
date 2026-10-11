@@ -12,6 +12,7 @@ import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { notifyLocalOutboxChange } from "@/lib/local-db/sync-notifications"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { backupImportRequestSchema } from "@/schemas/backup-import"
+import { commonPlanLocalReleaseSchema } from "@/schemas/common-plan-local-release"
 import { outboxEntrySchema, outboxSequenceSchema } from "@/schemas/local-sync"
 import { userIdSchema } from "@/schemas/primitives"
 import type { LocalBackupImportResult } from "@/types/backup-import"
@@ -32,6 +33,9 @@ export function importLocalBackupCopies(
     [...localBackupStoreNames],
     "readwrite",
     (context) => {
+      const release = context.transaction
+        .objectStore("syncMetadata")
+        .get("common-plan-release")
       queueLocalBackupSnapshot(
         context,
         database,
@@ -65,6 +69,16 @@ export function importLocalBackupCopies(
             return
           }
           const plan = planLocalBackupImport(request, sourceJson, current)
+          if (release.result !== undefined) {
+            const marker = commonPlanLocalReleaseSchema.parse(release.result)
+            if (
+              marker.userId !== userId ||
+              plan.copies.some((copy) => copy.item.kind !== "plan")
+            )
+              throw new Error(
+                "Previous-generation copies cannot enter a prepared plan partition"
+              )
+          }
           const receipt = buildBackupImportRecord(plan)
           const prior = current.stores.syncMetadata.find(
             (record) => record.key === "outbox-sequence"

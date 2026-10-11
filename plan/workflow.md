@@ -287,3 +287,7 @@ Renovación real100%5h/85%7d, siguiente reset1791660272. Continuación desatendi
 ### Cierre16a4c3a — Reset humano antes de activación
 
 Conexión conjunta preparada con selección false y procedimiento revisable en common-plan-transition.md; ninguna eliminación/activación. Lectura de cierre22%5h/73%7d, margen conservado porque el siguiente paso depende del reset explícito de contenido Preview y de cada partición local, no de otra tarea preparatoria. Revisión puntual ejecutada: pausar heartbeat, no programar nueva cadena. Tras confirmación humana, activar conjunto y probar callers/piloto. Antes de reanudar consultar cuotas reales. Categorías/asignaciones del producto3 siguen activadas.
+
+### Reanudación humana11oct
+
+El usuario pide continuar; nueva ventana real100%5h/71%7d, reset publicado1791702406. Reanuda bloque de editor/lista común con reserva10%5h/1%7d, commitpushint/HEAD/cuotas por corte; no reactivar automatización puntual ni cadena. Wipe remoto autorizado Preview ya completado, no repetir. Preparar confirmación local en aplicación para cada partición, sin borrado automático; pruebas y activación conjunta en cortes delimitados. Paralelo sólo seleccionado en16a4c3d, rutas disjuntas y root integración.

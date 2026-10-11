@@ -8,6 +8,7 @@ import {
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import type { LocalTransactionContext } from "@/lib/local-db/transaction"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { commonPlanLocalReleaseSchema } from "@/schemas/common-plan-local-release"
 import { timestampSchema, userIdSchema } from "@/schemas/primitives"
 import type { LocalBackup } from "@/types/local-backup"
 
@@ -29,11 +30,20 @@ export function queueLocalBackupSnapshot(
   for (const name of localBackupStoreNames) {
     const request = context.transaction
       .objectStore(name)
-      .getAll(undefined, 10001)
+      .getAll(undefined, name === "syncMetadata" ? 10002 : 10001)
     request.onsuccess = () => {
-      stores[name] = request.result
-      if (--remaining) return
       try {
+        stores[name] =
+          name === "syncMetadata"
+            ? request.result.filter((record) => {
+                if (record?.key !== "common-plan-release") return true
+                const marker = commonPlanLocalReleaseSchema.parse(record)
+                if (marker.userId !== userId)
+                  throw new Error("Local release belongs to another account")
+                return false
+              })
+            : request.result
+        if (--remaining) return
         const backup = validateLocalBackup(
           {
             format: "dalis-local-backup",
