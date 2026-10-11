@@ -3022,6 +3022,12 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: enlaces internos actualizan History API sin recarga, preservan proveedores/cache por cuenta y atrás/adelante. Modificadores, descargas, otras rutas/orígenes/hash mantienen comportamiento nativo. Cuenta/release pendientes nunca presentan preparación como necesaria ni habilitan contenido protegido; espera corta no muestra texto, espera larga sí. Errores/consentimiento/wipe intactos.
 - Validación: prueba de navegación desde enlaces y celdas/gesto con documento persistente en navegador propio, regresión inicial pendiente y DoD; commit/pushint/HEAD/cuotas. Sin persistir nuevo cache/auth ni DB/automatización.
 
+## 17z2 — Reprogramación puntual20:26
+
+- Objetivo: continuación solicitada11oct20:26Europe/Madrid; target_paths: plan y heartbeat existente.
+- Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
+- Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
+
 ## 17b3b — Executor de asignación de categoría a una serie
 
 - Estado: candidata, no iniciada al cierre de esta ventana.

@@ -364,3 +364,7 @@ Petición explícita posterior al cierre: gesto horizontal para cambiar mes y ca
 Corrección humana16c10b: reporte de gesto limitado a cabecera. Entrada11%5h/70%7d; completar reparación acotada y prueba real sobre celdas, no comenzar trabajo adicional. Cierre con commit/pushint/HEAD y cuotas; automatización sigue pausada.
 
 Corrección humana16c11: eliminar flickering de recargas/estados pendientes. Entrada7%5h/70%7d; solicitud explícita de reparación acotada, sin abrir otros bloques. History API nativa del shell y loaders diferidos, pruebas completas/publicación/cierre; automatización sigue pausada.
+
+### Continuación puntual20:26
+
+Usuario solicita reactivación11oct20:26Europe/Madrid. Heartbeat existente ACTIVE, puntual, sin duplicado/cadena y failed_runs_only conservado. Resetpublicado1791743128(20:25:28Madrid), lectura1%5h/69%7d: comprobar renovación real antes de trabajar. Código85d788c, candidata17b3b, reservas10%5h/1%7d y commitpushint/HEAD/cuotas por entrega; pausar al cierre sin nueva programación.

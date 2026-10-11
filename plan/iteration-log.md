@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17z2 — Continuación puntual20:26
+
+11oct: petición humana programa continuación hoy20:26Europe/Madrid. automation_update confirma ACTIVE del heartbeat existente; conserva chat/política failed_runs_only, una ejecución, sin cadena nueva. Reset publicado1791743128(20:25:28Madrid); verificar cuotas/renovación antes de17b3b desde85d788c, reservas10%5h/1%7d. Documentación coherente, referencias/diff validados y commit/pushint/HEAD/cuotas; sin código ni repetición de pruebas aprobadas.
+
 ## 00 — Planificación inicial
 
 - Fecha: 6 de octubre de 2026.

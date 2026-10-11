@@ -24,6 +24,8 @@ Al cerrar la continuación puntual del 11 de octubre, el código publicado llega
 
 ## Estimación y siguiente elección
 
+Nueva petición humana11oct: continuación puntual programada hoy20:26Europe/Madrid, previa comprobación real de renovación para17b3b. Código85d788c, reservas10%5h/1%7d; heartbeat existente ACTIVE sin cadena adicional.
+
 Queda aproximadamente **20–25% del alcance actual** (75–80% completado). Estimación ponderada por complejidad, no por commits ni duración. Al retirar compartir (13puntos del alcance original), quedan alrededor de20puntos sobre87: repetición remota/series/apariciones y orden10, cumpleaños5, preferencias residuales/aceptación final5. La mejora del porcentaje corresponde a una reducción de alcance, no a implementar compartir.
 
 Orden recomendado, sujeto a elección del usuario:
