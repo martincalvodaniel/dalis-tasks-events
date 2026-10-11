@@ -2,7 +2,9 @@
 
 ## Punto de partida comprobado
 
-Contenido simple de cuatro variantes, categoría/asignación, orden/progreso/checklist y tombstones convergen en dos orígenes/IndexedDB con Mongo propio (16a4b,0d9b0cb). Incluye respuesta perdida con la misma intención y ACK remoto único. No repetir esta implementación ni confundir fixture HTTP de sesión ficticia con RPC Next/autenticación. Producto activo sigue3; preparados cliente/acción/reader/policy4. Apariciones comunes tienen generación, índice/paginación y guardado CAS/outbox locales probados; lista/calendario comunes conectados y probados como componentes preparados; transición y conexión de callers siguen pendientes.
+**Estado vigente16a4c3d:** selección conjunta4 activada y validada con19escenarios Next compilado/defaults/BetterAuth persistido/dos particiones/Mongo propio usando rutas productivas y retirada3 real. Editor/lista/calendario comunes conectados, guardia local por dispositivo16a4c3c y wipe remoto Preview16a4c3b completados. Series/apariciones funcionan localmente pero todavía no tienen ACK remoto. Publicación int y comprobación Preview cierran este corte; piloto Google/UI de perfiles reales se registra aparte.
+
+Contenido simple, categoría/asignación, orden/progreso/checklist y tombstones también convergen en dos orígenes/IndexedDB con Mongo propio16a4b. Incluye respuesta perdida con la misma intención y ACK único. No confundir fixture con Google/dispositivos físicos. Las secciones inferiores conservan la matriz y evolución histórica.
 
 ## 16a4c1 — Frontera RPC4 compilada
 
@@ -52,3 +54,7 @@ Todos los callers comparten `config/common-plan-release.ts`: identity, pull, ret
 ### 16a4c3c — Preparación local explícita validada
 
 Barrera del proveedor deja editor y motor desmontados hasta marca4 propia. Cuenta vacía se prepara sin borrar; contenido anterior exige confirmación por dispositivo sólo Preview/local. Reset TX de diez stores conserva settings, sesión/control/época e índices; replay/race preservan planes nuevos. Guardias runtime antes de claim/ACK/pull, backup portable excluye marca y rechaza import antiguo en partición preparada. Caches de cuenta/época invalidados antes de montar children; ningún borrado automático ante error. Fixture React/IndexedDB propia prueba cancelación/confirmación/rollback/guardias/concurrencia/recarga, sin actuar en perfiles del usuario. Producto sigue3/selección false hasta16a4c3d. Wipe remoto ya completo; no volver a pedir su autorización ni nombre de DB.
+
+### 16a4c3d — Producto4 ensamblado y validado
+
+Única selección true conecta todos los callers/pantallas4; no despliegue de producción ni nuevo wipe. Runner exige selección4, referencia action4 y acción3 retirada reales; wrappers identity/pull delegan a rutas productivas conservando capability/sesión/Host. Particiones propias vacías preparan marca4 antes de productores. Los19escenarios pasan: dos sesiones BetterAuth persistidas, cuatro variantes/asignación tras perder respuesta/replay único/ACK real, proyecciones exactas, orden/dependientes, epochs/lifecycle, versiones/IDausente/acción3retirada/readiness/cuentas rechazadas sin mutación. Recursos propios cerrados y eliminados, evidencia `/private/tmp/common-plan-next-active-proof.png`. No Google ni IDexactoPreview inferido. Suite621/153skip/0fail, lint665/tipos/build34/diff aprobados. Verificación operacional Preview se registra después de publicar; cada dispositivo anterior necesita su consentimiento local en la barrera, no un borrado automático.

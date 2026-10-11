@@ -21,7 +21,8 @@ import {
   activatePreparedAccount,
   readAccountControl,
 } from "@/lib/local-db/account-control"
-import { localDatabaseName } from "@/lib/local-db/client"
+import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
+import { prepareLocalCommonPlanRelease } from "@/lib/local-db/common-plan-local-release"
 import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
@@ -113,6 +114,20 @@ export async function executeLocalFixtureCommand(
     )
     owned.epoch = active.epoch
     owned.markerAfter = localStorage.getItem(markerKey)
+    const database = await openLocalDatabase(command.userId)
+    try {
+      const release = await prepareLocalCommonPlanRelease(
+        database,
+        command.userId,
+        new Date().toISOString()
+      )
+      if (release.status !== "ready")
+        throw new Error(
+          "Empty fixture partition could not prepare the plan release"
+        )
+    } finally {
+      database.close()
+    }
     client = createMixedSyncClientV4({
       userId: command.userId,
       epoch: active.epoch,

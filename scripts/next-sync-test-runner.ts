@@ -3,6 +3,10 @@ import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises"
 import { createServer } from "node:net"
 import { join, resolve } from "node:path"
 import {
+  activeProductSyncProtocol,
+  commonPlanReleaseEnabled,
+} from "@/config/common-plan-release"
+import {
   getNextSyncRunnerConfig,
   nextSyncProcessEnvironment,
 } from "@/config/next-sync-test"
@@ -12,6 +16,11 @@ import {
   nextSyncMissingActionId,
   nextSyncPublicConfigSchema,
 } from "@/schemas/next-sync-test"
+
+if (!commonPlanReleaseEnabled || activeProductSyncProtocol !== 4)
+  throw new Error(
+    "Product generation-four release must be selected before this proof"
+  )
 
 const { descriptor, path } = getNextSyncRunnerConfig()
 const root = resolve(import.meta.dir, "..")
@@ -260,14 +269,14 @@ try {
         reference.filename === "src/features/sync/actions-v4.ts" &&
         reference.exportedName === "pushSyncOperationsV4"
     ) ||
-    actionReferences.some(
+    !actionReferences.some(
       (reference) =>
         reference.filename === "src/features/sync/actions-v3.ts" &&
         reference.exportedName === "pushSyncOperationsV3"
     )
   )
     throw new Error(
-      "Compiled fixture must reference the generation-four action exclusively"
+      "Compiled fixture must reference the active generation-four and retired generation-three actions"
     )
   process.stdout.write("Next sync fixture build passed\n")
   for (let index = 0; index < origins.length; index++) {

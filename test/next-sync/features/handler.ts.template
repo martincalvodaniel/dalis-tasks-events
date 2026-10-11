@@ -2,8 +2,8 @@ import "server-only"
 
 import { NextResponse } from "next/server"
 import { getNextSyncTestConfig } from "@/config/next-sync-test"
-import { getAuthenticatedSyncChangesResponseV4 } from "@/features/sync/authenticated-pull-v4"
-import { getSyncIdentityResponse } from "@/features/sync/identity-response"
+import { GET as getProductSyncIdentity } from "@/app/api/sync/identity/route"
+import { GET as getProductSyncChanges } from "@/app/api/sync/changes/route"
 import {
   bootstrapNextSyncSession,
   controlNextSyncFixtureReadiness,
@@ -150,18 +150,10 @@ export async function handleFixtureRequest(request: Request) {
         })
       return response
     }
-    if (command === "identity" && request.method === "GET") {
-      const { getAuthorizedSessionFromHeaders } = await import(
-        "@/lib/auth/session"
-      )
-      const session = await getAuthorizedSessionFromHeaders(request.headers)
-      return getSyncIdentityResponse(
-        session ? { userId: session.user.id } : null,
-        4
-      )
-    }
+    if (command === "identity" && request.method === "GET")
+      return getProductSyncIdentity()
     if (command === "changes" && request.method === "GET")
-      return getAuthenticatedSyncChangesResponseV4(request)
+      return getProductSyncChanges(request)
     if (command === "state" && request.method === "GET")
       return Response.json(
         await readNextSyncFixtureState(

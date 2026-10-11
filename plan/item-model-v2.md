@@ -2,11 +2,7 @@
 
 ## Estado
 
-Decisión documentada, no activada.16a1 y16b1 están publicados; Cita/Nota y todas las opciones equivalentes siguen pendientes de implementación. Este contrato sustituye la separación funcional task/event sólo para el rediseño elegido; cumpleaños conserva su entrega propia. No modifica autenticación, permisos ni stack.
-
-16a2a implementa el núcleo puro en schemas/plan-item y plan-command, tipos y reductor/selección civil; aún no se añade a los contratos productivos ni a la UI. Las pruebas verifican las cuatro variantes, conservación de opciones y progreso, autorización y DST.
-
-16a2b añade plan a validación/almacenamiento genéricos, reductor/outbox y backup. La política/ejecución remota de generación3 rechaza plan; los formularios/lista activos aún producen contenido anterior. Siguiente conexión exige envío y descarga nuevos coherentes antes de ofrecer variantes al usuario.
+Contrato implementado y **activado conjuntamente en16a4c3d**, negociación4 exclusiva con retirada3 antes del executor. Cuatro variantes/editor/lista/calendario y sincronización simple/asignación/orden/progreso/checklist probados mediante19escenarios Next reales y dos particiones/Mongo propios. Wipe remoto Preview cerrado, preparación local por confirmación por cuenta/dispositivo; producción excluida. Apariciones/repetición tienen persistencia y UI locales, pero aún no executor remoto. Los registros inferiores describen cortes históricos, no trabajo pendiente ya cerrado. Cumpleaños conserva entrega propia; autenticación, permisos y stack intactos.
 
 ## Un único contenido
 
@@ -30,7 +26,7 @@ Los cuatro iconos usan el color de la categoría asignada; neutro si no hay cate
 
 El usuario acepta romper IndexedDB/Mongo antes del lanzamiento y puede realizar el wipe. No implementar migradores históricos salvo cambio de decisión humana. Primero completar schema/productores/local/servidor/cliente/UI y pruebas aisladas del nuevo contrato; después solicitar wipe concreto y activar conjuntamente.
 
-La base Mongo debe conservar usuarios/cuentas/sesiones y distinguir producción de preproducción. Un eventual wipe de contenido abarcaría items, preferencias/placements, recibos/journal/contadores de sincronización asociados: vaciar sólo items dejaría recibos/cursors capaces de simular replay de contenido retirado. El almacenamiento local de cada navegador incluye items, preferencias, cola/outcomes/shadow/incidentes/checkpoints y caché offline de esa versión. No borrar automáticamente ni pedir todavía el wipe: aún no hay código nuevo listo para activación. Enumerar nombres reales y procedimiento validado en la entrega que lo necesite; no improvisar desde estos nombres conceptuales.
+La base Mongo debe conservar usuarios/cuentas/sesiones y distinguir producción de preproducción. Un eventual wipe de contenido abarcaría items, preferencias/placements, recibos/journal/contadores de sincronización asociados: vaciar sólo items dejaría recibos/cursors capaces de simular replay de contenido retirado. El almacenamiento local de cada navegador incluye items, preferencias, cola/outcomes/shadow/incidentes/checkpoints y caché offline de esa versión. No borrar automáticamente: wipe remoto autorizado ya cerrado y preparación local explícita implementada según common-plan-transition. Enumerar nombres reales y procedimiento validado en la entrega que lo necesite; no improvisar desde estos nombres conceptuales.
 
 Negociación de generación4 para impedir que clientes3 muten datos después del cambio; guardia antes del executor y retiro de acciones3. El número de negociación no obliga a cambiar sobres/journal/intenciones si sus contratos se reutilizan sin reinterpretación. Readiness e índices se revisan en el mismo corte según las consultas nuevas; registros centrales, singleton y permisos actuales intactos. Sólo DB Preview autorizada para pruebas humanas; producción requiere alcance explícito separado.
 

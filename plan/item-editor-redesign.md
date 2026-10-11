@@ -8,6 +8,10 @@ Requisito adicional aceptado: el icono de completado de cada item usa el color d
 
 Editor a pantalla completa, encabezado mínimo cruz/check y campos compactos inspirados en la referencia. Inicio/fin separados en fecha y hora; horas ocultas con todo el día. Las cuatro variantes se muestran en una lista agrupada por categoría, con su color y pasos de checklist visibles. Orden predeterminado: fecha/hora y, en empate, Tarea → Evento → Cita → Nota; identidad como desempate final. Orden manual explícito prevalece dentro de su contexto. Reordenación mediante pulsación prolongada y arrastre sobre el elemento; conservar alternativa por teclado sin botones permanentes de subir/bajar/arrastrar.
 
+## Estado11oct — Producto común activado
+
+16a4c3d activa las cuatro variantes/editor/lista/calendario junto al transporte4, con19escenarios Next compilado y dos particiones propias aprobados. Wipe remoto Preview cerrado y preparación local explícita por dispositivo preservando sesión/ajustes. No migradores históricos, no producción. Repetición/progreso por aparición locales; series/apariciones aún no se sincronizan. Long-press usa gesto compartido en filas simples del día/atrasadas y categorías; no inventa vecinos en listas parciales ni orden de apariciones sin soporte. Detalle y aceptación en common-plan-activation.
+
 ## Decisión de datos
 
 El usuario confirma que aún no hay lanzamiento y permite romper compatibilidad con IndexedDB y MongoDB. El modelo futuro será un contenido común con variante visual; los tipos actuales task/event son una estructura heredada que hay que reemplazar conjuntamente con productores, lectores, contratos de sincronización y UI. No prometer cuatro variantes equivalentes añadiendo sólo labels a los formularios antiguos. La sincronización de las cuatro deberá conservar el mismo comportamiento funcional.

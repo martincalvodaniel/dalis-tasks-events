@@ -291,3 +291,7 @@ Conexión conjunta preparada con selección false y procedimiento revisable en c
 ### Reanudación humana11oct
 
 El usuario pide continuar; nueva ventana real100%5h/71%7d, reset publicado1791702406. Reanuda bloque de editor/lista común con reserva10%5h/1%7d, commitpushint/HEAD/cuotas por corte; no reactivar automatización puntual ni cadena. Wipe remoto autorizado Preview ya completado, no repetir. Preparar confirmación local en aplicación para cada partición, sin borrado automático; pruebas y activación conjunta en cortes delimitados. Paralelo sólo seleccionado en16a4c3d, rutas disjuntas y root integración.
+
+### Cierre16a4c3c y apertura16a4c3d
+
+300fe712f6911912af7330db76c365c09265675f publicado con HEADorigin/int exacto; lectura71%5h/66%7d permite activación completa con margen.16a4c3d selecciona4 y ejecuta19escenarios Next/Mongo propios antes de publicación, sin actuación en DB de usuario ni local antiguo. Conserva reservas10%/1% y automatización pausada; tras commitpushint/HEAD consultar ambas cuotas y comprobar Preview.

@@ -2,7 +2,7 @@
 
 ## Estado y alcance vigentes
 
-Wipe remoto Preview ejecutado en16a4c3b por autorización humana, resultado abajo. No repetir el borrado. Selección conjunta en `src/config/common-plan-release.ts` todavía false; generación3 activa hasta16a4c3d. El usuario acepta ruptura del contenido previo antes de lanzamiento; nunca convertir ni borrar automáticamente datos de producción.
+Wipe remoto Preview ejecutado en16a4c3b por autorización humana, resultado abajo. No repetir el borrado. Selección conjunta en `src/config/common-plan-release.ts` true desde16a4c3d: producto4 activo tras publicaciónint, probado con callers Next reales. El usuario acepta ruptura del contenido previo antes de lanzamiento; nunca convertir ni borrar automáticamente datos de producción.
 
 La transición local16a4c3c ya está implementada dentro de la aplicación. No requiere borrar `dalis-account-control` ni usar DevTools. Cada cuenta/dispositivo conserva sesión, selección/época y ajustes. Una partición nueva vacía se prepara sin borrado; una partición anterior muestra «Preparar dispositivo» y exige confirmación explícita «Borrar y continuar». Sólo Preview/int y localhost permiten esta limpieza, nunca el origen productivo. Cerrar otras pestañas/PWA Preview antes de confirmar.
 
@@ -15,7 +15,7 @@ La transición local16a4c3c ya está implementada dentro de la aplicación. No r
 
 ## Corte de activación posterior
 
-16a4c3d cambia una única selección, valida los callers ensamblados y publica int. Identity/pull exclusivos4 y retirada3 antes de readiness/executor conservan intenciones1/sobres2. El wipe remoto ya está cerrado, no es un prerrequisito pendiente. Comprobar Preview y cuatro tipos desde+, categoría/color/checklist, lista/calendario/recarga y sincronización simple con dos particiones propias; separar esta evidencia de Google/dispositivos físicos.
+16a4c3d activa una única selección, valida los callers ensamblados y publica int. Identity/pull exclusivos4 y retirada3 antes de readiness/executor conservan intenciones1/sobres2. El wipe remoto ya está cerrado, no es un prerrequisito pendiente. Comprobar Preview y cuatro tipos desde+, categoría/color/checklist, lista/calendario/recarga y sincronización simple con dos particiones propias; separar esta evidencia de Google/dispositivos físicos.
 
 Series/apariciones tienen repetición y progreso **locales**, pero todavía no executor remoto ni ACK; no prometer sincronización de repetición por activar planes simples. El reset de pruebas no sustituye una migración para producción. La autorización de esta actuación excluye producción, cambios de hosting/secretos/permisos y nuevas eliminaciones remotas.
 
@@ -38,3 +38,7 @@ Destino verificado: proyecto/clúster `atlas-dalis-tasks-events-debug`, proyecto
 Autenticación sin alteración: `users`3/índices2, `accounts`3/índices3, `sessions`5/índices3, `verifications`0/índices2, iguales antes/después. Evidencia visual `/private/tmp/dalis-preview-content-reset.png`. Producción no abierta ni modificada. El primer diálogo de item_views mostró Update en lugar de Delete; guardia de ámbito detuvo la operación y se canceló sin escribir, luego Delete comprobado y ejecutado.
 
 **Actualización16a4c3c:** preparación local explícita por dispositivo implementada y probada; activación conjunta4 pendiente del siguiente corte. No declarar reset local ni activación a partir de este wipe remoto. Mantener clientes Preview cerrados para evitar reenvío de intenciones antiguas; si vuelven a crear datos, inspeccionar antes de actuar, sin asumir otra eliminación autorizada. Selección común sigue false.
+
+### Activación16a4c3d
+
+Selección conjunta4 true y19escenarios reales aprobados. La confirmación local por dispositivo sigue siendo explícita; basta abrir Preview y usar la barrera si hay datos anteriores, sin DevTools ni pérdida de sesión/ajustes. No se ha limpiado localmente ningún perfil del usuario como parte de las pruebas. Wipe remoto no se repite.
