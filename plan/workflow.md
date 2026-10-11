@@ -295,3 +295,7 @@ El usuario pide continuar; nueva ventana real100%5h/71%7d, reset publicado179170
 ### Cierre16a4c3c y apertura16a4c3d
 
 300fe712f6911912af7330db76c365c09265675f publicado con HEADorigin/int exacto; lectura71%5h/66%7d permite activación completa con margen.16a4c3d selecciona4 y ejecuta19escenarios Next/Mongo propios antes de publicación, sin actuación en DB de usuario ni local antiguo. Conserva reservas10%/1% y automatización pausada; tras commitpushint/HEAD consultar ambas cuotas y comprobar Preview.
+
+### Cierre operacional16a4c3e
+
+Activación96a6237 publicada y Preview Ready/worker/barrera4 comprobados; lectura tras entrega64%5h/65%7d. Margen no sustituye consentimiento de borrado irreversible local: usuario dispone del diálogo Preview del IAB y pregunta específica pendiente, sesión/ajustes se conservan. No abrir piloto dependiente ni confirmar por silencio; no volver a borrar Mongo ni actuar en producción. Bloque rediseño común entregado; repetición remota/cumpleaños/compartir permanecen bloques posteriores sujetos a elección. Automatización permanece pausada sin nueva programación.

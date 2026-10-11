@@ -42,3 +42,7 @@ Autenticación sin alteración: `users`3/índices2, `accounts`3/índices3, `sess
 ### Activación16a4c3d
 
 Selección conjunta4 true y19escenarios reales aprobados. La confirmación local por dispositivo sigue siendo explícita; basta abrir Preview y usar la barrera si hay datos anteriores, sin DevTools ni pérdida de sesión/ajustes. No se ha limpiado localmente ningún perfil del usuario como parte de las pruebas. Wipe remoto no se repite.
+
+### Estado del dispositivo real11oct04:24Madrid
+
+Preview/int96a6237 Ready y actualización del worker verificados. Sesión real conservada; barrera detecta contenido anterior y pide consentimiento. Diálogo abierto para revisión, todavía sin confirmar. Aprobación específica solicitada al usuario para esta partición local del IAB; no se ha borrado ni marcado preparada. Cada otro perfil confirmará independientemente.
