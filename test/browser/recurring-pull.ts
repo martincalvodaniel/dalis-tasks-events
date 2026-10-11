@@ -5,6 +5,7 @@ import {
   applyLocalRecurringPreferenceResult,
 } from "@/lib/local-db/preference-sync-results"
 import { applyLocalRecurringChangesPage } from "@/lib/local-db/pull-recurring-changes"
+import { LocalSyncStore } from "@/lib/local-db/sync-store"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { localRecurringChangesPageInputSchema } from "@/schemas/local-recurring-pull"
 import { outboxEntrySchema } from "@/schemas/local-sync"
@@ -636,10 +637,127 @@ async function run() {
         assert(JSON.stringify(await snapshot(db)) === exact)
       }
     )
+    await check(
+      "ACK de serie conserva aparición; rebasa sólo padre dependiente no intentado",
+      async () => {
+        const value = fixture(),
+          senderId = crypto.randomUUID()
+        const {
+          id: _,
+          ownerId: __,
+          revision: ___,
+          createdAt: ____,
+          updatedAt: _____,
+          deletedAt: ______,
+          completedAt: _______,
+          ...input
+        } = value.series
+        const root = outboxEntrySchema.parse({
+          ...value.entry,
+          state: "sending",
+          attempts: 1,
+          lease: { ownerId: senderId, expiresAt: "2026-10-11T13:01:00.000Z" },
+          operation: {
+            operationId: crypto.randomUUID(),
+            protocolVersion: 1,
+            baseRevision: 0,
+            command: { type: "item.create", itemId: value.series.id, input },
+          },
+        })
+        const pending = outboxEntrySchema.parse({
+          ...value.entry,
+          sequence: 2,
+          attempts: 0,
+          dependencies: [root.operation.operationId],
+          operation: { ...value.entry.operation, baseRevision: 0 },
+        })
+        const tried = outboxEntrySchema.parse({
+          ...pending,
+          sequence: 3,
+          attempts: 1,
+          operation: { ...pending.operation, operationId: crypto.randomUUID() },
+        })
+        const local = { ...value.occurrence, revision: 0 }
+        await seed(db, {
+          items: [{ ...value.series, revision: 0 }],
+          occurrences: [local],
+          outbox: [root, pending, tried],
+        })
+        const submission = {
+          operation: root.operation,
+          senderId,
+          result: {
+            status: "applied",
+            operationId: root.operation.operationId,
+            sequence: 1,
+            item: value.series,
+          },
+        }
+        const store = await LocalSyncStore.open(userId)
+        try {
+          const before = JSON.stringify(await snapshot(db))
+          await refused(() => store.applyOperationResult(submission))
+          assert(JSON.stringify(await snapshot(db)) === before)
+          const put = IDBObjectStore.prototype.put
+          IDBObjectStore.prototype.put = function (value, key) {
+            if (this.name === "syncMetadata")
+              throw new Error("Injected root outcome failure")
+            return put.call(this, value, key)
+          }
+          try {
+            await refused(() => store.applyRecurringOperationResult(submission))
+          } finally {
+            IDBObjectStore.prototype.put = put
+          }
+          assert(JSON.stringify(await snapshot(db)) === before)
+          assert(
+            (await store.applyRecurringOperationResult(submission)) ===
+              "applied"
+          )
+          const stored = await snapshot(db),
+            entries = stored.outbox as OutboxEntry[]
+          assert(
+            entries.find(
+              (entry) =>
+                entry.operation.operationId === root.operation.operationId
+            )?.state === "acknowledged"
+          )
+          const rebased = entries.find(
+            (entry) =>
+              entry.operation.operationId === pending.operation.operationId
+          )
+          assert(
+            rebased?.operation.baseRevision === 1 &&
+              "expectedOccurrenceRevision" in rebased.operation.command &&
+              rebased.operation.command.expectedOccurrenceRevision === 0
+          )
+          assert(
+            JSON.stringify(
+              entries.find(
+                (entry) =>
+                  entry.operation.operationId === tried.operation.operationId
+              )
+            ) === JSON.stringify(tried)
+          )
+          assert(
+            JSON.stringify(stored.occurrences) === JSON.stringify([local]) &&
+              (stored.items[0] as { revision: number }).revision === 1
+          )
+          const exact = JSON.stringify(stored)
+          assert(
+            (await store.applyRecurringOperationResult(submission)) ===
+              "replayed"
+          )
+          assert(JSON.stringify(await snapshot(db)) === exact)
+        } finally {
+          store.close()
+        }
+      }
+    )
     sessionStorage.setItem(proofKey, JSON.stringify(await snapshot(db)))
     keep = true
     statusElement.textContent =
-      "Siete comprobaciones aprobadas. Falta verificar recarga."
+      "Ocho comprobaciones aprobadas. Falta verificar recarga."
     const button = document.createElement("button")
     button.textContent = "Verificar recarga y limpiar"
     button.onclick = () => {

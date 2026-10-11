@@ -103,3 +103,7 @@ Planner futuro valida todaslasfamilias/actor/parent/cola antes del plannerperson
 ## PuertoTX personal17c4b
 
 applyLocalRecurringPreferenceResult preparatorio reutilizaTX actual con selección privada explícita, captura parentitems enmismaTX yvalida todaslasfamilias antes ACK. Puertoactualstrict intacto; futuro conservaaparición/parent/intención intentada exactos yshadow no modificado, últimooutcome atómico. Ocho checksbrowser4254 incluyenrechazoactivo/rollback/retry/replay/recarga ylimpieza propias. Callers4 sin cambios; raízserie/backup/diagnóstico/ordenmixto futuros aún requieren cierre coherente antes activación5.
+
+## Raízserie local17c4c
+
+Nuevo método preparatorio valida correspondencia exacta create/update/delete común yactor/UUID/revisión, admite recurrencia sóloplan; métodoactual no cambia yprogreso de padre recurrente noACK. Padre/shadow/cola/outcome atómicos, expectedOccurrenceRevision/localaparición independientes yintencionesintentadas preservadas; sólo baseparent de dependientedirecto unattempted rebasa. Tres puretests yfixtureIndexedDB4254 nuevechecks aprueban rollback/replay/recarga/strict. Backup/diagnóstico/ordenmixto futuros siguen antes del motor5; no anuncios/callers nuevos.

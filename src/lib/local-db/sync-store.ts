@@ -12,6 +12,7 @@ import { resolveLocalSyncIncident } from "@/lib/local-db/sync-resolution"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { readItemOutcome, readItemShadow } from "@/lib/sync/item-evidence"
 import { planRemoteItemProjection } from "@/lib/sync/item-projection"
+import { validateLocalRecurringItemResult } from "@/lib/sync/local-recurring-item-result"
 import { calendarItemSchema } from "@/schemas/calendar-item"
 import {
   localOperationOutcomeSchema,
@@ -105,6 +106,23 @@ export class LocalSyncStore {
   }
 
   applyOperationResult(input: unknown): Promise<"applied" | "replayed"> {
+    return this.applyItemResult(input, false)
+  }
+
+  // Prepared generation-five method; existing callers keep strict recurrence rejection.
+  applyRecurringOperationResult(
+    input: unknown
+  ): Promise<"applied" | "replayed"> {
+    return this.applyItemResult(
+      validateLocalRecurringItemResult(input, this.userId),
+      true
+    )
+  }
+
+  private applyItemResult(
+    input: unknown,
+    allowSeries: boolean
+  ): Promise<"applied" | "replayed"> {
     const submission = localSyncResultInputSchema.parse(input)
     const { operation, senderId, result } = submission
     const command = operation.command
@@ -218,7 +236,8 @@ export class LocalSyncStore {
               if (result.status === "applied") {
                 if (
                   incoming.kind === "birthday" ||
-                  incoming.recurrence ||
+                  (incoming.recurrence &&
+                    !(allowSeries && incoming.kind === "plan")) ||
                   command.type === "task.update-occurrence" ||
                   command.type === "task.cancel-occurrence" ||
                   ((command.type === "task.set-status" ||

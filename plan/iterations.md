@@ -2946,3 +2946,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17c4a ypuerto17c2b2, cuota33%5h/74%7d, reservas10%/1%.
 - Aceptación: export actual conserva rechazo estricto; nuevo export valida parent/cola/shadowsglobales enmismaTX, no modifica aparición/item/outcomes ajenos. ACKpersonal/shadow/outcome juntos, rollbackfallotardío/replayexacto; payload/base/expectedaparición intactos.
 - Validación: fixtureIndexedDB4254 categoríaACK conaparición/dependiente, fallbackactivoestricto, replay/rollback/recarga/cleanup; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. Sincaller5/capacidad/DBusuario.
+
+## 17c4c — ACK local de raíz recurrente
+
+- Estado: completada11oct; tres tests puros y nueve checks IndexedDB reales.
+
+- Objetivo: puerto preparatorio de resultadoitem para create/update/delete de serie común, con correspondencia estricta yTX existente.
+- target_paths: sync/local-recurring-item-result ytest; local-db/sync-store; test/browser/recurring-pull; plan.
+- Dependencias: writerremoto17b2b1/local17c2/17c4b; cuota30%5h/74%7d, reserva10%/1%.
+- Aceptación: métodoactual sigue rechazando appliedrecurrence; método futuro validaactor/UUID/target/revisión/content para serie, progreso raíz recurrente noACK. Padre/shadow/lease/outcome juntos; rebasa sólo basedependiente directo unattempted, expectedOccurrenceRevision/UUID/intenciones intentadas/occurrence intactos. Replay durable yrollback tardío.
+- Validación: puro DTOcorrespondencia/familias/mismatch yfixtureIndexedDB createACK con aparición/dependientes/replay/rollback/recarga; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. Sincallerproductivo/DBusuario/activación.
