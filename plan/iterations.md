@@ -2976,3 +2976,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17c5a/17c3b; cuota23%5h/72%7d, reservas10%/1%.
 - Aceptación: exportactual sigue2/strict, future3 conserva intenciones/evidencia/current/cursor sinwrites ni restore; mismaTX todosstores/limits/actor/release-markervalidado. Errores/corrupción/partition/counter no generan backup parcial; recarga mantienejsonexacto.
 - Validación: fixture4253 conflictoreal/currentmodificado/outcomes/partición/read-only/roundtrip/recarga ycleanup; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas.
+
+## 17b3a — Asignación personal de serie común
+
+- Estado: completada11oct; tres tests nuevos ycuatro regresiones de planner aprobados.
+
+- Objetivo: planner puro futuro de categoría para padre recurrente común, reutilizando CAS/efectos actuales sin ampliar caller4.
+- target_paths: preferences/remote-item-view-plan ytest; plan.
+- Dependencias:17b2/17c4; cuota20%5h/72%7d, reservas10%/1%.
+- Aceptación: permitir cuatrovariantes recurrentes sólo en exportpreparatorio; generación4/legacy yrecurrencias legacy siguenunsupported. Vista/CAS/tag autorizados yrevisiones independientes, cero efecto contenido/aparición/parentrevision. Nullclear, missing/deleted/foreign yconflict correctos.
+- Validación: pruebas puras cuatrovariantes/CAS/null/actor/tag/familias/immutability yDoDglobal; commitpushint/HEAD/cuotas. ExecutorTX/replay/guard/Mongo posteriores según margen, sinACK/caller/DBusuario.

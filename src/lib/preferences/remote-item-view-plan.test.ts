@@ -1,6 +1,10 @@
 import { expect, test } from "bun:test"
-import { planRemoteItemViewOperation } from "@/lib/preferences/remote-item-view-plan"
+import {
+  planRemoteItemViewOperation,
+  planRemoteRecurringItemViewOperation,
+} from "@/lib/preferences/remote-item-view-plan"
 import { taskSchema } from "@/schemas/calendar-item"
+import { planSchema } from "@/schemas/plan-item"
 import type { ItemView, Tag } from "@/types/preferences"
 
 const userId = "remote-view-test-owner"
@@ -66,6 +70,122 @@ function input(view: ItemView | null = null, baseRevision = 0) {
     },
   }
 }
+
+function recurringInput(
+  variant: "task" | "event" | "appointment" | "note" = "task"
+) {
+  const series = planSchema.parse({
+    id: item.id,
+    ownerId: userId,
+    kind: "plan",
+    variant,
+    title: item.title,
+    description: item.description,
+    status: item.status,
+    completedAt: null,
+    checklist: item.checklist,
+    schedule: {
+      mode: "all_day",
+      startDate: item.scheduledDate,
+      endDateExclusive: "2026-10-09",
+    },
+    recurrence: {
+      frequency: "daily",
+      interval: 1,
+      anchorDate: item.scheduledDate,
+      timeZone: "Europe/Madrid",
+      end: { type: "never" },
+    },
+    revision: item.revision,
+    createdAt,
+    updatedAt: createdAt,
+    deletedAt: null,
+  })
+  return { ...input(), item: series }
+}
+test("future view planner assigns four recurring variants without changing parent content or broadening active scope", () => {
+  for (const variant of ["task", "event", "appointment", "note"] as const) {
+    const value = recurringInput(variant),
+      before = structuredClone(value)
+    const planned = planRemoteRecurringItemViewOperation(value)
+    expect(planned.status).toBe("changes")
+    if (planned.status !== "changes") throw new Error("View plan missing")
+    expect(planned.effects).toHaveLength(1)
+    expect(planned.effects[0]).toMatchObject({
+      store: "itemViews",
+      record: { itemId, primaryTagId: tagId, revision: 1 },
+    })
+    expect(value).toEqual(before)
+    expect(planRemoteItemViewOperation(value, true)).toEqual({
+      status: "unsupported",
+    })
+    expect(planRemoteItemViewOperation(value)).toEqual({
+      status: "unsupported",
+    })
+  }
+})
+test("future recurring assignment preserves view CAS and rejects missing parent or category", () => {
+  const value = recurringInput()
+  expect(planRemoteRecurringItemViewOperation({ ...value, current })).toEqual({
+    status: "conflict",
+    current,
+  })
+  expect(
+    planRemoteRecurringItemViewOperation({
+      ...value,
+      current: { ...current, deletedAt: timestamp },
+      operation: { ...value.operation, baseRevision: 2 },
+    })
+  ).toMatchObject({ status: "conflict" })
+  expect(
+    planRemoteRecurringItemViewOperation({ ...value, item: null })
+  ).toEqual({ status: "unavailable" })
+  expect(
+    planRemoteRecurringItemViewOperation({
+      ...value,
+      item: { ...value.item, deletedAt: timestamp },
+    })
+  ).toEqual({ status: "unavailable" })
+  expect(
+    planRemoteRecurringItemViewOperation({
+      ...value,
+      tag: { ...tag, deletedAt: timestamp },
+    })
+  ).toEqual({ status: "invalid_command" })
+  const cleared = planRemoteRecurringItemViewOperation({
+    ...value,
+    current,
+    tag: null,
+    operation: {
+      ...value.operation,
+      baseRevision: 2,
+      command: { ...value.operation.command, primaryTagId: null },
+    },
+  })
+  expect(cleared).toMatchObject({
+    status: "changes",
+    effects: [
+      { store: "itemViews", record: { revision: 3, primaryTagId: null } },
+    ],
+  })
+})
+test("future assignment keeps actor checks and refuses legacy repeated families", () => {
+  const value = recurringInput()
+  for (const changed of [
+    { item: { ...value.item, ownerId: "foreign" } },
+    { tag: { ...tag, userId: "foreign" } },
+    { current: { ...current, userId: "foreign" } },
+  ])
+    expect(() =>
+      planRemoteRecurringItemViewOperation({ ...value, ...changed })
+    ).toThrow()
+  expect(
+    planRemoteRecurringItemViewOperation({
+      ...input(),
+      item: { ...item, recurrence: value.item.recurrence },
+    })
+  ).toEqual({ status: "unsupported" })
+})
 
 test("personal view plans assign and clear categories without touching item content", () => {
   const value = input()

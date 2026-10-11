@@ -115,3 +115,7 @@ Formato backup3 preparatorio representa nuevasfamilias sin ampliar codecsactivos
 ## ExportTX17c5b
 
 Snapshot común recibe codec/versiontipados: exportactual2 sigueestricto, nuevo export3readonly valida todosstores/namespace/marker/counter/outcomes/size antes TXcomplete. Conflicto realmente persistido yapariciónactualmodificada exportados, roundtripexacto ysnapshot/incidente/JSONidénticos trasrecarga probadosbrowser4253 (diezchecks, recursospropioslimpios). Sinrestore/import/caller5; ordenmixto deapariciones, executorpersonal de serie ypolítica/consumidores siguen pendientes antes integración.
+
+## Planner de asignación17b3a
+
+Exportfuturo permite asignar/limpiar categoría en parentcomún recurrente de cuatrovariantes usandoCAS de vista independiente; exportactivo4/legacy no se amplía, recurrenciaslegacyunsupported. Sincontenido/progreso/revisiónparentalterados; actor/parent/tagactual/deleted/CAS aprobados con tres tests nuevos. Planner no sustituye executor/guard/commit; siguiente17b3b pruebaMongo antes de integrar transporte5.

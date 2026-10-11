@@ -10,6 +10,21 @@ export function planRemoteItemViewOperation(
   input: unknown,
   allowPlans = false
 ): RemoteItemViewPlan {
+  return planItemViewOperation(input, allowPlans, false)
+}
+
+// Future scope only. Authorization, series guard and commit belong to its executor.
+export function planRemoteRecurringItemViewOperation(
+  input: unknown
+): RemoteItemViewPlan {
+  return planItemViewOperation(input, true, true)
+}
+
+function planItemViewOperation(
+  input: unknown,
+  allowPlans: boolean,
+  allowSeries: boolean
+): RemoteItemViewPlan {
   const { userId, timestamp, operation, item, current, tag } =
     remoteItemViewPlanningInputSchema.parse(input)
   const command = operation.command
@@ -18,7 +33,7 @@ export function planRemoteItemViewOperation(
   if (
     item.kind === "birthday" ||
     (!allowPlans && item.kind === "plan") ||
-    item.recurrence
+    (item.recurrence && !(allowSeries && item.kind === "plan"))
   )
     return { status: "unsupported" }
   if (
