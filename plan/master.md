@@ -30,6 +30,8 @@ Cierre histórico de la continuación anterior del 11 de octubre (antes de20:26)
 
 ## Estimación y siguiente elección
 
+Actualización tras16c12: queda aproximadamente20% del alcance vigente (rango orientativo15–25%, estimación ponderada, no por commits). Mucho código recurrente ya preparado hasta17d5, pero la integración real/activación todavía cuenta como pendiente. Orden:1) cerrar repetición remota, prueba conjunta/índice autorizado/activación;2) cumpleaños anual y sincronización;3) preferencias residuales y aceptación final móvil/multidispositivo/offline/accesibilidad/guía. CompartirGmail excluido. Usuario solicita continuar el12oct01:27Europe/Madrid; heartbeat puntual reactivado desde17e1a, sin cadena adicional.
+
 Continuación20:26:17b3b conecta executor preparatorio de categorías de series, con guard/CAS/recibo/journal y carreras Mongo probados. Generación4 activa sin cambios; orden recurrente, integración/negociación5 y prueba conjunta siguen pendientes.
 
 17b3c cierra replay común de categorías con recibos de aparición y rollback real. Siguiente17c5a: orden mixto recurrente puro; todavía sin activar repetición remota.

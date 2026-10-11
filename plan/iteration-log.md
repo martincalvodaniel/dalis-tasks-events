@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17z3 — Estimación y reactivación solicitada
+
+Corte documental humano tras72d9baa: queda aproximadamente20% vigente, con repetición remota preparada pero no activada, cumpleaños y cierreMVP pendientes; compartir excluido. Cuota real2%5h/53%7d, reset1791761186(12oct01:26:26Madrid). automation_update confirmó heartbeat existente ACTIVE a01:27Europe/Madrid, puntual, failed_runs_only; no duplicado/cadena. Consulta renovación real antes17e1a, reservas10%/1%, índices de aparición todavía requieren permiso específico. Sin código/DB/producción. Referencias/coherencia/diff validados, commitpushint/HEAD y consulta final.
+
 ## 16c12 — Categorías, ajustes y editor compactos
 
 Petición humana cerrada con estilos acotados a categorías/ajustes/editor: botones, inputs y selects36px, extensión invisible vertical del target de botones44px, espaciado menor y descripción de dos líneas. Tarjeta de preparación en ajustes más compacta. Sin cambios de datos, sincronización, etiquetas o acciones. Fixture SSR de componentes reales/CSS compilado en navegador propio confirma Crear categoría, Editar, Eliminar, Sincronizar ahora y botones/campos del editor a36px; extensión ±4px y contenido dentro de columna360px (cabecera del editor conserva márgenes negativos previstos). No prueba persistencia ni sesiónGoogle. Tab/servidor/scripts temporales propios retirados. Suite748pass/201opt-in skip/0fail/10258aserciones, lint773/tipos/diff aprobados. Turbopack bloqueado por permiso del entorno al abrir puerto interno; fallback soportado Next16.4 --webpack aprobado sin cambiar configuración, worker regenerado con46recursos neutrales. Mismo commitpushint/HEAD; cerrar con consulta/pregunta de ambas ventanas, sin retomar lote o automatización.

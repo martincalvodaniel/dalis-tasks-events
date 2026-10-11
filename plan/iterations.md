@@ -1,5 +1,12 @@
 # Iteraciones de implementación
 
+## 17z3 — Estimación y continuación puntual01:27
+
+- Objetivo: responder estado global y programar continuación solicitada para12oct01:27Europe/Madrid.
+- target_paths: plan/{master,workflow,iterations,iteration-log}.md y heartbeat existente. Dependencias:16c12 cerrado, cuota/reset reales.
+- Estado/aceptación: estimación20% pendiente y tres bloques en orden; heartbeat puntual ACTIVE confirmado sin duplicado, revisar renovación real antes17e1a, reservas10%/1%, sin código ni otra autorizaciónDB.
+- Validación: consistencia/referencias/diff; mismo commitpushint/HEAD y consulta final.
+
 ## 16c12 — Controles y editor más compactos
 
 - Estado: completada; botones y controles de36px comprobados con CSS compilado y componentes reales en navegador propio.

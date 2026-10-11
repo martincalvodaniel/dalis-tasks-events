@@ -379,3 +379,8 @@ Publicado código cc05d20 tras17b3b–17d5, con pruebas y commit/push/HEAD/cuota
 ### Intercalada humana16c12
 
 Petición explícita de compactar categorías, ajustes y editor tras cierre del lote. Entrada13%5h/55%7d; corte visual único, sin retomar17e1a ni crear automatización. Validación completa y fallbackWebpack soportado por bloqueo de puerto interno Turbopack en el entorno, sin cambio de configuración. Commit/pushint/HEAD y consulta final; vuelve protocolo normal de preguntar ambas ventanas antes de elegir otra entrega.
+
+
+### Continuación puntual12oct01:27
+
+Peticiónhumana tras16c12: estimación global y reactivación01:27Europe/Madrid. Lectura2%5h/53%7d, reset1791761186(01:26:26Madrid). Heartbeat existente continuar-sincronizaci-n-siguiente-ventana actualizado ACTIVE una vez, failed_runs_only conservado, sin duplicado/cadena. Comprobar renovación real al disparar; seguir17e1a con reservas10%5h/1%7d y protocolo commitpushint/HEAD/cuotas por corte. Índice de apariciónPreview requiere permiso específico todavía; no inferirlo de autorización histórica. No abrir código en ventana actual.
