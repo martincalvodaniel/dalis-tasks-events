@@ -14,7 +14,7 @@ Los `target_paths` describen el ámbito permitido; antes de editar, concretar ar
 | Calendario personal y creación de tareas | `05a–07b` | Completadas, incluida reordenación local; orden remoto de tareas simples activado en `11c5a18`. |
 | Eventos, repetición y cumpleaños | `08–10` | Eventos simples operativos; repetición local parcial. Backlog/programación futura, sincronización de series y cumpleaños pendientes. |
 | Remoto, convergencia y recuperación | `11a–13c` | Tareas/eventos propios simples, categorías, asignaciones y orden simple activados y probados; recuperación y backup entregados. Extensión a series y preferencias residuales pendiente. |
-| Compartición y piloto | `14a–15b` | Pendiente. |
+| Piloto y cierre | `15a–15b` | Pendiente; compartir14a–14c retirado del alcance. |
 
 Para toda entrega con código: tipos, lint, pruebas pertinentes y build según [workflow.md](workflow.md). Los criterios siguientes añaden evidencia específica, no reemplazan esas comprobaciones. No marcar un hito terminado si falta una subentrega.
 
@@ -434,32 +434,16 @@ Primeros cortes revisados:11a1a configura/valida replica set de prueba aislado y
 - Dependencias: `13b`.
 - Aceptación: exportar pendientes offline; importar JSON validado/versionado solo a cuenta activa, revisar duplicados y generar nuevas intenciones; fallo de cuota no borra datos ni confirma guardado; denegación de persistencia explicada; migración preserva outbox.
 
-## 14 — Compartir con otra cuenta Gmail
+## 14 — Retirado del alcance
 
-### 14a — Invitaciones y permisos remotos
-
-- `target_paths`: `src/features/sharing/actions.ts`, schemas, repositorios/membresías/invitaciones y registro de índices.
-- Dependencias: `13c` y dos cuentas permitidas en el piloto.
-- Aceptación: invitación pendiente sin acceso; aceptación exige email verificado coincidente; propietario/lector/editor aplicados en servidor; usuario no autorizado no obtiene acceso por invitación. Caducidad, rechazar, revocar y reenviar con reglas explícitas, sin envío de emails.
-
-### 14b — UI y visibilidad compartida
-
-- `target_paths`: `src/features/sharing/components/**`, hooks/inbox y selectores locales; journal/fanout según contratos de `14a`.
-- Dependencias: `14a`.
-- Aceptación: compartir desde elemento/serie, estado pendiente claro; destinatario recibe invitación dentro de app; aceptar online descarga elemento sin duplicar; categoría/orden independientes; estado/checklist compartidos; repetir visible en ambos dispositivos.
-
-### 14c — Revocación y cambios offline de colaboradores
-
-- `target_paths`: autorización/journal remotos, manejo local de retirada y conflictos de permisos, pruebas multicuenta.
-- Dependencias: `14b`.
-- Aceptación: lector/editor no elevan privilegios; edición tras revocación rechazada; retiro local al reconectar; nuevo pull no expone payloads antiguos; copia offline no se presenta como revocación instantánea. Conservar trabajo rechazado de forma explícita, sin enviarlo ni restaurar acceso.
+Compartir por Gmail (14a–14c) no se implementará por decisión humana del11oct. Sin invitaciones, colaboradores ni requisitos de compartición en el piloto.
 
 ## 15 — Piloto y aceptación completa
 
 ### 15a — Recorrido real y accesibilidad
 
 - `target_paths`: solo los componentes/módulos que fallen en el recorrido, evidencia de aceptación, documentación de operación.
-- Dependencias: `14c`.
+- Dependencias: sincronización común, repetición remota, cumpleaños y recuperación/backup (`13c`); compartir no es prerrequisito.
 - Aceptación: ejecutar matriz siguiente en navegador/DB reales y build de producción; comprobar UI móvil, teclado, foco, nombres accesibles, formularios y contraste. Corregir fallos por entregas acotadas sin ampliar producto.
 - Incluir login Google interactivo en dos navegadores y tras cerrar sesión, complementando la evidencia automatizada de `01a`. Los cinco avisos iniciales de accesibilidad de SVG de plantilla se corrigieron en `00c`; revisar los assets usados en la UI durante el recorrido.
 
@@ -467,7 +451,7 @@ Primeros cortes revisados:11a1a configura/valida replica set de prueba aislado y
 
 - `target_paths`: `README.md`, `plan/**`, setup/configuración solo si la aceptación lo requiere.
 - Dependencias: `15a`, todas las pruebas críticas aprobadas.
-- Aceptación: instrucciones de preparación offline, sync, permisos, backup y recuperación; checks de código completos; registrar límites reales de navegadores y decisiones revisadas; commit final del hito. Publicar solo si se ha autorizado como parte de esta entrega.
+- Aceptación: instrucciones de preparación offline, sync, aislamiento de cuentas, backup y recuperación; checks de código completos; registrar límites reales de navegadores y decisiones revisadas; commit final del hito. Publicar solo si se ha autorizado como parte de esta entrega.
 
 ## Matriz de aceptación
 
@@ -480,7 +464,6 @@ Primeros cortes revisados:11a1a configura/valida replica set de prueba aislado y
 | Orden personal | Grupos/tareas/atrasadas; teclado; persiste y se sincroniza. | `07b`, `12b` |
 | Dos dispositivos, respuesta perdida | Convergencia, ID único, sin duplicados ni sobrescritura silenciosa. | `11b–13b` |
 | Cuenta diferente/ID ajeno | Aislamiento local y denegación remota, incluidas APIs y acciones. | `01b`, `03a`, `11b` |
-| Compartir y revocar desconectado | Permisos, aceptación verificada, retiro y rechazo al reconectar. | `14` |
 | Despliegue y migración con pendientes | Outbox intacta; versión compatible; reintento idempotente. | `04b`, `13b–13c` |
 | Cuota/backup/logout | Sin falso guardado ni descarte implícito; restauración validada. | `03a`, `04b`, `13c` |
 
@@ -2792,3 +2775,14 @@ Objetivo: primitivo transaccional de serialización serie/aparición y prueba de
 ## 16c5 — Icono de estado de plan con tres estados
 
 Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Sin empezar sin abrir edición, para cuatrovariantes y apariciones proyectadas. target_paths:components/ui/item-completion-icon ytest; features/plans/components/plan-completion-button,plan-card ytest; test/browser/plan-gestures; plan/master,item-editor-redesign,iterations,iteration-log,workflow. Rootsecuencial, dependenciasa77d6b2/producersestadoactuales y peticiónhumana11oct, cuota18%5h/87%7d. Aceptación: tresaparienciasvacío/raya/check manteniendotipo/color, pressedmixed para progreso y etiquetaespañolaestado/acción; busy/readonly/serierealdeshabilitados, targets44/teclado; checklistbinaria intacta; guardadoactual/CAS/cola/progresodeaparición independiente. Pruebasmarkupampliadas yfixtureReact/IndexedDBreal ciclo/12intenciones/recarga/sinabrirdetalles, DoDglobal/commitpushint/HEAD/cuotas. Noesquema/DB/API/capacidadnueva ni ACKremotodeapariciones.
+
+
+## 16c6 — Detalles compactos y alcance revisado
+
+- Estado: completada11oct; evidencia en iteration-log.md.
+
+- Objetivo: quitar el control de estado redundante del desplegable, compactar acciones/categoría y retirar Compartir por Gmail del MVP por petición humana.
+- target_paths: PlanCard, PlanList, ItemCategorySelect, PlanStatusControls y plan/{master,iterations,workflow,iteration-log,recurrence-sync}.md.
+- Dependencias:16c5; estado desde icono principal ya operativo, sin cambios de persistencia.
+- Aceptación: sin botón adicional Empezar/Sin empezar; acciones y selector del plan a32px, etiquetas/foco intactos; compartir sin entregas activas ni dependencia del piloto; continuación puntual15:25Europe/Madrid.
+- Validación: suite existente, lint, tipos, build y diff; sin nuevos tests para este ajuste visual reversible.

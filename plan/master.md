@@ -12,18 +12,17 @@ Wipe de contenido remoto Preview16a4c3b cerrado antes de activar; auth/índices 
 
 Backup16a4c3g exporta datos/intenciones/evidencia y permite importar copias nuevas de los cuatro tipos simples sin repetición, conservando originales. Preview respeta marca4 y no convierte legacy; categorías, orden e historial del archivo no se aplican como estado restaurado.9checks IndexedDB propios de atomicidad/replay/rollback/guardias/recarga pasan. Última suite625pass/153opt-in skip/0fail, lint667/tipos/build34 aprobados.
 
-**Repetición y progreso por aparición funcionan localmente; series/apariciones y su orden siguen sin sincronización remota.**17a1 prepara contrato de revisión explícita/planner de aparición;17a2a conserva revisión propia en lectores y captura TX opcional validada con IndexedDB, sin activar productores/capacidades;17b1 prepara repositorio/CAS/índice explícito remoto de apariciones con Mongo propio, sin provisión de usuario ni executor;17b2a prepara guard compartido transaccional serie/aparición, aún sin callers activos; siguientes cortes en [recurrence-sync.md](recurrence-sync.md). Cumpleaños, compartir y aceptación final permanecen bloques posteriores. Alcance entregado en [item-editor-redesign.md](item-editor-redesign.md) y [common-plan-activation.md](common-plan-activation.md). Automatización pausada; el usuario elige continuar repeticiónremota y después el orden recomendado, tras el ajuste16c1 de checklist. Los apartados siguientes registran la trayectoria histórica.
+**Repetición y progreso por aparición funcionan localmente; series/apariciones y su orden siguen sin sincronización remota.**17a1 prepara contrato de revisión explícita/planner de aparición;17a2a conserva revisión propia en lectores y captura TX opcional validada con IndexedDB, sin activar productores/capacidades;17b1 prepara repositorio/CAS/índice explícito remoto de apariciones con Mongo propio, sin provisión de usuario ni executor;17b2a prepara guard compartido transaccional serie/aparición, aún sin callers activos; siguientes cortes en [recurrence-sync.md](recurrence-sync.md). Cumpleaños y aceptación final permanecen bloques posteriores. Compartir por Gmail queda fuera del alcance actual por decisión del usuario del11oct. Alcance entregado en [item-editor-redesign.md](item-editor-redesign.md) y [common-plan-activation.md](common-plan-activation.md). Continuación puntual solicitada para11oct15:25Europe/Madrid, previa consulta de cuota real; el usuario elige continuar repeticiónremota y después el orden recomendado, tras el ajuste16c1 de checklist. Los apartados siguientes registran la trayectoria histórica.
 
 ## Estimación y siguiente elección
 
-Queda aproximadamente **30–35% del plan original** (65–70% completado). Estimación ponderada por complejidad, no por número de commits ni promesa de duración. Reparto central orientativo: repetición remota/series/apariciones y orden10puntos, cumpleaños5, compartir13, preferencias residuales/aceptación final5: alrededor de33puntos pendientes. El rediseño elegido está entregado y validado; su alcance adicional no se cuenta como pendiente del plan original.
+Queda aproximadamente **20–25% del alcance actual** (75–80% completado). Estimación ponderada por complejidad, no por commits ni duración. Al retirar compartir (13puntos del alcance original), quedan alrededor de20puntos sobre87: repetición remota/series/apariciones y orden10, cumpleaños5, preferencias residuales/aceptación final5. La mejora del porcentaje corresponde a una reducción de alcance, no a implementar compartir.
 
 Orden recomendado, sujeto a elección del usuario:
 
 1. **Sincronizar repetición y apariciones**: identidad de serie/slot, progreso independiente, excepciones, backlog/reprogramación y orden entre dispositivos; conservar cambios offline y resolver conflictos.
 2. **Cumpleaños** (`10`): creación/edición, regla anual, año opcional, política del29febrero y sincronización.
-3. **Compartir por Gmail** (`14a–14c`): invitaciones, lector/editor, visibilidad compartida, revocación y cambios offline de colaboradores.
-4. **Cierre del MVP** (`15a–15b`): preferencias/configuración residual, recuperación explícita de incidentes que falten, aceptación en móviles/dispositivos físicos, offline, accesibilidad y guía de uso.
+3. **Cierre del MVP** (`15a–15b`): preferencias/configuración residual, recuperación explícita de incidentes que falten, aceptación en móviles/dispositivos físicos, offline, accesibilidad y guía de uso.
 
 El usuario puede elegir más cambios visuales o funcionales antes de estos bloques; no se abre uno nuevo por tener cuota disponible. Commit/pushint y consulta de ambas cuotas por iteración continúan vigentes.
 
@@ -33,7 +32,7 @@ Estado: shell offline, cuentas, navegación, tareas, categorías, calendario, gr
 
 ## Objetivo
 
-Una webapp para crear y organizar tareas, eventos, citas y cumpleaños en un calendario. El trabajo diario debe poder realizarse completamente sin conexión después de preparar el dispositivo una primera vez. Cuando vuelva la conexión, los cambios se sincronizarán con MongoDB y con los demás dispositivos autorizados. Google identifica a cada usuario; determinados elementos se pueden compartir con otra cuenta de Google mediante su dirección Gmail.
+Una webapp para crear y organizar tareas, eventos, citas, notas y cumpleaños en un calendario. El trabajo diario debe poder realizarse completamente sin conexión después de preparar el dispositivo una primera vez. Cuando vuelva la conexión, los cambios se sincronizarán con MongoDB y con los demás dispositivos autorizados. Google identifica a cada usuario; los datos permanecen separados por cuenta. Compartir por Gmail queda fuera del alcance actual.
 
 La experiencia será responsive y mobile-first: barra inferior de navegación con iconos SVG en móvil y barra superior en escritorio. Ambas se alimentan del mismo registro y se actualizan al crear cada pantalla importante. Implementada en `04c` con resumen y ajustes reales, accesibilidad, safe areas y navegación offline. El botón `+` está operativo para tareas en ambas barras desde `05a1`.
 
@@ -66,7 +65,7 @@ Observaciones de archivos versionados; no se ha probado el login de producción 
 - Google social login configurado en [auth.ts](../src/lib/auth/auth.ts), cliente de autenticación existente y UI de acceso en español.
 - El layout de dashboard verifica sesión mediante [session.ts](../src/lib/auth/session.ts); [proxy.ts](../src/proxy.ts) realiza un filtro inicial por cookie.
 - `01a` conecta Better Auth al adaptador MongoDB ya instalado: usuarios, cuentas, sesiones y verificaciones persistentes. Pruebas con MongoDB local real y dos clientes HTTP independientes comprueban estabilidad de ID tras logout y reconexión. El login interactivo contra Google real se comprobará en el piloto; los tests usan firmas válidas con una clave de prueba y conservan las verificaciones de token.
-- El acceso depende de `ALLOWED_EMAILS`. Una lista vacía no admite usuarios; una invitación no debe ampliar esa lista automáticamente. Compartir en el piloto exige que ambos usuarios estén autorizados.
+- El acceso depende de `ALLOWED_EMAILS`. Una lista vacía no admite usuarios; no se amplía automáticamente.
 - Existen singleton MongoDB, cuatro colecciones de autenticación y seis índices centrales. El adaptador solo reconoce solicitudes automáticas de índices previamente registrados y provisionados. Colecciónitems/índiceownerId+_id y persistencia propia/CAS entregados en11a1b1; sync_operations/sync_changes/sync_counters y sus invariantes atómicos entregados en11b1a; restantes colecciones de producto pendientes. Se respeta [src/lib/db/AGENTS.md](../src/lib/db/AGENTS.md).
 - El dashboard conserva una entrada al espacio, con preparación automática en `05c`. `06` incorpora calendario mensual y tareas del día. `03a–03b` aportan repositorios IndexedDB y una outbox atómica; `04a–04b` añaden shell neutro `/workspace`, worker de recursos, preparación y cierre de cuenta entre pestañas. Recarga y reapertura sin servidor probadas en producción; transporte/coordinador de propios simples activo desde12b2b4, prueba integrada con dos particiones/MongoDB. Preferencias/series/compartidos siguen sin sincronización.
 - Hay pruebas con Bun, comprobación de tipos y Biome. El README sigue siendo el de arranque y se actualizará cuando haya un flujo ejecutable.
@@ -81,7 +80,7 @@ Prioridad visual añadida por el usuario el 7 de octubre: UI minimalista y densa
 4. **Atrasadas es una condición derivada**: un plan no completado cuyo inicio previsto es anterior a hoy. Conserva fecha y estado; no necesita cron ni un cambio persistido a medianoche.
 5. **Una categoría principal por usuario y elemento** en el MVP. Planes de las cuatro variantes agrupados por esa categoría; orden manual de grupos y planes simples. Múltiples etiquetas quedan para una ampliación porque requieren resolver cómo evitar duplicados al agrupar.
 6. **Repetición por series y ocurrencias**: cada aparición de una tarea conserva su propio estado y checklist. Un cumpleaños genera una aparición anual de día completo.
-7. **Compartición explícita** por elemento o serie, con propietario, lector y editor. Estado y checklist son compartidos; categoría y orden son preferencias personales.
+7. **Compartir por Gmail fuera de alcance**: no implementar invitaciones, colaboradores, permisos de lector/editor ni revocación hasta nueva decisión humana. Las referencias posteriores a compartición documentan el plan histórico.
 8. **Sin nuevos paquetes base**: APIs nativas del navegador y el stack existente. Si las pruebas muestran necesaria una biblioteca de fechas, recurrencia, IndexedDB, calendario o PWA, se presentará su necesidad antes de añadirla.
 
 ## Alcance offline
@@ -92,28 +91,24 @@ Prioridad visual añadida por el usuario el 7 de octubre: UI minimalista y densa
 | Consultar meses y días con datos descargados | Sí; todas las series descargadas se expanden localmente. |
 | Crear, editar, borrar, clasificar y reordenar | Sí, con guardado local y cola persistente. |
 | Cambiar estado, checklist y repetición | Sí, incluso con sesión remota caducada. |
-| Ver datos compartidos previamente descargados | Sí, con los permisos conocidos localmente. |
-| Preparar una invitación | Sí como borrador pendiente, sin conceder acceso todavía. |
 | Iniciar sesión con Google en un dispositivo nuevo | Requiere conexión. |
-| Aceptar invitaciones, confirmar permisos o revocar acceso | Requiere confirmación del servidor. |
 | Recibir modificaciones de otros usuarios/dispositivos | Requiere conexión. |
 
-No se promete abrir una web nunca descargada sin red. El almacenamiento del navegador puede perderse si el usuario lo borra o el navegador lo expulsa; habrá persistencia solicitada, detección de errores y exportación/importación local. Tampoco es posible eliminar inmediatamente una copia compartida de un dispositivo desconectado. Estos límites se reflejarán en la UI donde afecten a una decisión.
+No se promete abrir una web nunca descargada sin red. El almacenamiento del navegador puede perderse si el usuario lo borra o el navegador lo expulsa; habrá persistencia solicitada, detección de errores y exportación/importación local. Estos límites se reflejarán en la UI donde afecten a una decisión.
 
 ## Orden de entrega
 
-`00 Plan → 01 Identidad → 02 Dominio → 03 Persistencia local → 04 Apertura offline → 05 Tareas → 06 Calendario → 07 Agenda y orden → 08 Eventos → 09 Repetición → 10 Cumpleaños → 11 Persistencia remota → 12 Sincronización → 13 Conflictos y recuperación → 14 Compartición → 15 Piloto`.
+`00 Plan → 01 Identidad → 02 Dominio → 03 Persistencia local → 04 Apertura offline → 05 Tareas → 06 Calendario → 07 Agenda y orden → 08 Eventos → 09 Repetición → 10 Cumpleaños → 11 Persistencia remota → 12 Sincronización → 13 Conflictos y recuperación → 15 Piloto`.
 
-Las iteraciones complejas están partidas en subentregas en [iterations.md](iterations.md), cada una con su propio commit y control de presupuesto. Las interfaces de sincronización se diseñan desde `02–03`, aunque el transporte remoto llegue después. La primera demostración útil offline llega en `06`; el MVP completo exige también sincronización, repetición, compartición y recuperación.
+Las iteraciones complejas están partidas en subentregas en [iterations.md](iterations.md), cada una con su propio commit y control de presupuesto. Las interfaces de sincronización se diseñan desde `02–03`, aunque el transporte remoto llegue después. La primera demostración útil offline llega en `06`; el MVP completo exige también sincronización, repetición y recuperación.
 
 ## Condiciones de éxito del MVP
 
 - En modo avión y tras reabrir: crear los tres tipos, modificar checklist/estado, repetir, navegar meses, reordenar y ver atrasadas; todo persiste.
 - Al recuperar conexión: dos dispositivos de una cuenta convergen sin duplicados; una pérdida de respuesta no repite una mutación.
-- Dos cuentas solo reciben sus datos propios y los elementos expresamente compartidos; otro usuario no accede adivinando un ID.
+- Dos cuentas solo reciben sus datos propios; otro usuario no accede adivinando un ID.
 - Una tarea en curso pasa a “Atrasadas” conservando su estado al cambiar el día; una tarea completada desaparece de esa sección.
 - Editar una aparición no altera otras. Una ocurrencia pasada pendiente no desaparece al modificar la programación futura.
-- Invitación aceptada concede el permiso elegido; lector no puede editar, editor no puede compartir; revocación rechaza futuras mutaciones.
 - Cierre inesperado, conflicto, sesión caducada, actualización de versión y falta de espacio no provocan un falso “Guardado” ni descartan silenciosamente cambios pendientes.
 - Código, comentarios e identificadores en inglés; copy y accesibilidad de la UI en español. Cada subiteración completada tiene commit en la rama actual.
 
@@ -132,7 +127,6 @@ Lote cerrado tras `03b`: lectura automática **5h 61%; 7d 38% restantes** antes 
 - `01b` completada: sesiones antiguas sin fila persistida exigen login y autorización consulta DB vigente. La allowlist del piloto se mantiene; el recorrido Google real está pendiente de `15a`.
 - `04a`: dispositivos/navegadores del piloto. Base de prueba propuesta: Chrome de escritorio/Android y Safari/iPhone instalado; ajustar al entorno real, sin prometer soporte no probado.
 - `11a`: MongoDB con replica set o clúster compatible con transacciones. Si no lo hay, la sincronización definida necesita otro diseño aprobado antes de implementarla.
-- `14a`: ambos participantes autorizados en el piloto. Apertura de registro general o envío de correos exige una decisión específica; no se introduce un servicio de email en este MVP.
 - `15a`: destino y configuración del despliegue existente, sin asumir proveedor ni publicar como parte de la planificación.
 
 ## Fuentes y decisiones

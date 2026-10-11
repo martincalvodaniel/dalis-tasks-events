@@ -10,8 +10,10 @@ export function ItemCategorySelect({
   busy,
   onChange,
   itemId,
+  compact = false,
 }: {
   itemId?: string
+  compact?: boolean
   title: string
   tags: Tag[]
   selectedId: string | null
@@ -21,8 +23,11 @@ export function ItemCategorySelect({
   const id = useId()
   const active = tags.some((tag) => tag.id === selectedId) ? selectedId : ""
   return (
-    <div className="mt-4">
-      <label htmlFor={id} className="mb-2 block text-sm font-medium">
+    <div className={compact ? "mt-2" : "mt-4"}>
+      <label
+        htmlFor={id}
+        className={`${compact ? "mb-1" : "mb-2"} block text-sm font-medium`}
+      >
         Categoría
       </label>
       <select
@@ -32,7 +37,7 @@ export function ItemCategorySelect({
         disabled={busy}
         onChange={(event) => onChange(event.target.value || null)}
         aria-label={`Categoría de ${title}`}
-        className="min-h-12 w-full max-w-full rounded-xl border border-zinc-300 bg-transparent px-3 py-2 disabled:opacity-50 dark:border-zinc-700"
+        className={`${compact ? "min-h-8 rounded-lg px-2.5 py-1 text-sm" : "min-h-12 rounded-xl px-3 py-2"} w-full max-w-full border border-zinc-300 bg-transparent disabled:opacity-50 dark:border-zinc-700`}
       >
         <option value="">Sin categoría</option>
         {tags.map((tag) => (

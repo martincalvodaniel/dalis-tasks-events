@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react"
 import { PlanCompletionButton } from "@/features/plans/components/plan-completion-button"
-import { PlanStatusControls } from "@/features/plans/components/plan-status-controls"
 import { TaskChecklist } from "@/features/tasks/components/task-checklist"
 import { civilDateToUtc } from "@/lib/calendar/civil-date"
 import { planDueDate, planStartDate } from "@/lib/calendar/plan-selection"
@@ -106,13 +105,6 @@ export function PlanCard({
             <p className="mt-2 text-xs text-zinc-500">{contextLabel}</p>
           ) : null}
           {categoryControl}
-          {onStatusChange && !plan.recurrence ? (
-            <PlanStatusControls
-              plan={plan}
-              busy={busy}
-              onChange={onStatusChange}
-            />
-          ) : null}
           {onEdit || onDelete ? (
             <div className="mt-2 flex flex-wrap gap-2">
               {onEdit ? (
@@ -121,7 +113,7 @@ export function PlanCard({
                   disabled={busy}
                   onClick={onEdit}
                   aria-label={`${editLabel} ${plan.title}`}
-                  className="min-h-11 rounded-lg border border-zinc-300 px-3 text-sm disabled:opacity-50 dark:border-zinc-700"
+                  className="min-h-8 rounded-lg border border-zinc-300 px-2.5 text-sm disabled:opacity-50 dark:border-zinc-700"
                 >
                   {editLabel}
                 </button>
@@ -132,7 +124,7 @@ export function PlanCard({
                   disabled={busy}
                   onClick={onDelete}
                   aria-label={`${deleteLabel} ${plan.title}`}
-                  className="min-h-11 rounded-lg border border-zinc-300 px-3 text-sm disabled:opacity-50 dark:border-zinc-700"
+                  className="min-h-8 rounded-lg border border-zinc-300 px-2.5 text-sm disabled:opacity-50 dark:border-zinc-700"
                 >
                   {deleteLabel}
                 </button>

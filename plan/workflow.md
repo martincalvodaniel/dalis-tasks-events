@@ -343,3 +343,8 @@ Lectura previa34%5h/90%7d permite lectores/captura opcional y pruebaIndexedDB pr
 ### Intercalada16c5 — Tres estados del icono
 
 Peticiónhumana prioriza cambio pequeño de estado directo desde lista después del cierrepreparatorio17b2a. Entrada18%5h/87%7d permite corteUI/productoresactuales, validación/commitpushint/HEAD yconsulta final. Reservas10%5h/1%7d vigentes; no abrirexecutorremoto amplio ni reactivar automatización. Checklist binaria preservada, apareciencias distintas sinmigración/DBnueva.
+
+
+### Intercalada16c6 y continuación puntual
+
+Peticiónhumana11oct: cerrar detalleUI compacto y retirar compartir del alcance, aun con4%5h/85%7d observados; no abrir nuevo bloque en esta ventana. Heartbeat existente actualizado ACTIVE para11oct15:25Europe/Madrid, ejecución puntual, notificaciones failed_runs_only. Resetreal publicado1791725051 (15:24:11Madrid): verificar renovación y ambas cuotas antes de retomar17b2b, sin asumirla por reloj. Reservas del lote posterior10%5h/1%7d, commitpushint/HEAD yconsulta después de cada entrega; pausar al cierre, sin cadena adicional. Compartir14a–14c excluido también de dependencias/aceptación.

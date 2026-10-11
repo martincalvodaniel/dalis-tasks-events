@@ -398,6 +398,7 @@ export function PlanList({
                     categoryControl={
                       data ? (
                         <ItemCategorySelect
+                          compact
                           title={row.plan.title}
                           itemId={row.series.id}
                           tags={data.tags}
