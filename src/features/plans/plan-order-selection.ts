@@ -1,4 +1,5 @@
 import type { PlanAgendaSelection } from "@/features/plans/agenda-selection"
+import type { PlanAgendaRow } from "@/features/plans/plan-agenda-rows"
 import {
   comparePlans,
   planIncludesDate,
@@ -33,6 +34,28 @@ export function planOrderPeers(
       !record.deletedAt &&
       (context.scope === "overdue" || planIncludesDate(record, context.date))
   )
+}
+
+export function planRowOrderPeers(
+  rows: readonly PlanAgendaRow[],
+  selection: PlanAgendaSelection,
+  row: PlanAgendaRow
+): Plan[] {
+  if (row.occurrence || row.series.recurrence || row.series.deletedAt) return []
+  const date = planStartDate(row.series)
+  if (
+    (selection.kind === "day" && date !== selection.date) ||
+    (selection.kind === "upcoming" && date < selection.date)
+  )
+    return []
+  const contextRows = rows.filter(
+    (record) =>
+      selection.kind === "overdue" || planStartDate(record.plan) === date
+  )
+  if (contextRows.some((record) => record.occurrence)) return []
+  return contextRows
+    .filter((record) => !record.series.recurrence && !record.series.deletedAt)
+    .map((record) => record.series)
 }
 export function orderAgendaGroupPlans(
   plans: readonly Plan[],

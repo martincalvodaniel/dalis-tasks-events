@@ -26,7 +26,7 @@ import {
 } from "@/features/plans/plan-agenda-rows"
 import {
   planOrderContext,
-  planOrderPeers,
+  planRowOrderPeers,
 } from "@/features/plans/plan-order-selection"
 import { ItemCategorySelect } from "@/features/tags/components/item-category-select"
 import { useLocalTags } from "@/features/tags/hooks/use-local-tags"
@@ -148,11 +148,7 @@ export function PlanList({
     category.busy ||
     groupOrdering.busy
   const canOrderRows = Boolean(
-    data &&
-      placements &&
-      !placementReadError &&
-      !appearances.nextCursor &&
-      (selection.kind === "day" || selection.kind === "overdue")
+    data && placements && !placementReadError && !appearances.nextCursor
   )
   const tagIds = data?.tags.map((tag) => tag.id) ?? []
   const visibleTagIds = groups
@@ -413,15 +409,15 @@ export function PlanList({
                     }
                     orderControl={
                       canOrderRows &&
-                      !row.series.recurrence &&
-                      group.rows.every((record) => !record.occurrence) ? (
+                      planRowOrderPeers(group.rows, selection, row).length >
+                        1 ? (
                         <LongPressOrder
                           itemId={row.series.id}
                           label={`plan ${row.plan.title}`}
-                          peers={planOrderPeers(
-                            group.rows.map((record) => record.series),
+                          peers={planRowOrderPeers(
+                            group.rows,
                             selection,
-                            row.series
+                            row
                           ).map((record) => record.id)}
                           busy={busy}
                           onDrop={(neighbors) => {

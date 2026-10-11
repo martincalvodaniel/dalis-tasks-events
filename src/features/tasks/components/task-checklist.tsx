@@ -20,7 +20,7 @@ export function TaskChecklist({
   onChange?: (entryId: string, completed: boolean) => void
 }) {
   return (
-    <ul aria-label="Checklist" className="my-1 space-y-0 text-sm">
+    <ul aria-label="Checklist" className="my-1 space-y-0 pl-5 text-sm">
       {entries.map((entry) => (
         <li key={entry.id} className="wrap-anywhere">
           {onChange ? (

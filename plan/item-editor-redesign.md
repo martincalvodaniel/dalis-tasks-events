@@ -53,3 +53,8 @@ Cuatro variantes/editor/lista/calendario4 ya activos y pilotoGooglePreview cerra
 ### 16c1 — Pasos con icono y color del plan
 
 TaskChecklist reutiliza ItemCompletionIcon con variante/color heredados de PlanCard y TaskCard. Cada paso conserva completado propio y casilla nativa accesible/teclado/estado disabled, foco visible y fila táctil44px; modo readonly usa mismoSVG. Apariciones proyectadas reciben variante/categoría del padre por mismoPlanCard. Sin mutación nueva/esquema/índice/dependencia. Prueba markup verifica cuatroiconos/color/checked/disabled/readonly; React+IndexedDB propio4217 confirma check de paso/completar aparición conservan padres/otrasfechas/cola, recarga y limpiezaúnicamentepropia. Captura `/private/tmp/dalis-checklist-parent-icons.jpg`. Suite626pass/153skip/0fail/9158aserciones, lint667/tipos/build34/diff aprobados; commitpushint/HEAD/cuotas y continuar repeticiónremota elegida.
+
+
+### 16c2 — Orden desde Hoy y próximas y checklist indentada
+
+La lista principal ya permite long-press sobre planes simples, en el mismo contexto día/categoría y con vecinos completos; Todos también. Se conserva bloqueo sólo en contexto de aparición, intervalo consultado fuera de su inicio o página parcial. La checklist tiene indentación20px sin reducir44px táctiles. Fixture React/IndexedDB4251 comprueba toque corto/movimiento previo sin intención, pulsación450ms/drop con una intención task.move, refresco y recarga conservando orden; eventosPointer touch de fixture, no prueba física de móvil. Recursos propios retirados. Calendario recibe destinos en16c3.

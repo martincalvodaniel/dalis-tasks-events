@@ -313,3 +313,8 @@ PilotoGoogle y copias nuevas simples cerrados; siguiente elección humana antes 
 ### Elección humana11oct — Checklist y repetición remota
 
 Usuario prioriza icono/color de pasos y después autoriza continuar orden recomendado: repetición/series/apariciones, cumpleaños, compartir y cierreMVP según dependencias, mediante cortescompletos. Entrada62%5h/94%7d, reservas10%/1%, commitpushint/HEAD ycuota tras entrega; no renovarcréditos ni reactivarautomatización sin petición. Secuencialpor defecto yparelizaciónsólo seleccionadarutasdisjuntas.
+
+
+### Intercaladas humanas11oct — Orden y cambio de día
+
+Usuario prioriza corregir pulsación prolongada para planes y arrastrar al calendario antes de retomar repetición remota. Lectura52%5h/92%7d, reservas10%/1%. Cortes16c2/16c3 secuenciales con pruebas/commitpushint/HEAD y cuotas; automatización continúa pausada. Movimiento de aparición será local mediante comando existente; no anunciar sync remota de series.
