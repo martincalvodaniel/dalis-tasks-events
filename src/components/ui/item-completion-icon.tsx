@@ -1,17 +1,26 @@
 export type ItemCompletionVariant = "task" | "event" | "appointment" | "note"
+type ItemCompletionState = "not_started" | "in_progress" | "completed"
+
+type ItemCompletionIconProps = {
+  variant: ItemCompletionVariant
+  color?: string | null
+  className?: string
+} & (
+  | { status: ItemCompletionState; completed?: never }
+  | { completed: boolean; status?: never }
+)
 
 export function ItemCompletionIcon({
   variant,
-  completed,
+  completed: binaryCompleted,
+  status,
   color,
   className = "size-5",
-}: {
-  variant: ItemCompletionVariant
-  completed: boolean
-  color?: string | null
-  className?: string
-}) {
+}: ItemCompletionIconProps) {
   const iconColor = color ?? "currentColor"
+  const state = status ?? (binaryCompleted ? "completed" : "not_started")
+  const completed = state === "completed"
+  const inProgress = state === "in_progress"
   return (
     <svg
       viewBox="0 0 24 24"
@@ -29,18 +38,18 @@ export function ItemCompletionIcon({
           cx="12"
           cy="12"
           r="9"
-          fill={completed ? iconColor : "none"}
-          fillOpacity="0.2"
+          fill={completed || inProgress ? iconColor : "none"}
+          fillOpacity={inProgress ? "0.08" : "0.2"}
         />
       ) : variant === "note" ? (
         <>
           <path
             d="M5 3h10l4 4v14H5z"
-            fill={completed ? iconColor : "none"}
-            fillOpacity="0.2"
+            fill={completed || inProgress ? iconColor : "none"}
+            fillOpacity={inProgress ? "0.08" : "0.2"}
           />
           <path d="M15 3v4h4" />
-          {completed ? null : <path d="M8 11h8M8 15h6" />}
+          {state === "not_started" ? <path d="M8 11h8M8 15h6" /> : null}
         </>
       ) : (
         <>
@@ -50,8 +59,8 @@ export function ItemCompletionIcon({
             width="18"
             height={variant === "appointment" ? "16" : "18"}
             rx={variant === "appointment" ? "2" : "3"}
-            fill={completed ? iconColor : "none"}
-            fillOpacity="0.2"
+            fill={completed || inProgress ? iconColor : "none"}
+            fillOpacity={inProgress ? "0.08" : "0.2"}
           />
           {variant === "appointment" ? <path d="M3 9h18M7 3v4M17 3v4" /> : null}
         </>
@@ -60,6 +69,9 @@ export function ItemCompletionIcon({
         <path
           d={variant === "appointment" ? "m7 15 3 3 7-6" : "m7 12 3 3 7-7"}
         />
+      ) : null}
+      {inProgress ? (
+        <path d={variant === "appointment" ? "M8 15h8" : "M8 12h8"} />
       ) : null}
     </svg>
   )

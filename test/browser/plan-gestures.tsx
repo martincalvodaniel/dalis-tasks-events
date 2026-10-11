@@ -484,6 +484,148 @@ verifyDate.onclick = async () => {
   }
 }
 actions.append(verifyDate)
+const progressProofKey = `${marker}:progress`
+const progressProof = document.createElement("button")
+progressProof.textContent = "Probar tres estados"
+progressProof.className = "min-h-11 rounded border px-3 text-sm"
+progressProof.onclick = async () => {
+  progressProof.disabled = true
+  const repository = await LocalRepository.open(userId)
+  const outbox = await LocalOutbox.open(userId)
+  try {
+    if (calendarMode)
+      assert(
+        query.get("date") === date,
+        "Progress fixture must select its seeded day"
+      )
+    if (calendarMode) {
+      for (let page = 0; page < 20; page++) {
+        const more = [
+          ...rootElement.querySelectorAll<HTMLButtonElement>("button"),
+        ].find((button) => button.textContent === "Cargar más apariciones")
+        if (!more) break
+        more.click()
+        for (let attempt = 0; attempt < 120 && more.disabled; attempt++)
+          await new Promise((resolve) => setTimeout(resolve, 16))
+        await settle()
+      }
+    }
+    const before = (await outbox.listEntries()).length
+    let expectedCount = before
+    for (const recurring of calendarMode ? [false, true] : [false]) {
+      for (const [index] of variants.entries()) {
+        const itemId = planId(index, recurring)
+        const rowKey = recurring ? `${itemId}:${date}` : itemId
+        const row = rootElement.querySelector<HTMLElement>(
+          `li[data-order-item="${rowKey}"]`
+        )
+        const button = row?.querySelector<HTMLButtonElement>("article > button")
+        assert(row && button, "Progress row is missing")
+        const details = row.querySelector("details")
+        assert(!details?.open, "Progress must start outside details")
+        for (const [desired, pressed] of [
+          ["in_progress", "mixed"],
+          ["completed", "true"],
+          ["not_started", "false"],
+        ] as const) {
+          assert(!button.disabled, "Progress control is unexpectedly disabled")
+          button.click()
+          for (let attempt = 0; attempt < 120; attempt++) {
+            if (
+              !button.disabled &&
+              button.getAttribute("aria-pressed") === pressed
+            )
+              break
+            await new Promise((resolve) => setTimeout(resolve, 16))
+          }
+          expectedCount++
+          assert(
+            !button.disabled && button.getAttribute("aria-pressed") === pressed,
+            "Progress state did not refresh"
+          )
+          assert(!details?.open, "Changing progress must not open details")
+          const value = recurring
+            ? await repository.get("occurrences", rowKey)
+            : await repository.get("items", itemId)
+          assert(
+            value?.kind === "plan" && value.status === desired,
+            "Progress state was not persisted"
+          )
+          assert(
+            (value.completedAt !== null) === (desired === "completed"),
+            "Completion timestamp does not follow status"
+          )
+          assert(
+            value.checklist.every((step) => !step.completed),
+            "Plan progress changed checklist steps"
+          )
+          const entries = await outbox.listEntries()
+          const last = entries.at(-1)
+          assert(
+            entries.length === expectedCount && last?.state === "pending",
+            "One click must persist one pending intention"
+          )
+          assert(
+            last.operation.command.type ===
+              (recurring ? "plan.set-occurrence-status" : "plan.set-status") &&
+              "status" in last.operation.command &&
+              last.operation.command.status === desired,
+            "Progress intention does not match the requested state"
+          )
+          if (recurring)
+            assert(
+              (await repository.get("items", itemId))?.kind === "plan" &&
+                ((await repository.get("items", itemId)) as { status: string })
+                  .status === "not_started",
+              "Appearance progress changed its parent"
+            )
+        }
+      }
+    }
+    sessionStorage.setItem(progressProofKey, String(expectedCount))
+    status.textContent = `Tres estados OK: ${expectedCount - before} intenciones exactas, sin abrir detalles ni cambiar pasos/series.`
+  } catch (error) {
+    status.textContent = `Fallo: ${error instanceof Error ? error.message : "Progress check failed"}`
+  } finally {
+    repository.close()
+    outbox.close()
+  }
+}
+actions.append(progressProof)
+const verifyProgress = document.createElement("button")
+verifyProgress.textContent = "Verificar estados tras recarga"
+verifyProgress.className = "min-h-11 rounded border px-3 text-sm"
+verifyProgress.onclick = async () => {
+  const repository = await LocalRepository.open(userId)
+  const outbox = await LocalOutbox.open(userId)
+  try {
+    const expected = Number(sessionStorage.getItem(progressProofKey))
+    assert(
+      expected > 0 && (await outbox.listEntries()).length === expected,
+      "Reload lost progress intentions"
+    )
+    for (const recurring of calendarMode ? [false, true] : [false])
+      for (const [index] of variants.entries()) {
+        const itemId = planId(index, recurring)
+        const value = recurring
+          ? await repository.get("occurrences", `${itemId}:${date}`)
+          : await repository.get("items", itemId)
+        assert(
+          value?.kind === "plan" &&
+            value.status === "not_started" &&
+            value.completedAt === null,
+          "Reload lost reopened progress"
+        )
+      }
+    status.textContent = "Tres estados y cola conservados tras recarga."
+  } catch (error) {
+    status.textContent = `Fallo: ${error instanceof Error ? error.message : "Progress reload failed"}`
+  } finally {
+    repository.close()
+    outbox.close()
+  }
+}
+actions.append(verifyProgress)
 const cleanup = document.createElement("button")
 cleanup.textContent = "Limpiar prueba"
 cleanup.className = "ml-3 min-h-11 rounded border px-3 text-sm"
@@ -528,11 +670,14 @@ cleanup.onclick = async () => {
   sessionStorage.removeItem(marker)
   sessionStorage.removeItem(epochKey)
   sessionStorage.removeItem(baselineKey)
+  sessionStorage.removeItem(progressProofKey)
   status.textContent = "Prueba y bases propias eliminadas."
   cleanup.disabled = true
   run.disabled = true
   verify.disabled = true
   move.disabled = true
   verifyDate.disabled = true
+  progressProof.disabled = true
+  verifyProgress.disabled = true
 }
 actions.append(cleanup)

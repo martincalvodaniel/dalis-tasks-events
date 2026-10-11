@@ -338,3 +338,8 @@ Lectura previa34%5h/90%7d permite lectores/captura opcional y pruebaIndexedDB pr
 ### Cierre de ventana tras17b2a
 
 1f247a1 publicado con HEADexacto y22%5h/88%7d permite último corte acotado de guard transaccional y prueba de carrera antes de cierre. No empezar executor/journal/ACK más amplio en margen final; conservar reservas10%5h/1%7d y repositoriocoherente. Automatización permanecePAUSED, sin nueva cadena solicitada. Consultar cuotas reales tras commitpush/HEAD; continuidad posterior desde guard probado yconexión pendiente de amboswriters, sin anunciar recurrenciaremota completada.
+
+
+### Intercalada16c5 — Tres estados del icono
+
+Peticiónhumana prioriza cambio pequeño de estado directo desde lista después del cierrepreparatorio17b2a. Entrada18%5h/87%7d permite corteUI/productoresactuales, validación/commitpushint/HEAD yconsulta final. Reservas10%5h/1%7d vigentes; no abrirexecutorremoto amplio ni reactivar automatización. Checklist binaria preservada, apareciencias distintas sinmigración/DBnueva.

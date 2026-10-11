@@ -46,7 +46,7 @@ test("all variants render category-colored completion shapes and visible checkli
         onChecklistChange={() => undefined}
       />
     )
-    expect(html).toContain('aria-label="Completar Common plan"')
+    expect(html).toContain('aria-label="Empezar Common plan; Sin empezar"')
     expect(html).toContain('stroke="#123abc"')
     expect(html).toContain("14:30")
     expect(html).toContain('aria-pressed="false"')
@@ -62,7 +62,7 @@ test("all variants render category-colored completion shapes and visible checkli
       />
     )
     expect(completed).toContain('aria-pressed="true"')
-    expect(completed).toContain('aria-label="Reabrir Common plan"')
+    expect(completed).toContain('aria-label="Reabrir Common plan; Completado"')
     expect(completed).toContain('stroke="#123abc"')
     expect(html.indexOf("Visible step")).toBeGreaterThan(
       html.indexOf("</details>")
@@ -93,9 +93,36 @@ test("recurring parents point to appearance progress and disable per-occurrence 
   expect(html).toContain(
     "Gestiona el progreso de cada aparición en el calendario."
   )
-  expect(html).toMatch(/<button[^>]*disabled=""[^>]*aria-label="Completar/)
+  expect(html).toMatch(/<button[^>]*disabled=""[^>]*aria-label="Empezar/)
   expect(html).not.toContain('type="checkbox"')
-  expect(html).not.toContain('aria-label="Empezar')
+  expect(html).not.toContain('aria-label="Empezar Common plan"')
+})
+
+test("plan progress is a mixed accessible state and readonly or busy rows cannot change it", () => {
+  for (const variant of ["task", "event", "appointment", "note"] as const) {
+    const current = { ...plan(variant), status: "in_progress" as const }
+    const html = renderToStaticMarkup(
+      <PlanCard
+        plan={current}
+        categoryColor="#123abc"
+        onStatusChange={() => undefined}
+      />
+    )
+    expect(html).toContain('aria-pressed="mixed"')
+    expect(html).toContain('aria-label="Completar Common plan; En progreso"')
+    expect(html).toContain(
+      variant === "appointment" ? 'd="M8 15h8"' : 'd="M8 12h8"'
+    )
+    expect(html).toContain("size-11")
+    for (const props of [{ busy: true, onStatusChange: () => undefined }, {}]) {
+      const disabled = renderToStaticMarkup(
+        <PlanCard plan={current} {...props} />
+      )
+      expect(disabled).toMatch(
+        /<button[^>]*aria-pressed="mixed"[^>]*disabled=""/
+      )
+    }
+  }
 })
 
 test("checklist steps inherit the parent shape and color while keeping independent native state", () => {

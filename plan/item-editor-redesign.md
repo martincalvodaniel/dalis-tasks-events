@@ -68,3 +68,8 @@ El mismo gesto del día puede soltar sobre una celda del mes del mismo board, in
 ### 16c4 — Checklist tras categoría
 
 Editor común sitúa checklist inmediatamente debajo de categoría, antes de Todo el día/fechas/repetición/estado. Mismo componente/estado/guardado para creación/edición y cuatrovariantes; sin cambios de datos. Prueba UIlocal móvil390 desde editar confirma orden y valores, cancelación preserva contenido. Captura `/private/tmp/dalis-plan-editor-checklist-under-category.jpg`; recursospropioslimpiados. DoDglobal aprobado.
+
+
+### 16c5 — Estado directo desde icono
+
+Entregado11oct: icono principal de los cuatrotipos recorre Sin empezar→En progreso→Completado→Sin empezar en cada pulsación, sin abrir detalles/editor. Vacío/raya/check con colorcategoría y SVGpropio; aria-pressed mixed para progreso, etiquetaespañolaestado+siguienteacción y target44px/teclado. Usa productores/CAS existentes; simples sincronizan4, apariciones continúan locales. Seriepadre permanece deshabilitada y progreso sólo desde aparición. Checklist conserva estado binario eicono/color heredados. No nueva opción/campo de datos.

@@ -43,6 +43,43 @@ test("uncategorized icons inherit their neutral parent color", () => {
   expect(html).toContain('stroke="currentColor"')
 })
 
+test("every plan shape distinguishes progress from empty and completed states without changing color", () => {
+  for (const variant of variants) {
+    const progress = renderToStaticMarkup(
+      <ItemCompletionIcon
+        variant={variant}
+        status="in_progress"
+        color="#123abc"
+      />
+    )
+    expect(progress).toContain('stroke="#123abc"')
+    expect(progress).toContain('fill-opacity="0.08"')
+    expect(progress).toContain(
+      variant === "appointment" ? 'd="M8 15h8"' : 'd="M8 12h8"'
+    )
+    expect(progress).not.toContain('d="m7')
+    for (const status of ["not_started", "completed"] as const) {
+      expect(
+        renderToStaticMarkup(
+          <ItemCompletionIcon
+            variant={variant}
+            status={status}
+            color="#123abc"
+          />
+        )
+      ).toBe(
+        renderToStaticMarkup(
+          <ItemCompletionIcon
+            variant={variant}
+            completed={status === "completed"}
+            color="#123abc"
+          />
+        )
+      )
+    }
+  }
+})
+
 test("task rows pass category color to their accessible completion control", () => {
   const task: Task = {
     id: "00000000-0000-4000-8000-000000000001",

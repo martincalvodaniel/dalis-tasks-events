@@ -15,7 +15,7 @@ const dateFormatter = new Intl.DateTimeFormat("es-ES", {
 })
 const statusLabels = {
   not_started: "Sin empezar",
-  in_progress: "En proceso",
+  in_progress: "En progreso",
   completed: "Completado",
 }
 
