@@ -177,3 +177,7 @@ Bundle futuro declara occurrences/kindplan-occurrence sin activar consumidores. 
 ## Consumidor17c7b
 
 OpenRecurring privado selecciona ACK root/aparición/preference y pull recurrentes de forma conjunta; apertura normal4 permanece strict. Actor/partición/sender/correspondencia/cierre se validan, TX existentes confirman todo antes de ACK/cursor. Veinte checks reales en4253/4254 reutilizan fixtures con almacenamiento sintético, incluyendo root/personal/appearance/rebase/rollback/recarga/cierre y comparación/backup intactos; todos recursos propios limpiados. Sigue coordinador/runtime futuro y negociación5 con pruebas de dosparticiones/Mongo/Next antes de activar.
+
+## Coordinador17c7c
+
+Policy y validadores futuros fijados juntos; generación4 conserva DTO/kernel estrictos. Guardias antes/después de red y cuenta/stop impiden ACK fuera de época. Claim se relee antes de envío, UUID/payload/deps originales y lease propio conservados; trabajo independiente puede avanzar pese a históricos bloqueados. Cinco pruebas puras con puertos simulados no equivalen a convergencia. Runtime, HTTP5, frontera Next y dos particiones/Mongo siguen como aceptación integrada pendiente.

@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17c7c — Coordinador recurrente privado
+
+- Estado: completada11oct; cinco pruebas de guards/colas/correspondencia y DoD aprobados.
+
+- Objetivo: coordinar pull/claim/envío/ACK de tresfamilias con policy recurrente fija y guardias cuenta/época, sin ampliar kernel activo4.
+- target_paths: features/sync/recurring-coordinator y prueba pura, plan.
+- Dependencias:17c7b/store y17c7a/policy; entrada38%5h/59%7d, reservas10%/1%.
+- Aceptación: validadores recurrentes antes apply/cursor; claim reread, UUID/payload/deps exactos, lease sólo sender propio y release incluso error. Unsupported histórico/dependientes bloqueados, trabajo independiente avanza; cuenta/stop despuésawait evitan ACK. Pasadas bounded/settled no equivalen convergencia.
+- Validación: fixtures puros de cola/guardias/fallos/páginas/response/noACK/transición4, DoD completo, commit/pushint/HEAD/cuotas. Runtime/HTTP5 y prueba real posteriores. Kernel preparatorio separado protege DTO/gates4; posible consolidación sólo tras evidencia integrada.
+
 ## 17c7b — Consumidor local recurrente
 
 - Estado: completada11oct; veinte checks IndexedDB reales en dos orígenes propios y DoD aprobados.
