@@ -360,3 +360,5 @@ Los ajustes humanos 16c7–16c9 están publicados: cuenta/avatar, arrastre sin s
 ### Intercalada humana16c10
 
 Petición explícita posterior al cierre: gesto horizontal para cambiar mes y cabecera compacta. Lectura inicial13%5h/71%7d; corte único UI sin datos ni activación de recurrencia. Validación y publicación completas, consulta final de cuotas; automatización permanece pausada y no se abre siguiente executor por este ajuste.
+
+Corrección humana16c10b: reporte de gesto limitado a cabecera. Entrada11%5h/70%7d; completar reparación acotada y prueba real sobre celdas, no comenzar trabajo adicional. Cierre con commit/pushint/HEAD y cuotas; automatización sigue pausada.

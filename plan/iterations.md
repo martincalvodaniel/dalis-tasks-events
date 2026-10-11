@@ -3004,6 +3004,15 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: izquierda siguiente/derecha anterior; no cambiar por scroll vertical, tap, multitouch o gesto cancelado. No interferir con drop de planes ni selección de día. Cabecera en una fila, Hoy visualmente menor con target usable; PageUp/PageDown como alternativa de teclado sin flechas visibles. Sin cambios DB/transporte.
 - Validación: regresión de fechas/bordes y prueba del reconocimiento horizontal, lint/tipos/build y diff; commit/pushint/HEAD, después cuotas. Corte UI único, no reabrir lote ni automatización.
 
+## 16c10b — Deslizamiento sobre la cuadrícula de días
+
+- Estado: completada11oct; cuatro comprobaciones de navegador desde celdas aprobadas.
+- Objetivo: corregir el gesto que funciona en la cabecera pero no sobre los días.
+- target_paths: MonthGrid, su prueba y fixture de navegador local; documentos de plan.
+- Dependencias:16c10 y reporte humano; corrección acotada autorizada con11%5h/70%7d, sin abrir otro bloque.
+- Aceptación: evitar contenedor de scroll horizontal que intercepte el gesto antes de llegar a la sección; desactivar drag nativo de enlaces de día. Swipe desde celdas cambia mes; tap selecciona día, scroll vertical y drop externo de planes conservados.
+- Validación: markup y prueba de gesto desde celdas en navegador propio, lint/tipos/build/diff; commit/pushint/HEAD y cuotas. Sin DB ni automatización nueva.
+
 ## 17b3b — Executor de asignación de categoría a una serie
 
 - Estado: candidata, no iniciada al cierre de esta ventana.

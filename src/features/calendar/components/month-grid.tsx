@@ -59,8 +59,8 @@ export function MonthGrid({
           </span>
         </a>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[15rem] table-fixed border-separate border-spacing-1">
+      <div className="touch-pan-y touch-pinch-zoom">
+        <table className="w-full table-fixed border-separate border-spacing-1">
           <caption className="sr-only">
             {title}. Selecciona un día para ver sus planes.
           </caption>
@@ -90,6 +90,7 @@ export function MonthGrid({
                   return (
                     <td key={cell.key} className="p-0 align-top">
                       <a
+                        draggable={false}
                         data-order-drop-date={dropScope ? cell.date : undefined}
                         href={calendarHref(cell.date)}
                         aria-current={selected ? "true" : undefined}

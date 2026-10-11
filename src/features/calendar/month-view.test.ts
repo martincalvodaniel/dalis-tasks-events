@@ -41,6 +41,9 @@ describe("monthly calendar navigation", () => {
     expect(markup).not.toContain(">Anterior<")
     expect(markup).not.toContain(">Siguiente<")
     expect(markup).toContain("touch-pan-y touch-pinch-zoom")
+    expect(markup).not.toContain("overflow-x-auto")
+    expect(markup).not.toContain("min-w-[15rem]")
+    expect(markup).toContain('draggable="false"')
   })
   test("validates URL dates and keeps a selected day when opening the workspace", () => {
     expect(calendarDateFromSearch("?view=calendar&date=2026-10-06")).toBe(
