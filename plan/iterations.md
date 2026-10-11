@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17c5d — Productor local de orden recurrente
+
+- Estado: completada11oct; siete comprobaciones IndexedDB reales, dos pruebas puras y DoD aprobados.
+
+- Objetivo: puerto IndexedDB preparatorio que guarda optimismo de posiciones comunes/recurrentes e intencióndurable en la misma TX, sin cambiar hook/caller4.
+- target_paths: nuevo plan-local-recurring-move y prueba, task-move-outbox, fixture browser propia de orden recurrente, plan.
+- Dependencias:17c5c y capa outbox/ranking actual; entrada69%5h/64%7d, reservas10%/1%.
+- Aceptación: baseRevision del placement leída en mismaTX; UUID/payload/entityKey/sequence/deps exactos, replay de outbox readonly, contenido/aparición sin cambios. Catálogos completos bounded y partición propia; validar legacy y conservarlos sin sincronizarlos. Overdue sólo día actual del usuario al crear, servidor sigue as-ofdurable. Rollback tardío no deja posición/vista/tail/cola parciales. API4 sin cambios.
+- Validación: pura mixed simple/timed/multidía/overdue/actor/historia y navegador propio IndexedDB con creación/replay/deps/base/overflow/recarga/cleanup; DoDglobal, commit/pushint/HEAD/cuotas. No Google/DBusuario/activación.
+
 ## 17c5c — Descarga autorizada del orden recurrente
 
 - Estado: completada11oct; Mongo127pass/1780aserciones y DoD aprobados.

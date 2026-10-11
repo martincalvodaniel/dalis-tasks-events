@@ -152,4 +152,8 @@ Mongo propio confirma cuatro variantes, peers simples, apariciones implícitas y
 
 Reader privado recurrente resuelve UUID del padre desde slot canónico, exige parentactual propio kindplan y placementdurable con revisión al menoshistórica; categorías actual e histórica conservan autorización. Una posición implícita no exige excepción persistida ni regla actual para poder descargar historia. Cancelación/retirada de regla/borrado/tombstone no pierde propiedad; ausencia/corrupción/revisión inferior/padre extranjero/categoría ausente rechazan toda página. Lectores activos4 continúan strict; ninguna ruta nueva.
 
-Dos escenarios Mongo prueban all_day/timed sin excepción, categorías de serie y checkpoint tras retirar regla/borrar padre/tombstoneplacement, y snapshot íntegro frente a faltantes/actor/corrupción/revisión/categoría. Siguiente17c5d: productor local recurrente y prueba IndexedDB con intención/replay/dependencias/rollback/recarga; luego consumidores/política/transporte5 y pruebas conjuntas.
+Dos escenarios Mongo prueban all_day/timed sin excepción, categorías de serie y checkpoint tras retirar regla/borrar padre/tombstoneplacement, y snapshot íntegro frente a faltantes/actor/corrupción/revisión/categoría.
+
+## Productor de orden17c5d
+
+Puerto IndexedDB futuro conserva revisión confirmada de posición y lee contexto/categorías/apariciones/cola en mismaTX antes de escribir optimismo y outbox. Identidad/slot/payload/sequence/tail/deps exactos; no cambia padre/aparición. Replay readonly y rollback tardío probados; ACK personal futuro sólo rebasa pendiente nointentado directamente dependiente y mantiene optimismo. Siete checks browser reales incluyen recarga/snapshot exacto y limpieza own; resultado ACK sintético no equivale a convergencia remota. Caller4 intacto. Siguen envío/consumidores/política/transporte5 y pruebas conjuntas.

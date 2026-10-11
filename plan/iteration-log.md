@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17c5d — Productor recurrente en IndexedDB
+
+Cerrado11oct: puerto privado guarda movimiento mixto simple/aparición, optimismo y outbox en mismaTX, con revisión confirmada de posición independiente del padre/aparición. Partición/actor/settings/catálogos completos estrictos; atrasadas nuevas usan día civil local actual, payload durable conserva as-of. UUID/slot/sequence/dependencias intactos; caller4 no cambia. Siete checks reales4256 prueban rechazo sinwrites, commit/replay readonly, cadena de movimientos, rollback tardío, ACK personal futuro atómico con rollback/rebase sólo nointentado, dependencia de edición de serie y snapshot exacto tras recarga. ACK sintético es prueba local, no Mongo/Next/convergencia. Particiones/tab/server/script propios retirados. Dos tests puros nuevos; suite707pass/196opt-in skip/0fail/9732aserciones, lint744/tipos/buildNext16.4worker36/diff aprobados. Sin DBusuario/activación; commit/pushint/HEAD/cuotas y siguiente frontera de envío/consumidores recurrentes.
+
 ## 17c5c — Descarga de posiciones recurrentes autorizada
 
 Cerrado11oct: sólo reader privado recurrente resuelve padre de UUID:slot, conserva slotsimplícitos sin exigir materialización/reglaactual y valida currentplacement/revisión/padrepropio/tagshistóricoactual en misma snapshotTX. Readers4 intactos, ninguna nuevaquery/índice/ruta activa. Dos tests Mongo nuevos cubren día/timed, categoría de padre, checkpoint congelado tras retirada de regla/borrado/tombstoneplacement y lectura completa; ausencia/corrupción/revisión inferior/actor/categoría faltante rechazan página íntegra sinavance. Mongo127pass/0fail/1780aserciones24archivos, recursos propios retirados. Suite705pass/196opt-in skip/0fail/9722aserciones, lint741/tipos/buildNext16.4worker36/diff aprobados. Sin DBusuario ni activación/convergencia; commit/pushint/HEAD/cuotas y siguiente17c5d productor local/replay/deps/rollback real IndexedDB.

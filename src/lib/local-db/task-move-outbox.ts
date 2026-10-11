@@ -1,6 +1,8 @@
 "use client"
 
+import { localDatabaseName } from "@/lib/local-db/client"
 import { planLocalPlanMove } from "@/lib/local-db/plan-move-mutation"
+import { planLocalRecurringPlanMove } from "@/lib/local-db/recurring-plan-move"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import {
   planLocalTaskMove,
@@ -14,7 +16,11 @@ import {
   preferenceTailSchema,
 } from "@/schemas/local-sync"
 import { taskPlacementEntityKey } from "@/schemas/ordering"
-import { entityIdSchema, timestampSchema } from "@/schemas/primitives"
+import {
+  entityIdSchema,
+  timestampSchema,
+  userIdSchema,
+} from "@/schemas/primitives"
 import { syncCommandSchema } from "@/schemas/sync"
 import type { OutboxEntry } from "@/types/local-sync"
 
@@ -25,10 +31,43 @@ export function commitLocalTaskMoveCommand(
   options: { operationId?: string; now?: Date },
   allowPlans = false
 ): Promise<OutboxEntry> {
+  return commitTaskMoveCommand(
+    database,
+    userId,
+    input,
+    options,
+    allowPlans,
+    false
+  )
+}
+
+// Prepared recurring producer; current hooks keep the existing strict entry point.
+export function commitLocalRecurringPlanMoveCommand(
+  database: IDBDatabase,
+  userIdInput: unknown,
+  input: TaskMoveCommand,
+  options: { operationId?: string; now?: Date }
+): Promise<OutboxEntry> {
+  const userId = userIdSchema.parse(userIdInput)
+  if (database.name !== localDatabaseName(userId))
+    return Promise.reject(
+      new Error("Movement database belongs to another partition")
+    )
+  return commitTaskMoveCommand(database, userId, input, options, true, true)
+}
+
+function commitTaskMoveCommand(
+  database: IDBDatabase,
+  userId: string,
+  input: TaskMoveCommand,
+  options: { operationId?: string; now?: Date },
+  allowPlans: boolean,
+  allowSeries: boolean
+): Promise<OutboxEntry> {
   const parsed = syncCommandSchema.parse(input)
   if (
     parsed.type !== "task.move" ||
-    (parsed.occurrenceId !== null && parsed.scope !== "day")
+    (!allowSeries && parsed.occurrenceId !== null && parsed.scope !== "day")
   )
     return Promise.reject(
       new Error("Occurrence movement requires its own mutation layer")
@@ -83,11 +122,12 @@ export function commitLocalTaskMoveCommand(
             context.setResult(existing)
             return
           }
-          const items = store("items").getAll()
-          const occurrences = store("occurrences").getAll()
-          const tags = store("tags").getAll()
-          const views = store("itemViews").getAll()
-          const placements = store("taskPlacements").getAll()
+          const limit = allowSeries ? 10001 : undefined
+          const items = store("items").getAll(undefined, limit)
+          const occurrences = store("occurrences").getAll(undefined, limit)
+          const tags = store("tags").getAll(undefined, limit)
+          const views = store("itemViews").getAll(undefined, limit)
+          const placements = store("taskPlacements").getAll(undefined, limit)
           const settings = store("settings").get(userId)
           const sequence = metadata.get("outbox-sequence")
           const tail = metadata.get("preference-tail")
@@ -107,7 +147,11 @@ export function commitLocalTaskMoveCommand(
             if (--remaining !== 0) return
             try {
               const result = (
-                allowPlans ? planLocalPlanMove : planLocalTaskMove
+                allowSeries
+                  ? planLocalRecurringPlanMove
+                  : allowPlans
+                    ? planLocalPlanMove
+                    : planLocalTaskMove
               )(
                 {
                   items: items.result.map((value) =>

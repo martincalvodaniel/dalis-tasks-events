@@ -32,7 +32,7 @@ Continuación20:26:17b3b conecta executor preparatorio de categorías de series,
 
 17c5b conecta executor preparatorio de orden con guards/CAS/recibo/journal atómicos y prueba Mongo de retry/rollback. Sigue17c5c descarga autorizada de placements recurrentes y consumidores/productor futuros; aún sin activar repetición remota.
 
-17c5c prepara descarga autorizada por padre propio de posiciones recurrentes implícitas/timed e historia conservada tras cambio de regla/borrado. Sigue17c5d productor IndexedDB futuro, después consumidores/política y negociación5/prueba conjunta. Activo4 intacto.
+17c5c prepara descarga autorizada por padre propio de posiciones recurrentes implícitas/timed e historia conservada tras cambio de regla/borrado.17c5d cierra productor IndexedDB futuro con replay/dependencias/rollback/ACK personal y recarga reales. Siguen frontera de envío, consumidores/política y negociación5/prueba conjunta. Activo4 intacto.
 
 Nueva petición humana11oct: continuación puntual programada hoy20:26Europe/Madrid, previa comprobación real de renovación para17b3b. Código85d788c, reservas10%5h/1%7d; heartbeat existente ACTIVE sin cadena adicional.
 
