@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 17e1a2 — Cola conservada ante retiro4 y referencia ausente
+
+- Estado: completada12oct; nueve escenarios Next5/IndexedDB/Mongo propios pasan, sinACK antiguo y sin mutaciónremota por rechazos.
+
+- Objetivo: conectar en fixture aislada dos particiones propias y conservar UUID/payload/deps/stores/cursor ante acciónausente Next16.4 y retiro preparatorio4 tras handshake4 capturado realmente.
+- target_paths: test/next-recurring-sync/features/{local-client,device-client,controller}.ts*.template y plan. Dependencias:17e1a1, productores/backup/runtime privados existentes; entrada80%5h/50%7d.
+- Aceptación: root y asignación dependiente producidos atómicamente, intento viejo sólo incrementa attempts/libera lease propio sinACK, segundo handshake5 bloquea antesclaim, Mongo intacto. Orígenes/control/particiones/sesiones propios limpiados. No afirmar recuperación/convergencia5 ni lifecyclehook en este corte.
+- Validación: Next compilado/defaults reales/IndexedDB/Mongo, suite/lint/tipos/build/worker/diff, plan/log mismo commitpushint/HEAD/cuotas. Secuencial/reservas10%/1%; sin DBusuario/activación.
+
 ## 17e1a1 — Frontera recurrente Next aislada
 
 - Estado: completada12oct; ocho escenarios Next5/Mongo propios y regresión diecinueve escenariosNext4 aprobados; generación4 activa intacta.
@@ -3065,7 +3074,7 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 
 ## 17e1a — Frontera Next5 compilada y retiro4
 
-- Estado:17e1a1 cierra RPC/auth/readiness/matrix/serie/aparición; falta17e1a2 conservación de cola/lease tras referencia ausente o retiro4 y lifecycle/convergencia5.
+- Estado:17e1a1 cierra RPC/auth/readiness/matrix/serie/aparición; 17e1a2 conserva cola/lease tras referencia ausente o retiro4; falta lifecycle/convergencia5.
 - Objetivo: evidencia de referencia real actions-v5/defaults/readiness5/sesiones BetterAuth persistidas, matrix4↔5 y rechazo de acción4 retirada sin ejecución/ACK.
 - target_paths: scripts/next-sync-test-runner.ts, test/next-sync/**/*.template, src/{schemas,config}/next-sync-test.ts, src/lib/db/next-sync-fixture.ts y tests pertinentes, plan; integración compartida de único dueño.
 - Dependencias:17d1–5 preparados; descriptor Mongo propio/imagen pinned y procedimiento de índices propios5 antes readiness. No índices/DBusuario, no API/provider productivo5.

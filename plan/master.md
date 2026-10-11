@@ -2,6 +2,8 @@
 
 ## Estado operativo actual — 12 de octubre
 
+17e1a2 cerrado: dos particiones IndexedDB propias, productor real de plan/asignación y handshake4 autenticado capturado conservan todos los stores/UUID/payload/dependencias/cursor ante referencia ausente o retiro4. Sólo increments de attempts sobre root y lease propio liberado; siguientehandshake5 bloquea antesclaim. Nueve escenariosNext5/Mongo pasan, sinACK antiguo ni recuperación/convergencia local5 declarada. Sigue17e1b lifecycle/convergencia.
+
 17e1a1 cerrado: acción5 real compilada/defaults, dos sesiones BetterAuth propias y Mongo efímero verifican serie/aparición/replay con dos recibos exactos, auth/actor/readiness y matrix4↔5 antesbody. Retiro4 se prueba mediante wrapper preparatorio, no ID del producto activo. Next16.4 devuelve409 marcado para ID desconocido; assertion actualizada con código instalado verificado. Regresión diecinueve escenariosNext4 aprobada. Siguen cola/lease/capturedhandshake4, lifecycle5 y convergencia IndexedDB/Mongo antes provisión autorizada/activación conjunta; generación4 sigue activa. Trabajo aislado en worktreeint gestionado para preservar checkout humano main.
 
 Ajuste visual16c12: acciones de categorías/ajustes y controles del editor común reducidos a36px, con extensión invisible del target de botones a44px. Menos espaciado, descripción inicial de dos líneas y tarjeta de ajustes más compacta; navegación y comportamiento conservados. Validación en navegador propio con componentes reales y CSS compilado; tipos/lint/suite y buildWebpack aprobados.

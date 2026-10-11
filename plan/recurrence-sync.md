@@ -2,6 +2,10 @@
 
 Estado11oct: generación4 sólo sincroniza planes simples; series/apariciones/progreso/cambios de fecha siguen locales. Arrastre simple y checklist heredada entregados16c1–3. No activar parcialmente un nuevo alcance.
 
+## Cola conservada — 17e1a2
+
+Fixture con dos particiones y productor atómico real de plan/asignación. Bootstrap4 vacío inicializa su checkpoint durable antes del snapshot; luego identity/pull4 autenticados se capturan realmente y sólo se entregan una vez al runtime4. Referencia ausente409 marcado o wrapperretiro4 noACK, sólo root incrementaattempts y libera lease propio; handshake5 posterior bloquea antesclaim. Comparación de todosstores/cursor/UUID/payload/deps/outcomes exacta con única excepción prevista deattempts; Mongo intacto. Nueve escenariosNext5 pasan. No se recupera/sincroniza aún esa cola mediante5 en este corte; sigue lifecycle/convergencia17e1b. Particiones/control/sesiones/servidores/container propios retirados, screenshot /private/tmp/dalis-next5-queue-proof.png.
+
 ## Evidencia Next5 — 17e1a1
 
 Modo next-recurring mantiene fixture4 y superpone únicamente fronteras futuras. Ocho escenarios compilados con acción5 real y sesiones persistidas propias prueban serie/aparición, recibo/journal único y replay entre clientes, actor/sesión/readiness y cuatro rechazos matrix antesbody. Retiro4 usa wrapper preparatorio explícito; todavía no prueba ID4 retirado en deployment. ID desconocido real en Next16.4 devuelve409 con x-nextjs-action-not-found1, según implementación instalada; generación4 fixture corregida y diecinueve escenarios regresión pasan. No ACK IndexedDB ni convergencia5 atribuidos todavía. Siguiente17e1a2: capturarhandshake4 y conservar cola/lease en cliente antiguo frente a retiro/ausencia, antes lifecycle5/proof integrada. Screenshot /private/tmp/dalis-next5-boundary-proof.png; recursos propios retirados, producto sigue4.

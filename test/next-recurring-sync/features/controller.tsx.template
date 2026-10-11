@@ -9,6 +9,8 @@ import {
 } from "@/schemas/next-sync-test"
 import { remoteRecurringPushResultSchema } from "@/schemas/remote-recurring-push"
 import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
+import { validateLocalRecurringBackup } from "@/lib/backup/local-backup"
+import { localPullCursorSchema } from "@/schemas/local-sync"
 import { syncOperationSchema } from "@/schemas/sync"
 import { workspaceIdentitySchema } from "@/schemas/workspace"
 import { executeFixtureCommand, fixtureFetch } from "@fixture/device-client"
@@ -220,6 +222,141 @@ export function FixtureController() {
         expectedUserId: owner,
         operations: [creation],
       })
+      await check(
+        "Handshake4 capturado conserva cola ante referencia ausente y retiro",
+        async () => {
+          const remoteBefore = await state(owner)
+          for (let index = 0; index < 2; index++) {
+            await call(index, { type: "prepare-local", userId: owner })
+            const now = new Date().toISOString()
+            const request = {
+              mode: "create" as const,
+              itemId: crypto.randomUUID(),
+              contentOperationId: crypto.randomUUID(),
+              viewOperationId: crypto.randomUUID(),
+              primaryTagId: null,
+              now,
+              input: {
+                kind: "plan" as const,
+                variant: "note" as const,
+                title: "Cola conservada ante retiro",
+                description: "",
+                status: "not_started" as const,
+                checklist: [],
+                recurrence: null,
+                schedule: {
+                  mode: "all_day" as const,
+                  startDate: "2026-10-12",
+                  endDateExclusive: "2026-10-13",
+                },
+              },
+            }
+            await call(index, { type: "save-plan", request })
+            const snapshot = async () =>
+              (await call(index, { type: "local-snapshot" })) as {
+                backup: unknown
+                cursor: unknown
+              }
+            for (const type of [
+              "legacy-missing-action-run",
+              "retired-mixed-action-run",
+            ] as const) {
+              const before = await snapshot()
+              const baseline = validateLocalRecurringBackup(
+                before.backup,
+                owner
+              )
+              const root = baseline.stores.outbox.find(
+                (entry) =>
+                  entry.operation.operationId === request.contentOperationId
+              )
+              const dependent = baseline.stores.outbox.find(
+                (entry) =>
+                  entry.operation.operationId === request.viewOperationId
+              )
+              assert(
+                root &&
+                  dependent &&
+                  root.state === "pending" &&
+                  root.lease === null &&
+                  dependent.dependencies.includes(root.operation.operationId),
+                "Atomic producer lacks root and exact dependent"
+              )
+              const proof = (await call(index, { type })) as {
+                handshake: string
+                dispatches: number
+                unrecognized: number
+                identityReads: number
+                pageReads: number
+                probeStatus: number
+                actionNotFound: string | null
+                first: { status: string; uploaded: number; downloaded: number }
+                second: { status: string; uploaded: number; downloaded: number }
+                afterFirst: { backup: unknown; cursor: unknown }
+                afterSecond: { backup: unknown; cursor: unknown }
+              }
+              assert(
+                proof.handshake === "captured-prior-v4" &&
+                  proof.dispatches === 1 &&
+                  proof.identityReads === 1 &&
+                  proof.pageReads === 1,
+                "Captured old handshake was not bounded"
+              )
+              if (type === "legacy-missing-action-run")
+                assert(
+                  proof.probeStatus === 409 &&
+                    proof.actionNotFound === "1" &&
+                    proof.unrecognized === 1,
+                  "Missing action was not rejected by compiled Next"
+                )
+              assert(
+                proof.first.status ===
+                  (type === "legacy-missing-action-run"
+                    ? "retry_later"
+                    : "update_required") &&
+                  proof.first.uploaded === 0 &&
+                  proof.first.downloaded === 0,
+                "Old action acknowledged queued work"
+              )
+              assert(
+                proof.second.status === "update_required" &&
+                  proof.second.uploaded === 0 &&
+                  proof.second.downloaded === 0,
+                "New handshake did not block before another claim"
+              )
+              const expected = structuredClone(baseline.stores)
+              const attempted = expected.outbox.find(
+                (entry) =>
+                  entry.operation.operationId === root.operation.operationId
+              )
+              assert(attempted, "Snapshot lacks attempted root")
+              attempted.attempts++
+              for (const retained of [
+                proof.afterFirst,
+                proof.afterSecond,
+                await snapshot(),
+              ]) {
+                assert(
+                  JSON.stringify(
+                    validateLocalRecurringBackup(retained.backup, owner).stores
+                  ) === JSON.stringify(expected) &&
+                    JSON.stringify(
+                      localPullCursorSchema.parse(retained.cursor)
+                    ) ===
+                      JSON.stringify(
+                        localPullCursorSchema.parse(before.cursor)
+                      ),
+                  `Retirement changed stores ${JSON.stringify(Object.keys(expected).filter((key) => JSON.stringify(validateLocalRecurringBackup(retained.backup, owner).stores[key as keyof typeof expected]) !== JSON.stringify(expected[key as keyof typeof expected])))} or cursor`
+                )
+              }
+            }
+          }
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(remoteBefore),
+            "Rejected old clients changed Mongo"
+          )
+        }
+      )
       await check(
         "Matriz4↔5 rechaza antes del cuerpo; ID ausente devuelve409 marcado",
         async () => {
@@ -436,6 +573,15 @@ export function FixtureController() {
         for (let index = 0; index < 2; index++) {
           try {
             assert(
+              (await call(index, { type: "cleanup-local" })) === true,
+              "Owned local cleanup failed"
+            )
+          } catch {
+            passed = false
+          }
+
+          try {
+            assert(
               (
                 (await call(index, {
                   type: "session",
@@ -451,7 +597,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Ocho escenarios de frontera Next5 correctos; sesiones propias cerradas"
+            "Nueve escenarios de frontera Next5 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",
