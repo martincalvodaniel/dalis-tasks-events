@@ -33,7 +33,7 @@ const defaultPorts: AuthenticatedRecurringPushPorts = {
   },
 }
 
-// No public action yet. Session and strict batch checks precede the readonly index inspection.
+// Prepared action only; session and strict batch checks precede the readonly index inspection.
 export function pushAuthenticatedRecurringSyncBatch(
   input: unknown,
   headers: Headers,

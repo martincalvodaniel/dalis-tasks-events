@@ -3028,6 +3028,16 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Aceptación: ACTIVE puntual, cuotas reales antes de17b3b, reservas10%/1%, sin duplicados/cadena/código nuevo.
 - Validación: automation_update confirmó ACTIVE, referencias/diff, commit/pushint/HEAD/cuotas.
 
+## 17d3 — Fronteras de servidor preparadas5
+
+- Estado: completada11oct; ocho pruebas puras y DoD aprobados, sin rutas activas modificadas.
+
+- Objetivo: descarga autenticada recurrente/acción5 y retiro explícito4 privados, sin conectar rutas/provider activos.
+- target_paths: features/sync/{pull-recurring-response,authenticated-recurring-pull,actions-v5,retired-sync-push-v4} y pruebas, comentario authenticated-recurring-push, plan.
+- Dependencias:17d1–17d2, dispatcher/readiness/reader futuros; entrada23%5h/57%7d, reservas10%/1%.
+- Aceptación: sesión/query/expectedUserId antes de readiness5/journal, header5 exclusivo/no-store, página recurrente completa validada; error saneado/cursorAhead. Retiro4 sólo envelope2/auth/update_required sin readiness/ejecutor/ACK. Acción5 pasa headers reales al servicio ya validado; API/caller4 intactos.
+- Validación: pruebas puras sesión/query/readiness/datos/retirement/matrix y DoD. Guía Next Server Actions instalada leída antes wrapper; acción compilada real y dosparticiones/Mongo como corte posterior, sin atribuirles pruebas puras.
+
 ## 17d2 — Runtime recurrente y lifecycle IndexedDB
 
 - Estado: completada11oct; seis escenarios de navegador propio y DoD aprobados.

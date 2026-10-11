@@ -189,3 +189,7 @@ HTTP privado fija header5 exclusivo antes de body, cookies same-origin/no-store 
 ## Runtime17d2
 
 Puerto privado fija coordinador/store/policy recurrentes juntos, captura cuenta/época y release, conserva lease propio al cerrar o perder cuenta. Seis checks browser propios prueban coalescencia/stop/cambios durante red/reapertura y ACK/pull local de aparición producida realmente. Respuestas simuladas; sin activación ni prueba RPC/convergencia. Next/índice de aparición/proof conjunta siguientes.
+
+## Fronteras17d3
+
+Descarga privada usa readiness5/reader recurrente y header5 exclusivo antes de datos; sesión/query/expectedactor primero y errores saneados. Acción5 preparada y retiro4 sin ejecución/ACK, ninguno conectado al producto activo. Ocho pruebas puras incluyen página recurrente y lease/intención intactos tras handshake4 capturado. Referencias RPC compiladas y dosparticiones/Mongo siguen pendientes.

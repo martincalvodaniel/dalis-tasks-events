@@ -2,6 +2,8 @@
 
 ## Estado operativo actual — 11 de octubre
 
+17d3 deja preparada descarga autenticada5/acción5/retiro4, con ocho pruebas puras y build. Rutas y proveedor activos4 intactos; falta prueba RPC real de esas referencias, integración conjunta y prerrequisito del índice de apariciones.
+
 17d2 prepara runtime recurrente con seis escenarios IndexedDB de cuenta/época/cierre/reapertura y ACK/pull locales reales. Respuestas simuladas; fronteras Next y prueba integrada de dos particiones/Mongo pendientes. Repetición remota aún no activada.
 
 17d1 prepara transporte5 exclusivo y validación recurrente antes de datos/ACK; matrix4↔5 y deadlines probados. Callers activos4 intactos; runtime y prueba integrada/Next pendientes antes de activar repetición remota.
