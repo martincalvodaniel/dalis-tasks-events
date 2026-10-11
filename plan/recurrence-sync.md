@@ -111,3 +111,7 @@ Nuevo método preparatorio valida correspondencia exacta create/update/delete co
 ## Copia portable17c5a
 
 Formato backup3 preparatorio representa nuevasfamilias sin ampliar codecsactivos1/2; intención1 yshadows/outcomes2 siguen originales, versionportable separada de negociación5. Codec futuro lee3/1/2 sin normalizarhistoria. Integridad común mantiene actores/cola/counter/ACK/decisiones yvalida parents/slots/contradicciones/revisiones observadas deaparición. Cinco tests nuevos yregresiónbackups pasan; exportTX futuro17c5b yUI/consumidores aúnpendientes, sinrestore/wipe automático.
+
+## ExportTX17c5b
+
+Snapshot común recibe codec/versiontipados: exportactual2 sigueestricto, nuevo export3readonly valida todosstores/namespace/marker/counter/outcomes/size antes TXcomplete. Conflicto realmente persistido yapariciónactualmodificada exportados, roundtripexacto ysnapshot/incidente/JSONidénticos trasrecarga probadosbrowser4253 (diezchecks, recursospropioslimpios). Sinrestore/import/caller5; ordenmixto deapariciones, executorpersonal de serie ypolítica/consumidores siguen pendientes antes integración.

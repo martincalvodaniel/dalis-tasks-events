@@ -2,15 +2,17 @@
 
 import {
   encodeLocalBackup,
+  encodeLocalRecurringBackup,
   localBackupStoreNames,
   validateLocalBackup,
+  validateLocalRecurringBackup,
 } from "@/lib/backup/local-backup"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import type { LocalTransactionContext } from "@/lib/local-db/transaction"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { commonPlanLocalReleaseSchema } from "@/schemas/common-plan-local-release"
 import { timestampSchema, userIdSchema } from "@/schemas/primitives"
-import type { LocalBackup } from "@/types/local-backup"
+import type { LocalBackup, LocalRecurringBackup } from "@/types/local-backup"
 
 export function queueLocalBackupSnapshot(
   context: Pick<LocalTransactionContext<unknown>, "transaction" | "fail">,
@@ -18,6 +20,46 @@ export function queueLocalBackupSnapshot(
   userIdInput: string,
   exportedAtInput: string,
   onSnapshot: (backup: LocalBackup) => void
+): void {
+  queueBackupSnapshot(
+    context,
+    database,
+    userIdInput,
+    exportedAtInput,
+    onSnapshot,
+    {
+      version: 2,
+      validate: validateLocalBackup,
+      encode: encodeLocalBackup,
+    }
+  )
+}
+
+export function queueLocalRecurringBackupSnapshot(
+  context: Pick<LocalTransactionContext<unknown>, "transaction" | "fail">,
+  database: IDBDatabase,
+  userId: string,
+  exportedAt: string,
+  onSnapshot: (backup: LocalRecurringBackup) => void
+): void {
+  queueBackupSnapshot(context, database, userId, exportedAt, onSnapshot, {
+    version: 3,
+    validate: validateLocalRecurringBackup,
+    encode: encodeLocalRecurringBackup,
+  })
+}
+
+function queueBackupSnapshot<Backup extends LocalRecurringBackup>(
+  context: Pick<LocalTransactionContext<unknown>, "transaction" | "fail">,
+  database: IDBDatabase,
+  userIdInput: string,
+  exportedAtInput: string,
+  onSnapshot: (backup: Backup) => void,
+  codec: {
+    version: 2 | 3
+    validate: (input: unknown, userId: string) => Backup
+    encode: (input: unknown, userId: string) => string
+  }
 ): void {
   const userId = userIdSchema.parse(userIdInput)
   const exportedAt = timestampSchema.parse(exportedAtInput)
@@ -44,10 +86,10 @@ export function queueLocalBackupSnapshot(
               })
             : request.result
         if (--remaining) return
-        const backup = validateLocalBackup(
+        const backup = codec.validate(
           {
             format: "dalis-local-backup",
-            version: 2,
+            version: codec.version,
             protocolVersion: 1,
             databaseVersion: database.version,
             userId,
@@ -56,7 +98,7 @@ export function queueLocalBackupSnapshot(
           },
           userId
         )
-        encodeLocalBackup(backup, userId)
+        codec.encode(backup, userId)
         onSnapshot(backup)
       } catch (error) {
         context.fail(error)
@@ -76,6 +118,28 @@ export function readLocalBackup(
     "readonly",
     (context) => {
       queueLocalBackupSnapshot(
+        context,
+        database,
+        userId,
+        exportedAt,
+        context.setResult
+      )
+    }
+  )
+}
+
+// Prepared generation-five export. No restore or product caller is connected here.
+export function readLocalRecurringBackup(
+  database: IDBDatabase,
+  userId: string,
+  exportedAt: string
+): Promise<LocalRecurringBackup> {
+  return runLocalTransaction(
+    database,
+    [...localBackupStoreNames],
+    "readonly",
+    (context) => {
+      queueLocalRecurringBackupSnapshot(
         context,
         database,
         userId,

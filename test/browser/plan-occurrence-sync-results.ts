@@ -1,4 +1,12 @@
+import {
+  decodeLocalRecurringBackup,
+  encodeLocalRecurringBackup,
+} from "@/lib/backup/local-backup"
 import { applyPlanOccurrenceCommand } from "@/lib/calendar/plan-occurrence-command"
+import {
+  readLocalBackup,
+  readLocalRecurringBackup,
+} from "@/lib/local-db/backup"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalPlanOccurrenceResult } from "@/lib/local-db/plan-occurrence-sync-results"
 import { readLocalPlanOccurrenceSyncIncidents } from "@/lib/local-db/recurring-sync-incidents"
@@ -16,7 +24,8 @@ const userId = `browser-test-${runId}-appearance-results`,
   otherId = `${userId}-other`
 const marker = `dalis:appearance-result:${runId}`,
   proofKey = `${marker}:proof`,
-  incidentKey = `${marker}:incident`
+  incidentKey = `${marker}:incident`,
+  backupKey = `${marker}:backup`
 const stores = [
   "items",
   "occurrences",
@@ -180,6 +189,7 @@ async function cleanup() {
   sessionStorage.removeItem(marker)
   sessionStorage.removeItem(proofKey)
   sessionStorage.removeItem(incidentKey)
+  sessionStorage.removeItem(backupKey)
 }
 async function run() {
   const existing = await indexedDB.databases()
@@ -216,6 +226,14 @@ async function run() {
           JSON.stringify(
             await readLocalPlanOccurrenceSyncIncidents(db, userId)
           ) === sessionStorage.getItem(incidentKey)
+        )
+      )
+      await check("backup recurrente exacto tras recarga", async () =>
+        assert(
+          encodeLocalRecurringBackup(
+            await readLocalRecurringBackup(db, userId, timestamp),
+            userId
+          ) === sessionStorage.getItem(backupKey)
         )
       )
       statusElement.textContent =
@@ -406,6 +424,45 @@ async function run() {
         await refused(() => readLocalPlanOccurrenceSyncIncidents(other, userId))
       }
     )
+    await check(
+      "backup readonly conserva aparición actual e historia con formato explícito",
+      async () => {
+        await runLocalTransaction<void>(
+          db,
+          ["syncMetadata"],
+          "readwrite",
+          (context) => {
+            context.transaction
+              .objectStore("syncMetadata")
+              .put({ key: "outbox-sequence", value: 1 })
+            context.setResult(undefined)
+          }
+        )
+        const before = JSON.stringify(await snapshot(db)),
+          put = IDBObjectStore.prototype.put
+        IDBObjectStore.prototype.put = () => {
+          throw new Error("Backup reader must not write")
+        }
+        try {
+          const backup = await readLocalRecurringBackup(db, userId, timestamp)
+          assert(
+            backup.version === 3 && backup.stores.outbox[0].state === "conflict"
+          )
+          const json = encodeLocalRecurringBackup(backup, userId)
+          assert(
+            JSON.stringify(decodeLocalRecurringBackup(json, userId)) ===
+              JSON.stringify(backup)
+          )
+          await refused(() => readLocalBackup(db, userId, timestamp))
+          await refused(() =>
+            readLocalRecurringBackup(other, userId, timestamp)
+          )
+        } finally {
+          IDBObjectStore.prototype.put = put
+        }
+        assert(JSON.stringify(await snapshot(db)) === before)
+      }
+    )
     const final = fixture()
     await seed(db, final)
     await applyLocalPlanOccurrenceResult(db, userId, {
@@ -421,14 +478,32 @@ async function run() {
         },
       },
     })
+    await runLocalTransaction<void>(
+      db,
+      ["syncMetadata"],
+      "readwrite",
+      (context) => {
+        context.transaction
+          .objectStore("syncMetadata")
+          .put({ key: "outbox-sequence", value: 1 })
+        context.setResult(undefined)
+      }
+    )
     sessionStorage.setItem(proofKey, JSON.stringify(await snapshot(db)))
     sessionStorage.setItem(
       incidentKey,
       JSON.stringify(await readLocalPlanOccurrenceSyncIncidents(db, userId))
     )
+    sessionStorage.setItem(
+      backupKey,
+      encodeLocalRecurringBackup(
+        await readLocalRecurringBackup(db, userId, timestamp),
+        userId
+      )
+    )
     keep = true
     statusElement.textContent =
-      "Seis comprobaciones aprobadas. Falta verificar recarga."
+      "Siete comprobaciones aprobadas. Falta verificar recarga."
     const button = document.createElement("button")
     button.textContent = "Verificar recarga y limpiar"
     button.onclick = () => {

@@ -2966,3 +2966,13 @@ Objetivo: pulsación directa recorre Sin empezar→En progreso→Completado→Si
 - Dependencias:17c1–4 ycopiasvigentes; cuota25%5h/73%7d, reservas10%/1%.
 - Aceptación: formato portable3 separado deintenciones1/evidencia2/transportefuturo5, sinreescritura/migración/activación. Codecfuturo también lee1/2 conservándolos; export/importpuro mantiene UUID/payload/leases/deps/outcomes/tombstones/cursor exactos. Todo actor/parent/slot/estado/evidencia/size16MiB validado, missingACK/outcome/supersession nunca admitidos; codecactivo rechaza3.
 - Validación: roundtrip cuatrovariantes/cancelados/currentnull/latebase, mismatches/corrupt/foreign/limits/dependencies/legacy; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas. PuertoexportTX posterior, no restore/DBusuario ni caller5.
+
+## 17c5b — Snapshot portable recurrente enTX
+
+- Estado: completada11oct; diez checks IndexedDB reales, exportactual2 intacto.
+
+- Objetivo: puerto preparatorio de exportreadonly formato3 desde snapshot completo IndexedDB, reutilizando capturador actual.
+- target_paths: local-db/backup; test/browser/plan-occurrence-sync-results; plan.
+- Dependencias:17c5a/17c3b; cuota23%5h/72%7d, reservas10%/1%.
+- Aceptación: exportactual sigue2/strict, future3 conserva intenciones/evidencia/current/cursor sinwrites ni restore; mismaTX todosstores/limits/actor/release-markervalidado. Errores/corrupción/partition/counter no generan backup parcial; recarga mantienejsonexacto.
+- Validación: fixture4253 conflictoreal/currentmodificado/outcomes/partición/read-only/roundtrip/recarga ycleanup; suite/lint/tipos/build/diff, commitpushint/HEAD/cuotas.
