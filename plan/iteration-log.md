@@ -1,5 +1,14 @@
 # Registro de iteraciones
 
+## 18z1 — Cierre de nueva ventana del 12 de octubre
+
+Quince cortes de código desde e354005 publicados y validados, último 5cd93f4 / origin/int exacto. Cuota real de cierre de código: 13% 5h / 11% 7d; reserva 10% / 1%, reset publicado 1791818023. La prueba Next completa, potencial reparación y activación exceden los tres puntos disponibles hasta reserva: no se inicia. Siguiente 18e1a delimitado en iterations; continuación general autorizada mantiene cumpleaños aparcado/sharing fuera, sin nueva automatización.
+
+Activo: generación5 y fila compacta readonly de zona almacenada en Ajustes. Privado preparado: repo/executor/producer/ACK/pull/evidencia/backup/runtime/capabilities/transporte/auth/readiness/action/client/hook6 y feature read/save. Ajustes todavía no editables ni sincronizados en producto. Suite 819 pass / 221 skip / 0 fail / 10694 aserciones; lint 829/tipos/build Webpack/worker 46. Mongo propio diez casos / 81 aserciones; browser propio productor9, ACK/evidencia10, pull8 + recargas. No Google nuevo ni convergencia de settings entre dispositivos todavía.
+
+Todos los recursos propios retirados: Mongo fixture/almacenamiento temporal, particiones IndexedDB, tabs y servidores4262–4265/scripts temporales. El contenedor humano mongo permanece intacto; main limpio/conservado, worktreeint limpio. Capturas de evidencia en /private/tmp. No DB usuario/producción/hosting/secretos/permisos/dependencias nuevos. Índice user_settings_user_uidx registrado y staged; seis definiciones readiness no equivalen a provisión real. Cierre documental con referencias/coherencia/diff, commit/push/HEAD y lectura final de cuotas.
+
+
 ## 18e0b — Zona almacenada visible en Ajustes
 
 Fila compacta muestra la zona guardada en settings de la cuenta activa, mediante reader con guardias y SWR por userId/epoch. Remontaje por identidad y keepPreviousData false impiden mostrar el valor de otra sesión. Estado neutro estable durante lectura, null/error honestos; UI española sin textos fugaces. No hay edición/guardado ni afirmación de sincronización, ni cambia cálculo civil/zonas de planes.

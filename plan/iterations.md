@@ -1,5 +1,24 @@
 # Iteraciones de implementación
 
+## 18z1 — Cierre del lote de nueva ventana
+
+- Objetivo: registrar quince entregas publicadas, cuotas reales y siguiente aceptación delimitada, sin abrir Next amplio con margen insuficiente.
+- target_paths: `plan/master.md`, `plan/workflow.md`, `plan/settings-sync.md`, `plan/iterations.md`, `plan/iteration-log.md`.
+- Dependencias: último código completo 5cd93f4, HEAD remoto exacto, ambos checkouts limpios; entrada 13% 5h / 11% 7d, reservas 10% / 1%.
+- Aceptación: estado activo 5 y settings privado 6 diferenciados; recursos propios retirados, main intacto, siguiente corte concreto y sin nueva automatización/DBusuario/producción.
+- Validación: referencias locales/coherencia/diff, Conventional Commit + push int/HEAD remoto y lectura final de ambas cuotas; sin repetir tests de código ya aprobados.
+
+## 18e1a — Próxima aceptación Next de ajustes
+
+- Objetivo: frontera 6 compilada con referencia productiva real y sesiones BetterAuth propias persistidas, seguida de dos particiones/ACK-pull exactos.
+- target_paths previstos: `scripts/next-sync-test-runner.ts`, `test/next-settings-sync/**`, `src/{config/common-plan-release.ts,schemas/next-sync-test.ts,lib/db/next-sync-fixture.ts}`, `src/app/api/sync/**`, `src/features/sync/{actions-v5.ts,components/active-sync-provider.tsx}`, y puertos de fixture necesarios. Delimitar subcortes antes de editar; integración de un único dueño.
+- Dependencias: 18a–18e0b cerrados, defaults de transporte/acción/runtime/ACK/pull/evidencia6 privados. Descriptor Mongo propio con imagen pinned y límites propios; leer guía Next instalada relevante.
+- Preparación: selección futura de identidad/pull/retirement5/proveedor coherente, guard global todavía false en el producto. Fixture sólo en proyecto/orígenes propios selecciona 6 y provisiona seis índices mediante ensureIndexes del registro central; ninguna DB usuario. Extender runner/template/config de forma explícita por scope, sin reemplazos amplios de números ni mutar artefactos históricos.
+- Aceptación frontera: SDK→referencia real compilada actions-v6→defaults/readiness6/session/allowlist/expected actor; matriz cliente5-servidor6 y cliente6-servidor5 rechaza header antes body/claim/cache/cursor. Acción5 capturada se retira antes readiness/executor; ID5 ausente/404 conserva cola y sólo libera lease propia, siguiente handshake incompatible no claim.
+- Aceptación persistencia: productores reales settings y categoría/serie/aparición, UUID/payload/deps intactos; desconexión/respuesta perdida→replay→ACK remoto único→hijo pending0 rebasa sin tocar intentadas; cambios independientes ante conflicto; igualdad de proyecciones/shadows/cursor en dos particiones con Mongo real, no sólo status settled. Zona no reprograma fechas/anclas/as-of existentes. Hook6 lifecycle real: sesión revocada/cambio de cuenta/epoch/cierre/desmontaje/listeners/deadline; no confundir bloqueo de consumo con cancelación de red en vuelo.
+- Después: editor compacto y consumo de zona en reloj civil común, selección conjunta del producto6, índices Preview por singleton central con alcance autorizado revisado y piloto Google. Mantener generación5 hasta cerrar requisitos. No wipe ni migradores, no producción. Cumpleaños aparcado/sharing excluido.
+- Validación: pruebas propias adecuadas, DoD/worker, recursos limpios, plan/log/commit/push/HEAD/cuotas por subcorte. No empezar esta aceptación amplia en 13% con reserva 10%.
+
 ## 18e0b — Zona almacenada visible en Ajustes
 
 - Objetivo: mostrar la zona personal local en una fila compacta, sin controles de edición ni anuncio de sincronización.

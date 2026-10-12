@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## Cierre de nueva ventana — lote 18
+
+Entrada 100% 5h / 24% semanal, quince cortes secuenciales con commit/push int/HEAD/cuotas. Tras 5cd93f4 quedan 13% 5h / 11% semanal; mantener reservas 10% / 1%. Next compilado/lifecycle/activación no cabe con reparación y cierre: continuar desde 18e1a en una ventana con margen. No nueva automatización ni créditos/reinicios. Main humano conservado y recursos propios limpios. Producto5 sigue activo, ajustes6 privados y fila readonly visible; no reabrir categorías/asignaciones/repetición ya entregadas, cumpleaños aparcado/sharing fuera. Cierre documental y lectura final después del commit.
+
 ## Continuación general autorizada — 12 de octubre
 
 El usuario aclara: «Mi continúa es general. Adelante con el plan completo». Se completan cortes coherentes con commit y push a `int`, verificación de HEAD remoto y consulta automática de ambas cuotas después de cada entrega. Reservas: 10% en 5h y 1% semanal. Entrada: 99% / 39%; reset de 5h publicado: `1791799993`. Tras cuatro cortes técnicos: 42% / 30%.
