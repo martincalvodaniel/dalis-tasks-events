@@ -1,5 +1,12 @@
 # Zona horaria personal y sincronización de ajustes
 
+## 18e0b — Zona almacenada visible en Ajustes
+
+Fila compacta muestra la zona guardada en settings de la cuenta activa, mediante reader con guardias y SWR por userId/epoch. Remontaje por identidad y keepPreviousData false impiden mostrar el valor de otra sesión. Estado neutro estable durante lectura, null/error honestos; UI española sin textos fugaces. No hay edición/guardado ni afirmación de sincronización, ni cambia cálculo civil/zonas de planes.
+
+Inspección de componente puro con CSS compilado en origen propio muestra los tres estados en ancho 352px sin desbordar; no es piloto de lectura de cuenta real. Captura `/private/tmp/dalis-personal-zone-ui.png`. Tab/servidor/script temporal retirados. Ajuste reversible sin tests espejo nuevos; reader cubierto en 18e0 y DoD completo: suite 819 pass / 221 skip / 0 fail / 10694 aserciones, lint 829, tipos/build Webpack/worker 46 aprobados. Siguiente aceptación Next compilada y dos particiones/lifecycle, después editor/activación conjunta6; producto sigue5.
+
+
 ## 18e0 — Puertos de feature con cuenta capturada
 
 Lectura y guardado futuros validan actor/epoch, schema e identidad esperada antes de IO; guardias antes y después de la operación, recursos de defaults siempre cerrados. Guardado delega al productor atómico con comparación esperada; no modifica planes, revisiones o UUID existentes. Si cambia cuenta después del commit, se conserva la intención durable y no se informa éxito para la sesión nueva; no afirmar rollback del commit ya ocurrido.

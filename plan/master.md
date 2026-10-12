@@ -2,40 +2,17 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
-18e0 cerrado: puertos de lectura/guardado de zona personal con cuenta/epoch y expected settings validados; sin caller activo. Suite 819 pass / 221 skip / 0 fail; lint 827, tipos/build Webpack/worker 46. Siguiente aceptación Next/lifecycle/dos particiones antes de activar edición/sync. [settings-sync.md](settings-sync.md).
+En esta ventana se cerraron 18a–18e0b: preparación de zona personal offline/remota, repo/CAS/ejecutor atómicos, productor independiente, ACK/pull/evidencia/backup, runtime/política y frontera privada 6 (HTTP/auth/readiness/action/cliente/hook). Quince cortes de código validados, cada uno con commit/push/HEAD y cuota. Diez casos Mongo / 81 aserciones; nueve checks de productor, diez ACK/evidencia y ocho descarga en IndexedDB con recargas. **Todavía no está activada la sincronización ni la edición de ajustes.** La generación 5 del producto sigue activa.
 
-18d3b cerrado: identidad/pull privados6 con guards y errores saneados, rutas activas5 intactas. Suite 814 pass / 221 skip / 0 fail; lint 825, tipos/build Webpack/worker 46. Siguiente aceptación Next/sesiones/dos particiones antes de UI/activación. [settings-sync.md](settings-sync.md).
+Cambio visible 18e0b: Ajustes muestra la zona almacenada en una fila compacta, sólo de cuenta/epoch activos y sin edición. Último DoD: suite 819 pass / 221 skip / 0 fail / 10694 aserciones, lint 829, tipos/build Webpack/worker 46. Recursos de prueba propios limpios; sin cambios de producción ni índices/datos de Mongo del usuario. [settings-sync.md](settings-sync.md) contiene evidencia y dependencias.
 
-18d3a cerrado: acción/cliente/hook6 privados y cache aislada, guard de release false. Suite 809 pass / 221 skip / 0 fail; lint 822, tipos/build Webpack/worker 46. Producto 5 intacto; siguiente identidad/pull6 y prueba Next/dos particiones antes de UI/activación. [settings-sync.md](settings-sync.md).
+Siguiente: 18e1a prueba Next compilada/BetterAuth persistido y dos particiones, retirada5/matriz5–6/lifecycle/ACK real/replay y convergencia. Después conectar editor/proveedor/rutas6 conjuntamente y probar Preview. El índice settings está registrado y staged, sin bootstrap nuevo todavía; resolver selección/autorización de entorno al cerrar activación, sin capturar secretos ni reparar datos. No hace falta wipe.
 
-18d2 cerrado: frontera privada autenticada/settings dispatcher/replay, readiness de seis índices y retiro 5. Diez casos Mongo / 81 aserciones; suite 804 pass / 221 skip / 0 fail, lint 817, tipos/build Webpack/worker 46. Producto 5 intacto; siguiente action/cliente/hook6, Next/dos particiones/UI/activación. [settings-sync.md](settings-sync.md).
-
-18d1 cerrado: transporte privado 6 y matriz con 5/ambigüedad, rechazando headers antes del body. Producto sigue 5. Suite 798 pass / 220 skip / 0 fail; lint 812, tipos/build Webpack/worker 46. Siguiente frontera/readiness/retiro 5 y pruebas Next antes de activación/UI. [settings-sync.md](settings-sync.md).
-
-18c5 cerrado: bundle privado local coherente de ajustes, store/ACK/pull/summary/coordinador/runtime. Defaults 5 intactos. Suite 793 pass / 220 skip / 0 fail; lint 811, tipos/build Webpack/worker 46. Siguiente HTTP 6/frontera/Next/UI antes de activación. [settings-sync.md](settings-sync.md).
-
-18c4b cerrado: evidencia actual de ajustes y backup 3 probado sin escrituras, conservando valores congelados. Diez checks IndexedDB + recarga; suite 788 pass / 220 skip / 0 fail, lint 809, tipos/build Webpack/worker 46. Generación 5 sigue activa; siguiente política/store/runtime y frontera 6 antes de UI. [settings-sync.md](settings-sync.md).
-
-18c4a cerrado: reader remoto privado de ajustes autorizado con Mongo propio, nueve casos / 76 aserciones. Generación 5 intacta; siguiente evidencia actual/backup y composición 6. Suite 785 pass / 220 skip / 0 fail; lint 808, tipos/build Webpack/worker 46. [settings-sync.md](settings-sync.md).
-
-18c3b cerrado: descarga futura de ajustes/planes/apariciones completa y cursor atómico, sin ACK ni modificación de intenciones. Seis tests puros y ocho checks IndexedDB + recarga; suite 785 pass / 217 skip / 0 fail, lint 808, tipos/build Webpack/worker 46. Generación 5 sigue activa; siguiente reader/evidencia y composición 6. [settings-sync.md](settings-sync.md).
-
-18c3a cerrado: ACK durable de ajustes probado en IndexedDB con rollback/replay/independencia y recarga. Generación 5 intacta; siguiente descarga/cursor 18c3b. Suite 779 pass / 217 skip / 0 fail; lint 805, tipos/build Webpack/worker 46. [settings-sync.md](settings-sync.md).
-
-18c2 cerrado: proyección futura independiente y ACK puro probados, preservando cola y evidencia ante respuestas tardías. Suite 779 pass / 217 skip / 0 fail; lint 803, tipos y build Webpack aprobados. Siguiente 18c3: ACK/pull durables; generación 5 sigue activa sin ajustes remotos. [settings-sync.md](settings-sync.md).
-
-18c1 cerrado: productor offline de zona personal con clave propia, CAS observado, cola/valor/secuencia atómicos y replay; independencia del tail de categorías. Nueve checks IndexedDB y recarga pasan, particiones/servidor propios limpios. Suite770pass/217skip/0fail, lint801/tipos/buildWebpack/worker46. Generación5 sigue sin envío/UI de ajustes. Siguiente18c2: consumidores/ACK/pull, preservando local pendiente de cada familia de forma independiente. [settings-sync.md](settings-sync.md).
-
-
-18b cerrado: repo settings privado/CAS y executor preparatorio atómicos con replay común; colección y índice único registrados en ensure-indexes, staged sin bootstrap/DBusuario nuevos. Mongo propio6casos/56aserciones y regresión índices6casos/126 pasan, recursos limpios. Suite769pass/217skip/0fail, lint796/tipos/buildWebpack/worker46. Siguiente18c productor local/ACK/pull/evidencia; generación5 activa conserva settings.update unsupported. Cumpleaños aparcado/sharing fuera. [settings-sync.md](settings-sync.md).
-
-
-Nueva ventana:100%5h/24%7d, reset1791818023; continuar secuencialmente con reservas10%/1%, commit+pushint/HEAD/cuotas por corte. Main del usuario también contiene e354005 y está limpio; conservarlo. 18a prepara comando/CAS puro de zona personal; no UI/IO/ACK/cambio de generación5. Siete tests nuevos, suite768pass/209skip/0fail, lint793/tipos/buildWebpack/worker46. Siguiente18b repo/ejecutor Mongo atómico propio; ruta concreta en [settings-sync.md](settings-sync.md). Cumpleaños aparcado/sharing fuera.
-
+## Base activa anterior al lote de ajustes
 
 16c13 mejora el gesto compartido: activación350ms/tolerancia12px, TouchEvents propios para preservar scroll antes de agarrar y bloquearlo después, pointercancel táctil no interrumpe el agarre; selección visible y etiqueta que acompaña al dedo/destino. Scroll automático sólo tras mover el dedo. Sin botones de arrastre nuevos ni cambios de contratos/persistencia. Orden y cambio de día simple/aparición pasan en navegador390×844 con React/CSS/IndexedDB reales y eventos táctiles simulados; cancelación/corto/scroll previo no escriben, drop escribe una intención, recarga conserva resultados. Pendiente valorar sensación en móvil físico.
 
-Validación actual: suite761pass/209skip/0fail/10347aserciones, lint788/tipos/buildWebpack/worker46. Pruebas propias y servidor limpios. Cumpleaños aparcado; siguientes bloques activos: preferencias/configuración y recuperación explícita residual, aceptación final móvil/dosdispositivos/offline/accesibilidad/guía y publicación productiva autorizada con índices centrales.
+Validación de 16c13: suite761pass/209skip/0fail/10347aserciones, lint788/tipos/buildWebpack/worker46. Pruebas propias y servidor limpios. Cumpleaños aparcado; siguientes bloques activos: preferencias/configuración y recuperación explícita residual, aceptación final móvil/dosdispositivos/offline/accesibilidad/guía y publicación productiva autorizada con índices centrales.
 
 
 **Generación 5 activada conjuntamente en el código de `int`**: planes simples y repetidos, progreso/checklist de apariciones, categorías, asignaciones y orden. Se conserva identidad, cursor, UUID, dependencias y evidencia; los históricos sin CAS siguen unsupported sin reescritura ni ACK falso. No hay nueva resolución de apariciones ni despliegue productivo.

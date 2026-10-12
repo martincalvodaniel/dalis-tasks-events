@@ -5,6 +5,7 @@ import { canPrepareOfflineShell } from "@/config/pwa"
 import { DeviceSyncSettings } from "@/features/sync/components/device-sync-settings"
 import { AccountIdentity } from "@/features/workspace/components/account-identity"
 import { BackupSettings } from "@/features/workspace/components/backup-settings"
+import { PersonalTimeZoneSettings } from "@/features/workspace/components/personal-time-zone-settings"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import {
   closeLocalAccount,
@@ -180,6 +181,10 @@ export function DeviceSettings({
       ) : null}
       {account ? (
         <>
+          <PersonalTimeZoneSettings
+            key={`settings:${account.userId}:${account.epoch}`}
+            account={account}
+          />
           <DeviceSyncSettings key={account.epoch} account={account} />
           <BackupSettings key={`backup:${account.epoch}`} account={account} />
         </>

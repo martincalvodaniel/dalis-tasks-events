@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 18e0b — Zona almacenada visible en Ajustes
+
+- Objetivo: mostrar la zona personal local en una fila compacta, sin controles de edición ni anuncio de sincronización.
+- target_paths: `src/features/workspace/components/{personal-time-zone-info,personal-time-zone-settings,device-settings}.tsx`, `plan/**`.
+- Dependencias: reader con guard de cuenta 18e0 publicado 76d192a; entrada 18% 5h / 12% 7d, reservas 10% / 1%, secuencial.
+- Aceptación: dato sólo de cuenta/epoch activos, caché separada sin arrastrar valores ajenos; estado neutro estable mientras lee, null/error honestos; UI española/minimalista, sin guardar ni anunciar ACK. No cambia cálculo de hoy/atrasadas, fechas, recurrencia o transporte5.
+- Validación: inspección visual del componente puro en origen propio, regresiones/suite/lint/tipos/build/worker, plan/log/commit/push/HEAD/cuotas. Sin pruebas espejo para este ajuste reversible; datos/guards cubiertos por 18e0. Después cierre seguro antes de Next amplio.
+
 ## 18e0 — Puertos de zona personal con guardias de cuenta
 
 - Objetivo: lectura/guardado de feature para el editor futuro, usando productor atómico y cuenta/epoch capturados.
