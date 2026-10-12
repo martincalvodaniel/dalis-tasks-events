@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 18e0 — Puertos de zona personal con guardias de cuenta
+
+- Objetivo: lectura/guardado de feature para el editor futuro, usando productor atómico y cuenta/epoch capturados.
+- target_paths: `src/features/workspace/local-personal-settings.ts`, `src/features/workspace/local-personal-settings.test.ts`, `plan/**`.
+- Dependencias: consumidores/fronteras preparados 18d3b publicado 68951c1; entrada 22% 5h / 12% 7d, reserva 10% / 1%, secuencial.
+- Aceptación: validate actor/epoch/input/expected ownership antes IO; guardias antes y después de lecturas y commit; cierre de repos/outbox en defaults; CAS/cola intactos, sin reprogramar planes ni usar revisión local como ACK. Cierre de cuenta tras commit no afirma rollback ni éxito para otra cuenta. Sin caller/UI activa.
+- Validación: puertos/orden/expected/invalid/foreign/cambio de cuenta/commit errors, DoD/worker/registro/commit/push/HEAD/cuotas. IndexedDB atómico ya probado, guardias reales de lifecycle siguen fixture Next pendiente.
+
 ## 18d3b — Identidad y descarga autenticadas privadas 6
 
 - Objetivo: endpoints internos coherentes con transport 6, sin conectar las rutas activas.

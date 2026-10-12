@@ -2,6 +2,8 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+18e0 cerrado: puertos de lectura/guardado de zona personal con cuenta/epoch y expected settings validados; sin caller activo. Suite 819 pass / 221 skip / 0 fail; lint 827, tipos/build Webpack/worker 46. Siguiente aceptación Next/lifecycle/dos particiones antes de activar edición/sync. [settings-sync.md](settings-sync.md).
+
 18d3b cerrado: identidad/pull privados6 con guards y errores saneados, rutas activas5 intactas. Suite 814 pass / 221 skip / 0 fail; lint 825, tipos/build Webpack/worker 46. Siguiente aceptación Next/sesiones/dos particiones antes de UI/activación. [settings-sync.md](settings-sync.md).
 
 18d3a cerrado: acción/cliente/hook6 privados y cache aislada, guard de release false. Suite 809 pass / 221 skip / 0 fail; lint 822, tipos/build Webpack/worker 46. Producto 5 intacto; siguiente identidad/pull6 y prueba Next/dos particiones antes de UI/activación. [settings-sync.md](settings-sync.md).

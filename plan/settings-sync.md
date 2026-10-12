@@ -1,5 +1,12 @@
 # Zona horaria personal y sincronización de ajustes
 
+## 18e0 — Puertos de feature con cuenta capturada
+
+Lectura y guardado futuros validan actor/epoch, schema e identidad esperada antes de IO; guardias antes y después de la operación, recursos de defaults siempre cerrados. Guardado delega al productor atómico con comparación esperada; no modifica planes, revisiones o UUID existentes. Si cambia cuenta después del commit, se conserva la intención durable y no se informa éxito para la sesión nueva; no afirmar rollback del commit ya ocurrido.
+
+Cinco tests de puertos / 33 aserciones cubren orden/identidad, invalid/foreign antes IO, dato almacenado extranjero, cuenta cerrada antes/después y errorCAS. IndexedDB real ya probado en cortes anteriores; este test no acredita guard de cuenta del navegador. Se derivó el tipo de entrada del schema porque no existía el alias supuesto. Suite 819 pass / 221 skip / 0 fail / 10694 aserciones, lint 827, tipos/build Webpack/worker 46 aprobados. No UI ni caller activo; Next/lifecycle/convergencia/activación siguen pendientes.
+
+
 ## 18d3b — Identidad y descarga privadas autenticadas
 
 Identidad privada 6 devuelve únicamente userId autorizado/no-store; fallo o shape con información extra se sanea. Pull futuro usa sesión persistida/allowlist existente, valida query/expected actor antes de readiness6/reader privado y valida página completa con settings antes de devolver. Errores, cursor ahead y corrupción no entregan diario parcial ni mensajes internos. Respuesta 5 y rutas activas intactas.
