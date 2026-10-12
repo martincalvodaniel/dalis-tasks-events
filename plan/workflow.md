@@ -418,3 +418,8 @@ Cuota real100%5h/53%7d y reset1791779244; repo principal limpio ahora enmain con
 ### Cierre de continuación12oct01:27
 
 Lote secuencial desde8cfd34b en worktreeint propio para preservar main humano. Ocho cortes completos, cadauno DoD/commitpushint/HEAD/cuotas:17e1a1–2,17e1b1–4,17e1c1 y17e1b5a. Últimaentrada20%5h/41%7d permitió sólo prueba pequeña de cuenta, no integración/activación ni gateen-vuelo. Reserva10%/1% mantenida; cuota final trascommit. ÍndicePreview requiere permiso específico solicitado por UI, pendiente, sin conexiónusuario ni nueva autorización asumida. FixtureNext16casos pasa yCLI3casos100assert; producto4 activo. Revisión puntual eliminada por automation_update, sincadena. Rootrepo limpio y worktree gestionado conservado para reusar; recursos Mongo/browser de pruebas todos propios y retirados, scripts temporales eliminados, logs/capturas propios conservados. No iniciar otro corte:17e1b5b + integración17e2 necesitan margen/prerrequisitos.
+
+
+### Intercalada humana16c14 — Nueva ventana12oct
+
+Entrada real100%5h/9%7d, reset1791839451, reservas10%/1%. Continuación general previamente autorizada, priorizada la petición concreta del editor: fechas correlacionadas, fin opcional real y flechas de día. Corte secuencial completo sobreint23fc6c3, sin comenzar Nextsettings6 ni automatización. DoD/plan/log en mismo commit, pushint/HEAD remoto y lectura de ambas cuotas antes de elegir siguiente entrega. Main humano y datos de usuario intactos.

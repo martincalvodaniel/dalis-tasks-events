@@ -1,6 +1,7 @@
 "use client"
 
 import { useId, useState } from "react"
+import { CivilDateInput } from "@/components/ui/civil-date-input"
 import type { RecurrenceRule } from "@/types/calendar-item"
 
 const inputClass =
@@ -94,22 +95,25 @@ export function PlanRecurrenceFields({
             <option value="count">Tras varias veces</option>
           </select>
         </label>
-        <label
+        <div
           hidden={endType !== "until"}
-          className={`${endType === "until" ? "flex" : "hidden"} items-center justify-between gap-3 text-sm`}
+          className={`${endType === "until" ? "flex" : "hidden"} min-w-0 items-center justify-between gap-2 text-sm`}
         >
-          Última fecha
-          <input
+          <label htmlFor={`${id}-until-date`} className="shrink-0">
+            Última fecha
+          </label>
+          <CivilDateInput
+            id={`${id}-until-date`}
             name="untilDate"
-            type="date"
-            min="0001-01-01"
-            max="9999-12-31"
-            defaultValue={
+            label="Última fecha"
+            initialValue={
               initialRule?.end.type === "until" ? initialRule.end.date : ""
             }
+            showDayControls
+            disabled={disabled}
             className={inputClass}
           />
-        </label>
+        </div>
         <label
           hidden={endType !== "count"}
           className={`${endType === "count" ? "flex" : "hidden"} items-center justify-between gap-3 text-sm`}

@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 16c14 — Fechas correlacionadas, fin opcional y controles de día
+
+Estado: completado; validación y evidencia en iteration-log/item-editor-redesign.
+
+- Objetivo: al cambiar inicio desplazar fin explícito por el mismo número de días civiles; permitir quitar/añadir fin y flechas -/+día en fechas del editor.
+- target_paths: `src/components/ui/{civil-date-input,date-time-fields}.tsx`, `src/features/plans/{plan-form-dates,plan-form-dates.test}.ts`, `src/lib/calendar/form-date.ts`, `src/features/plans/components/{plan-form,plan-recurrence-fields}.tsx`, `test/browser/plan-form-dates.tsx`, `scripts/plan-form-dates-test-server.ts`, `plan/**`.
+- Dependencias: petición humana intercalada y guías Next/use-client/React vigentes; int23fc6c3 limpio, cuota real100%5h/9%7d, reset1791839451, reservas10%/1%. Secuencial, sin comenzar Nextsettings antes de cerrar esta petición.
+- Aceptación: creación/edición de cuatro variantes conserva intervalo civil y horas, cambios manuales del fin definen nuevo intervalo; fin quitado no se inventa al mover inicio; todo el día sin fin explícito ocupa un día y timed localEndnull; entradas incompletas no rompen y límites civiles no desbordan. Flechas visualmente pequeñas con touch targets usables, incluidas última fecha de repetición; sin guardar hasta submit ni cambiar contratos/persistencia.
+- Validación: casos civiles/leap/límites, interacción React real con formulario y payloads onSave de fixture, variantes/crear/editar/optional/timed/repetition; lint/tipos/suite/build/worker/plan/log/commitpushint/HEAD/cuotas. Sin consultasMongo/índices nuevos.
+
 ## 15p1 — Aceptación de arrastre y checklist física
 
 - Objetivo: registrar aceptación humana del arrastre y entregar recorrido de dos dispositivos físicos para generación5 ya activa.

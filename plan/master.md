@@ -2,6 +2,8 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+**16c14 entregado:** inicio/fin correlacionados por días civiles, fin explícito opcional con «Con fin» y flechas de día en inicio, fin y última fecha de repetición. Conserva horas elegidas; todo el día sin fin explícito ocupa un día. Formulario real probado en creación/edición y cuatro variantes, sin cambios de contrato/DB/sync. Detalle en [item-editor-redesign.md](item-editor-redesign.md). La checklist física de dos dispositivos sigue pendiente.
+
 **Arrastre cerrado por el usuario.** Checklist física de dos dispositivos entregada; resultados pendientes en [manual-device-checklist.md](manual-device-checklist.md). No se ha ejecutado ni aprobado todavía este recorrido.
 
 Lote cerrado tras 5cd93f4: quince cortes de código publicados; lectura real 13% 5h / 11% semanal, reserva 10% / 1%. Siguiente 18e1a delimitado en [iterations.md](iterations.md); no se inicia Next amplio sin margen para reparar/cerrar. Sin nueva automatización.

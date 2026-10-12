@@ -1,5 +1,11 @@
 # Registro de iteraciones
 
+## 16c14 — Fechas correlacionadas, fin opcional y flechas de día
+
+Petición humana12oct: desplazar fin con inicio, resolver opcionalidad y añadir flechas a todas las fechas del editor. CivilDateInput compartido/DateTimeFields mantienen callers anteriores; cuatro variantes comunes conservan intervalo civil y horas separadas. Inicio vacío/incompleto no rompe duración, manual fin define nueva duración, límites acotados. «Con fin» quita campos y guarda timed localEndnull/all_day un día; reañadir usa inicio actual. Última fecha de repetición incorpora mismos controles. Sin cambio de contratos/persistencia/índices/DB ni activación settings6.
+
+Tres tests nuevos civiles/19aserciones y ocho específicos/69aserciones pasan. Prueba React real propia4266 recorre crear/editar/cuatro variantes, flechas y entrada nativa, desplazamiento de3d, horas22:15/08:45, quitar fin/guardado exacto, reañadir y hasta29nov; anchos320/390 sin overflow. APIfill nativa en IAB no despacha cambio React hasta interacción de teclado real: evidencia usa teclado y flechas, no confunde valor DOM con estado. No DB/red/sesión de usuario; servidor/tab propios retirados. Captura `/private/tmp/dalis-plan-date-controls.png`. Suite822pass/221skip/0fail/10713aserciones; lint835/tipos/Webpackbuild/worker46 aprobados. Entrada real100%5h/9%7d/reset1791839451; reservas10%/1%, commitpushint/HEAD y consulta final. Checklist física pendiente; arrastre aceptado no reabierto.
+
 ## 15p1 — Arrastre aceptado y checklist entregada
 
 Petición humana12oct: «El arrastre funciona mejor así que lo damos por terminado» y checklist de segundo dispositivo. Se cierra usabilidad de16c13 por aceptación explícita y se entrega recorrido de generación5 activa: mismo Preview/cuenta, categorías/color/estado/checklist/orden, aparición aislada, offline/reapertura/reconexión y tombstone sin duplicados. Resultados físicos pendientes; no validación ficticia ni nuevos cambios/datos del usuario. Inspección readonly de la pestañaPreview existente muestra planes y apariciones del piloto anterior; no prueba el HEAD exacto del deployment. Pestaña autenticada conservada.

@@ -6,9 +6,11 @@ import { ErrorBanner } from "@/components/ui/error-banner"
 import { ItemEditorHeader } from "@/components/ui/item-editor-header"
 import { PlanRecurrenceFields } from "@/features/plans/components/plan-recurrence-fields"
 import { PlanVariantSelector } from "@/features/plans/components/plan-variant-selector"
+import { shiftPlanEndDate } from "@/features/plans/plan-form-dates"
 import { parsePlanForm } from "@/features/plans/plan-form-input"
 import { ChecklistFields } from "@/features/tasks/components/checklist-fields"
 import { addCivilDays } from "@/lib/calendar/civil-date"
+import { civilDateSchema } from "@/schemas/primitives"
 import type { ChecklistEntry } from "@/types/calendar-item"
 import type { PlanDraft } from "@/types/plan-item"
 import type { Tag } from "@/types/preferences"
@@ -58,6 +60,41 @@ export function PlanForm({
     schedule?.mode === "all_day"
       ? addCivilDays(schedule.endDateExclusive, -1)
       : (schedule?.localEnd?.slice(0, 10) ?? startDate)
+
+  const [dates, setDates] = useState(() => ({
+    startDate,
+    endDate: lastDate,
+    lastValidStart: startDate,
+  }))
+  const [hasEnd, setHasEnd] = useState(
+    schedule?.mode === "timed" ? schedule.localEnd !== null : true
+  )
+  const maxDate = allDay ? "9999-12-30" : "9999-12-31"
+  function changeStartDate(nextDate: string) {
+    setDates((previous) => ({
+      ...previous,
+      startDate: nextDate,
+      endDate: hasEnd
+        ? shiftPlanEndDate(
+            previous.lastValidStart,
+            previous.endDate,
+            nextDate,
+            maxDate
+          )
+        : "",
+      lastValidStart:
+        civilDateSchema.safeParse(nextDate).success && nextDate <= maxDate
+          ? nextDate
+          : previous.lastValidStart,
+    }))
+  }
+  function changeHasEnd(enabled: boolean) {
+    setHasEnd(enabled)
+    setDates((previous) => ({
+      ...previous,
+      endDate: enabled ? previous.endDate || previous.startDate : "",
+    }))
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -184,19 +221,34 @@ export function PlanForm({
         onChange={setChecklist}
         disabled={saving}
       />
-      <label className="flex min-h-9 items-center justify-between gap-3 text-sm font-medium">
-        Todo el día
-        <input
-          name="allDay"
-          type="checkbox"
-          checked={allDay}
-          onChange={(event) => setAllDay(event.target.checked)}
-          disabled={saving}
-          className="size-5 accent-amber-500"
-        />
-      </label>
+      <div className="flex flex-wrap items-center justify-between gap-x-4">
+        <label className="flex min-h-11 items-center gap-2 text-sm font-medium">
+          Todo el día
+          <input
+            name="allDay"
+            type="checkbox"
+            checked={allDay}
+            onChange={(event) => setAllDay(event.target.checked)}
+            disabled={saving}
+            className="size-5 accent-amber-500"
+          />
+        </label>
+        <label className="flex min-h-11 items-center gap-2 text-sm font-medium">
+          Con fin
+          <input
+            type="checkbox"
+            checked={hasEnd}
+            onChange={(event) => changeHasEnd(event.target.checked)}
+            disabled={saving}
+            className="size-5 accent-amber-500"
+          />
+        </label>
+      </div>
       <div className="space-y-2">
         <DateTimeFields
+          dateValue={dates.startDate}
+          onDateChange={changeStartDate}
+          showDayControls
           name="localStart"
           label="Inicio"
           initialValue={
@@ -208,16 +260,23 @@ export function PlanForm({
           hideTime={allDay}
           maxDate={allDay ? "9999-12-30" : "9999-12-31"}
         />
-        <DateTimeFields
-          name="localEnd"
-          label="Fin"
-          initialValue={
-            schedule?.mode === "timed" ? (schedule.localEnd ?? "") : lastDate
-          }
-          disabled={saving}
-          hideTime={allDay}
-          maxDate={allDay ? "9999-12-30" : "9999-12-31"}
-        />
+        {hasEnd ? (
+          <DateTimeFields
+            dateValue={dates.endDate}
+            onDateChange={(value) =>
+              setDates((previous) => ({ ...previous, endDate: value }))
+            }
+            showDayControls
+            name="localEnd"
+            label="Fin"
+            initialValue={
+              schedule?.mode === "timed" ? (schedule.localEnd ?? "") : lastDate
+            }
+            disabled={saving}
+            hideTime={allDay}
+            maxDate={maxDate}
+          />
+        ) : null}
       </div>
       <p className="text-xs text-zinc-500">
         El fin es opcional. En todo el día, la fecha final está incluida.

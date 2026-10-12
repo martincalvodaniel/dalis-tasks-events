@@ -73,3 +73,14 @@ Editor común sitúa checklist inmediatamente debajo de categoría, antes de Tod
 ### 16c5 — Estado directo desde icono
 
 Entregado11oct: icono principal de los cuatrotipos recorre Sin empezar→En progreso→Completado→Sin empezar en cada pulsación, sin abrir detalles/editor. Vacío/raya/check con colorcategoría y SVGpropio; aria-pressed mixed para progreso, etiquetaespañolaestado+siguienteacción y target44px/teclado. Usa productores/CAS existentes; simples sincronizan4, apariciones continúan locales. Seriepadre permanece deshabilitada y progreso sólo desde aparición. Checklist conserva estado binario eicono/color heredados. No nueva opción/campo de datos.
+
+
+## 16c14 — Fechas relacionadas y fin realmente opcional
+
+El editor común desplaza la fecha final definida al modificar inicio (campo nativo o flechas), conservando el intervalo de días civiles y las horas separadas. Una edición manual del fin establece la duración que se conserva en el siguiente cambio. Las horas siguen sometidas a validación DST; no se promete duración absoluta en milisegundos a través de cambios de horario. Entradas vacías/incompletas no desplazan el fin hasta recuperar un inicio válido. Extremos civiles quedan acotados por el máximo representable, sin overflow.
+
+«Con fin» permite quitar y volver a añadir la fecha/hora final. Sin fin explícito, timed guarda localEndnull y all_day usa un intervalo implícito de un día; no se inventa un fin visible al cambiar inicio. Al añadirlo de nuevo se inicia en la fecha de inicio. All_day conserva el contrato de fin exclusivo persistido, por lo que al reabrir un plan de un día se muestra su fecha final incluida; no se añade un flag persistente artificial. Todas las variantes comparten el control.
+
+CivilDateInput reutiliza flechas SVG pequeñas izquierda/derecha con targets44px y etiquetas españolas; inicio, fin y última fecha de repetición. Cada flecha resta/suma un día civil, incluidos cambios de mes/año/leap, y se deshabilita en fecha vacía/inválida o límite. DateTimeFields conserva sus callers anteriores sin flechas y mantiene horas ocultas con todo el día. Sin escrituras hasta Guardar ni cambios de transporte/indexes.
+
+Validación: tres tests civiles nuevos/19aserciones, ocho tests específicos/69aserciones incluyendo parser existente; React real4266 con creación/edición, cuatro variantes, ajuste manual/entrada nativa, conservación22:15/08:45, optional all_day/timed, quitar/añadir y última fecha de repetición. Anchos320/390 sin overflow. Payload onSave inspeccionado, fixture sin DB ni sesión; no nuevo pilotoGoogle/dispositivo físico. Captura `/private/tmp/dalis-plan-date-controls.png`. Servidor/tab propios retirados. Suite822pass/221opt-in skip/0fail/10713aserciones; lint835/tipos/buildWebpack/worker46 aprobados.
