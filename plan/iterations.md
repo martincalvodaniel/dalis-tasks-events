@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 18d3a — Referencia action/cliente/hook 6 privada
+
+- Objetivo: conectar internamente defaults 6 y cache por generación sin seleccionar el proveedor activo.
+- target_paths: `src/config/common-plan-release.ts`, `src/features/sync/{actions-v6,client-action-v6,mixed-sync-client-v6,mixed-sync-client-v6.test,sync-summary-cache-key,sync-summary-cache-key.test}.ts`, `src/features/sync/hooks/{use-mixed-sync-engine-core,use-settings-sync-engine}.ts`, `plan/**`.
+- Dependencias: frontera 18d2 publicada 75f0b49; entrada 29% 5h / 13% 7d, reservas 10% / 1%, secuencial.
+- Aceptación: referencia server-action propia, guard inactivo sin executor, dispatcher en startTransition, default transport/summary/runtime 6 juntos, cache separada con posiciones de cuenta intactas; stop/cambio de cuenta/invalid inputs cierran recursos y no informan éxito. Generación activa 5 intacta.
+- Validación: guías Next locales antes de editar acción, pruebas de cliente/guards/cache, suite/lint/tipos/build/worker, plan/log/commit/push/HEAD/cuotas. Hook lifecycle real y referencia Next desplegada siguen aceptación posterior, no extrapolar tests puros.
+
 ## 18d2 — Frontera autenticada y readiness de ajustes
 
 - Objetivo: defaults privados de envío settings, dispatcher/replay remoto, seis índices registrados y retiro 5 sin ejecutar.

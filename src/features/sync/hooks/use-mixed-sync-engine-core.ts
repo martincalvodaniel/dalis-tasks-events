@@ -16,19 +16,19 @@ import { subscribeLocalOutboxChanges } from "@/lib/local-db/sync-notifications"
 
 type AccountIdentity = Pick<LocalAccount, "userId" | "epoch">
 interface OwnedPassState extends AccountIdentity {
-  protocol: 2 | 3 | 4 | 5
+  protocol: 2 | 3 | 4 | 5 | 6
   busy: boolean
   result: SyncPassResultV2 | null
 }
 interface OwnedController extends AccountIdentity {
-  protocol: 2 | 3 | 4 | 5
+  protocol: 2 | 3 | 4 | 5 | 6
   scheduler: SyncSchedulerV2
 }
 
 // The account-scoped provider owns one scheduler and its listeners.
 export function useMixedSyncEngineWithClient(
   { userId, epoch }: AccountIdentity,
-  protocol: 2 | 3 | 4 | 5,
+  protocol: 2 | 3 | 4 | 5 | 6,
   createClient: (
     account: AccountIdentity
   ) => ReturnType<typeof createMixedSyncClientWithTransport>

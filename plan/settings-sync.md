@@ -1,5 +1,12 @@
 # Zona horaria personal y sincronización de ajustes
 
+## 18d3a — Acción, cliente y hook 6 privados
+
+Referencia `pushSyncOperationsV6` usa headers Next y guard de release inactivo: todavía sólo retiro, no ejecución. Dispatcher cliente usa startTransition; cliente futuro reúne transport 6, summary/settings runtime; hook comparte scheduler/cuenta/listeners existentes con cache 6 separada y posiciones de cuenta intactas. Proveedor, APIs, acciones5 y generación activa no cambian.
+
+Cinco tests de cliente añaden intención settings, cuenta capturada/guardias, stop, incompatibilidad antes del body y cierre. Se corrigió una matriz copiada que aún trataba 6 como inválida. Cache prueba aislamiento6 e invalidación por cuenta. Suite 809 pass / 221 skip / 0 fail / 10612 aserciones, lint 822, tipos/build Webpack/worker 46 aprobados. Tests puros no demuestran lifecycle del hook ni ID del deployment. Siguiente frontera privada identidad/pull6, después evidencia Next y dos particiones antes de activar/UI.
+
+
 ## 18d2 — Frontera autenticada, seis índices y retiro preparados
 
 Defaults privados reutilizan sesión autorizada y guardias del servicio recurrente; schema/expected actor preceden una inspección readonly por lote. Dispatcher futuro selecciona executor settings y valida correspondencia/replay común; las demás familias conservan dispatch existente. Readiness añade únicamente `user_settings_user_uidx` registrado/staged a las cinco definiciones exactas; no provisión ni bootstrap. Retiro 5 reutiliza validación del sobre 2 y no puede llegar a readiness/executor.

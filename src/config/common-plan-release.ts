@@ -9,3 +9,6 @@ export const activeProductSyncProtocol = commonPlanReleaseEnabled
     ? 5
     : 4
   : 3
+
+// Staged settings bundle stays inactive until compiled and two-partition acceptance.
+export const settingsSyncReleaseEnabled: boolean = false

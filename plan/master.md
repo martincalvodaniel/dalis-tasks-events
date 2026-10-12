@@ -2,6 +2,8 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+18d3a cerrado: acción/cliente/hook6 privados y cache aislada, guard de release false. Suite 809 pass / 221 skip / 0 fail; lint 822, tipos/build Webpack/worker 46. Producto 5 intacto; siguiente identidad/pull6 y prueba Next/dos particiones antes de UI/activación. [settings-sync.md](settings-sync.md).
+
 18d2 cerrado: frontera privada autenticada/settings dispatcher/replay, readiness de seis índices y retiro 5. Diez casos Mongo / 81 aserciones; suite 804 pass / 221 skip / 0 fail, lint 817, tipos/build Webpack/worker 46. Producto 5 intacto; siguiente action/cliente/hook6, Next/dos particiones/UI/activación. [settings-sync.md](settings-sync.md).
 
 18d1 cerrado: transporte privado 6 y matriz con 5/ambigüedad, rechazando headers antes del body. Producto sigue 5. Suite 798 pass / 220 skip / 0 fail; lint 812, tipos/build Webpack/worker 46. Siguiente frontera/readiness/retiro 5 y pruebas Next antes de activación/UI. [settings-sync.md](settings-sync.md).
