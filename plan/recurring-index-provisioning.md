@@ -1,5 +1,10 @@
 # Provisión de índices de repetición
 
+## Verificación real Preview — 17e2b2c
+
+El deployment 375cafe con sesión Google existente confirma creación de serie/vista y dos cambios de aparición. Los cuatro ACK de acción5 y su proyección remota pasan el readiness obligatorio de cinco índices. El índice de aparición está operativo en Preview, creado por el arranque central, sin CLI, captura de URI o Reauthenticate. Decoder portable3 y recarga confirman persistencia. No actuación productiva, reparación ni borrado. Captura: `/private/tmp/dalis-recurring-preview-pilot.png`.
+
+
 ## Procedimiento vigente — 12 de octubre, 17e2b2a
 
 El usuario autoriza crear el índice en preproducción y pide que lo haga la propia aplicación. Esta elección sustituye el procedimiento externo para la activación Preview: no leer/copiar credenciales ni exigir Reauthenticate en Vercel.

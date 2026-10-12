@@ -1,5 +1,10 @@
 # Sincronización de series y apariciones comunes
 
+## Piloto de deployment cerrado — 17e2b2c
+
+Preview Google real selecciona 5 tras actualización conservadora del cliente. Serie diaria de tres apariciones, categoría/checklist, progreso de hoy y recarga correctos. Decoder portable 3 comprueba cuatro ACK del piloto, appearances revision 2 y shadow remoto idéntico, cero pendientes y cuatro items originales conservados. Readiness5 verificada por las acciones remotas exitosas; índice de aparición operativo por bootstrap del singleton. Sin captura de credenciales ni ejecución del operador externo en DBusuario. No declarar dos dispositivos físicos u offline por este piloto. Comparación de conflictos entregada; resolución explícita de apariciones pendiente en cierre MVP.
+
+
 ## Activación vigente — 17e2b2b
 
 Selector productivo 5 activo: todos los puertos comunes seleccionados juntos; readiness de cinco índices antes de ejecutar comandos. La prueba compilada utiliza el módulo real del producto, sin alias: 19 escenarios propios aprobados. Suite 755 pass / 209 skip, lint 783/tipos/build/worker aprobados. No despliegue de producción ni reescritura de intenciones históricas sin CAS. Próximo corte verifica deployment Preview/Google y ACK/persistencia de una repetición de piloto; no extrapolar evidencia sintética al deployment.

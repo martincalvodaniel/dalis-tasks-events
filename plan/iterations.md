@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 17e2b2c — Piloto recurrente Preview con sesión Google existente
+
+- Estado: completada; piloto Google Preview, cuatro ACK reales, codec 3 validado y persistencia tras recarga.
+- Objetivo: verificar el deployment publicado y el bootstrap/readiness mediante ACK real de serie/aparición.
+- target_paths: `plan/{master,iterations,iteration-log,recurrence-sync,recurring-index-provisioning}.md`; piloto en UI Preview, sin producción ni credenciales manuales.
+- Dependencias: 375cafe publicado, sesión Google existente, 28% / 28%; reservas 10% / 1%.
+- Aceptación: preservar datos anteriores; crear un plan diario de piloto, modificar una aparición desde la lista, obtener ACK remoto y persistencia tras recarga/export portable 3. No declarar dos dispositivos físicos por pestañas ni resolver históricos automáticamente.
+- Validación: UI real, diagnóstico/backup del producto saneado, captura sin credenciales, documentación/diff/commit+push/HEAD/cuotas.
+
 ## 17e2b2b — Activación conjunta de repetición remota
 
 - Estado: completada; 19 escenarios Next5 con configuración productiva real y DoD aprobados. Piloto Preview es la siguiente entrega.

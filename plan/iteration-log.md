@@ -1,5 +1,14 @@
 # Registro de iteraciones
 
+## 17e2b2c — Piloto Google en el deployment Preview
+
+Deployment `375cafe`, sesión Google existente, sin nuevo login interactivo ni secretos Vercel. Cliente antiguo 4 rechaza handshake 5 sin perder datos; «Comprobar actualización», cierre y reapertura carga la versión recurrente. Se crea `Piloto repetición 12oct`, diaria/tres veces, categoría existente/checklist. Aparición de hoy in_progress y paso completo; las dos futuras conservan estado inicial. Tras recarga persiste la misma presentación.
+
+JSON descargado y validado mediante `decodeLocalRecurringBackup`: codec 3, cinco items/cinco views (cuatro originales conservados), una aparición revision 2, cuatro ACK únicos del piloto con attempts 1/lease null/outcome durable, shadow remoto igual; 18 acknowledged totales/cero pendientes. ACK de acción5 verifica readiness de los cinco índices, incluido el índice creado por el bootstrap Preview. Sin conexión directa/URI, cambios productivos ni reparación de datos. El helper privado de validación se retira; backup descargado permanece fuera del repo, sin volcar IDs/cuenta/payloads en el registro.
+
+Evidencia: `/private/tmp/dalis-recurring-preview-pilot.png`. Esto prueba sesión real y deployment, no dos dispositivos físicos ni offline al reabrir. Historia sin CAS sigue preservada/unsupported y no se ofrece todavía resolución de conflictos de aparición. Entrega documental: consistencia/diff, commit + push / HEAD / cuotas. Entrada 28% / 28%; reservas 10% / 1%.
+
+
 ## 17e2b2b — Selector 5 activo y configuración real en la prueba compilada
 
 Dependencias: 17e2b2a `b9f1005`, autorización Preview y conexión conjunta preparada. Entrada 32% / 29%, reservas 10% / 1%. Se activa el selector común 5 y se elimina el alias preparatorio del fixture cuando el producto ya selecciona 5. No se cambia sobre/journal/codec de intención ni se reescriben históricos. Readiness continúa bloqueando escrituras sin los cinco índices compatibles; bootstrap Preview crea sólo el nuevo índice registrado y no modifica producción.
