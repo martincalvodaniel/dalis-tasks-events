@@ -49,3 +49,22 @@ export async function executeRemoteRecurringOperation(
   // An incompatible historical receipt must never be relabeled into an ACK.
   return validateRemoteRecurringOperationResult(result, actor, operation)
 }
+
+// The future authenticated bundle selects this port only after settings index readiness.
+export async function executeRemoteSettingsOperation(
+  actorInput: unknown,
+  operationInput: unknown
+): Promise<RemoteRecurringOperationResult> {
+  const actor = userIdSchema.parse(actorInput),
+    operation = syncOperationSchema.parse(operationInput)
+  if (operation.command.type !== "settings.update")
+    return executeRemoteRecurringOperation(actor, operation)
+  const { executeRemoteUserSettingsOperation } = await import(
+    "@/lib/db/remote-user-settings-commands"
+  )
+  return validateRemoteRecurringOperationResult(
+    await executeRemoteUserSettingsOperation(actor, operation),
+    actor,
+    operation
+  )
+}

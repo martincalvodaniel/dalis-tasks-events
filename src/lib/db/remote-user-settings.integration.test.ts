@@ -9,6 +9,7 @@ import {
   readRemoteRecurringChangesV2,
   readRemoteSettingsChangesV2,
 } from "@/lib/db/remote-changes-v2"
+import { executeRemoteSettingsOperation } from "@/lib/db/remote-recurring-operation-commands"
 import { readRemoteRecurringOperationReceipt } from "@/lib/db/remote-recurring-operation-receipts"
 import { RemoteUserSettingsRepository } from "@/lib/db/remote-user-settings"
 import {
@@ -497,5 +498,32 @@ describe.skipIf(!config)("owned atomic personal settings", () => {
       changes: 2,
       counter: 2,
     })
+  })
+  test("future dispatcher selects settings executor and preserves exact replay without duplicate history", async () => {
+    const actor = owner("dispatcher"),
+      submitted = operation(),
+      before = structuredClone(submitted)
+    const result = await executeRemoteSettingsOperation(actor, submitted)
+    expect(result.kind === "preference" && result.outcome.status).toBe(
+      "applied"
+    )
+    expect(await executeRemoteSettingsOperation(actor, submitted)).toEqual(
+      result
+    )
+    expect(submitted).toEqual(before)
+    expect(await history(actor)).toEqual({
+      receipts: 1,
+      changes: 1,
+      counter: 1,
+    })
+    await expect(
+      executeRemoteSettingsOperation(actor, {
+        ...submitted,
+        command: {
+          type: "settings.update",
+          input: { timeZone: "UTC", weekStartsOn: 1, locale: "es-ES" },
+        },
+      })
+    ).rejects.toBeInstanceOf(OperationIdentityReuseError)
   })
 })

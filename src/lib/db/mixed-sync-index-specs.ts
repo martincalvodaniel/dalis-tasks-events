@@ -111,3 +111,33 @@ export function selectRecurringSyncIndexSpecs(): IndexSpec[] {
   validateIndexSpecs(selected)
   return selected
 }
+
+export function selectSettingsSyncIndexSpecs(): IndexSpec[] {
+  const selected = selectRecurringSyncIndexSpecs()
+  const name = "user_settings_user_uidx"
+  const candidates = INDEX_SPECS.filter((spec) => spec.options.name === name)
+  const settings = candidates[0]
+  if (
+    candidates.length !== 1 ||
+    settings.collection !== COLLECTION_NAMES.userSettings ||
+    settings.provisioning !== "explicit" ||
+    settings.options.unique !== true ||
+    Object.keys(settings.options).some(
+      (option) => option !== "name" && option !== "unique"
+    ) ||
+    Object.entries(settings.keys).length !== 1 ||
+    Object.entries(settings.keys)[0][0] !== "userId" ||
+    Object.entries(settings.keys)[0][1] !== 1 ||
+    INDEX_SPECS.filter(
+      (spec) =>
+        spec.provisioning === "explicit" &&
+        spec.collection === COLLECTION_NAMES.userSettings
+    ).length !== 1
+  )
+    throw new Error(
+      "Settings sync requires its exact registered identity index"
+    )
+  selected.push(structuredClone(settings))
+  validateIndexSpecs(selected)
+  return selected
+}

@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 18d2 — Frontera autenticada, seis índices y retiro preparados
+
+Defaults privados reutilizan sesión autorizada y guardias del servicio recurrente; schema/expected actor preceden una inspección readonly por lote. Dispatcher futuro selecciona executor settings y valida correspondencia/replay común; las demás familias conservan dispatch existente. Readiness añade únicamente `user_settings_user_uidx` registrado/staged a las cinco definiciones exactas; no provisión ni bootstrap. Retiro 5 reutiliza validación del sobre 2 y no puede llegar a readiness/executor.
+
+Seis tests nuevos de auth/retirement/readiness y diez casos Mongo / 81 aserciones pasan, incluyendo dispatcher real/replay/UUIDreuse sin duplicar historia. Recursos propios retirados; no actuación en DBusuario. Se corrigió acceso tipado a keys del índice antes de validación final. Suite 804 pass / 221 skip / 0 fail / 10561 aserciones, lint 817, tipos/build Webpack/worker 46 aprobados. Producto sigue 5: faltan referencias action6/cliente/hook, prueba Next/dos particiones, UI y activación conjunta. No declarar convergencia por fixtures puros.
+
+
 ## 18d1 — HTTP exclusivo de ajustes preparado
 
 Factory 6 comparte conexión/deadline con transporte recurrente, selecciona header exclusivo 6 y valida página completa con settings. Factory 5 mantiene rechazo estricto; rango 5–6, header ausente o generación distinta se rechazan antes del body de identidad/pull. Cookies same-origin de Preview intactas. Envío conserva intención 1 y sobre 2; expected actor falla antes del envío y timeout no implica ACK.

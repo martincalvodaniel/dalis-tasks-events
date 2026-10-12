@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 18d2 — Frontera autenticada y readiness de ajustes
+
+- Objetivo: defaults privados de envío settings, dispatcher/replay remoto, seis índices registrados y retiro 5 sin ejecutar.
+- target_paths: `src/lib/db/{mixed-sync-index-specs,mixed-sync-index-readiness,remote-recurring-operation-commands,remote-user-settings.integration.test,settings-index-readiness.test}.ts`, `src/schemas/settings-sync-index-provisioning.ts`, `src/features/sync/{authenticated-settings-push,retired-sync-push-v5,authenticated-settings-push.test}.ts`, `plan/**`.
+- Dependencias: 18d1 publicado e23d26c; entrada 33% 5h / 14% 7d, reservas 10% / 1%, secuencial.
+- Aceptación: sesión/expected actor/schema preceden readiness; una inspección readonly por lote y settings/otras familias pasan al executor adecuado; replay conserva UUID/resultado; readiness exige seis definiciones exactas sin crear índices; retiro 5 devuelve sobre 2 update_required sin readiness/executor. No action/caller activo/bootstrap ni DB usuario.
+- Validación: puertos auth/retirement/readiness y Mongo propio del dispatcher/replay, suite/lint/tipos/build/worker/plan/log/commit/push/HEAD/cuotas. Frontera Next y activación posteriores.
+
 ## 18d1 — HTTP de ajustes con negociación exclusiva 6
 
 - Objetivo: frontera cliente 6 que rechaza servidores incompatibles antes del body y conserva intención 1/sobres 2.
