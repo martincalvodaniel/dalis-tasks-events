@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## Intercalada humana — aceptación y checklist
+
+El usuario acepta el arrastre como terminado y solicita la checklist física. Registrar únicamente ese cierre y recorrido actual, sin abrir código con9%5h/10%7d. Resultados pendientes del usuario, no equivalen a aceptación de settings6 ni conflicto. Publicar documentación y cerrar; continuación técnica18e1a requiere margen renovado.
+
 ## Cierre de nueva ventana — lote 18
 
 Entrada 100% 5h / 24% semanal, quince cortes secuenciales con commit/push int/HEAD/cuotas. Tras 5cd93f4 quedan 13% 5h / 11% semanal; mantener reservas 10% / 1%. Next compilado/lifecycle/activación no cabe con reparación y cierre: continuar desde 18e1a en una ventana con margen. No nueva automatización ni créditos/reinicios. Main humano conservado y recursos propios limpios. Producto5 sigue activo, ajustes6 privados y fila readonly visible; no reabrir categorías/asignaciones/repetición ya entregadas, cumpleaños aparcado/sharing fuera. Cierre documental y lectura final después del commit.

@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 15p1 — Arrastre aceptado y checklist entregada
+
+Petición humana12oct: «El arrastre funciona mejor así que lo damos por terminado» y checklist de segundo dispositivo. Se cierra usabilidad de16c13 por aceptación explícita y se entrega recorrido de generación5 activa: mismo Preview/cuenta, categorías/color/estado/checklist/orden, aparición aislada, offline/reapertura/reconexión y tombstone sin duplicados. Resultados físicos pendientes; no validación ficticia ni nuevos cambios/datos del usuario. Inspección readonly de la pestañaPreview existente muestra planes y apariciones del piloto anterior; no prueba el HEAD exacto del deployment. Pestaña autenticada conservada.
+
+Corte documental solicitado con cuota9%5h/10%7d, sin abrir implementación ni reactivar automatización. Referencias/coherencia/diff aprobados; commit/pushint/HEAD y consulta final. Zona editable/sync6 y resolución de conflictos quedan fuera del recorrido actual.
+
+
 ## 18z1 — Cierre de nueva ventana del 12 de octubre
 
 Quince cortes de código desde e354005 publicados y validados, último 5cd93f4 / origin/int exacto. Cuota real de cierre de código: 13% 5h / 11% 7d; reserva 10% / 1%, reset publicado 1791818023. La prueba Next completa, potencial reparación y activación exceden los tres puntos disponibles hasta reserva: no se inicia. Siguiente 18e1a delimitado en iterations; continuación general autorizada mantiene cumpleaños aparcado/sharing fuera, sin nueva automatización.

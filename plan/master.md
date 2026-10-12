@@ -2,6 +2,8 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+**Arrastre cerrado por el usuario.** Checklist física de dos dispositivos entregada; resultados pendientes en [manual-device-checklist.md](manual-device-checklist.md). No se ha ejecutado ni aprobado todavía este recorrido.
+
 Lote cerrado tras 5cd93f4: quince cortes de código publicados; lectura real 13% 5h / 11% semanal, reserva 10% / 1%. Siguiente 18e1a delimitado en [iterations.md](iterations.md); no se inicia Next amplio sin margen para reparar/cerrar. Sin nueva automatización.
 
 En esta ventana se cerraron 18a–18e0b: preparación de zona personal offline/remota, repo/CAS/ejecutor atómicos, productor independiente, ACK/pull/evidencia/backup, runtime/política y frontera privada 6 (HTTP/auth/readiness/action/cliente/hook). Quince cortes de código validados, cada uno con commit/push/HEAD y cuota. Diez casos Mongo / 81 aserciones; nueve checks de productor, diez ACK/evidencia y ocho descarga en IndexedDB con recargas. **Todavía no está activada la sincronización ni la edición de ajustes.** La generación 5 del producto sigue activa.
@@ -12,7 +14,7 @@ Siguiente: 18e1a prueba Next compilada/BetterAuth persistido y dos particiones, 
 
 ## Base activa anterior al lote de ajustes
 
-16c13 mejora el gesto compartido: activación350ms/tolerancia12px, TouchEvents propios para preservar scroll antes de agarrar y bloquearlo después, pointercancel táctil no interrumpe el agarre; selección visible y etiqueta que acompaña al dedo/destino. Scroll automático sólo tras mover el dedo. Sin botones de arrastre nuevos ni cambios de contratos/persistencia. Orden y cambio de día simple/aparición pasan en navegador390×844 con React/CSS/IndexedDB reales y eventos táctiles simulados; cancelación/corto/scroll previo no escriben, drop escribe una intención, recarga conserva resultados. Pendiente valorar sensación en móvil físico.
+16c13 mejora el gesto compartido: activación350ms/tolerancia12px, TouchEvents propios para preservar scroll antes de agarrar y bloquearlo después, pointercancel táctil no interrumpe el agarre; selección visible y etiqueta que acompaña al dedo/destino. Scroll automático sólo tras mover el dedo. Sin botones de arrastre nuevos ni cambios de contratos/persistencia. Orden y cambio de día simple/aparición pasan en navegador390×844 con React/CSS/IndexedDB reales y eventos táctiles simulados; cancelación/corto/scroll previo no escriben, drop escribe una intención, recarga conserva resultados. El 12 de octubre el usuario confirma que funciona mejor y lo da por terminado; aceptación humana de usabilidad cerrada.
 
 Validación de 16c13: suite761pass/209skip/0fail/10347aserciones, lint788/tipos/buildWebpack/worker46. Pruebas propias y servidor limpios. Cumpleaños aparcado; siguientes bloques activos: preferencias/configuración y recuperación explícita residual, aceptación final móvil/dosdispositivos/offline/accesibilidad/guía y publicación productiva autorizada con índices centrales.
 
@@ -38,7 +40,7 @@ Autorización: continuar el plan completo, commit + push por entrega validada en
 Estimación vigente: **aproximadamente 10% pendiente del MVP activo**, rango orientativo8–15%, ponderado por complejidad. Cumpleaños queda **aparcado** por decisión humana, con 10a preparado y sin pantalla/remote; compartir Gmail sigue fuera de alcance. No contabilizar reducción de alcance como implementación entregada.
 
 Orden restante:
-1. Agarre/arrastre táctil corregido en16c13; validar la sensación en el móvil físico del usuario.
+1. Agarre/arrastre táctil de 16c13: cerrado por aceptación humana el 12 de octubre.
 2. Preferencias/configuración residual y recuperación explícita de conflictos pendientes, incluidas apariciones y contenido común donde falte.
 3. Aceptación final en móvil real, dos dispositivos físicos, reapertura offline/reconexión y accesibilidad; guía de uso.
 4. Preparar publicación productiva cuando el usuario la autorice, incluido bootstrap de los índices necesarios en el registro central. No desplegar producción por un push a `int`.

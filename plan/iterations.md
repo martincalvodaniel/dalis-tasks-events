@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 15p1 — Aceptación de arrastre y checklist física
+
+- Objetivo: registrar aceptación humana del arrastre y entregar recorrido de dos dispositivos físicos para generación5 ya activa.
+- target_paths: `plan/master.md`, `plan/workflow.md`, `plan/manual-device-checklist.md`, `plan/iterations.md`, `plan/iteration-log.md`.
+- Dependencias: HEAD1382754 limpio/int; petición humana específica de checklist y arrastre terminado. Corte exclusivamente documental, sin reabrir implementación con cuota9%5h/10%7d.
+- Aceptación: arrastre cerrado por decisión humana, prueba física aún pendiente y resultados no inventados; mismo entorno/cuenta, operaciones secuenciales, categoría/estado/checklist/orden/repetición/offline/reconexión/borrado y criterios observables. Ajustes6 quedan fuera porque no están activados.
+- Validación: referencias/coherencia/diff, Conventional Commit/push int/HEAD y consulta final de cuotas; sin pruebas de código ni nuevos recursos.
+
 ## 18z1 — Cierre del lote de nueva ventana
 
 - Objetivo: registrar quince entregas publicadas, cuotas reales y siguiente aceptación delimitada, sin abrir Next amplio con margen insuficiente.
