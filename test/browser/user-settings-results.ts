@@ -4,10 +4,11 @@ import {
 } from "@/lib/backup/local-backup"
 import { readLocalRecurringBackup } from "@/lib/local-db/backup"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
+import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import {
   applyLocalRecurringPreferenceResult,
-  applyLocalSettingsPreferenceResult,
+  applyLocalSettingsPreferenceResult as applyLocalSettingsPreferenceResultDirect,
 } from "@/lib/local-db/preference-sync-results"
 import { readLocalSettingsSyncIncidentOverview } from "@/lib/local-db/sync-incidents"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
@@ -118,11 +119,24 @@ run.hidden = isReload
 reload.hidden = !isReload
 statusNode.textContent =
   "Prueba de consumidor local; respuestas remotas ficticias, sin Google ni Mongo."
+let futureStore: LocalMixedSyncStore | null = null
+function applyLocalSettingsPreferenceResult(
+  database: IDBDatabase,
+  userId: string,
+  input: unknown
+) {
+  return futureStore &&
+    userId === actor &&
+    database.name === localDatabaseName(actor)
+    ? futureStore.applyOperationResult(input)
+    : applyLocalSettingsPreferenceResultDirect(database, userId, input)
+}
 run.onclick = async () => {
   run.disabled = true
   const database = await openLocalDatabase(actor),
     outbox = await LocalOutbox.open(actor)
   try {
+    futureStore = await LocalMixedSyncStore.openSettings(actor)
     await snapshot(peer)
     const category = await outbox.commitPreferenceCommand({
       type: "tag.save",
@@ -550,6 +564,8 @@ run.onclick = async () => {
   } catch (error) {
     statusNode.textContent = `Fallo: ${error instanceof Error ? error.message : "Unknown settings proof failure"}`
   } finally {
+    futureStore?.close()
+    futureStore = null
     outbox.close()
     database.close()
   }

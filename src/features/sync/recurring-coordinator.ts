@@ -5,10 +5,15 @@ import type {
   SyncPassResultV2,
 } from "@/features/sync/coordinator-v2"
 import { SyncTransportError } from "@/features/sync/transport-error"
-import { validateLocalRecurringChangesPageInput } from "@/lib/sync/local-recurring-pull"
+import {
+  validateLocalRecurringChangesPageInput,
+  validateLocalSettingsChangesPageInput,
+} from "@/lib/sync/local-recurring-pull"
 import { diagnosePersonalQueue } from "@/lib/sync/personal-queue-diagnostics"
 import { recurringSyncCapabilityPolicy } from "@/lib/sync/recurring-sync-capabilities"
 import { validateRemoteRecurringPushResult } from "@/lib/sync/remote-recurring-push"
+import { settingsSyncCapabilityPolicy } from "@/lib/sync/settings-sync-capabilities"
+import type { SyncCapabilityPolicy } from "@/lib/sync/sync-capabilities"
 import { localPullCursorSchema, outboxEntrySchema } from "@/schemas/local-sync"
 import { entityIdSchema, userIdSchema } from "@/schemas/primitives"
 import { remotePushInputV2Schema } from "@/schemas/remote-push-v2"
@@ -52,15 +57,19 @@ class CoordinatorGuardError extends Error {
 // Prepared recurrent boundary stays separate from active DTOs. Bounded passes never assert convergence.
 export class RecurringSyncCoordinator {
   private readonly userId: string
-  private readonly policy = recurringSyncCapabilityPolicy
+  private readonly policy: SyncCapabilityPolicy
   private readonly senderId: string
   private stopped = false
   private running: Promise<SyncPassResultV2> | null = null
   constructor(
     userId: string,
     private readonly ports: RecurringSyncCoordinatorPorts,
-    senderId = crypto.randomUUID()
+    senderId = crypto.randomUUID(),
+    private readonly allowSettings = false
   ) {
+    this.policy = allowSettings
+      ? settingsSyncCapabilityPolicy
+      : recurringSyncCapabilityPolicy
     this.userId = userIdSchema.parse(userId)
     this.senderId = entityIdSchema.parse(senderId)
   }
@@ -126,10 +135,10 @@ export class RecurringSyncCoordinator {
         pullCount++
         const raw = await this.ports.pull(structuredClone(query))
         await guard()
-        const receipt = validateLocalRecurringChangesPageInput(
-          { query, page: raw },
-          this.userId
-        )
+        const validateReceipt = this.allowSettings
+          ? validateLocalSettingsChangesPageInput
+          : validateLocalRecurringChangesPageInput
+        const receipt = validateReceipt({ query, page: raw }, this.userId)
         await guard()
         await this.ports.applyPage(structuredClone(receipt))
         downloaded += receipt.page.changes.length

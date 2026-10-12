@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 18c5 — Composición privada de ajustes
+
+- Objetivo: política, diagnóstico/resumen, store, coordinador y runtime seleccionan juntos ajustes sin cambiar callers 5.
+- target_paths: `src/lib/sync/settings-sync-capabilities.ts`, `src/lib/local-db/mixed-sync-store.ts`, `src/features/sync/{recurring-coordinator,local-recurring-runtime,mixed-sync-summary,settings-coordinator.test}.ts`, `test/browser/user-settings-results.ts`, `test/browser/user-settings-pull.ts`, `plan/**`.
+- Dependencias: 18c4b publicado 702f858, todos los puertos ACK/pull/evidencia propios probados; entrada 43% 5h / 15% 7d, reservas 10% / 1%, secuencial.
+- Aceptación: nuevo bundle admite settings/update exclusivamente preparado, misma validación recurrente/resto unsupported; resumen y coordinador coherentes antes/después del claim; store futuro usa ACK/pull completos; guardias de cuenta/epoch y cierre existentes reutilizadas. No nueva negociación, UI, índices bootstrap ni caller activo.
+- Validación: capability/diagnóstico/coordinador por puertos con guards/rechazo/corrupción y store IndexedDB propio; DoD/worker/registro/commit/push/HEAD/cuotas. Fixture no equivale a convergencia/Google; frontera 6 posterior.
+
 ## 18c4b — Evidencia actual y copia de ajustes
 
 - Objetivo: comparar settings actual/local al resultado/base observada/último remoto y demostrar exportación portable sin inventar ausencia.

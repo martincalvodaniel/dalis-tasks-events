@@ -5,9 +5,13 @@ import { applyLocalPlanOccurrenceResult } from "@/lib/local-db/plan-occurrence-s
 import {
   applyLocalPreferenceResult,
   applyLocalRecurringPreferenceResult,
+  applyLocalSettingsPreferenceResult,
 } from "@/lib/local-db/preference-sync-results"
 import { applyLocalChangesPageV2 } from "@/lib/local-db/pull-changes-v2"
-import { applyLocalRecurringChangesPage } from "@/lib/local-db/pull-recurring-changes"
+import {
+  applyLocalRecurringChangesPage,
+  applyLocalSettingsChangesPage,
+} from "@/lib/local-db/pull-recurring-changes"
 import { LocalSyncStore } from "@/lib/local-db/sync-store"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { validateLocalSyncResultInputV2 } from "@/lib/sync/local-sync-result-v2"
@@ -27,7 +31,8 @@ export class LocalMixedSyncStore {
     private readonly database: IDBDatabase,
     private readonly itemStore: LocalSyncStore,
     private readonly allowPlans: boolean,
-    private readonly allowSeries: boolean
+    private readonly allowSeries: boolean,
+    private readonly allowSettings: boolean
   ) {}
 
   static async open(
@@ -42,10 +47,15 @@ export class LocalMixedSyncStore {
     return LocalMixedSyncStore.openForScope(userIdInput, true, true)
   }
 
+  static openSettings(userIdInput: string): Promise<LocalMixedSyncStore> {
+    return LocalMixedSyncStore.openForScope(userIdInput, true, true, true)
+  }
+
   private static async openForScope(
     userIdInput: string,
     allowPlans: boolean,
-    allowSeries: boolean
+    allowSeries: boolean,
+    allowSettings = false
   ): Promise<LocalMixedSyncStore> {
     const userId = userIdSchema.parse(userIdInput)
     const database = await openLocalDatabase(userId)
@@ -57,7 +67,8 @@ export class LocalMixedSyncStore {
         database,
         itemStore,
         allowPlans,
-        allowSeries
+        allowSeries,
+        allowSettings
       )
       store.ensurePartition()
       return store
@@ -119,6 +130,8 @@ export class LocalMixedSyncStore {
 
   applyChangesPage(input: unknown): Promise<"applied" | "ignored"> {
     this.ensurePartition()
+    if (this.allowSettings)
+      return applyLocalSettingsChangesPage(this.database, this.userId, input)
     if (this.allowSeries)
       return applyLocalRecurringChangesPage(this.database, this.userId, input)
     return applyLocalChangesPageV2(
@@ -143,11 +156,15 @@ export class LocalMixedSyncStore {
           ...submission,
           result,
         })
-      if (result.kind === "preference")
-        return applyLocalRecurringPreferenceResult(this.database, this.userId, {
+      if (result.kind === "preference") {
+        const apply = this.allowSettings
+          ? applyLocalSettingsPreferenceResult
+          : applyLocalRecurringPreferenceResult
+        return apply(this.database, this.userId, {
           ...submission,
           result,
         })
+      }
       return this.itemStore.applyRecurringOperationResult({
         ...submission,
         result: result.outcome,

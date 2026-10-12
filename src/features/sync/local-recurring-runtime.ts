@@ -12,12 +12,29 @@ export async function openLocalRecurringSyncRuntime(
   accountInput: Pick<LocalAccount, "userId" | "epoch">,
   transport: RecurringSyncTransport
 ): Promise<LocalSyncRuntimeV2> {
+  return openScopedRecurringRuntime(accountInput, transport, false)
+}
+
+export function openLocalSettingsSyncRuntime(
+  accountInput: Pick<LocalAccount, "userId" | "epoch">,
+  transport: RecurringSyncTransport
+): Promise<LocalSyncRuntimeV2> {
+  return openScopedRecurringRuntime(accountInput, transport, true)
+}
+
+async function openScopedRecurringRuntime(
+  accountInput: Pick<LocalAccount, "userId" | "epoch">,
+  transport: RecurringSyncTransport,
+  allowSettings: boolean
+): Promise<LocalSyncRuntimeV2> {
   const account = { userId: accountInput.userId, epoch: accountInput.epoch }
   const requireAccount = requireActivePlanAccount
   await requireAccount(account)
   const opened = await Promise.allSettled([
     LocalOutbox.open(account.userId),
-    LocalMixedSyncStore.openRecurring(account.userId),
+    allowSettings
+      ? LocalMixedSyncStore.openSettings(account.userId)
+      : LocalMixedSyncStore.openRecurring(account.userId),
   ])
   const [outboxResult, storeResult] = opened
   const closeOpened = () => {
@@ -44,47 +61,52 @@ export async function openLocalRecurringSyncRuntime(
     if (closing) throw new Error("Recurring sync runtime is closing")
     await requireAccount(account)
   }
-  const coordinator = new RecurringSyncCoordinator(account.userId, {
-    ...transport,
-    isActive: async () => {
-      try {
+  const coordinator = new RecurringSyncCoordinator(
+    account.userId,
+    {
+      ...transport,
+      isActive: async () => {
+        try {
+          await guard()
+          return !closing
+        } catch {
+          return false
+        }
+      },
+      readCursor: async () => {
         await guard()
-        return !closing
-      } catch {
-        return false
-      }
+        const value = await store.readPullCursor()
+        await guard()
+        return value
+      },
+      readQueueState: async () => {
+        await guard()
+        const value = await store.readQueueState()
+        await guard()
+        return value
+      },
+      recoverExpiredSends: async () => {
+        await guard()
+        return outbox.recoverExpiredSends()
+      },
+      claim: async (id, sender) => {
+        await guard()
+        return outbox.claim(id, sender, new Date(), 120000)
+      },
+      // Lease cleanup is scoped to the previous partition and sender, including after account closure.
+      release: (id, sender) => outbox.release(id, sender),
+      applyPage: async (input) => {
+        await guard()
+        return store.applyChangesPage(input)
+      },
+      applyResult: async (input) => {
+        await guard()
+        return store.applyOperationResult(input)
+      },
     },
-    readCursor: async () => {
-      await guard()
-      const value = await store.readPullCursor()
-      await guard()
-      return value
-    },
-    readQueueState: async () => {
-      await guard()
-      const value = await store.readQueueState()
-      await guard()
-      return value
-    },
-    recoverExpiredSends: async () => {
-      await guard()
-      return outbox.recoverExpiredSends()
-    },
-    claim: async (id, sender) => {
-      await guard()
-      return outbox.claim(id, sender, new Date(), 120000)
-    },
-    // Lease cleanup is scoped to the previous partition and sender, including after account closure.
-    release: (id, sender) => outbox.release(id, sender),
-    applyPage: async (input) => {
-      await guard()
-      return store.applyChangesPage(input)
-    },
-    applyResult: async (input) => {
-      await guard()
-      return store.applyOperationResult(input)
-    },
-  })
+    undefined,
+    allowSettings
+  )
   return {
     run: () => coordinator.run(),
     close: () => {

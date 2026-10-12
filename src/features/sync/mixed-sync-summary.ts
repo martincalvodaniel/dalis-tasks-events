@@ -9,6 +9,7 @@ import {
   summarizeSyncQueueV2,
 } from "@/lib/sync/queue-summary-v2"
 import { recurringSyncCapabilityPolicy } from "@/lib/sync/recurring-sync-capabilities"
+import { settingsSyncCapabilityPolicy } from "@/lib/sync/settings-sync-capabilities"
 import {
   placementSyncCapabilityPolicy,
   planSyncCapabilityPolicy,
@@ -75,4 +76,15 @@ export function readRecurringSyncQueueSummary(
   ports: MixedSummaryPorts = recurringPorts
 ): Promise<SyncQueueSummaryV2> {
   return readMixedSyncQueueSummary(input, ports, recurringSyncCapabilityPolicy)
+}
+
+const settingsPorts: MixedSummaryPorts = {
+  requireActive: requireActivePlanAccount,
+  openStore: (userId) => LocalMixedSyncStore.openSettings(userId),
+}
+export function readSettingsSyncQueueSummary(
+  input: AccountIdentity,
+  ports: MixedSummaryPorts = settingsPorts
+): Promise<SyncQueueSummaryV2> {
+  return readMixedSyncQueueSummary(input, ports, settingsSyncCapabilityPolicy)
 }

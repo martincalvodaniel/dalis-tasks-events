@@ -1,9 +1,10 @@
 import { applyPlanOccurrenceCommand } from "@/lib/calendar/plan-occurrence-command"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
+import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import {
   applyLocalRecurringChangesPage,
-  applyLocalSettingsChangesPage,
+  applyLocalSettingsChangesPage as applyLocalSettingsChangesPageDirect,
 } from "@/lib/local-db/pull-recurring-changes"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { planSchema } from "@/schemas/plan-item"
@@ -177,6 +178,18 @@ function receipt(changes: RemoteRecurringChange[], after = 0) {
     },
   }
 }
+let futureStore: LocalMixedSyncStore | null = null
+function applyLocalSettingsChangesPage(
+  database: IDBDatabase,
+  userId: string,
+  input: unknown
+) {
+  return futureStore &&
+    userId === actor &&
+    database.name === localDatabaseName(actor)
+    ? futureStore.applyChangesPage(input)
+    : applyLocalSettingsChangesPageDirect(database, userId, input)
+}
 run.onclick = async () => {
   run.disabled = true
   const database = await openLocalDatabase(actor),
@@ -184,6 +197,7 @@ run.onclick = async () => {
     outbox = await LocalOutbox.open(actor),
     otherOutbox = await LocalOutbox.open(peer)
   try {
+    futureStore = await LocalMixedSyncStore.openSettings(actor)
     const pending = await outbox.commitUserSettingsCommand(command("UTC"), {
       expectedSettings: null,
     })
@@ -503,6 +517,8 @@ run.onclick = async () => {
   } catch (error) {
     statusNode.textContent = `Fallo: ${error instanceof Error ? error.message : "Unknown settings pull failure"}`
   } finally {
+    futureStore?.close()
+    futureStore = null
     outbox.close()
     otherOutbox.close()
     database.close()

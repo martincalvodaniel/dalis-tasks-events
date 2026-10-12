@@ -2,6 +2,8 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+18c5 cerrado: bundle privado local coherente de ajustes, store/ACK/pull/summary/coordinador/runtime. Defaults 5 intactos. Suite 793 pass / 220 skip / 0 fail; lint 811, tipos/build Webpack/worker 46. Siguiente HTTP 6/frontera/Next/UI antes de activación. [settings-sync.md](settings-sync.md).
+
 18c4b cerrado: evidencia actual de ajustes y backup 3 probado sin escrituras, conservando valores congelados. Diez checks IndexedDB + recarga; suite 788 pass / 220 skip / 0 fail, lint 809, tipos/build Webpack/worker 46. Generación 5 sigue activa; siguiente política/store/runtime y frontera 6 antes de UI. [settings-sync.md](settings-sync.md).
 
 18c4a cerrado: reader remoto privado de ajustes autorizado con Mongo propio, nueve casos / 76 aserciones. Generación 5 intacta; siguiente evidencia actual/backup y composición 6. Suite 785 pass / 220 skip / 0 fail; lint 808, tipos/build Webpack/worker 46. [settings-sync.md](settings-sync.md).

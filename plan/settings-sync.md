@@ -1,5 +1,12 @@
 # Zona horaria personal y sincronización de ajustes
 
+## 18c5 — Bundle local privado de ajustes
+
+Política congelada de settings amplía la recurrente y conserva sus validaciones/unsupported. Store futuro selecciona ACK y pull completos; runtime compartido elige store/política/coordinador juntos y reutiliza cuenta/epoch/cierre. Resumen y coordinador usan la misma política, incluida revalidación después del claim. Defaults/callers 5 siguen intactos; sin transporte/API/UI/bootstrap nuevos.
+
+Cinco tests de puertos / 23 aserciones: policy/strict5, diagnóstico y resumen, envío futuro con payload íntegro, claim cambiado sin send y cuenta cerrada en vuelo sin consumo de resultado. Son simulaciones de consumidores, no ACK durable/convergencia. Store compuesto pasa los diez checks ACK/evidencia/backup y ocho de descarga en IndexedDB, ambas recargas; recursos propios limpios. Se corrigió sólo el tipo epoch del fixture y optional-chain. Suite 793 pass / 220 skip / 0 fail / 10488 aserciones, lint 811, tipos/build Webpack/worker 46 aprobados. Siguiente 18d1: HTTP 6 exclusivo y matriz antes de frontera autenticada/Next/UI/activación.
+
+
 ## 18c4b — Evidencia actual y copia portable
 
 Captura futura readonly de incidentes incluye settings en la misma TX, valida toda evidencia recurrente y conserva puertos actuales. Comparación distingue valor actual, local congelado al resultado, base observada y última remota; ausencia real sigue null y tombstones conservan registro exacto. No resolución, supersesión ni ACK local nuevos.
