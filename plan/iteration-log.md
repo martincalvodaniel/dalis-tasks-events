@@ -1,5 +1,11 @@
 # Registro de iteraciones
 
+## 16c16 — Sistema/Claro/Oscuro en Ajustes
+
+Petición humana de selector tras verificar temas automáticos. ThemeSettings compacto se monta incluso sin cuenta preparada; preferencia visual del navegador/dispositivo enlocalStorage, sin lectura/escritura aMongo/outbox/settings remoto ni cambio de negociación5. SchemaZod valida valores; bootstrapestático compartido usa opciones del schema yse renderiza enhead antesbody/hidratación. Rootsuprime únicamente discrepancia esperada de atributos; useSyncExternalStore mantiene select/otraspestañas con cleanup. CSScustomdark contempla atributo explícito ymedia nativa paraSistema, variables ycolor-scheme de controlesnativos. Almacenamiento inválido/no disponible=>Sistema; si setItemfalla, tema se aplica enmemoria yUIavisa de falta depersistencia.
+
+Tres tests20aserciones de schema/bootstrap/almacenamiento bloqueado pasan. FixtureReact/CSS4268propio390px: defaultSistema/OSlight, Oscuro sobrescribeOSlight ybody9/9/11+sectiondark, recarga conservaOscuro, peerClaro actualizaambas, Sistema restauraOS yerrorSetItemmuestraaviso. No se modificóOS ni se simuló físicamenteSistemaDark; branchmedia compilado conserva seguimiento nativo. Color-schemedark/light confirmado. HTMLNextworkspace compilado contiene bootstrapunaúnicavez antesbody. Captura `/private/tmp/dalis-theme-settings.png`. Preferencia/marker/tab/servidor propioslimpiados yviewportrestablecido; no cuenta real niDB. Lintstaticid/dangeroushtml se resolvió con scriptchildrenestático sinid; testliteral completadoasconst paraTS. Final827pass/221skip/0fail/10743aserciones, lint847/tipos/Webpack/worker46/diff aprobados. Entrada72%5h/5%7d/reservas10%/1%; commitpushint/HEAD ycuotasfinales. Settings6/recuperación/piloto físico siguen pendientes; tema local no se presenta como convergencia remota.
+
 ## 16c15 — Mostrar el color elegido en categorías
 
 Reporte humano de raya gris al crear categoría reproducido con TagForm/CSS reales en fixture4267 a390px. Causa: regla compacta inputnotcheckbox aplica heightauto y colapsa swatch nativo. Se excluye también typecolor; conserva44×44px original y pinta verde#059669, azul#2563eb al editar y naranja#e85d04 después de cambio. No cambia TagForm, lógica/validación/estado/persistencia ni picker nativo, y otros campos siguen compactos.

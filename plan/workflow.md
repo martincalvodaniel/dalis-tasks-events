@@ -438,3 +438,8 @@ Entrada83%5h/7%7d, petición específica de mantener fecha/hora en misma fila tr
 ### Corrección humana16c15 — Muestra de color
 
 Entrada78%5h/6%7d, int8952da0 limpio. Reproducción propia confirma raya gris por heightauto global sobre inputcolor; corrección mínima del selector CSS, sin estado/contratos ni componentes nuevos. FixtureReact/CSS propio4267 verifica valor inicial/editado/cambio y payload guardado exacto, disabled intacto. DoD completo, plan/log mismo commitpushint/HEAD y cuota real tras cierre según continuación general autorizada; reservas10%/1%, sin automatización ni datos de usuario.
+
+
+### Petición humana16c16 — Tema del dispositivo
+
+Entrada72%5h/5%7d, int5048ef5 limpio, reservas10%/1%. SelectorSistema/Claro/Oscuro persistido localmente, sin ampliar alcance remoto de settings6. Corte secuencial con guíasNextlayout/script y Reacthydration-no-flicker; inicialización enhead, CSSmedia paraSistema y overrides explícitos. Schema/bootstrap/Reactbrowser propio y DoD completos, plan/log mismo commitpushint/HEAD/cuotas; sin dependencia/DB/producción/automatización nueva.

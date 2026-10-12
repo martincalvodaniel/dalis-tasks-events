@@ -6,6 +6,7 @@ import { DeviceSyncSettings } from "@/features/sync/components/device-sync-setti
 import { AccountIdentity } from "@/features/workspace/components/account-identity"
 import { BackupSettings } from "@/features/workspace/components/backup-settings"
 import { PersonalTimeZoneSettings } from "@/features/workspace/components/personal-time-zone-settings"
+import { ThemeSettings } from "@/features/workspace/components/theme-settings"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
 import {
   closeLocalAccount,
@@ -78,6 +79,7 @@ export function DeviceSettings({
       {account && profile?.userId === account.userId ? (
         <AccountIdentity profile={profile} />
       ) : null}
+      <ThemeSettings />
       <section
         className="rounded-xl border border-zinc-200 bg-white p-3 text-sm shadow-sm sm:p-4 dark:border-zinc-800 dark:bg-zinc-900"
         aria-labelledby={statusHeadingId}

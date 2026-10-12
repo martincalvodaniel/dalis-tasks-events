@@ -2,6 +2,8 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+**16c16 entregado:** Ajustes ofrece Sistema/Claro/Oscuro. Elección local por navegador/dispositivo, aplicada inmediatamente y desde HTML inicial; Sistema sigue preferenciasOS, explícitos las sobrescriben. Recarga y pestañas mantienen elección. No añade tema a userSettings remoto ni activa generación6.
+
 **16c15 corrige el color de categoría:** la muestra nativa vuelve a pintar el color elegido en creación/edición, al excluir inputcolor de la regla compacta heightauto. Sin cambio de guardado/sync.
 
 **16c14b corrige la fila móvil:** fecha, flechas y hora permanecen juntas desde320px, con menores anchos/márgenes; todo el día sigue ocultando horas.
@@ -12,7 +14,7 @@
 
 Lote cerrado tras 5cd93f4: quince cortes de código publicados; lectura real 13% 5h / 11% semanal, reserva 10% / 1%. 18e1a0 ahora prepara selector/rutas/retiro para la frontera Next6, aún inactiva; siguiente 18e1a1 delimitado en [iterations.md](iterations.md); no se inicia Next amplio sin margen para reparar/cerrar. Sin nueva automatización.
 
-En esta ventana se cerraron 18a–18e0b: preparación de zona personal offline/remota, repo/CAS/ejecutor atómicos, productor independiente, ACK/pull/evidencia/backup, runtime/política y frontera privada 6 (HTTP/auth/readiness/action/cliente/hook). Quince cortes de código validados, cada uno con commit/push/HEAD y cuota. Diez casos Mongo / 81 aserciones; nueve checks de productor, diez ACK/evidencia y ocho descarga en IndexedDB con recargas. **Todavía no está activada la sincronización ni la edición de ajustes.** La generación 5 del producto sigue activa.
+En esta ventana se cerraron 18a–18e0b: preparación de zona personal offline/remota, repo/CAS/ejecutor atómicos, productor independiente, ACK/pull/evidencia/backup, runtime/política y frontera privada 6 (HTTP/auth/readiness/action/cliente/hook). Quince cortes de código validados, cada uno con commit/push/HEAD y cuota. Diez casos Mongo / 81 aserciones; nueve checks de productor, diez ACK/evidencia y ocho descarga en IndexedDB con recargas. **Todavía no está activada la sincronización ni la edición de zona horaria personal.** La generación 5 del producto sigue activa.
 
 Cambio visible 18e0b: Ajustes muestra la zona almacenada en una fila compacta, sólo de cuenta/epoch activos y sin edición. Último DoD: suite 819 pass / 221 skip / 0 fail / 10694 aserciones, lint 829, tipos/build Webpack/worker 46. Recursos de prueba propios limpios; sin cambios de producción ni índices/datos de Mongo del usuario. [settings-sync.md](settings-sync.md) contiene evidencia y dependencias.
 

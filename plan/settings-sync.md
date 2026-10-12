@@ -1,5 +1,9 @@
 # Zona horaria personal y sincronización de ajustes
 
+## Tema local del dispositivo — 16c16
+
+Selector Sistema/Claro/Oscuro entregado en Ajustes con clave localStorage `dalis:theme:v1`, separada del settings remoto de cuenta/epoch. No modifica schema userSettings, outbox, backup ni negociación5/6. PredeterminadoSystem resuelve media query; explícitos sobrescriben variables/variantesdark/nativecolor-scheme. Preferencia antes de hidratación enhead y conservación trasrecarga/entre pestañas. Valor corrupto/almacenamiento no disponible caeSistema; error al persistir aplica sesión actual con aviso honesto. Este ajuste es visual de este navegador/dispositivo y no se anuncia sincronización multidispositivo.
+
 ## 18e1a0 — Frontera productiva futura seleccionable, aún inactiva
 
 El selector3/4/5/6 valida dependencias de generación: settings sólo puede elegir6 si common y recurring también están seleccionados. Producto continúa5 con settingsfalse. Rutas reales de identidad/pull incluyen ahora ramas6 hacia los defaults autenticados preparados; acción5 retorna retiro antes readiness/ejecutor cuando se selecciona6 y acción6 también requiere el selector completo. No conecta provider/hook/UI ni cambia DB/formatos; aún no hay activación.

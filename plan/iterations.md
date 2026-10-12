@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 16c16 — Selector de tema por dispositivo
+
+Estado: completado; tres modos activos y persistidos por navegador/dispositivo, sin sincronización remota.
+
+- Objetivo: añadir Sistema/Claro/Oscuro compacto enAjustes con elección persistida offline y aplicada antes de hidratación, sin cambiar ajuste remoto de zona.
+- target_paths: `src/{app/{layout.tsx,globals.css},config/theme.ts,schemas/theme.ts,lib/theme/**,components/shared/theme-bootstrap.tsx,features/workspace/components/{device-settings,theme-settings}.tsx}`, `test/browser/theme.tsx`, `scripts/theme-test-server.ts`, `plan/**`.
+- Dependencias: petición humana tras explicación de tema automático, int5048ef5 limpio, cuota72%5h/5%7d y reservas10%/1%; guíaNextlayout/script y reglaReact hydration-no-flicker leídas. Secuencial, sin dependencia nueva/DB.
+- Aceptación: modo predeterminadoSistema sigue prefers-color-scheme, explícitos overrideOS en todas las darkclasses/variables/nativecontroles; cambio inmediato/recarga/otra pestaña; valor inválido/bloqueo storage conservador y mensaje honesto si no persiste. Inicialización temprana evita aplicar tema sólo con efecto después del render; datos/cuentas/sync no afectados.
+- Validación: schema/bootstrap puro corrupt/default/blocked, fixtureReact/CSS propio4268 modos/valor exacto/recarga/peer/limpieza; lint/tipos/suite/build/worker/diff y plan/log mismo commitpushint/HEAD/cuotas. Sin añadir tema a userSettings ni activar generación6.
+
 ## 16c15 — Muestra real del color de categoría
 
 Estado: completado; regla compacta excluye inputcolor y el swatch nativo vuelve a mostrar el valor.
