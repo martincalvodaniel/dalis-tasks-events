@@ -3,6 +3,7 @@ import { calendarItemSchema } from "@/schemas/calendar-item"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import { itemOccurrenceSchema } from "@/schemas/occurrence"
 import { userIdSchema } from "@/schemas/primitives"
+import { syncIncidentOverviewInputSchema } from "@/schemas/sync-incident"
 
 export const recurringIncidentSnapshotInputSchema = z.strictObject({
   userId: userIdSchema,
@@ -12,3 +13,8 @@ export const recurringIncidentSnapshotInputSchema = z.strictObject({
   shadows: z.array(z.unknown()).max(10000),
   outcomes: z.array(z.unknown()).max(10000),
 })
+
+export const recurringSyncIncidentOverviewInputSchema =
+  syncIncidentOverviewInputSchema.extend({
+    occurrences: z.array(itemOccurrenceSchema).max(10000),
+  })

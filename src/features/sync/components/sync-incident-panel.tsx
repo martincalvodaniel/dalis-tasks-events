@@ -1,17 +1,18 @@
 import { PersonalIncidentCard } from "@/features/sync/components/personal-incident-card"
+import { PlanOccurrenceIncidentCard } from "@/features/sync/components/plan-occurrence-incident-card"
 import { SyncIncidentCard } from "@/features/sync/components/sync-incident-card"
 import type { LocalAccount } from "@/features/workspace/local-account"
-import type {
-  SyncIncidentOverview,
-  SyncIncidentSnapshot,
-} from "@/types/sync-incident"
+import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
+import type { SyncIncidentSnapshot } from "@/types/sync-incident"
 
 export function SyncIncidentPanel({
   incidents,
   error,
   account,
 }: {
-  incidents: (SyncIncidentOverview | SyncIncidentSnapshot)[] | undefined
+  incidents:
+    | (RecurringSyncIncidentOverview | SyncIncidentSnapshot)[]
+    | undefined
   error: boolean
   account?: Pick<LocalAccount, "userId" | "epoch">
 }) {
@@ -33,6 +34,13 @@ export function SyncIncidentPanel({
   return (
     <div>
       {incidents.map((value) => {
+        if ("kind" in value && value.kind === "plan-occurrence")
+          return (
+            <PlanOccurrenceIncidentCard
+              key={value.incident.entry.operation.operationId}
+              incident={value.incident}
+            />
+          )
         if ("kind" in value && value.kind === "preference")
           return (
             <PersonalIncidentCard

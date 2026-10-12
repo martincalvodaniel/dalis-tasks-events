@@ -1,5 +1,6 @@
 "use client"
 
+import { localDatabaseName } from "@/lib/local-db/client"
 import {
   type LocalTransactionContext,
   runLocalTransaction,
@@ -8,8 +9,10 @@ import {
   projectSyncIncidentOverview,
   projectSyncIncidentSnapshot,
 } from "@/lib/sync/incident-snapshot"
+import { projectRecurringSyncIncidentOverview } from "@/lib/sync/recurring-incident-snapshot"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import type { OutboxEntry } from "@/types/local-sync"
+import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
 import type {
   SyncIncidentOverview,
   SyncIncidentSnapshot,
@@ -35,6 +38,25 @@ export function readLocalSyncIncidentOverview(
   database: IDBDatabase,
   userId: string
 ): Promise<SyncIncidentOverview[]> {
+  return readIncidentOverview(database, userId, false) as Promise<
+    SyncIncidentOverview[]
+  >
+}
+export function readLocalRecurringSyncIncidentOverview(
+  database: IDBDatabase,
+  userId: string
+): Promise<RecurringSyncIncidentOverview[]> {
+  if (database.name !== localDatabaseName(userId))
+    return Promise.reject(
+      new Error("Recurring incident database belongs to another partition")
+    )
+  return readIncidentOverview(database, userId, true)
+}
+function readIncidentOverview(
+  database: IDBDatabase,
+  userId: string,
+  recurring: boolean
+): Promise<RecurringSyncIncidentOverview[]> {
   return runLocalTransaction(
     database,
     [
@@ -45,11 +67,17 @@ export function readLocalSyncIncidentOverview(
       "outbox",
       "remoteShadows",
       "syncMetadata",
+      ...(recurring ? (["occurrences"] as const) : []),
     ],
     "readonly",
     (context) => {
-      queueIncidentEvidence(context, userId, true, (snapshot) =>
-        context.setResult(snapshot as SyncIncidentOverview[])
+      queueIncidentEvidence(
+        context,
+        userId,
+        true,
+        (snapshot) =>
+          context.setResult(snapshot as RecurringSyncIncidentOverview[]),
+        recurring
       )
     }
   )
@@ -73,27 +101,51 @@ function queueIncidentEvidence(
   userId: string,
   overview: boolean,
   onSnapshot: (
-    incidents: SyncIncidentOverview[] | SyncIncidentSnapshot[],
+    incidents: RecurringSyncIncidentOverview[] | SyncIncidentSnapshot[],
     entries: OutboxEntry[]
-  ) => void
+  ) => void,
+  recurring = false
 ) {
-  const items = context.transaction.objectStore("items").getAll()
-  const entries = context.transaction.objectStore("outbox").getAll()
-  const shadows = context.transaction.objectStore("remoteShadows").getAll()
-  const metadata = context.transaction.objectStore("syncMetadata").getAll()
-  const tags = overview
-    ? context.transaction.objectStore("tags").getAll()
-    : null
-  const itemViews = overview
-    ? context.transaction.objectStore("itemViews").getAll()
-    : null
-  const taskPlacements = overview
-    ? context.transaction.objectStore("taskPlacements").getAll()
-    : null
-  let remaining = overview ? 7 : 4
+  const read = (
+    name:
+      | "items"
+      | "outbox"
+      | "remoteShadows"
+      | "syncMetadata"
+      | "tags"
+      | "itemViews"
+      | "taskPlacements"
+      | "occurrences"
+  ) =>
+    context.transaction
+      .objectStore(name)
+      .getAll(undefined, recurring ? 10001 : undefined)
+  const items = read("items")
+  const entries = read("outbox")
+  const shadows = read("remoteShadows")
+  const metadata = read("syncMetadata")
+  const tags = overview ? read("tags") : null
+  const itemViews = overview ? read("itemViews") : null
+  const taskPlacements = overview ? read("taskPlacements") : null
+  const occurrences = recurring ? read("occurrences") : null
+  let remaining = recurring ? 8 : overview ? 7 : 4
   const finish = () => {
     if (--remaining) return
     try {
+      if (
+        recurring &&
+        [
+          items,
+          entries,
+          shadows,
+          metadata,
+          tags,
+          itemViews,
+          taskPlacements,
+          occurrences,
+        ].some((request) => request && request.result.length > 10000)
+      )
+        throw new Error("Recurring incident snapshot exceeds its record limit")
       const outcomes = metadata.result.filter((value: unknown) => {
         if (!value || typeof value !== "object") return false
         return (
@@ -110,14 +162,22 @@ function queueIncidentEvidence(
         shadows: shadows.result,
         outcomes,
       }
-      const snapshot = overview
-        ? projectSyncIncidentOverview({
+      const snapshot = recurring
+        ? projectRecurringSyncIncidentOverview({
             ...input,
             tags: tags?.result,
             itemViews: itemViews?.result,
             taskPlacements: taskPlacements?.result,
+            occurrences: occurrences?.result,
           })
-        : projectSyncIncidentSnapshot(input)
+        : overview
+          ? projectSyncIncidentOverview({
+              ...input,
+              tags: tags?.result,
+              itemViews: itemViews?.result,
+              taskPlacements: taskPlacements?.result,
+            })
+          : projectSyncIncidentSnapshot(input)
       onSnapshot(
         snapshot,
         entries.result.map((value: unknown) => outboxEntrySchema.parse(value))
@@ -134,6 +194,7 @@ function queueIncidentEvidence(
     tags,
     itemViews,
     taskPlacements,
+    occurrences,
   ])
     if (request) request.onsuccess = finish
 }

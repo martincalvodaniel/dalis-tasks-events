@@ -1,8 +1,15 @@
 import { expect, test } from "bun:test"
+import { createElement } from "react"
+import { renderToStaticMarkup } from "react-dom/server"
+import { SyncIncidentPanel } from "@/features/sync/components/sync-incident-panel"
 import { applyPlanOccurrenceCommand } from "@/lib/calendar/plan-occurrence-command"
+import { projectSyncIncidentOverview } from "@/lib/sync/incident-snapshot"
 import { decodeLocalOperationOutcome } from "@/lib/sync/local-operation-outcome-v2"
 import { decodeLocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
-import { projectPlanOccurrenceSyncIncidents } from "@/lib/sync/recurring-incident-snapshot"
+import {
+  projectPlanOccurrenceSyncIncidents,
+  projectRecurringSyncIncidentOverview,
+} from "@/lib/sync/recurring-incident-snapshot"
 import {
   localPlanOccurrenceOutcomeSchema,
   planOccurrenceEntityKey,
@@ -345,4 +352,84 @@ test("legacy evidence remains readable, historic missing revision stays unsuppor
       outcomes: [],
     })
   ).toEqual([])
+})
+
+test("complete recurring overview retains appearance and root conflicts without treating the parent as occurrence", () => {
+  const value = fixture()
+  const operation = {
+    operationId: crypto.randomUUID(),
+    protocolVersion: 1 as const,
+    baseRevision: 3,
+    command: { type: "item.delete" as const, itemId: value.series.id },
+  }
+  const entry = outboxEntrySchema.parse({
+    ...value.entry,
+    operation,
+    sequence: 2,
+  })
+  const remote = { ...value.series, revision: 4 }
+  const outcome = {
+    version: 2,
+    kind: "item",
+    key: `operation-outcome:${operation.operationId}`,
+    operation,
+    result: {
+      kind: "item",
+      outcome: {
+        status: "conflict",
+        operationId: operation.operationId,
+        current: remote,
+      },
+    },
+    local: value.series,
+    base: null,
+  }
+  const input = {
+    ...value.input,
+    tags: [],
+    itemViews: [],
+    taskPlacements: [],
+    entries: [value.entry, entry],
+    outcomes: [value.outcome, outcome],
+  }
+  const before = structuredClone(input)
+  const overview = projectRecurringSyncIncidentOverview(input)
+  expect(overview.map((row) => row.kind)).toEqual(["plan-occurrence", "item"])
+  expect(overview[0]?.incident.local).toEqual(value.local)
+  expect(overview[1]?.incident.local).toEqual(value.series)
+  expect(input).toEqual(before)
+  const { occurrences: _occurrences, ...legacy } = input
+  expect(() => projectSyncIncidentOverview(legacy)).toThrow()
+  expect(() =>
+    projectRecurringSyncIncidentOverview({
+      ...input,
+      occurrences: [{ ...value.local, seriesId: crypto.randomUUID() }],
+    })
+  ).toThrow()
+  expect(() =>
+    projectRecurringSyncIncidentOverview({
+      ...input,
+      outcomes: [...input.outcomes, outcome],
+    })
+  ).toThrow()
+  expect(() =>
+    projectRecurringSyncIncidentOverview({ ...input, userId: "foreign-owner" })
+  ).toThrow()
+  expect(() =>
+    projectRecurringSyncIncidentOverview({
+      ...input,
+      items: Array(10001).fill(value.series),
+    })
+  ).toThrow()
+  const html = renderToStaticMarkup(
+    createElement(SyncIncidentPanel, { incidents: overview, error: false })
+  )
+  expect(html).toContain("Conflicto de aparición")
+  expect(html).toContain("Tu estado actual")
+  expect(html).toContain("Estado local al recibir el resultado")
+  expect(html).toContain("Sin excepción guardada")
+  expect(html).toContain(
+    "La resolución desde esta pantalla aún no está disponible"
+  )
+  expect(html).not.toContain("Confirmar elección")
 })

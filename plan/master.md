@@ -1,5 +1,9 @@
 # Dalis Tasks & Events — plan maestro
 
+## Comparación recurrente — 17e2a2
+
+Overview futuro ypanel readonly deapariciones cerrados con lecturaTXdeconflicto real, preservandoevidencia/cola/padrelocal yseries separados. Diecinueve escenariosNext5 propios yDoD pasan; callersactivos4 intactos, ninguna resolución/ACK por consultar. Sigue conexiónconjunta17e2b de rutas/identidad/retiro4/provider/backup/import/incidentes/productores; índicePreview esperaautorizaciónespecífica. CompartirGmail fueraalcance, noDBusuario.
+
 ## Consumidores de repetición — 17e2a1
 
 Backup/importación futura3 preparados yprobados con snapshotTX/rollback/replay/ACKMongo único de una copia simple nueva. Evidencia ycola recurrentes íntegras; no restaurarapariciones/series ni comandosarchivados. Dieciocho escenariosNext5 propios yDoD pasan; callersactivos4 intactos. Sigue overview/UI deconflictos17e2a2 yconexiónconjunta17e2b; permisoíndicePreview pendiente, sinDBusuario.

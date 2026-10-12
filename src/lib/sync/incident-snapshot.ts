@@ -1,7 +1,10 @@
 import { projectSyncIncident } from "@/lib/sync/incident-projection"
 import { decodeLocalOperationOutcome } from "@/lib/sync/local-operation-outcome-v2"
+import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
+import { decodeLocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import { remoteOperationKind } from "@/lib/sync/remote-push-v2"
+import { remoteRecurringOperationKind } from "@/lib/sync/remote-recurring-push"
 import { decodeRemoteShadow } from "@/lib/sync/remote-shadow-v2"
 import { preferenceEffectSchema } from "@/schemas/preference-effects"
 import { personalShadowEntityKey } from "@/schemas/remote-shadow-v2"
@@ -19,13 +22,19 @@ import type {
   SyncIncidentSnapshot,
 } from "@/types/sync-incident"
 
-function prepareIncidentEvidence(input: unknown) {
+function prepareIncidentEvidence(input: unknown, recurring = false) {
   const value = syncIncidentSnapshotInputSchema.parse(input)
   const shadows = value.shadows.map((shadow) =>
-    decodeRemoteShadow(shadow, value.userId)
+    (recurring ? decodeRemoteRecurringShadow : decodeRemoteShadow)(
+      shadow,
+      value.userId
+    )
   )
   const outcomes = value.outcomes.map((outcome) =>
-    decodeLocalOperationOutcome(outcome, value.userId)
+    (recurring ? decodeLocalRecurringOutcome : decodeLocalOperationOutcome)(
+      outcome,
+      value.userId
+    )
   )
   const keys = new Set<string>()
   for (const shadow of shadows) {
@@ -65,7 +74,7 @@ function prepareIncidentEvidence(input: unknown) {
       !keys.has(`operation-outcome:${entry.operation.operationId}`)
     )
       throw new Error("Incident outcome is missing")
-  return { ...value, shadows, outcomes }
+  return { ...value, recurring, shadows, outcomes }
 }
 
 function projectItemIncidents(
@@ -137,7 +146,9 @@ function projectItemIncidents(
   return entries
     .filter(
       (entry) =>
-        remoteOperationKind(entry.operation.command) === "item" &&
+        (value.recurring
+          ? remoteRecurringOperationKind(entry.operation.command)
+          : remoteOperationKind(entry.operation.command)) === "item" &&
         (entry.state === "conflict" || entry.state === "rejected")
     )
     .sort((a, b) => a.sequence - b.sequence)
@@ -240,11 +251,12 @@ function projectPersonalIncident(
 }
 
 export function projectSyncIncidentOverview(
-  input: unknown
+  input: unknown,
+  recurring = false
 ): SyncIncidentOverview[] {
   const complete = syncIncidentOverviewInputSchema.parse(input)
   const { tags, itemViews, taskPlacements, ...evidenceInput } = complete
-  const value = prepareIncidentEvidence(evidenceInput)
+  const value = prepareIncidentEvidence(evidenceInput, recurring)
   const itemIncidents = projectItemIncidents(value)
   const current = new Map<string, PersonalSnapshot[number]["record"]>()
   for (const effect of [

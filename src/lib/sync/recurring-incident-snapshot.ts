@@ -1,11 +1,18 @@
+import { projectSyncIncidentOverview } from "@/lib/sync/incident-snapshot"
 import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
 import { decodeLocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import { planOccurrenceEntityKey } from "@/schemas/local-plan-occurrence-sync"
 import { personalQueueDiagnosticsInputSchema } from "@/schemas/personal-queue-diagnostics"
-import { recurringIncidentSnapshotInputSchema } from "@/schemas/recurring-sync-incident"
+import {
+  recurringIncidentSnapshotInputSchema,
+  recurringSyncIncidentOverviewInputSchema,
+} from "@/schemas/recurring-sync-incident"
 import type { PlanOccurrence } from "@/types/plan-occurrence"
-import type { PlanOccurrenceSyncIncidentSnapshot } from "@/types/recurring-sync-incident"
+import type {
+  PlanOccurrenceSyncIncidentSnapshot,
+  RecurringSyncIncidentOverview,
+} from "@/types/recurring-sync-incident"
 import type { SyncCommand } from "@/types/sync"
 
 export function isPlanOccurrenceCommand(command: SyncCommand): boolean {
@@ -185,4 +192,31 @@ export function projectPlanOccurrenceSyncIncidents(
         blockedByRelatedIntentions,
       }
     })
+}
+
+export function projectRecurringSyncIncidentOverview(
+  input: unknown
+): RecurringSyncIncidentOverview[] {
+  const complete = recurringSyncIncidentOverviewInputSchema.parse(input)
+  for (const records of Object.values(complete))
+    if (Array.isArray(records) && records.length > 10000)
+      throw new Error("Recurring incident overview exceeds its record limit")
+  const { occurrences, ...ordinary } = complete
+  const {
+    tags: _tags,
+    itemViews: _itemViews,
+    taskPlacements: _placements,
+    ...evidence
+  } = ordinary
+  const appearances = projectPlanOccurrenceSyncIncidents({
+    ...evidence,
+    occurrences,
+  })
+  return [
+    ...projectSyncIncidentOverview(ordinary, true),
+    ...appearances.map((incident) => ({
+      kind: "plan-occurrence" as const,
+      incident,
+    })),
+  ].sort((a, b) => a.incident.entry.sequence - b.incident.entry.sequence)
 }

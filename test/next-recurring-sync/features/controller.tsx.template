@@ -1,5 +1,7 @@
 "use client"
 
+import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
+
 import { useEffect, useState } from "react"
 import type { z } from "zod"
 import {
@@ -1851,6 +1853,55 @@ export function FixtureController() {
         }
       )
       await check(
+        "Comparación actual de aparición conserva conflicto, historia y dependiente en una TX",
+        async () => {
+          const snapshots = async () => {
+            const value = (await call(1, { type: "local-snapshot" })) as {
+              backup: unknown
+            }
+            return validateLocalRecurringBackup(value.backup, owner)
+          }
+          const before = await snapshots(),
+            remoteBefore = await state(owner)
+          const rows = (await call(1, {
+            type: "recurring-incidents",
+          })) as RecurringSyncIncidentOverview[]
+          assert(
+            rows.length === 1 && rows[0]?.kind === "plan-occurrence",
+            "Recurring overview lost or misclassified its preserved conflict"
+          )
+          const incident = rows[0].incident
+          assert(
+            incident.entry.state === "conflict" &&
+              incident.intentions.length === 2 &&
+              incident.local?.kind === "plan" &&
+              incident.localAtOutcome?.kind === "plan" &&
+              incident.remote?.revision === 4 &&
+              canonical(incident.series) ===
+                canonical(
+                  before.stores.items.find(
+                    (item) => item.id === incident.series.id
+                  )
+                ),
+            "Recurring overview fabricated current appearance or erased retained history"
+          )
+          assert(
+            canonical((await snapshots()).stores) ===
+              canonical(before.stores) &&
+              canonical(await state(owner)) === canonical(remoteBefore),
+            "Readonly recurring incident comparison mutated stores or Mongo"
+          )
+          assert(
+            (
+              (await call(0, {
+                type: "recurring-incidents",
+              })) as RecurringSyncIncidentOverview[]
+            ).length === 0,
+            "Acknowledged partition invented an incident"
+          )
+        }
+      )
+      await check(
         "Revocar sesión bloquea RPC sin alterar datos confirmados",
         async () => {
           const before = await state(owner)
@@ -1910,7 +1961,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Dieciocho escenarios de frontera Next5 correctos; sesiones propias cerradas"
+            "Diecinueve escenarios de frontera Next5 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

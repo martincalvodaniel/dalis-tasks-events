@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 17e2a2 — Comparación y UI de incidentes recurrentes
+
+- Estado: completada12oct; overview/UIreadonly futuro probados con conflicto real, diecinueve escenariosNext5 yDoD pasan.
+- Objetivo: overview futuro completo en unaTX ypanel compacto readonly para apariciones junto a conflictos de contenido/personal, conservando consumidoresactivos4 strict.
+- target_paths: schemas/recurring-sync-incident.ts, types/recurring-sync-incident.ts, lib/sync/{incident-snapshot,recurring-incident-snapshot,recurring-incident-snapshot.test}.ts, lib/local-db/sync-incidents.ts, features/sync/components/{sync-incident-panel,plan-occurrence-incident-card,plan-occurrence-incident-version}.tsx, fixtureNext5/schemas-next-sync-test yplan.
+- Dependencias:17c3/17e2a1; entrada78%5h/36%7d, reservas10%/1%, secuencial. NoDBusuario niactivación parcial.
+- Aceptación: captura completa bounded/ownership/decoder5 coherentes; ninguna omisión silenciosa deaparición/outcome; separarlocalactual/resultadofrozen/remotoconocido/serieactual, shadow noancestro. UIespañola compacta sinofrecer recuperación noimplementada niACK; readonly storesexactos ypeerconflictivo conservado.
+- Validación: puro forged/duplicates/foreign/legacystrict ySSR, readerTXrealNext5, suite/lint/tipos/buildWebpack; plan/log mismo commitpushint/HEAD/cuotas.
+
+
 ## 17e2a1 — Importación y lectura portable recurrentes coherentes
 
 - Estado: completada12oct; portable3 comparación/copia simple yTXrollback/replay/ACK real probados, callersactivos intactos.

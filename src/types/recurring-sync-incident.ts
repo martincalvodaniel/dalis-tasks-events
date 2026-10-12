@@ -2,6 +2,7 @@ import type { OutboxEntry } from "@/types/local-sync"
 import type { Plan } from "@/types/plan-item"
 import type { PlanOccurrence } from "@/types/plan-occurrence"
 import type { LocalPlanOccurrenceOutcome } from "@/types/remote-recurring-sync"
+import type { SyncIncidentOverview } from "@/types/sync-incident"
 
 export interface PlanOccurrenceSyncIncidentSnapshot {
   entry: OutboxEntry
@@ -16,3 +17,7 @@ export interface PlanOccurrenceSyncIncidentSnapshot {
   intentions: OutboxEntry[]
   blockedByRelatedIntentions: boolean
 }
+
+export type RecurringSyncIncidentOverview =
+  | SyncIncidentOverview
+  | { kind: "plan-occurrence"; incident: PlanOccurrenceSyncIncidentSnapshot }

@@ -11,6 +11,7 @@ import { dispatchFixtureRetiredOperations } from "@fixture/retired-client"
 import { dispatchSyncOperationsV5 } from "@/features/sync/client-action-v5"
 import { createHttpRecurringSyncTransport } from "@/features/sync/http-recurring-transport"
 import { openLocalRecurringSyncRuntime } from "@/features/sync/local-recurring-runtime"
+import { readLocalRecurringSyncIncidentOverview } from "@/lib/local-db/sync-incidents"
 import { importLocalBackupCopies } from "@/lib/local-db/backup-import"
 import { encodeLocalRecurringBackup } from "@/lib/backup/local-backup"
 import { applyItemCommand } from "@/lib/calendar/item-command"
@@ -703,6 +704,19 @@ export async function executeLocalFixtureCommand(
           rollbackRejected,
           replayed: true,
         }
+      } finally {
+        database.close()
+      }
+    }
+    case "recurring-incidents": {
+      const database = await openLocalDatabase(active.userId)
+      try {
+        const result = await readLocalRecurringSyncIncidentOverview(
+          database,
+          active.userId
+        )
+        await requireActiveAccount(active)
+        return result
       } finally {
         database.close()
       }

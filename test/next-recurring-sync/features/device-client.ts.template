@@ -144,6 +144,7 @@ async function execute(
       "lost-recurring-response-run",
       "epoch-after-commit-run",
       "recurring-import-proof",
+      "recurring-incidents",
       "prepare-local",
       "save-plan",
       "commit-local",
