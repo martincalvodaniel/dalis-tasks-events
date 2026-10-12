@@ -18,7 +18,9 @@ Evidencia: `/private/tmp/dalis-recurring-preview-pilot.png`. No es una nueva pru
 
 Autorización: continuar el plan completo, commit + push por entrega validada en `int`, cuotas automáticas; reservas 10% de 5h / 1% semanal. Entrada de activación 32% / 29%. Sin nueva automatización. Compartir Gmail fuera de alcance. Checkout humano `main` intacto; worktree gestionado de `int` conservado.
 
-Después de repetición: cumpleaños, preferencias/configuración residuales y aceptación final móvil/multidispositivo/offline, según [iterations.md](iterations.md).
+10a cerrado: contrato y generación anual de cumpleaños, paginación civil/edad opcional y29feb sólo años bisiestos. No pantalla ni sincronización de cumpleaños activadas. Seis tests nuevos, suite761pass/209skip/0fail; lint787/tipos/buildWebpack/worker46. Detalle y siguiente entrega coherente en [birthdays.md](birthdays.md).
+
+Estimación vigente: **aproximadamente 15% pendiente**, rango orientativo10–20%, ponderado por complejidad. Restan cumpleaños completos con sincronización; preferencias/configuración y recuperación explícita residual —incluidas apariciones—; aceptación final móvil/dispositivos físicos/offline/accesibilidad y guía. Compartir Gmail excluido. La estimación20–25% de los apartados históricos precede a la activación de repetición y no representa el estado actual.
 
 ## Histórico — lote puntual de las 01:27 del 12 de octubre
 

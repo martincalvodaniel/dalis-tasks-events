@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 10a — Apariciones anuales de cumpleaños
+
+- Estado: completada; seis tests nuevos / 37 aserciones y DoD aprobados. Sin UI ni soporte remoto de cumpleaños activado.
+- Objetivo: generador civil puro, paginado y validado para el contrato específico de cumpleaños existente.
+- target_paths: `src/schemas/birthday-appearance.ts`, `src/types/birthday-appearance.ts`, `src/lib/calendar/{birthday-appearances,birthday-appearances.test}.ts`, `plan/**`.
+- Dependencias: cumpleaños/schema civil existentes y repetición remota cerrada; entrada 22% / 27%, reservas 10% / 1%.
+- Aceptación: aparición anual de día completo sin progreso/checklist, edad sólo con año, sin fechas anteriores al nacimiento; 29feb sólo en años bisiestos, igual que regla anual vigente. Identidad por fecha civil, paginación sin pérdidas/duplicados y sin cambio por zona/UTC. No persistencia, UI ni soporte remoto nuevo.
+- Validación: límites/centurias/año opcional/paginación/mutación/inputs inválidos, lint/tipos/suite/build/worker; registro/commit+push/HEAD/cuotas. Sin nuevas consultas DB, no requiere nuevo índice.
+
 ## 17e2b2c — Piloto recurrente Preview con sesión Google existente
 
 - Estado: completada; piloto Google Preview, cuatro ACK reales, codec 3 validado y persistencia tras recarga.

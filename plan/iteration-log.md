@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 10a — Cumpleaños anuales civiles preparados
+
+Entrada22% /27%, reservas10% /1%, secuencial. Generador puro validado con schema existente, DTO/tipo de aparición sin progreso/checklist; fechas civiles/edad opcional y cursores exclusivos/límite500. Excluir fechas anteriores a nacimiento y borrados. Política29feb sólo bisiestos, consistente con recurrencia anual vigente; la futura UI deberá indicarla. Sin caller, IO, comandos nuevos ni activación; no prometer pantalla/sincronización de cumpleaños. Ninguna nueva consulta o índice.
+
+Seis tests /37aserciones nuevos de límites1..9999, centurias, año opcional/edad, paginación e integridad sin mutación. Suite761pass/209skip/0fail/10347aserciones, lint787/tipos/buildWebpack/worker46/diff aprobados. Próxima10b conecta cumpleaños completos y soporte remoto explícito; requiere un corte coherente con contratos y pruebas, no un formulario que deje comandos sin ejecutor. Registro maestro actualiza estimación pendiente a15% aproximado (rango10–20%), sharing excluido. Commit+pushint/HEAD y cuotas al cierre.
+
+
 ## 17e2b2c — Piloto Google en el deployment Preview
 
 Deployment `375cafe`, sesión Google existente, sin nuevo login interactivo ni secretos Vercel. Cliente antiguo 4 rechaza handshake 5 sin perder datos; «Comprobar actualización», cierre y reapertura carga la versión recurrente. Se crea `Piloto repetición 12oct`, diaria/tres veces, categoría existente/checklist. Aparición de hoy in_progress y paso completo; las dos futuras conservan estado inicial. Tras recarga persiste la misma presentación.
