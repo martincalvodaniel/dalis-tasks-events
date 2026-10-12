@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 18c1 — Productor offline de ajustes
+
+- Estado: completada; nueve checks IndexedDB y recarga, más tests puros y DoD aprobados. Sin UI/transporte activo.
+- Objetivo: guardar zona y una intención propia atómicamente, manteniendo generación5 sin soporte/productor UI.
+- target_paths: `src/schemas/{user-settings-key,local-sync,user-settings-key.test}.ts`, `src/lib/local-db/{user-settings-outbox,outbox}.ts`, `test/browser/user-settings-outbox.ts`, `scripts/user-settings-outbox-test-server.ts`, `plan/**`.
+- Dependencias: 18b publicado489d262, schemas settings y mutation helper; entrada86%5h/22%7d, reservas10%/1%, secuencial.
+- Aceptación: partición/cuenta exacta; settings:actor canónico, shadow observado para CAS, revisión provisional local no ACK. Una operación/replay exacto, dependency sólo cola propia de ajustes; otras preferencias no bloquean este registro independiente. Esperado exacto contra otro editor, intentadas intactas, rollback tardío y notificación sólo después del commit. Sin UI/capacidad/transporte activo nuevos.
+- Validación: browser/IndexedDB propio y recarga con fallos/ownership/replay/cola/epoch en futuro caller; tests puros, lint/tipos/suite/build/worker, plan/log/commitpushint/HEAD/cuotas.
+
 ## 18b — Ajustes remotos y commit atómico
 
 - Estado: completada; seis casos Mongo/56 aserciones y seis de regresión/126, DoD aprobado. Sin caller ni índice DBusuario.

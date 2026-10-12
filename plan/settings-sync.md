@@ -20,6 +20,14 @@ Executor preparatorio comprueba replay del namespace recurrente común y fingerp
 
 Mongo propio: seis casos/56aserciones; creación/CAS/unique/ownership, respuesta perdida/replay/IDreuse/otra cuenta, carreras, rollback tardío y stage sinTX, tombstones/ausencia, identidad corrupta/inputs inválidos. Regresión de operador/selección central: seis casos/126aserciones, nuevo índice permanece staged. Recursos limpios. Suite769pass/217skip/0fail/10373aserciones, lint796/tipos/buildWebpack/worker46. Se corrigieron sólo tipos `_id:string`/nonnull y optional-chain de la fixture.
 
+## 18c1 cerrado: productor offline
+
+Clave canónica `settings:actor` validada contra el dueño de la intención. `LocalOutbox.commitUserSettingsCommand()` guarda valor, operación y secuencia en una transacción y notifica después del commit. CAS procede del shadow observado; una revisión positiva sin evidencia se rechaza. La revisión local se conserva hasta un ACK real. No modifica intentos/payloads existentes, no usa el tail global de categorías y depende sólo de la intención previa de ajustes.
+
+Replay exige mismo UUID/payload y no restaura un valor posterior. Snapshot esperado detecta otro editor; otra partición o cuenta no puede escribir. Fallo tardío y overflow preservan datos/cola sin notificar éxito. Método preparatorio: generación5 sigue declarando settings unsupported; no hay UI/caller nuevo.
+
+Nueve escenarios IndexedDB reales y recarga correctos, con particiones propias ya retiradas. Se corrigió la sintaxis de un await del fixture, el narrowing en callback e imports. Suite770pass/217skip/0fail/10381aserciones, lint801/tipos/buildWebpack/worker46. Evidencia: `/private/tmp/dalis-settings-outbox-proof.png`. Siguiente18c2: projection/ACK/pull para settings, separado del bloqueo de otras preferencias y con consumidores activos estrictos.
+
 ## Dependencias para activación
 
 1. 18b: colección registrada/repo actor-scoped con `_id` canónico y CAS, executor con replay común primero y settings/receipt/journal/counter atómicos; comprobar ownership/rollback/carreras/retry en Mongo propio. Evaluar consultas e índices en `ensure-indexes.ts`; no crear índices ad hoc.

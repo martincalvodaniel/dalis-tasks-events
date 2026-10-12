@@ -2,6 +2,9 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+18c1 cerrado: productor offline de zona personal con clave propia, CAS observado, cola/valor/secuencia atómicos y replay; independencia del tail de categorías. Nueve checks IndexedDB y recarga pasan, particiones/servidor propios limpios. Suite770pass/217skip/0fail, lint801/tipos/buildWebpack/worker46. Generación5 sigue sin envío/UI de ajustes. Siguiente18c2: consumidores/ACK/pull, preservando local pendiente de cada familia de forma independiente. [settings-sync.md](settings-sync.md).
+
+
 18b cerrado: repo settings privado/CAS y executor preparatorio atómicos con replay común; colección y índice único registrados en ensure-indexes, staged sin bootstrap/DBusuario nuevos. Mongo propio6casos/56aserciones y regresión índices6casos/126 pasan, recursos limpios. Suite769pass/217skip/0fail, lint796/tipos/buildWebpack/worker46. Siguiente18c productor local/ACK/pull/evidencia; generación5 activa conserva settings.update unsupported. Cumpleaños aparcado/sharing fuera. [settings-sync.md](settings-sync.md).
 
 

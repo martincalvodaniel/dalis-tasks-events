@@ -15,6 +15,10 @@ import {
   remoteOperationResultSchema,
 } from "@/schemas/remote-sync"
 import { syncOperationSchema } from "@/schemas/sync"
+import {
+  userSettingsEntityKey,
+  userSettingsEntityKeySchema,
+} from "@/schemas/user-settings-key"
 
 export const itemEntityKeySchema = z
   .string()
@@ -39,6 +43,7 @@ export const outboxEntityKeySchema = z.union([
   itemEntityKeySchema,
   personalEntityKeySchema,
   taskPlacementEntityKeySchema,
+  userSettingsEntityKeySchema,
 ])
 export const outboxEntrySchema = z
   .strictObject({
@@ -73,6 +78,8 @@ export const outboxEntrySchema = z
       command.type === "tag.move"
     )
       return entry.entityKey === `tag:${command.tagId}`
+    if (command.type === "settings.update")
+      return entry.entityKey === userSettingsEntityKey(entry.userId)
     if (command.type === "item-view.set")
       return entry.entityKey === `item-view:${command.itemId}`
     if (command.type === "task.move")

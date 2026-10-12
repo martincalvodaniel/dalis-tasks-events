@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 18c1 — Guardado offline atómico de ajustes
+
+Entrada86%5h/22%7d, reservas10%/1%, secuencial. Añade clave settings:actor ligada al dueño en schema de intención y método preparatorio del outbox. CAS deriva del shadow validado; revisión positiva sin evidencia falla. Valor/intención/secuencia se confirman juntos; replay exacto conserva el valor posterior, snapshot esperado bloquea otro editor y dependencias se limitan a ajustes previos. No se reescriben UUID/payload/attempts ni se adelanta revisión/ACK; no usa tail global personal.
+
+Nueve escenarios IndexedDB propios y recarga pasan: provisional/independencia, replay, intento/dependiente, stale/UUIDreuse, rollback tardío sin notificación, partición/cuenta, evidencia ausente, secuencia máxima y CAS positivo conocido. Limpieza propia confirmada, servidor retirado. Se corrigen sólo await fuera de async en fixture, narrowing dentro de callback e imports. Suite770pass/217skip/0fail/10381aserciones, lint801/tipos/buildWebpack/worker46/diff aprobados. Captura `/private/tmp/dalis-settings-outbox-proof.png`. UI/transporte/capacidades5 intactos; settings sigue unsupported. Siguiente18c2 consumidores futuros y atomicidad de ACK/pull, antes de negociación/activación conjunta. Commitpushint/HEAD/cuotas.
+
+
 ## 18b — Repositorio y transacción remota de ajustes
 
 Entrada94%5h/23%7d, reservas10%/1%. Colección user_settings y único user_settings_user_uidx registrados centralmente/staged. Repo actor-scoped conidcanónico/CAS/createdAt y tombstone guard; parserrechaza corrupción sin reparar. Executor usa replay común antes leerestado, fingerprint y validación de familia; crea/update con settings+receipt+journal/counter atómicos. Ausencia conCASno0 devuelve unavailable sinfabricar registro. Retry rereadcompleto, stage sóloenTX, replay antiguo conservaresultado frentea revisiónposterior. Sin caller/transporte/bootstrap/DBusuario nuevos.

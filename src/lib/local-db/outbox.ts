@@ -11,6 +11,10 @@ import { commitLocalPreferenceCommand } from "@/lib/local-db/preference-outbox"
 import { parseLocalRecord } from "@/lib/local-db/store-config"
 import { notifyLocalOutboxChange } from "@/lib/local-db/sync-notifications"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import {
+  commitLocalUserSettingsCommand,
+  type UserSettingsCommitOptions,
+} from "@/lib/local-db/user-settings-outbox"
 import { readItemShadow } from "@/lib/sync/item-evidence"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import { calendarItemSchema } from "@/schemas/calendar-item"
@@ -31,6 +35,7 @@ import type {
   RemoteShadow,
 } from "@/types/local-sync"
 import type { Tag } from "@/types/preferences"
+import type { SyncCommand } from "@/types/sync"
 
 type ItemCommitOptions = {
   operationId?: string
@@ -269,6 +274,18 @@ export class LocalOutbox {
         }
       }
     )
+  }
+
+  commitUserSettingsCommand(
+    input: Extract<SyncCommand, { type: "settings.update" }>,
+    options: UserSettingsCommitOptions = {}
+  ): Promise<OutboxEntry> {
+    return commitLocalUserSettingsCommand(
+      this.database,
+      this.userId,
+      input,
+      options
+    ).then((entry) => this.notifyCommitted(entry))
   }
 
   commitPreferenceCommand(
