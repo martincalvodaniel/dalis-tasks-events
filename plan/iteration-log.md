@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 17e2b2a — Bootstrap del índice desde la web
+
+El usuario concede el permiso Preview y sustituye la ejecución externa por arranque web. El índice ya registrado se selecciona en `ensure-indexes.ts` sólo para metadatos server-only Preview/int; `getDatabase()` lo crea una vez por proceso y permite retry tras fallo. Sin acceso a secretos Vercel, nuevas conexiones por petición, cambios de producción, reparación o borrado de datos. Todos los índices permanecen en el registro central.
+
+Seis escenarios Mongo propios / 120 aserciones: entorno/rama, creación/no-op/unicidad, duplicados conservados, definición incompatible sin reemplazo y tres regresiones del operador. Recursos propios retirados. Se corrige únicamente el narrowing de un código nullable del test. Suite 755 pass / 209 skip / 0 fail / 10310 aserciones, lint 783, tipos/build Webpack/worker 46 aprobados. Producto sigue 4; creación real Preview pendiente de acceso al deployment y activación conjunta 5 es la siguiente candidata. Entrada 36% / 30%; reservas 10% / 1%. Commit + push a `int`, HEAD y cuotas al cierre.
+
+
 ## 17z2 — Cierre documental de la continuación general
 
 12 de octubre: se consolida el estado y la evidencia de cuatro cortes técnicos publicados. Generación 4 activa; perfil 5 preparado, probado y desactivado. La siguiente actuación requiere permiso específico del índice Preview. Última lectura tras el código: 42% / 30%, reservas 10% / 1%. Referencias y diff comprobados antes del commit documental; sin nuevos cambios de código, DB o automatización.

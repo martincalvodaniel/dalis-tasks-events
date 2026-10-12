@@ -1,5 +1,10 @@
 # Sincronización de series y apariciones comunes
 
+## Cambio vigente de provisión — 17e2b2a
+
+Permiso Preview concedido. Por petición del usuario, el singleton de la propia aplicación crea el índice de aparición registrado mediante `ensureIndexes()`, exclusivamente en Preview de `int`. No se necesitan credenciales manuales ni Reauthenticate. Seis pruebas Mongo propias pasan: idempotencia, unicidad y fallos sin reparar duplicados/definiciones. El deployment todavía requiere comprobación; producto sigue 4 y la siguiente entrega activa conjuntamente 5. Todos los índices de la aplicación deben permanecer en `ensure-indexes.ts`. Producción necesitará el mismo índice antes de publicar allí repetición, sin despliegue productivo en esta continuación.
+
+
 ## Estado — 12 de octubre
 
 Código `d0f7334` publicado en `int`. **Generación 4 activa; generación 5 preparada y probada como perfil aislado, sin repetición remota activada todavía.** Compartir por Gmail está fuera del alcance.

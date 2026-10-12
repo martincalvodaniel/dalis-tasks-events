@@ -1,5 +1,19 @@
 # Provisión de índices de repetición
 
+## Procedimiento vigente — 12 de octubre, 17e2b2a
+
+El usuario autoriza crear el índice en preproducción y pide que lo haga la propia aplicación. Esta elección sustituye el procedimiento externo para la activación Preview: no leer/copiar credenciales ni exigir Reauthenticate en Vercel.
+
+La definición está en el registro central `src/lib/db/ensure-indexes.ts`: colección `plan_occurrences`, índice `plan_occurrences_user_series_slot_uidx`, keys `{userId:1,seriesId:1,slotKey:1}`, `unique:true`. `getDatabase()` selecciona ese índice junto al bootstrap automático sólo si los metadatos server-only son `VERCEL_ENV=preview` y `VERCEL_GIT_COMMIT_REF=int`. Usa la conexión configurada de la propia aplicación y conserva el singleton y su retry tras fallo. Producción, local y otras ramas conservan la selección anterior. Los cuatro índices personales anteriores permanecen registrados/provisionados.
+
+La creación es idempotente. Duplicados o una definición incompatible hacen fallar el arranque sin borrar datos, sustituir índices ni reparar registros. No se imprime URI ni un recibo con credenciales. Las guardias readiness 5 siguen siendo obligatorias antes de ejecutar sincronización recurrente. El deployment debe verificarse antes de declarar la creación real; esta entrega sólo prueba Mongo propio y publica el camino automático.
+
+Para un futuro despliegue productivo de repetición también deberá habilitarse el índice en su arranque. Este push a `int` no despliega ni modifica producción. Todos los índices necesarios para la aplicación deben seguir registrados aquí, no en componentes, acciones ni repositorios.
+
+Validación: `bun --no-env-file scripts/sync-db-test-runner.ts recurring-operator`, seis escenarios / 120 aserciones. Tres casos nuevos prueban el arranque real: aislamiento de entorno/rama, unicidad/no-op, duplicados e incompatibilidades conservados. Recursos propios limpiados. Suite general 755 pass / 209 skip / 0 fail, lint 783, tipos/build Webpack/worker 46 aprobados.
+
+## Histórico del operador separado, sustituido para Preview
+
 ## Estado y alcance
 
 17e1c1 valida el procedimiento con Mongo propio. Ninguna conexión ni creación en Preview/producción. Permiso específico solicitado12oct: pendiente de respuesta humana; no inferirlo del permiso anterior de categorías/asignaciones.

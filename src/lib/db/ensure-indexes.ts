@@ -137,6 +137,21 @@ export function automaticIndexSpecs(
   return catalog.filter((spec) => spec.provisioning !== "explicit")
 }
 
+export function databaseBootstrapIndexSpecs(
+  isIntegrationPreview: boolean,
+  catalog: readonly IndexSpec[] = INDEX_SPECS
+): readonly IndexSpec[] {
+  validateIndexSpecs(catalog)
+  // The user authorized appearance uniqueness only in the integration Preview.
+  return catalog.filter(
+    (spec) =>
+      spec.provisioning !== "explicit" ||
+      (isIntegrationPreview &&
+        spec.collection === "plan_occurrences" &&
+        spec.options.name === "plan_occurrences_user_series_slot_uidx")
+  )
+}
+
 export async function ensureIndexes(
   database: IndexDatabase,
   specs: readonly IndexSpec[] = automaticIndexSpecs()

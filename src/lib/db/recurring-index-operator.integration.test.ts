@@ -22,6 +22,7 @@ import {
 } from "@/lib/db/collections"
 import {
   automaticIndexSpecs,
+  ensureIndexes,
   INDEX_SPECS,
   type IndexSpec,
 } from "@/lib/db/ensure-indexes"
@@ -230,6 +231,58 @@ async function runCli(args?: string[], environment?: Record<string, string>) {
   }
 }
 
+async function runWebBootstrap(environment: string, branch: string) {
+  if (!config || !freshDatabaseVerified)
+    throw new Error("Web bootstrap requires a verified owned database")
+  const child = Bun.spawn(
+    [
+      process.execPath,
+      "--no-env-file",
+      "--conditions=react-server",
+      "-e",
+      `
+      import { getDatabase, closeDatabaseConnection } from "./src/lib/db/client.ts";
+      let result = { ready: false, closed: false, code: null };
+      try { await getDatabase(); result.ready = true; }
+      catch (error) { result.code = typeof error?.code === "number" ? error.code : null; }
+      finally { await closeDatabaseConnection(); result.closed = true; }
+      console.log(JSON.stringify(result));
+    `,
+    ],
+    {
+      cwd: root,
+      env: {
+        ...syncTestProcessEnvironment(config),
+        VERCEL_ENV: environment,
+        VERCEL_GIT_COMMIT_REF: branch,
+      },
+      stdout: "pipe",
+      stderr: "pipe",
+    }
+  )
+  const timeout = setTimeout(() => child.kill(), 15000)
+  try {
+    const [stdout, stderr, exitCode] = await Promise.all([
+      new Response(child.stdout).text(),
+      new Response(child.stderr).text(),
+      child.exited,
+    ])
+    if (exitCode !== 0 || stderr || stdout.includes(config.mongodbUri))
+      throw new Error("Web bootstrap did not return a sanitized result")
+    const result = z
+      .strictObject({
+        ready: z.boolean(),
+        closed: z.boolean(),
+        code: z.number().nullable(),
+      })
+      .parse(JSON.parse(stdout))
+    await trackObservedIndexes()
+    return result
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 function duplicateRecurring(seriesId: string): RecurringDocument {
   // Distinct raw identities collide only on the registered appearance key.
   return {
@@ -290,6 +343,90 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     } finally {
       await closeDatabaseConnection()
     }
+  }, 30000)
+
+  test("web startup creates appearance uniqueness only for integration Preview and retries idempotently", async () => {
+    for (const [environment, branch] of [
+      ["production", "int"],
+      ["preview", "main"],
+      ["", ""],
+    ]) {
+      expect(await runWebBootstrap(environment, branch)).toEqual({
+        ready: true,
+        closed: true,
+        code: null,
+      })
+      expect(await inspectIndexes()).toEqual(
+        expectedIndexes(automaticIndexSpecs())
+      )
+    }
+    expect(await runWebBootstrap("preview", "int")).toEqual({
+      ready: true,
+      closed: true,
+      code: null,
+    })
+    const expected = expectedIndexes([...automaticIndexSpecs(), INDEX_SPECS[0]])
+    expect(await inspectIndexes()).toEqual(expected)
+    expect(await runWebBootstrap("preview", "int")).toEqual({
+      ready: true,
+      closed: true,
+      code: null,
+    })
+    expect(await inspectIndexes()).toEqual(expected)
+    const collection = await getCollection<RecurringDocument>(
+      COLLECTION_NAMES.planOccurrences
+    )
+    const first = duplicateRecurring(crypto.randomUUID())
+    ownedRecords.add(first._id)
+    await collection.insertOne(first)
+    const duplicate = { ...first, _id: crypto.randomUUID() }
+    await expect(collection.insertOne(duplicate)).rejects.toMatchObject({
+      code: 11000,
+    })
+    expect(await collection.find({ userId: actor }).toArray()).toEqual([first])
+  }, 45000)
+
+  test("web startup preserves duplicate records and stops without repairing data", async () => {
+    const collection = await getCollection<RecurringDocument>(
+      COLLECTION_NAMES.planOccurrences
+    )
+    const series = crypto.randomUUID()
+    const records = [duplicateRecurring(series), duplicateRecurring(series)]
+    for (const record of records) ownedRecords.add(record._id)
+    await collection.insertMany(records)
+    const before = await collection
+      .find({ userId: actor })
+      .sort({ _id: 1 })
+      .toArray()
+    expect(await runWebBootstrap("preview", "int")).toEqual({
+      ready: false,
+      closed: true,
+      code: 11000,
+    })
+    expect(
+      await collection.find({ userId: actor }).sort({ _id: 1 }).toArray()
+    ).toEqual(before)
+    expect(await inspectIndexes()).toEqual(
+      expectedIndexes(automaticIndexSpecs())
+    )
+  }, 30000)
+
+  test("web startup refuses an incompatible registered name without replacing it", async () => {
+    const database = await ownedDatabase()
+    const spec = INDEX_SPECS[0]
+    await ensureIndexes(database, [{ ...spec, keys: { userId: 1 } }])
+    await trackObservedIndexes()
+    const before = await inspectIndexes()
+    const result = await runWebBootstrap("preview", "int")
+    expect(result.ready).toBe(false)
+    expect(result.closed).toBe(true)
+    expect(result.code !== null && [85, 86].includes(result.code)).toBe(true)
+    expect(await inspectIndexes()).toEqual(before)
+    expect(
+      await (
+        await getCollection(COLLECTION_NAMES.planOccurrences)
+      ).countDocuments({})
+    ).toBe(0)
   }, 30000)
 
   test("invalid, implicit or mismatched targets do not recreate deliberately removed automatic indexes", async () => {

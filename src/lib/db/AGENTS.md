@@ -24,3 +24,5 @@
 - Do not add speculative indexes. Each index should correspond to an implemented query, sort, lookup, or uniqueness constraint.
 - Update the index tests whenever index registration rules or concrete specifications change.
 - `getDatabase()` applies automatic registered indexes once per process. `bun run db:ensure-indexes` uses the same automatic selection. Entries marked `provisioning: "explicit"` remain in the central registry but require an explicitly selected list passed to `ensureIndexes()`, with environment authorization. Registering a staged feature must not activate its indexes through authentication.
+
+- The user authorizes the registered appearance uniqueness index to bootstrap through `ensureIndexes()` only when server metadata is `VERCEL_ENV=preview` and `VERCEL_GIT_COMMIT_REF=int`. Other explicit entries remain staged; production and local startup retain the previous automatic selection. Never repair conflicts or delete data during bootstrap.

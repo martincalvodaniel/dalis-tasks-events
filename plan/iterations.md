@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 17e2b2a — Índice de aparición desde el arranque Preview
+
+- Estado: completada; seis pruebas Mongo / 120 aserciones, suite 755 pass / 209 skip, lint 783, tipos/build/worker aprobados.
+- Objetivo: sustituir la ejecución externa por el singleton de la propia web, según petición humana explícita; sin acceso a secretos Vercel.
+- target_paths: `src/config/{env,env.test}.ts`, `src/lib/db/{client,ensure-indexes,ensure-indexes.test,recurring-index-operator.integration.test}.ts`, `src/lib/db/AGENTS.md` y `plan/**`.
+- Dependencias: índice registrado, autorización Preview concedida, conexión Preview distinta de Production previamente comprobada; 36% / 30%, reservas 10% / 1%, secuencial.
+- Aceptación: sólo Preview de `int` añade el índice de aparición; producción/local/otra rama conservan bootstrap9. Creación única e idempotente, duplicados conservados y parada ante error, sin reparar datos. Generación 4 permanece activa hasta verificar readiness desplegado.
+- Validación: matriz de configuración, selección central y bootstrap real en Mongo propio; lint/tipos/suite/build, plan/log, commit + push y cuotas.
+
 ## 17z2 — Cierre documental legible de la continuación general
 
 - Estado: completada; referencias, consistencia y diff aprobados. Documentación únicamente.
@@ -11,9 +20,9 @@
 
 ## 17e2b2 — Provisión Preview y activación
 
-- Estado: pendiente de autorización específica para el índice de aparición.
+- Estado: autorización concedida; el usuario sustituye el operador por creación desde el arranque web en 17e2b2a.
 - Objetivo: ejecutar el procedimiento validado en Preview, obtener recibo `ready` / `closed` y readiness 5; activar la selección conjunta y realizar el piloto Preview/Google.
-- target_paths: `src/config/common-plan-release.ts` y `plan/**`; ejecución privada mediante el CLI existente, con URI sólo en entorno privado.
+- target_paths: `src/config/common-plan-release.ts` y `plan/**`; creación central desde el singleton Preview de `int`, sin captura de URI.
 - Dependencias: 17e2b1, autorización afirmativa, fuente y destino verificados. Nombre de DB confirmado: `dalis-tasks-events`; no repreguntarlo.
 - Aceptación: sólo índices registrados faltantes en Preview, conservación de datos y parada ante incompatibilidades o duplicados. Selector conjunto de identidad/pull/acciones/proveedor/codec/incidentes/CAS/orden; UUID y evidencia intactos. Históricos sin CAS conservados como unsupported.
 - Fuente: `MONGODB_URI` de Preview está vinculada al recurso Atlas debug, distinto del recurso de Production. Sin `MONGODB_DB` ni override de `int` visible. Guía disponible con secreto oculto; pestaña 60 conservada. No se han capturado credenciales ni abierto Mongo del usuario.

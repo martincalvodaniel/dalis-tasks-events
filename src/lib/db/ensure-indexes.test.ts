@@ -7,6 +7,7 @@ import { COLLECTION_NAMES } from "@/lib/db/collections"
 import type { IndexSpec } from "./ensure-indexes"
 import {
   automaticIndexSpecs,
+  databaseBootstrapIndexSpecs,
   ensureIndexes,
   INDEX_SPECS,
   type IndexDatabase,
@@ -14,6 +15,31 @@ import {
 } from "./ensure-indexes"
 
 describe("MongoDB index specifications", () => {
+  test("only integration Preview adds the authorized appearance index to database bootstrap", async () => {
+    expect(databaseBootstrapIndexSpecs(false)).toEqual(automaticIndexSpecs())
+    const preview = databaseBootstrapIndexSpecs(true)
+    expect(preview).toHaveLength(10)
+    expect(preview.filter((spec) => spec.provisioning === "explicit")).toEqual([
+      INDEX_SPECS[0],
+    ])
+    const calls: string[] = []
+    await ensureIndexes(
+      {
+        collection: () => ({
+          createIndex: async (_keys, options) => {
+            calls.push(options?.name ?? "")
+            return options?.name ?? ""
+          },
+        }),
+      },
+      preview
+    )
+    expect(calls).toContain("plan_occurrences_user_series_slot_uidx")
+    expect(calls).not.toContain("tags_user_id_uidx")
+    expect(calls).not.toContain(
+      "task_placements_user_scope_date_occurrence_uidx"
+    )
+  })
   test("stages appearance slot uniqueness and sorted series catalogs without automatic provisioning", () => {
     expect(
       INDEX_SPECS.filter(
