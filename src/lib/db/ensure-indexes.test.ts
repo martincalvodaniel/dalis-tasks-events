@@ -15,6 +15,21 @@ import {
 } from "./ensure-indexes"
 
 describe("MongoDB index specifications", () => {
+  test("stages one private settings record per actor without adding it to active bootstrap", () => {
+    const settings = INDEX_SPECS.filter(
+      (spec) => spec.collection === COLLECTION_NAMES.userSettings
+    )
+    expect(settings).toEqual([
+      {
+        collection: COLLECTION_NAMES.userSettings,
+        keys: { userId: 1 },
+        options: { name: "user_settings_user_uidx", unique: true },
+        provisioning: "explicit",
+      },
+    ])
+    expect(databaseBootstrapIndexSpecs(true)).not.toContain(settings[0])
+    expect(automaticIndexSpecs()).not.toContain(settings[0])
+  })
   test("only integration Preview adds the authorized appearance index to database bootstrap", async () => {
     expect(databaseBootstrapIndexSpecs(false)).toEqual(automaticIndexSpecs())
     const preview = databaseBootstrapIndexSpecs(true)

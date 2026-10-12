@@ -12,6 +12,14 @@ Schema estricto del snapshot remoto: actor, operación, timestamp del servidor y
 
 Sin IO, ACK, UI, callers o cambio del transporte activo. Siete tests nuevos/23aserciones; suite768pass/209skip/0fail/10370aserciones, lint793/tipos/buildWebpack/worker46. No consultas DB ni necesidad de índice en este corte.
 
+## 18b cerrado
+
+Colección `user_settings` registrada, `_id` canónico por actor y único `user_settings_user_uidx` sobreuserId registrado en ensure-indexes con provisión explícita. Query poruserId aprovecha ese índice; reemplazoCAS usa identidad/actor/revisión/createdAt/deletedAt. No bootstrap activo nuevo ni DBusuario. Repo impidecruce de cuentas, duplicación y resurrección; registro corrupto falla sin reparar.
+
+Executor preparatorio comprueba replay del namespace recurrente común y fingerprint antes de leer estado. Settings+recibo+journal/counter en una transacción; conflicto sin registro remoto se expresa unavailable sin inventarlo. Retry reabre snapshotcompleto; replay antiguo conserva receipt exacto y no vuelve a tocar una revisiónposterior. Ningún caller activo.
+
+Mongo propio: seis casos/56aserciones; creación/CAS/unique/ownership, respuesta perdida/replay/IDreuse/otra cuenta, carreras, rollback tardío y stage sinTX, tombstones/ausencia, identidad corrupta/inputs inválidos. Regresión de operador/selección central: seis casos/126aserciones, nuevo índice permanece staged. Recursos limpios. Suite769pass/217skip/0fail/10373aserciones, lint796/tipos/buildWebpack/worker46. Se corrigieron sólo tipos `_id:string`/nonnull y optional-chain de la fixture.
+
 ## Dependencias para activación
 
 1. 18b: colección registrada/repo actor-scoped con `_id` canónico y CAS, executor con replay común primero y settings/receipt/journal/counter atómicos; comprobar ownership/rollback/carreras/retry en Mongo propio. Evaluar consultas e índices en `ensure-indexes.ts`; no crear índices ad hoc.

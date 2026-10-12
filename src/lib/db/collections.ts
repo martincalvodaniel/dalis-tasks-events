@@ -7,6 +7,7 @@ import { getDatabase } from "@/lib/db/client"
 // Register collection names here alongside the feature that introduces them.
 export const COLLECTION_NAMES = {
   items: "items",
+  userSettings: "user_settings",
   tags: "tags",
   itemViews: "item_views",
   taskPlacements: "task_placements",

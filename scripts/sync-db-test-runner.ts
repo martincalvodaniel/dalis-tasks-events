@@ -18,6 +18,7 @@ if (
   mode !== "operator" &&
   mode !== "placement-operator" &&
   mode !== "recurring-operator" &&
+  mode !== "settings" &&
   mode !== "indexes"
 )
   throw new Error("Unknown isolated sync test mode")
@@ -173,6 +174,7 @@ try {
   ])
   await ready("if (!db.hello().isWritablePrimary) quit(1)")
   const argumentsForMode =
+    mode === "settings" ||
     mode === "indexes" ||
     mode === "operator" ||
     mode === "placement-operator" ||
@@ -183,13 +185,15 @@ try {
           "test",
           "--preload",
           "./test/setup.ts",
-          mode === "recurring-operator"
-            ? "src/lib/db/recurring-index-operator.integration.test.ts"
-            : mode === "placement-operator"
-              ? "src/lib/db/placement-index-operator.integration.test.ts"
-              : mode === "operator"
-                ? "src/lib/db/personal-index-operator.integration.test.ts"
-                : "src/lib/db/mixed-sync-index-provisioning.integration.test.ts",
+          mode === "settings"
+            ? "src/lib/db/remote-user-settings.integration.test.ts"
+            : mode === "recurring-operator"
+              ? "src/lib/db/recurring-index-operator.integration.test.ts"
+              : mode === "placement-operator"
+                ? "src/lib/db/placement-index-operator.integration.test.ts"
+                : mode === "operator"
+                  ? "src/lib/db/personal-index-operator.integration.test.ts"
+                  : "src/lib/db/mixed-sync-index-provisioning.integration.test.ts",
         ]
       : mode === "next" || mode === "next-recurring"
         ? [
@@ -222,6 +226,7 @@ try {
               "./test/setup.ts",
               "src/lib/db/transactions.integration.test.ts",
               "src/lib/db/remote-items.integration.test.ts",
+              "src/lib/db/remote-user-settings.integration.test.ts",
               "src/lib/db/remote-tags.integration.test.ts",
               "src/lib/db/remote-item-views.integration.test.ts",
               "src/lib/db/remote-task-placements.integration.test.ts",

@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 18b — Ajustes remotos y commit atómico
+
+- Estado: completada; seis casos Mongo/56 aserciones y seis de regresión/126, DoD aprobado. Sin caller ni índice DBusuario.
+- Objetivo: repo privado y executor settings.update preparatorios con replay/CAS/recibo/journal/counter atómicos.
+- target_paths: `src/lib/db/{collections,ensure-indexes,remote-user-settings,remote-user-settings-commands,remote-user-settings.integration.test}.ts`, `src/lib/db/ensure-indexes.test.ts`, `scripts/sync-db-test-runner.ts`, `plan/**`.
+- Dependencias: 18a publicado08adf08; entrada94%5h/23%7d, reservas10%/1%, secuencial.
+- Aceptación: registro único por usuario, identidad canónica, revisión propia positiva/CAS; replay común antes lectura y fingerprint intacto; settings+receipt+journal/counter commit o rollback completos, pérdida de respuesta/retry/carreras/ownership/tombstones. Índice user_settings_user_uidx explícito registrado, sin bootstrap/callers/DBusuario nuevos.
+- Validación: Mongo propio con descriptor/pinned image, limpieza propia; suite/lint/tipos/build/worker, plan/log, commit+pushint/HEAD/cuotas.
+
 ## 18a — Zona personal: comando y CAS puros
 
 - Estado: completada; siete tests nuevos / 23 aserciones, DoD aprobado; generación5 intacta.

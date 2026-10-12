@@ -28,6 +28,12 @@ export const INDEX_SPECS: readonly IndexSpec[] = [
     provisioning: "explicit",
   },
   {
+    collection: "user_settings",
+    keys: { userId: 1 },
+    options: { name: "user_settings_user_uidx", unique: true },
+    provisioning: "explicit",
+  },
+  {
     collection: "task_placements",
     keys: { userId: 1, scope: 1, date: 1, occurrenceId: 1 },
     options: {

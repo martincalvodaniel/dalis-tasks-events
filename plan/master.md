@@ -2,6 +2,9 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+18b cerrado: repo settings privado/CAS y executor preparatorio atómicos con replay común; colección y índice único registrados en ensure-indexes, staged sin bootstrap/DBusuario nuevos. Mongo propio6casos/56aserciones y regresión índices6casos/126 pasan, recursos limpios. Suite769pass/217skip/0fail, lint796/tipos/buildWebpack/worker46. Siguiente18c productor local/ACK/pull/evidencia; generación5 activa conserva settings.update unsupported. Cumpleaños aparcado/sharing fuera. [settings-sync.md](settings-sync.md).
+
+
 Nueva ventana:100%5h/24%7d, reset1791818023; continuar secuencialmente con reservas10%/1%, commit+pushint/HEAD/cuotas por corte. Main del usuario también contiene e354005 y está limpio; conservarlo. 18a prepara comando/CAS puro de zona personal; no UI/IO/ACK/cambio de generación5. Siete tests nuevos, suite768pass/209skip/0fail, lint793/tipos/buildWebpack/worker46. Siguiente18b repo/ejecutor Mongo atómico propio; ruta concreta en [settings-sync.md](settings-sync.md). Cumpleaños aparcado/sharing fuera.
 
 

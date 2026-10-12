@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 18b — Repositorio y transacción remota de ajustes
+
+Entrada94%5h/23%7d, reservas10%/1%. Colección user_settings y único user_settings_user_uidx registrados centralmente/staged. Repo actor-scoped conidcanónico/CAS/createdAt y tombstone guard; parserrechaza corrupción sin reparar. Executor usa replay común antes leerestado, fingerprint y validación de familia; crea/update con settings+receipt+journal/counter atómicos. Ausencia conCASno0 devuelve unavailable sinfabricar registro. Retry rereadcompleto, stage sóloenTX, replay antiguo conservaresultado frentea revisiónposterior. Sin caller/transporte/bootstrap/DBusuario nuevos.
+
+Mongo propio6casos/56assert: ownership/unique/CAS, lost-response/replay/UUIDreuse/peer, racebase0 unaapplied/unaconflict, rollbacktardío/sinTX, tombstone/ausencia, corruptID/invalidinput. Operador central6casos/126assert preserva staged y selecciónactiva. Recursos propios retirados. Ajustes de fixtureúnicamente: _idstring, nullguard y optionalchain. Suite769pass/217skip/0fail/10373assert, lint796/tipos/buildWebpack/worker46/diff aprobados. Siguiente18c productor/consumidores locales preparatorios, luego negociación/frontera/UI conjunta. Commitpushint/HEAD/cuotas.
+
+
 ## 18a — Preferencia personal: comando y CAS puros
 
 Nueva ventana verificada100%5h/24%7d, reset1791818023; reservas10%/1%, lote general secuencial. Worktreeint limpio en e354005; main humano también contiene ese commit y se conserva sin editar. Se preparan schema/type/planner/helper de settings.update existente: actor propio, registro remoto positivo/null, CAS0 creación/CASexacto update, timestamps/createdAt conservados, stale/tombstone sin efectos, overflow invalid_command. Local no avanza revisión antes de ACK real. No zona/propietario inválido, cambio de lunes/español o metadatos inyectados.
