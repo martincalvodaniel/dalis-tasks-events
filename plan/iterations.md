@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 17e2b2b — Activación conjunta de repetición remota
+
+- Estado: completada; 19 escenarios Next5 con configuración productiva real y DoD aprobados. Piloto Preview es la siguiente entrega.
+- Objetivo: activar todos los puertos recurrentes ya integrados con bootstrap Preview central y readiness obligatorio.
+- target_paths: `src/config/common-plan-release.ts`, `scripts/next-sync-test-runner.ts`, `plan/**`.
+- Dependencias: 17e2b2a publicado `b9f1005`, autorización y conexión Preview existentes; 32% / 29%, reservas 10% / 1%, secuencial.
+- Aceptación: generación 5 exclusiva en identidad/descarga/acciones/proveedor/consumidores/productores; retiro 4 sin ACK; fixture compilada utiliza la configuración real sin alias preparatorio. No reescribir históricos ni desplegar producción. Readiness obliga a cinco índices antes de aceptar comandos.
+- Validación: 19 escenarios Next5/IndexedDB/Mongo propios, suite/lint/tipos/build/worker; publicación int/HEAD/cuotas y comprobación de deployment Preview si disponible. Piloto Google distinto de la evidencia sintética, sin declarar dispositivos físicos por pestañas.
+
 ## 17e2b2a — Índice de aparición desde el arranque Preview
 
 - Estado: completada; seis pruebas Mongo / 120 aserciones, suite 755 pass / 209 skip, lint 783, tipos/build/worker aprobados.
@@ -20,7 +29,7 @@
 
 ## 17e2b2 — Provisión Preview y activación
 
-- Estado: autorización concedida; el usuario sustituye el operador por creación desde el arranque web en 17e2b2a.
+- Estado: autorización concedida; el usuario sustituye el operador por creación desde el arranque web en 17e2b2a; selector 5 activado en 17e2b2b, piloto Preview pendiente.
 - Objetivo: ejecutar el procedimiento validado en Preview, obtener recibo `ready` / `closed` y readiness 5; activar la selección conjunta y realizar el piloto Preview/Google.
 - target_paths: `src/config/common-plan-release.ts` y `plan/**`; creación central desde el singleton Preview de `int`, sin captura de URI.
 - Dependencias: 17e2b1, autorización afirmativa, fuente y destino verificados. Nombre de DB confirmado: `dalis-tasks-events`; no repreguntarlo.

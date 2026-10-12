@@ -1,9 +1,9 @@
 // Preview content reset is complete; the local boundary requires device confirmation.
 // One build-time choice connects transport, retirement, provider, and all plan screens.
 export const commonPlanReleaseEnabled: boolean = true
-// Keep every recurring product port on the same build-time selection until Preview readiness is verified.
+// Select recurring ports together; server readiness still gates every write.
 export const recurringSyncReleaseEnabled: boolean =
-  commonPlanReleaseEnabled && false
+  commonPlanReleaseEnabled && true
 export const activeProductSyncProtocol = commonPlanReleaseEnabled
   ? recurringSyncReleaseEnabled
     ? 5

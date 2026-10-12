@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 17e2b2b — Selector 5 activo y configuración real en la prueba compilada
+
+Dependencias: 17e2b2a `b9f1005`, autorización Preview y conexión conjunta preparada. Entrada 32% / 29%, reservas 10% / 1%. Se activa el selector común 5 y se elimina el alias preparatorio del fixture cuando el producto ya selecciona 5. No se cambia sobre/journal/codec de intención ni se reescriben históricos. Readiness continúa bloqueando escrituras sin los cinco índices compatibles; bootstrap Preview crea sólo el nuevo índice registrado y no modifica producción.
+
+Diecinueve escenarios Next compilado/React/IndexedDB/Mongo propios pasan con las rutas/acciones/providers/productores/consumidores reales y el módulo de configuración real. Evidencia: `/private/tmp/dalis-next5-active-product-proof.png`. Suite 755 pass / 209 skip / 0 fail / 10310 aserciones, lint 783, tipos/build Webpack/worker 46. Todos los recursos Mongo/fixture propios retirados. No se declara piloto Google ni creación real de índice Preview por el fixture; sigue 17e2b2c después de publicación y comprobación del deployment.
+
+
 ## 17e2b2a — Bootstrap del índice desde la web
 
 El usuario concede el permiso Preview y sustituye la ejecución externa por arranque web. El índice ya registrado se selecciona en `ensure-indexes.ts` sólo para metadatos server-only Preview/int; `getDatabase()` lo crea una vez por proceso y permite retry tras fallo. Sin acceso a secretos Vercel, nuevas conexiones por petición, cambios de producción, reparación o borrado de datos. Todos los índices permanecen en el registro central.

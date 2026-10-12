@@ -2,28 +2,19 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
-Último código publicado: `d0f7334`, en `int`. **El producto sigue en generación 4: sincroniza planes simples, categorías, asignaciones y orden. La repetición remota está preparada y probada, pero todavía no está activada.**
+**Generación 5 activada conjuntamente en el código de `int`**: planes simples y repetidos, progreso/checklist de apariciones, categorías, asignaciones y orden. Se conserva identidad, cursor, UUID, dependencias y evidencia; los históricos sin CAS siguen unsupported sin reescritura ni ACK falso. No hay nueva resolución de apariciones ni despliegue productivo.
 
-| Entrega cerrada | Resultado | Commit |
-| --- | --- | --- |
-| 17e1b5b | Cambio de época después de un commit remoto: cola conservada y recuperación sin duplicados. | `05cdeb8` |
-| 17e2a1 | Backup portable 3 e importación de copias simples, con evidencia recurrente, rollback y replay. | `22cd1aa` |
-| 17e2a2 | Comparación de conflictos de aparición, sin escrituras ni nuevas elecciones de resolución. | `3fe46ea` |
-| 17e2b1 | Selección conjunta de rutas, acciones, proveedor, caché, productores y consumidores de generación 5. El selector del producto permanece desactivado. | `d0f7334` |
+17e2b2a (`b9f1005`) añade el índice registrado desde el singleton únicamente en Preview de `int`, según autorización y petición del usuario. No necesita captura de secretos ni Reauthenticate Vercel. Producción, local y otras ramas conservan sus nueve índices automáticos; los cuatro índices personales anteriores siguen registrados/provisionados en Preview. Publicar repetición en producción requerirá habilitar allí su índice, usando el mismo registro central, antes de esa entrega.
 
-Validación: **19 escenarios Next/React/IndexedDB/Mongo del perfil recurrente y 20 de regresión del perfil activo**, con sesiones Better Auth persistidas y recursos propios. Suite general: 753 pass, 206 opt-in skip, 0 fail; 10.298 aserciones. Lint, tipos, build Webpack y worker con 46 recursos aprobados. Estas pruebas no sustituyen el piloto Google ni prueban el ID exacto de la acción del deployment.
+17e2b2b conecta todos los puertos ya preparados con el selector 5: identidad, descarga, acciones/retirement 4, proveedor/caché, productores CAS, incidentes y backup 3. El fixture ahora utiliza la **configuración del producto sin alias preparatorio**. Readiness de cinco índices sigue siendo obligatorio en el servidor antes de aceptar comandos.
 
-**17e2b2a cerrado:** el usuario autoriza el índice Preview y pide que lo cree la propia web. `getDatabase()` utiliza la definición central de `ensure-indexes.ts` y añade únicamente `plan_occurrences_user_series_slot_uidx` cuando los metadatos del servidor indican `VERCEL_ENV=preview` y rama `int`. No necesita acceso manual a Vercel ni copiar credenciales. Producción, local y otras ramas conservan sus nueve índices automáticos; los cuatro índices personales anteriores siguen registrados y ya provisionados en Preview.
+Validación: **19 escenarios Next/React/IndexedDB/Mongo propios** con dos sesiones Better Auth persistidas y dos particiones; replay/ACK único, progreso, categoría/orden de aparición, conflictos/tombstones, backup y época en vuelo. Bootstrap Mongo: seis casos / 120 aserciones. Suite 755 pass / 209 skip / 0 fail, lint 783, tipos, build Webpack y worker 46 aprobados. Recursos propios retirados. No equivale a piloto Google, prueba física multidispositivo ni evidencia del ID exacto del deployment.
 
-Validación del arranque con Mongo propio: seis casos / 120 aserciones, incluidos idempotencia, unicidad, duplicados conservados e incompatibilidad sin reemplazo. Suite 755 pass / 209 skip / 0 fail; lint 783, tipos, build Webpack y worker 46 aprobados. No se ha conectado directamente a la DB del usuario. La creación real se producirá al acceder al deployment nuevo; no se declara realizada antes de comprobarla.
+**Siguiente: 17e2b2c**, comprobar el nuevo deployment Preview con la sesión Google existente y crear/progresar una repetición de piloto, revisar su ACK y persistencia. La creación real del índice Preview se verificará por readiness del servidor; no anunciarla sólo por este cambio de código. Procedimiento en [recurring-index-provisioning.md](recurring-index-provisioning.md).
 
-**Siguiente: 17e2b2b**, activar conjuntamente generación 5, probar el perfil compilado sin alias de configuración y verificar readiness/piloto Preview. Todos los índices necesarios permanecen en el registro central. Para publicar repetición en producción también deberá habilitarse su bootstrap en esa entrega; este push de `int` no despliega producción. Procedimiento vigente: [recurring-index-provisioning.md](recurring-index-provisioning.md).
+Autorización: continuar el plan completo, commit + push por entrega validada en `int`, cuotas automáticas; reservas 10% de 5h / 1% semanal. Entrada de activación 32% / 29%. Sin nueva automatización. Compartir Gmail fuera de alcance. Checkout humano `main` intacto; worktree gestionado de `int` conservado.
 
-Se conservan UUID, payloads, dependencias, intentos, outcomes, shadows, tombstones y cursores. Las intenciones históricas de aparición sin CAS siguen fuera del soporte; no se reescriben ni reciben ACK falso. La comparación recurrente no ofrece todavía resolución de apariciones.
-
-Autorización vigente: continuar el plan completo, con commit + push por entrega validada en `int` y consulta de ambas cuotas. Reserva: 10% de 5h y 1% semanal. Última lectura tras el código: **42% / 30%**. La autorización ya está concedida y no hace falta completar Reauthenticate para este flujo. No se ha programado una nueva automatización. Compartir por Gmail sigue fuera del alcance.
-
-Trabajo en el worktree gestionado `/Users/03762078/.codex/worktrees/recurring-sync-next/dalis-tasks-events`; el checkout humano de `main` permanece intacto. Tras cerrar la repetición: cumpleaños, preferencias y validación final del MVP, siguiendo [iterations.md](iterations.md).
+Después de repetición: cumpleaños, preferencias/configuración residuales y aceptación final móvil/multidispositivo/offline, según [iterations.md](iterations.md).
 
 ## Histórico — lote puntual de las 01:27 del 12 de octubre
 

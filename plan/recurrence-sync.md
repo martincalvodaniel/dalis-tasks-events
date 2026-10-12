@@ -1,5 +1,10 @@
 # Sincronización de series y apariciones comunes
 
+## Activación vigente — 17e2b2b
+
+Selector productivo 5 activo: todos los puertos comunes seleccionados juntos; readiness de cinco índices antes de ejecutar comandos. La prueba compilada utiliza el módulo real del producto, sin alias: 19 escenarios propios aprobados. Suite 755 pass / 209 skip, lint 783/tipos/build/worker aprobados. No despliegue de producción ni reescritura de intenciones históricas sin CAS. Próximo corte verifica deployment Preview/Google y ACK/persistencia de una repetición de piloto; no extrapolar evidencia sintética al deployment.
+
+
 ## Cambio vigente de provisión — 17e2b2a
 
 Permiso Preview concedido. Por petición del usuario, el singleton de la propia aplicación crea el índice de aparición registrado mediante `ensureIndexes()`, exclusivamente en Preview de `int`. No se necesitan credenciales manuales ni Reauthenticate. Seis pruebas Mongo propias pasan: idempotencia, unicidad y fallos sin reparar duplicados/definiciones. El deployment todavía requiere comprobación; producto sigue 4 y la siguiente entrega activa conjuntamente 5. Todos los índices de la aplicación deben permanecer en `ensure-indexes.ts`. Producción necesitará el mismo índice antes de publicar allí repetición, sin despliegue productivo en esta continuación.

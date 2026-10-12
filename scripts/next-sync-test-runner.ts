@@ -247,7 +247,7 @@ try {
         paths: {
           "@/*": ["../../src/*"],
           "@fixture/*": ["./features/*"],
-          ...(recurring
+          ...(recurring && activeProductSyncProtocol === 4
             ? {
                 "@/config/common-plan-release": [
                   "./features/release-profile.ts",
