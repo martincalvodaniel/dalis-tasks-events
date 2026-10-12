@@ -5,7 +5,11 @@ import {
   outboxEntrySchema,
 } from "@/schemas/local-sync"
 import { observedTaskPlacementSchema } from "@/schemas/personal-snapshot"
-import { itemViewSchema, tagSchema } from "@/schemas/preferences"
+import {
+  itemViewSchema,
+  tagSchema,
+  userSettingsSchema,
+} from "@/schemas/preferences"
 import { userIdSchema } from "@/schemas/primitives"
 
 export const syncIncidentProjectionSchema = z.strictObject({
@@ -46,3 +50,8 @@ export const syncIncidentSnapshotSchema = z.strictObject({
   intentions: z.array(outboxEntrySchema).min(1),
   blockedByRelatedIntentions: z.boolean().default(false),
 })
+
+export const settingsSyncIncidentOverviewInputSchema =
+  syncIncidentOverviewInputSchema.extend({
+    settings: z.array(userSettingsSchema).max(10000),
+  })

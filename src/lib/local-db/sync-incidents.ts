@@ -9,7 +9,10 @@ import {
   projectSyncIncidentOverview,
   projectSyncIncidentSnapshot,
 } from "@/lib/sync/incident-snapshot"
-import { projectRecurringSyncIncidentOverview } from "@/lib/sync/recurring-incident-snapshot"
+import {
+  projectRecurringSettingsSyncIncidentOverview,
+  projectRecurringSyncIncidentOverview,
+} from "@/lib/sync/recurring-incident-snapshot"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import type { OutboxEntry } from "@/types/local-sync"
 import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
@@ -52,10 +55,22 @@ export function readLocalRecurringSyncIncidentOverview(
     )
   return readIncidentOverview(database, userId, true)
 }
+export function readLocalSettingsSyncIncidentOverview(
+  database: IDBDatabase,
+  userId: string
+): Promise<RecurringSyncIncidentOverview[]> {
+  if (database.name !== localDatabaseName(userId))
+    return Promise.reject(
+      new Error("Settings incident database belongs to another partition")
+    )
+  return readIncidentOverview(database, userId, true, true)
+}
+
 function readIncidentOverview(
   database: IDBDatabase,
   userId: string,
-  recurring: boolean
+  recurring: boolean,
+  allowSettings = false
 ): Promise<RecurringSyncIncidentOverview[]> {
   return runLocalTransaction(
     database,
@@ -68,6 +83,7 @@ function readIncidentOverview(
       "remoteShadows",
       "syncMetadata",
       ...(recurring ? (["occurrences"] as const) : []),
+      ...(allowSettings ? ["settings"] : []),
     ],
     "readonly",
     (context) => {
@@ -77,7 +93,8 @@ function readIncidentOverview(
         true,
         (snapshot) =>
           context.setResult(snapshot as RecurringSyncIncidentOverview[]),
-        recurring
+        recurring,
+        allowSettings
       )
     }
   )
@@ -117,7 +134,8 @@ function queueIncidentEvidence(
     incidents: RecurringSyncIncidentOverview[] | SyncIncidentSnapshot[],
     entries: OutboxEntry[]
   ) => void,
-  recurring = false
+  recurring = false,
+  allowSettings = false
 ) {
   const read = (
     name:
@@ -129,6 +147,7 @@ function queueIncidentEvidence(
       | "itemViews"
       | "taskPlacements"
       | "occurrences"
+      | "settings"
   ) =>
     context.transaction
       .objectStore(name)
@@ -141,7 +160,8 @@ function queueIncidentEvidence(
   const itemViews = overview ? read("itemViews") : null
   const taskPlacements = overview ? read("taskPlacements") : null
   const occurrences = recurring ? read("occurrences") : null
-  let remaining = recurring ? 8 : overview ? 7 : 4
+  const settings = allowSettings ? read("settings") : null
+  let remaining = (recurring ? 8 : overview ? 7 : 4) + Number(allowSettings)
   const finish = () => {
     if (--remaining) return
     try {
@@ -156,6 +176,7 @@ function queueIncidentEvidence(
           itemViews,
           taskPlacements,
           occurrences,
+          settings,
         ].some((request) => request && request.result.length > 10000)
       )
         throw new Error("Recurring incident snapshot exceeds its record limit")
@@ -175,13 +196,17 @@ function queueIncidentEvidence(
         shadows: shadows.result,
         outcomes,
       }
+      const projectRecurring = allowSettings
+        ? projectRecurringSettingsSyncIncidentOverview
+        : projectRecurringSyncIncidentOverview
       const snapshot = recurring
-        ? projectRecurringSyncIncidentOverview({
+        ? projectRecurring({
             ...input,
             tags: tags?.result,
             itemViews: itemViews?.result,
             taskPlacements: taskPlacements?.result,
             occurrences: occurrences?.result,
+            ...(allowSettings ? { settings: settings?.result } : {}),
           })
         : overview
           ? projectSyncIncidentOverview({
@@ -208,6 +233,7 @@ function queueIncidentEvidence(
     itemViews,
     taskPlacements,
     occurrences,
+    settings,
   ])
     if (request) request.onsuccess = finish
 }

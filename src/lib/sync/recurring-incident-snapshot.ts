@@ -1,4 +1,7 @@
-import { projectSyncIncidentOverview } from "@/lib/sync/incident-snapshot"
+import {
+  projectSettingsSyncIncidentOverview,
+  projectSyncIncidentOverview,
+} from "@/lib/sync/incident-snapshot"
 import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
 import { decodeLocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
@@ -7,6 +10,7 @@ import { personalQueueDiagnosticsInputSchema } from "@/schemas/personal-queue-di
 import {
   recurringIncidentSnapshotInputSchema,
   recurringSyncIncidentOverviewInputSchema,
+  settingsRecurringSyncIncidentOverviewInputSchema,
 } from "@/schemas/recurring-sync-incident"
 import type { PlanOccurrence } from "@/types/plan-occurrence"
 import type {
@@ -197,7 +201,22 @@ export function projectPlanOccurrenceSyncIncidents(
 export function projectRecurringSyncIncidentOverview(
   input: unknown
 ): RecurringSyncIncidentOverview[] {
-  const complete = recurringSyncIncidentOverviewInputSchema.parse(input)
+  return projectRecurringIncidentOverview(input, false)
+}
+
+export function projectRecurringSettingsSyncIncidentOverview(
+  input: unknown
+): RecurringSyncIncidentOverview[] {
+  return projectRecurringIncidentOverview(input, true)
+}
+
+function projectRecurringIncidentOverview(
+  input: unknown,
+  allowSettings: boolean
+): RecurringSyncIncidentOverview[] {
+  const complete = allowSettings
+    ? settingsRecurringSyncIncidentOverviewInputSchema.parse(input)
+    : { ...recurringSyncIncidentOverviewInputSchema.parse(input), settings: [] }
   for (const records of Object.values(complete))
     if (Array.isArray(records) && records.length > 10000)
       throw new Error("Recurring incident overview exceeds its record limit")
@@ -206,6 +225,7 @@ export function projectRecurringSyncIncidentOverview(
     tags: _tags,
     itemViews: _itemViews,
     taskPlacements: _placements,
+    settings: _settings,
     ...evidence
   } = ordinary
   const appearances = projectPlanOccurrenceSyncIncidents({
@@ -213,7 +233,17 @@ export function projectRecurringSyncIncidentOverview(
     occurrences,
   })
   return [
-    ...projectSyncIncidentOverview(ordinary, true),
+    ...(allowSettings
+      ? projectSettingsSyncIncidentOverview(ordinary, true)
+      : projectSyncIncidentOverview(
+          {
+            ...evidence,
+            tags: ordinary.tags,
+            itemViews: ordinary.itemViews,
+            taskPlacements: ordinary.taskPlacements,
+          },
+          true
+        )),
     ...appearances.map((incident) => ({
       kind: "plan-occurrence" as const,
       incident,

@@ -1,5 +1,12 @@
 # Zona horaria personal y sincronización de ajustes
 
+## 18c4b — Evidencia actual y copia portable
+
+Captura futura readonly de incidentes incluye settings en la misma TX, valida toda evidencia recurrente y conserva puertos actuales. Comparación distingue valor actual, local congelado al resultado, base observada y última remota; ausencia real sigue null y tombstones conservan registro exacto. No resolución, supersesión ni ACK local nuevos.
+
+Tres tests puros / 11 aserciones y diez checks IndexedDB + recarga pasan. Modificación posterior visible en comparación, evidencia congelada intacta, identidad extranjera rechazada. Backup 3 existente roundtrip conserva ajustes/cola/outcomes/shadows y no escribe; no necesita cambiar formato. Fixture no demuestra Google/servidor. Se corrigió el tipo del helper de fixture. Particiones/tab/servidor propios retirados. Suite 788 pass / 220 skip / 0 fail / 10465 aserciones, lint 809, tipos/build Webpack/worker 46 aprobados. Captura `/private/tmp/dalis-settings-evidence-proof.png`. Sigue composición de política/store/runtime y negociación 6 antes de activación/UI.
+
+
 ## 18c4a — Historia remota privada de ajustes
 
 Nuevo reader privado reutiliza paginación, snapshot, byte ceiling y colecciones del reader recurrente. Cada efecto settings necesita registro actual propio, identidad canónica y revisión actual no inferior a la histórica. Tombstone conserva autorización de historia; ausencia, otra cuenta o corrupción impiden devolver una página parcial. Reader activo 5 sigue rechazando ajustes y no cambia caller, bootstrap o negociación.

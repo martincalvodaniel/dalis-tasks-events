@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 18c4b — Evidencia actual y copia de ajustes
+
+- Objetivo: comparar settings actual/local al resultado/base observada/último remoto y demostrar exportación portable sin inventar ausencia.
+- target_paths: `src/schemas/{sync-incident,recurring-sync-incident}.ts`, `src/lib/sync/{incident-snapshot,recurring-incident-snapshot}.ts`, `src/lib/local-db/sync-incidents.ts`, `src/lib/sync/settings-incidents.test.ts`, `test/browser/user-settings-results.ts`, `plan/**`.
+- Dependencias: ACK/outcomes/shadows preparados y reader remoto 18c4a publicado cfa5a54; entrada 48% 5h / 16% 7d, reserva 10% / 1%, secuencial.
+- Aceptación: captura readonly única incluye settings actuales; foreign/corrupt rechaza snapshot; comparación conserva evidencia congelada y distingue local posterior; backup 3 preserva settings/cola/outcomes/shadows sin escrituras ni bump cosmético. Puertos activos intactos, sin resolución/supersesión/ACK/UI nuevos.
+- Validación: IndexedDB real con conflicto/outcome de fixture, modificación posterior, backup roundtrip/recarga y limpieza propia; DoD/worker/plan/log/commit/push/HEAD/cuotas.
+
 ## 18c4a — Reader privado de ajustes remotos
 
 - Objetivo: página histórica de ajustes con autorización actual y snapshot transaccional, sin modificar el reader 5 activo.

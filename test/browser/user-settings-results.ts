@@ -1,9 +1,15 @@
+import {
+  decodeLocalRecurringBackup,
+  encodeLocalRecurringBackup,
+} from "@/lib/backup/local-backup"
+import { readLocalRecurringBackup } from "@/lib/local-db/backup"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import {
   applyLocalRecurringPreferenceResult,
   applyLocalSettingsPreferenceResult,
 } from "@/lib/local-db/preference-sync-results"
+import { readLocalSettingsSyncIncidentOverview } from "@/lib/local-db/sync-incidents"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { entityIdSchema } from "@/schemas/primitives"
 import { userSettingsEntityKey } from "@/schemas/user-settings-key"
@@ -444,12 +450,81 @@ run.onclick = async () => {
       }
     )
     await check(
+      "Comparación readonly lee ajuste actual distinto del congelado",
+      async () => {
+        const current = (await snapshot()).settings[0] as UserSettings
+        await put("settings", { ...current, timeZone: "Pacific/Honolulu" })
+        const before = JSON.stringify(await snapshot())
+        const overview = await readLocalSettingsSyncIncidentOverview(
+          database,
+          actor
+        )
+        const incident = overview.find(
+          (value) =>
+            value.kind === "preference" &&
+            value.incident.entry.operation.operationId ===
+              child.operation.operationId
+        )
+        assert(incident?.kind === "preference", "Settings incident is missing")
+        assert(
+          incident.incident.local[0].record?.store === "settings" &&
+            incident.incident.local[0].record.record.timeZone ===
+              "Pacific/Honolulu",
+          "Incident fabricated local absence"
+        )
+        assert(
+          incident.incident.localAtOutcome[0].record?.store === "settings" &&
+            incident.incident.localAtOutcome[0].record.record.timeZone ===
+              "Asia/Tokyo",
+          "Frozen settings evidence changed"
+        )
+        assert(
+          incident.incident.remote[0].record?.record.revision === 5 &&
+            incident.incident.shadowAtOutcome[0].record?.record.revision === 4,
+          "Observed remote evidence changed"
+        )
+        assert(
+          JSON.stringify(await snapshot()) === before,
+          "Readonly incident changed stores"
+        )
+      }
+    )
+    await check(
+      "Copia portable conserva ajuste, cola y evidencia sin escrituras",
+      async () => {
+        const before = JSON.stringify(await snapshot())
+        const backup = await readLocalRecurringBackup(
+          database,
+          actor,
+          new Date().toISOString()
+        )
+        const encoded = encodeLocalRecurringBackup(backup, actor)
+        assert(
+          JSON.stringify(decodeLocalRecurringBackup(encoded, actor)) ===
+            JSON.stringify(backup),
+          "Settings backup roundtrip changed data"
+        )
+        assert(
+          JSON.stringify(backup.stores.settings) ===
+            JSON.stringify((await snapshot()).settings),
+          "Backup lost current settings"
+        )
+        assert(
+          JSON.stringify(await snapshot()) === before,
+          "Backup changed stores"
+        )
+      }
+    )
+    await check(
       "Registro extranjero en la partición rechaza el snapshot entero",
       async () => {
         await put("settings", { ...optimistic, userId: peer })
         const before = JSON.stringify(await snapshot())
         await refused(() =>
           applyLocalSettingsPreferenceResult(database, actor, submission)
+        )
+        await refused(() =>
+          readLocalSettingsSyncIncidentOverview(database, actor)
         )
         assert(
           JSON.stringify(await snapshot()) === before,
@@ -471,7 +546,7 @@ run.onclick = async () => {
       JSON.stringify({ primary: await snapshot(), peer: await snapshot(peer) })
     )
     statusNode.textContent =
-      "Ocho comprobaciones IndexedDB correctas; respuestas de fixture, cola y evidencia conservadas."
+      "Diez comprobaciones IndexedDB correctas; respuestas de fixture, cola y evidencia conservadas."
   } catch (error) {
     statusNode.textContent = `Fallo: ${error instanceof Error ? error.message : "Unknown settings proof failure"}`
   } finally {

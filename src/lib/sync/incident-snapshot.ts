@@ -9,6 +9,7 @@ import { decodeRemoteShadow } from "@/lib/sync/remote-shadow-v2"
 import { preferenceEffectSchema } from "@/schemas/preference-effects"
 import { personalShadowEntityKey } from "@/schemas/remote-shadow-v2"
 import {
+  settingsSyncIncidentOverviewInputSchema,
   syncIncidentOverviewInputSchema,
   syncIncidentSnapshotInputSchema,
 } from "@/schemas/sync-incident"
@@ -255,12 +256,31 @@ export function projectSyncIncidentOverview(
   input: unknown,
   recurring = false
 ): SyncIncidentOverview[] {
-  const complete = syncIncidentOverviewInputSchema.parse(input)
-  const { tags, itemViews, taskPlacements, ...evidenceInput } = complete
+  return projectIncidentOverview(input, recurring, false)
+}
+
+export function projectSettingsSyncIncidentOverview(
+  input: unknown,
+  recurring = false
+): SyncIncidentOverview[] {
+  return projectIncidentOverview(input, recurring, true)
+}
+
+function projectIncidentOverview(
+  input: unknown,
+  recurring: boolean,
+  allowSettings: boolean
+): SyncIncidentOverview[] {
+  const complete = allowSettings
+    ? settingsSyncIncidentOverviewInputSchema.parse(input)
+    : { ...syncIncidentOverviewInputSchema.parse(input), settings: [] }
+  const { tags, itemViews, taskPlacements, settings, ...evidenceInput } =
+    complete
   const value = prepareIncidentEvidence(evidenceInput, recurring)
   const itemIncidents = projectItemIncidents(value)
   const current = new Map<string, PersonalSnapshot[number]["record"]>()
   for (const effect of [
+    ...settings.map((record) => ({ store: "settings" as const, record })),
     ...tags.map((record) => ({ store: "tags" as const, record })),
     ...itemViews.map((record) => ({ store: "itemViews" as const, record })),
     ...taskPlacements.map((record) => ({
