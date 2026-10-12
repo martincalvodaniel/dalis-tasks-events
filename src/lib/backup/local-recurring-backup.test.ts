@@ -1,4 +1,7 @@
 import { expect, test } from "bun:test"
+import { planLocalBackupImport } from "@/lib/backup/import-plan"
+import { previewLocalBackupImport } from "@/lib/backup/import-preview"
+import { buildBackupImportRecord } from "@/lib/backup/import-record"
 import {
   decodeLocalRecurringBackup,
   encodeLocalRecurringBackup,
@@ -296,4 +299,133 @@ test("future codec keeps legacy format and strict size and parse boundaries", ()
       backup.userId
     )
   ).toThrow("size limit")
+})
+
+test("recurring import keeps frozen evidence and copies only simple common plans with fresh identities", () => {
+  const { backup, series } = fixture()
+  const simple = {
+    ...series,
+    id: crypto.randomUUID(),
+    variant: "note" as const,
+    recurrence: null,
+    revision: 0,
+  }
+  const source = {
+    ...backup,
+    stores: { ...backup.stores, items: [series, simple] },
+  }
+  const json = encodeLocalRecurringBackup(source, backup.userId)
+  const preserved = structuredClone(backup)
+  const preview = previewLocalBackupImport(
+    json,
+    backup,
+    backup.userId,
+    "common_plans",
+    true
+  )
+  expect(
+    preview.stores.items.find((row) => row.key === simple.id)?.support
+  ).toBe("simple_item")
+  expect(
+    preview.stores.items.find((row) => row.key === series.id)?.support
+  ).toBe("unsupported")
+  expect(
+    preview.stores.outbox.every((row) => row.support === "evidence_only")
+  ).toBe(true)
+  expect(() => previewLocalBackupImport(json, backup, backup.userId)).toThrow()
+  const request = {
+    userId: backup.userId,
+    importId: crypto.randomUUID(),
+    createdAt: timestamp,
+    expected: backup,
+    copies: [
+      {
+        sourceItemId: simple.id,
+        itemId: crypto.randomUUID(),
+        operationId: crypto.randomUUID(),
+      },
+    ],
+  }
+  const plan = planLocalBackupImport(request, json, backup, true)
+  expect(plan.copies).toHaveLength(1)
+  expect(plan.copies[0]?.item).toMatchObject({
+    kind: "plan",
+    variant: "note",
+    recurrence: null,
+    revision: 0,
+    ownerId: backup.userId,
+  })
+  expect(plan.copies[0]?.item.id).not.toBe(simple.id)
+  expect(plan.copies[0]?.operation).toMatchObject({
+    protocolVersion: 1,
+    baseRevision: 0,
+    command: { type: "item.create" },
+  })
+  const receipt = buildBackupImportRecord(plan)
+  const copied = plan.copies[0]
+  if (!copied) throw new Error("Import fixture copy is missing")
+  const post = {
+    ...backup,
+    stores: {
+      ...backup.stores,
+      items: [...backup.stores.items, copied.item],
+      outbox: [
+        ...backup.stores.outbox,
+        outboxEntrySchema.parse({
+          userId: backup.userId,
+          entityKey: `item:${copied.item.id}`,
+          operation: copied.operation,
+          sequence: 3,
+          state: "pending",
+          attempts: 0,
+          lease: null,
+          dependencies: [],
+          createdAt: timestamp,
+        }),
+      ],
+      syncMetadata: [
+        ...backup.stores.syncMetadata.filter(
+          (value) => value.key !== "outbox-sequence"
+        ),
+        { key: "outbox-sequence" as const, value: 3 },
+        receipt,
+      ],
+    },
+  }
+  expect(
+    decodeLocalRecurringBackup(
+      encodeLocalRecurringBackup(post, backup.userId),
+      backup.userId
+    ).stores
+  ).toEqual(post.stores)
+  expect(backup).toEqual(preserved)
+  expect(() =>
+    planLocalBackupImport(
+      {
+        ...request,
+        copies: [{ ...request.copies[0], sourceItemId: series.id }],
+      },
+      json,
+      backup,
+      true
+    )
+  ).toThrow()
+  expect(() =>
+    planLocalBackupImport(
+      request,
+      json,
+      {
+        ...backup,
+        stores: {
+          ...backup.stores,
+          tags: [],
+          syncMetadata: backup.stores.syncMetadata.filter(
+            (value) => value.key !== "pull-cursor"
+          ),
+        },
+      },
+      true
+    )
+  ).toThrow()
+  expect(() => planLocalBackupImport(request, json, backup)).toThrow()
 })

@@ -143,6 +143,7 @@ async function execute(
       "commit-occurrence",
       "lost-recurring-response-run",
       "epoch-after-commit-run",
+      "recurring-import-proof",
       "prepare-local",
       "save-plan",
       "commit-local",

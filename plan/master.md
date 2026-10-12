@@ -1,5 +1,9 @@
 # Dalis Tasks & Events — plan maestro
 
+## Consumidores de repetición — 17e2a1
+
+Backup/importación futura3 preparados yprobados con snapshotTX/rollback/replay/ACKMongo único de una copia simple nueva. Evidencia ycola recurrentes íntegras; no restaurarapariciones/series ni comandosarchivados. Dieciocho escenariosNext5 propios yDoD pasan; callersactivos4 intactos. Sigue overview/UI deconflictos17e2a2 yconexiónconjunta17e2b; permisoíndicePreview pendiente, sinDBusuario.
+
 ## Continuación general autorizada — 12 de octubre
 
 17e1b5b cerrado: época real cambiada tras commitMongo en vuelo conserva intención ydepenciente, recuperación única con cliente fresco; diecisiete escenariosNext5 propios pasan yDoDglobal aprobado. Usuario autoriza continuar el plan completo, reservando10%5h/1%7d yconsultando cuotas trascada commitpushint. Entrada99%5h/39%7d, reset5h1791799993. Trabajo worktreeint, checkoutmain intacto; no nueva automatización. ÍndiceapariciónPreview requiere permiso específico (pregunta pendiente); **repetición remota sigue preparatoria4 activa**. Siguiente integración consumidores/backup/incidentes/productores yconexión conjunta17e2 después readiness.

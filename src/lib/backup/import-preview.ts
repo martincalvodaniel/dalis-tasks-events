@@ -1,8 +1,11 @@
 import {
   decodeLocalBackup,
+  decodeLocalRecurringBackup,
   encodeLocalBackup,
+  encodeLocalRecurringBackup,
   localBackupStoreNames,
   validateLocalBackup,
+  validateLocalRecurringBackup,
 } from "@/lib/backup/local-backup"
 import type {
   BackupImportClassification,
@@ -78,12 +81,18 @@ export function previewLocalBackupImport(
   sourceJson: string,
   currentInput: unknown,
   userId: string,
-  itemPolicy: BackupImportItemPolicy = "all_simple"
+  itemPolicy: BackupImportItemPolicy = "all_simple",
+  recurring = false
 ): BackupImportPreview {
-  const source = decodeLocalBackup(sourceJson, userId)
-  const current = validateLocalBackup(currentInput, userId)
+  const source = (recurring ? decodeLocalRecurringBackup : decodeLocalBackup)(
+    sourceJson,
+    userId
+  )
+  const current = (
+    recurring ? validateLocalRecurringBackup : validateLocalBackup
+  )(currentInput, userId)
   // The local comparison snapshot must satisfy the same portable byte bound.
-  encodeLocalBackup(current, userId)
+  ;(recurring ? encodeLocalRecurringBackup : encodeLocalBackup)(current, userId)
   const stores = {} as BackupImportPreview["stores"]
   for (const store of localBackupStoreNames) {
     const existing = new Map(

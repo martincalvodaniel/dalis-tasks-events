@@ -202,7 +202,7 @@ function validateBackup(
   const superseded = new Set<string>()
   for (const record of s.syncMetadata) {
     if ("importId" in record)
-      validateBackupImportEvidence(record, entries, actor)
+      validateBackupImportEvidence(record, entries, actor, recurring)
     if ("result" in record) {
       const entry = entries.get(record.operation.operationId)
       if (

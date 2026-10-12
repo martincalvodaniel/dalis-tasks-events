@@ -161,6 +161,13 @@ export class LocalBackupReader {
   read(): Promise<LocalBackup> {
     return readLocalBackup(this.database, this.userId, new Date().toISOString())
   }
+  readRecurring(): Promise<LocalRecurringBackup> {
+    return readLocalRecurringBackup(
+      this.database,
+      this.userId,
+      new Date().toISOString()
+    )
+  }
   close(): void {
     this.database.close()
   }

@@ -1,8 +1,14 @@
 import { previewLocalBackupImport } from "@/lib/backup/import-preview"
-import { validateLocalBackup } from "@/lib/backup/local-backup"
+import {
+  validateLocalBackup,
+  validateLocalRecurringBackup,
+} from "@/lib/backup/local-backup"
 import { applyItemCommand } from "@/lib/calendar/item-command"
 import { calendarItemToDraft } from "@/lib/calendar/item-draft"
-import { backupImportRequestSchema } from "@/schemas/backup-import"
+import {
+  backupImportRequestSchema,
+  recurringBackupImportRequestSchema,
+} from "@/schemas/backup-import"
 import { entityIdSchema } from "@/schemas/primitives"
 import { syncBatchSchema, syncOperationSchema } from "@/schemas/sync"
 import type { BackupImportPlan } from "@/types/backup-import"
@@ -20,14 +26,26 @@ function collectReservedIds(input: unknown, ids: Set<string>): void {
 export function planLocalBackupImport(
   input: unknown,
   sourceJson: string,
-  currentInput: unknown
+  currentInput: unknown,
+  recurring = false
 ): BackupImportPlan {
-  const request = backupImportRequestSchema.parse(input)
-  const expected = validateLocalBackup(request.expected, request.userId)
-  const current = validateLocalBackup(currentInput, request.userId)
+  const request = (
+    recurring ? recurringBackupImportRequestSchema : backupImportRequestSchema
+  ).parse(input)
+  const validate = recurring
+    ? validateLocalRecurringBackup
+    : validateLocalBackup
+  const expected = validate(request.expected, request.userId)
+  const current = validate(currentInput, request.userId)
   if (JSON.stringify(expected.stores) !== JSON.stringify(current.stores))
     throw new Error("Backup comparison changed before import planning")
-  const preview = previewLocalBackupImport(sourceJson, current, request.userId)
+  const preview = previewLocalBackupImport(
+    sourceJson,
+    current,
+    request.userId,
+    recurring ? "common_plans" : "all_simple",
+    recurring
+  )
   const rows = new Map(preview.stores.items.map((row) => [row.key, row]))
   const reserved = new Set<string>()
   collectReservedIds(current.stores, reserved)

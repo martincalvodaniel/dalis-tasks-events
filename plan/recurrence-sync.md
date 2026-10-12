@@ -1,5 +1,10 @@
 # Sincronización de series y apariciones comunes
 
+## 17e2a1 — Backup3, comparación e importación por copia
+
+12oct: puertos preparados readRecurring/commitRecurring ycodecschemas futuro3 mantienen parsers1/2 strict. Snapshot/copia usa encoder/validator futuro juntos; archivooriginal de recibo3 se valida como evidenciaopaca sinrestaurarcola. Copia únicamente plan simple con UUID nuevo, sin tocar series/apariciones/cola/evidencia originales. Un testpuro13aserciones comprueba soporte/selections/stale/newidentity/poststate archived3, regresionesbackup34tests394aserciones pasan. FixtureNext5 real añade rollbackfalloúltimorecibo/retry/replay/storesexactos y únicoACKMongo de copia nueva; dieciochoescenarios pasan. Primerensayo detectó decoderarchivo1/2 en recibo, reparado yrepetido; literalTS decontador estrechado. Suite752pass/206opt-in skip/0fail/10283aserciones, lint779/tipos/Next16.4Webpack/worker46/diff aprobados. Recursos propios cerrados; screenshot /private/tmp/dalis-next5-import-proof.png. SinDBusuario/callers5/activación, permisoíndicePreview pendiente. Siguiente17e2a2 overview/UI recurrente ydespués conexión conjunta17e2b.
+
+
 ## 17e1b5b — Época después de commit remoto en vuelo
 
 12oct: runtime5 real despacha action5/defaults y rota cuenta-control durable después del commitMongo, antes de entregar respuesta. Pasada anterior devuelve account_changed uploaded0, rootpending1/dependentpending0 UUID/payload/deps exactos, leasespropios liberados y sinoutcome. Cliente5 fresco replaysroot yACKdependiente, dosrecibos/dossecuencias únicas, cinco proyecciones/cursor exactos; peerconflictivo no cambia. Diecisiete escenariosNext5/BetterAuth/IndexedDB/Mongo propios pasan; primerensayo omitió allowlistcomando de fixture, corregido yrepetido completo. Recursos propios limpios; screenshot /private/tmp/dalis-next5-epoch-proof.png. Suite751pass/206opt-in skip/0fail/10270aserciones, lint779/tipos/Next16.4Webpack/worker46/diff aprobados. Checkoutmain intacto, trabajo worktreeint. PermisoíndicePreview pendiente, sinDBusuario/activación; siguiente17e2 consumidores yconexión conjunta.

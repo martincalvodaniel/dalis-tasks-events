@@ -11,6 +11,9 @@ import { dispatchFixtureRetiredOperations } from "@fixture/retired-client"
 import { dispatchSyncOperationsV5 } from "@/features/sync/client-action-v5"
 import { createHttpRecurringSyncTransport } from "@/features/sync/http-recurring-transport"
 import { openLocalRecurringSyncRuntime } from "@/features/sync/local-recurring-runtime"
+import { importLocalBackupCopies } from "@/lib/local-db/backup-import"
+import { encodeLocalRecurringBackup } from "@/lib/backup/local-backup"
+import { applyItemCommand } from "@/lib/calendar/item-command"
 import { readLocalRecurringBackup } from "@/lib/local-db/backup"
 import { SyncTransportError } from "@/features/sync/transport-error"
 
@@ -537,6 +540,171 @@ export async function executeLocalFixtureCommand(
         return result
       } finally {
         await runtime.close()
+      }
+    }
+    case "recurring-import-proof": {
+      const database = await openLocalDatabase(active.userId)
+      try {
+        const timestamp = new Date().toISOString()
+        const before = await readLocalRecurringBackup(
+          database,
+          active.userId,
+          timestamp
+        )
+        const item = applyItemCommand(
+          null,
+          {
+            type: "item.create",
+            itemId: crypto.randomUUID(),
+            input: {
+              kind: "plan",
+              variant: "note",
+              title: "Copia recurrente",
+              description: "",
+              status: "not_started",
+              checklist: [],
+              recurrence: null,
+              schedule: {
+                mode: "all_day",
+                startDate: "2026-10-12",
+                endDateExclusive: "2026-10-13",
+              },
+            },
+          },
+          active.userId,
+          timestamp
+        )
+        const source = encodeLocalRecurringBackup(
+          {
+            ...before,
+            stores: { ...before.stores, items: [...before.stores.items, item] },
+          },
+          active.userId
+        )
+        const request = {
+          userId: active.userId,
+          importId: crypto.randomUUID(),
+          createdAt: timestamp,
+          expected: before,
+          copies: [
+            {
+              sourceItemId: item.id,
+              itemId: crypto.randomUUID(),
+              operationId: crypto.randomUUID(),
+            },
+          ],
+        }
+        let legacyRejected = false,
+          rollbackRejected = false
+        try {
+          await importLocalBackupCopies(
+            database,
+            active.userId,
+            request,
+            source
+          )
+        } catch {
+          legacyRejected = true
+        }
+        const original = IDBObjectStore.prototype.add
+        IDBObjectStore.prototype.add = function (value, key) {
+          if (
+            this.name === "syncMetadata" &&
+            value?.key === `backup-import:${request.importId}`
+          )
+            throw new Error("Fixture import receipt write failed")
+          return original.call(this, value, key)
+        }
+        try {
+          try {
+            await importLocalBackupCopies(
+              database,
+              active.userId,
+              request,
+              source,
+              true
+            )
+          } catch {
+            rollbackRejected = true
+          }
+        } finally {
+          IDBObjectStore.prototype.add = original
+        }
+        const rolledBack = await readLocalRecurringBackup(
+          database,
+          active.userId,
+          timestamp
+        )
+        if (JSON.stringify(rolledBack.stores) !== JSON.stringify(before.stores))
+          throw new Error(
+            "Recurring import did not roll back its complete transaction"
+          )
+        const applied = await importLocalBackupCopies(
+          database,
+          active.userId,
+          request,
+          source,
+          true
+        )
+        const after = await readLocalRecurringBackup(
+          database,
+          active.userId,
+          timestamp
+        )
+        const replayed = await importLocalBackupCopies(
+          database,
+          active.userId,
+          request,
+          source,
+          true
+        )
+        const replay = await readLocalRecurringBackup(
+          database,
+          active.userId,
+          timestamp
+        )
+        if (JSON.stringify(replay.stores) !== JSON.stringify(after.stores))
+          throw new Error("Recurring import replay mutated stores")
+        for (const store of [
+          "occurrences",
+          "remoteShadows",
+          "tags",
+          "itemViews",
+          "taskPlacements",
+        ] as const)
+          if (
+            JSON.stringify(after.stores[store]) !==
+            JSON.stringify(before.stores[store])
+          )
+            throw new Error("Import modified recurrent evidence")
+        for (const entry of before.stores.outbox)
+          if (
+            JSON.stringify(
+              after.stores.outbox.find(
+                (value) =>
+                  value.operation.operationId === entry.operation.operationId
+              )
+            ) !== JSON.stringify(entry)
+          )
+            throw new Error("Import modified an existing intention")
+        if (
+          !legacyRejected ||
+          !rollbackRejected ||
+          applied.status !== "applied" ||
+          replayed.status !== "replayed"
+        )
+          throw new Error(
+            "Recurring import did not satisfy atomic replay guards"
+          )
+        return {
+          operationId: request.copies[0]!.operationId,
+          itemId: request.copies[0]!.itemId,
+          legacyRejected,
+          rollbackRejected,
+          replayed: true,
+        }
+      } finally {
+        database.close()
       }
     }
     case "save-plan":

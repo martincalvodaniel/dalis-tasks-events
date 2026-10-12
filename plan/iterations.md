@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 17e2a1 — Importación y lectura portable recurrentes coherentes
+
+- Estado: completada12oct; portable3 comparación/copia simple yTXrollback/replay/ACK real probados, callersactivos intactos.
+- Objetivo: preparar lectura/exportación, comparación e importación por copia de planes simples en presencia de evidencia recurrente portable3, sin ampliar callers activos4.
+- target_paths: schemas/backup-import.ts, types/backup-import.ts, lib/backup/{import-preview,import-plan,import-record,local-backup,local-recurring-backup.test}.ts, lib/local-db/{backup,backup-import}.ts yfixtureNext5/schemas-next-sync-test yplan.
+- Dependencias:17c5/17e1b5b; entrada89%5h/38%7d, reservas10%/1%, secuencial. PermisoPreview pendiente sin bloquear este puerto propio.
+- Aceptación: codecs viejos strict; futuro lee1/2/3 yconserva todo snapshot/shadows/outcomes/cola; copies sólo planes simples nuevos sin reactivarUUID/historia; comparación completa stale/replay/rollback y límites existentes; ninguna selecciónseries/apariciones/legacy para copiar. TX usa snapshot yencoder futuro juntos, calleractual intacto.
+- Validación: pruebas puras yTXbrowser propia integradas enfixtureNext5, suite/lint/tipos/buildWebpack; plan/log mismo commitpushint/HEAD/cuotas. SinDBusuario/activación.
+
+
 ## 17e1b5b — Cambio de época después de commit remoto en vuelo
 
 - Estado: completada12oct; diecisiete escenariosNext5 propios yDoD pasan, commitremoto en vuelo conserva cola sinACK y recupera dosrecibos únicos.

@@ -2,6 +2,7 @@ import { assertBackupOwnership } from "@/lib/backup/backup-ownership"
 import { calendarItemToDraft } from "@/lib/calendar/item-draft"
 import { backupImportRecordSchema } from "@/schemas/backup-import-record"
 import { localBackupSchema } from "@/schemas/local-backup"
+import { localRecurringBackupSchema } from "@/schemas/local-recurring-backup"
 import { syncBatchSchema } from "@/schemas/sync"
 import type {
   BackupImportPlan,
@@ -28,14 +29,17 @@ export function buildBackupImportRecord(
 export function validateBackupImportEvidence(
   record: BackupImportRecord,
   entries: ReadonlyMap<string, OutboxEntry>,
-  userId: string
+  userId: string,
+  recurring = false
 ): void {
   if (record.userId !== userId)
     throw new Error("Import record belongs to another account")
   if (new TextEncoder().encode(record.sourceJson).byteLength > 16 * 1024 * 1024)
     throw new Error("Archived backup exceeds its size limit")
   // Embedded historical archives are opaque evidence, never restored sync state.
-  const archive = localBackupSchema.parse(JSON.parse(record.sourceJson))
+  const archive = (
+    recurring ? localRecurringBackupSchema : localBackupSchema
+  ).parse(JSON.parse(record.sourceJson))
   if (archive.userId !== userId)
     throw new Error("Archived backup belongs to another account")
   assertBackupOwnership(archive.stores, userId)

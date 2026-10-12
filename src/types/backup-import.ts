@@ -1,12 +1,16 @@
 import type { z } from "zod"
-import type { backupImportRequestSchema } from "@/schemas/backup-import"
+import type {
+  backupImportRequestSchema,
+  recurringBackupImportRequestSchema,
+} from "@/schemas/backup-import"
 import type { backupImportRecordSchema } from "@/schemas/backup-import-record"
 import type { CalendarItem } from "@/types/calendar-item"
-import type { LocalBackup } from "@/types/local-backup"
+import type { LocalRecurringBackup } from "@/types/local-backup"
 import type { SyncOperation } from "@/types/sync"
 
-export type BackupStoreName = keyof LocalBackup["stores"]
-export type BackupRecord = LocalBackup["stores"][BackupStoreName][number]
+export type BackupStoreName = keyof LocalRecurringBackup["stores"]
+export type BackupRecord =
+  LocalRecurringBackup["stores"][BackupStoreName][number]
 export type BackupImportItemPolicy = "all_simple" | "common_plans"
 export type BackupImportClassification =
   | "new"
@@ -33,11 +37,13 @@ export type BackupImportPreview = {
 
 export type BackupImportComparison = {
   sourceJson: string
-  expected: LocalBackup
+  expected: LocalRecurringBackup
   preview: BackupImportPreview
 }
 
-export type BackupImportRequest = z.infer<typeof backupImportRequestSchema>
+export type BackupImportRequest =
+  | z.infer<typeof backupImportRequestSchema>
+  | z.infer<typeof recurringBackupImportRequestSchema>
 export type BackupImportRecord = z.infer<typeof backupImportRecordSchema>
 export type LocalBackupImportResult = {
   status: "applied" | "replayed"

@@ -1804,6 +1804,53 @@ export function FixtureController() {
         }
       )
       await check(
+        "Copia portable recurrente revierte fallo, conserva evidencia y sincroniza identidad nueva",
+        async () => {
+          const before = await state(owner)
+          const proof = (await call(0, { type: "recurring-import-proof" })) as {
+            operationId: string
+            itemId: string
+            legacyRejected: boolean
+            rollbackRejected: boolean
+            replayed: boolean
+          }
+          assert(
+            proof.legacyRejected && proof.rollbackRejected && proof.replayed,
+            "Import proof did not preserve rollback and replay"
+          )
+          assert(
+            canonical(await state(owner)) === canonical(before),
+            "Local import wrote Mongo before dispatch"
+          )
+          const result = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          const after = await state(owner)
+          assert(
+            result.status === "settled" &&
+              result.uploaded === 1 &&
+              after.counts.receipts === before.counts.receipts + 1 &&
+              after.page.through === before.page.through + 1 &&
+              after.page.changes.filter(
+                (change) => change.operationId === proof.operationId
+              ).length === 1,
+            "Imported copy did not obtain one real unique ACK"
+          )
+          const value = (await call(0, { type: "local-snapshot" })) as {
+            backup: unknown
+          }
+          const backup = validateLocalRecurringBackup(value.backup, owner)
+          assert(
+            backup.stores.outbox.find(
+              (entry) => entry.operation.operationId === proof.operationId
+            )?.state === "acknowledged" &&
+              backup.stores.items.some((item) => item.id === proof.itemId),
+            "Imported copy lacks durable content or ACK"
+          )
+        }
+      )
+      await check(
         "Revocar sesión bloquea RPC sin alterar datos confirmados",
         async () => {
           const before = await state(owner)
@@ -1863,7 +1910,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Diecisiete escenarios de frontera Next5 correctos; sesiones propias cerradas"
+            "Dieciocho escenarios de frontera Next5 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",
