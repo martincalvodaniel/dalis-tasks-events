@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useEffectEvent, useRef, useState } from "react"
-import { longPressPhase } from "@/lib/ordering/long-press"
+import { OrderDragPreview } from "@/components/ui/order-drag-preview"
+import { longPressDelay, longPressPhase } from "@/lib/ordering/long-press"
 import {
   adjacentMoveNeighbors,
   dropMoveNeighbors,
@@ -9,6 +10,7 @@ import {
 import type { RankNeighbors } from "@/lib/ordering/rank"
 
 type Gesture = {
+  input: "pointer" | "touch"
   pointerId: number
   startX: number
   startY: number
@@ -51,6 +53,7 @@ export function LongPressOrder({
   const gesture = useRef<Gesture | null>(null)
   const cancelGesture = useRef<() => void>(() => undefined)
   const [dragging, setDragging] = useState(false)
+  const [point, setPoint] = useState<{ x: number; y: number } | null>(null)
   const [target, setTarget] = useState<DropTarget | null>(null)
   const fingerprint = JSON.stringify({ peers, dropScope, version })
   const unavailable = busy || (peers.length < 2 && !onDateDrop)
@@ -159,13 +162,18 @@ export function LongPressOrder({
       gesture.current = null
       if (current?.active) {
         root?.classList.remove("ring-2", "ring-emerald-500", "select-none")
+        root?.removeAttribute("data-order-dragging")
         clickTimer = setTimeout(() => {
           suppressClick = false
         }, 500)
       }
-      if (current && root?.hasPointerCapture(current.pointerId))
+      if (
+        current?.input === "pointer" &&
+        root?.hasPointerCapture(current.pointerId)
+      )
         root.releasePointerCapture(current.pointerId)
       setDragging(false)
+      setPoint(null)
       setTarget(null)
     }
     cancelGesture.current = cancel
@@ -178,15 +186,98 @@ export function LongPressOrder({
           nav.getBoundingClientRect().height > 0
       )
       const bottom = fixedNav?.getBoundingClientRect().top ?? window.innerHeight
-      const delta = current.y < 72 ? -12 : current.y > bottom - 72 ? 12 : 0
+      const moved =
+        Math.hypot(current.x - current.startX, current.y - current.startY) > 12
+      const delta = moved
+        ? current.y < 72
+          ? -12
+          : current.y > bottom - 72
+            ? 12
+            : 0
+        : 0
       if (delta) window.scrollBy({ top: delta, behavior: "instant" })
+      const previewX = Math.max(80, Math.min(window.innerWidth - 80, current.x))
+      const previewY = Math.max(72, current.y)
+      setPoint((previous) =>
+        previous?.x === previewX && previous.y === previewY
+          ? previous
+          : { x: previewX, y: previewY }
+      )
       const next = locate(root, current)
       setTarget((previous) =>
         JSON.stringify(previous) === JSON.stringify(next) ? previous : next
       )
       frame = requestAnimationFrame(animate)
     }
+    function start(
+      input: "pointer" | "touch",
+      id: number,
+      x: number,
+      y: number
+    ) {
+      clearTimeout(clickTimer)
+      suppressClick = false
+      gesture.current = {
+        input,
+        pointerId: id,
+        startX: x,
+        startY: y,
+        x,
+        y,
+        active: false,
+        fingerprint,
+      }
+      timer = setTimeout(() => {
+        const current = gesture.current
+        if (
+          !root ||
+          !current ||
+          !canStart() ||
+          current.fingerprint !== fingerprint ||
+          longPressPhase(
+            longPressDelay,
+            Math.hypot(current.x - current.startX, current.y - current.startY)
+          ) !== "active"
+        )
+          return
+        current.active = true
+        if (current.input === "pointer")
+          root.setPointerCapture(current.pointerId)
+        root.focus({ preventScroll: true })
+        const selection = window.getSelection()
+        if (selection?.anchorNode && root.contains(selection.anchorNode))
+          selection.removeAllRanges()
+        root.classList.add("ring-2", "ring-emerald-500", "select-none")
+        root.dataset.orderDragging = "true"
+        suppressClick = true
+        setDragging(true)
+        frame = requestAnimationFrame(animate)
+      }, longPressDelay)
+    }
+    function update(x: number, y: number) {
+      const current = gesture.current
+      if (!current) return
+      current.x = x
+      current.y = y
+      if (
+        !current.active &&
+        longPressPhase(
+          0,
+          Math.hypot(x - current.startX, y - current.startY)
+        ) === "cancelled"
+      )
+        cancel()
+    }
+    function end(x: number, y: number) {
+      const current = gesture.current
+      if (!root || !current) return
+      current.x = x
+      current.y = y
+      cancel()
+      finish(root, current)
+    }
     function down(event: PointerEvent) {
+      if (event.pointerType === "touch") return
       if (
         !root ||
         !canStart() ||
@@ -197,72 +288,77 @@ export function LongPressOrder({
       )
         return
       if (isInteractiveTarget(event)) return
-      clearTimeout(clickTimer)
-      suppressClick = false
-      gesture.current = {
-        pointerId: event.pointerId,
-        startX: event.clientX,
-        startY: event.clientY,
-        x: event.clientX,
-        y: event.clientY,
-        active: false,
-        fingerprint,
-      }
-      timer = setTimeout(() => {
-        const current = gesture.current
-        if (
-          !current ||
-          !canStart() ||
-          current.fingerprint !== fingerprint ||
-          longPressPhase(
-            450,
-            Math.hypot(current.x - current.startX, current.y - current.startY)
-          ) !== "active"
-        )
-          return
-        current.active = true
-        root.setPointerCapture(current.pointerId)
-        root.focus({ preventScroll: true })
-        const selection = window.getSelection()
-        if (selection?.anchorNode && root.contains(selection.anchorNode))
-          selection.removeAllRanges()
-        root.classList.add("ring-2", "ring-emerald-500", "select-none")
-        suppressClick = true
-        setDragging(true)
-        frame = requestAnimationFrame(animate)
-      }, 450)
+      start("pointer", event.pointerId, event.clientX, event.clientY)
     }
     function move(event: PointerEvent) {
       const current = gesture.current
-      if (!current || current.pointerId !== event.pointerId) return
-      current.x = event.clientX
-      current.y = event.clientY
-      if (
-        !current.active &&
-        longPressPhase(
-          0,
-          Math.hypot(current.x - current.startX, current.y - current.startY)
-        ) === "cancelled"
-      )
-        cancel()
+      if (current?.input !== "pointer" || current.pointerId !== event.pointerId)
+        return
+      update(event.clientX, event.clientY)
     }
     function up(event: PointerEvent) {
       const current = gesture.current
-      if (!root || !current || current.pointerId !== event.pointerId) return
-      current.x = event.clientX
-      current.y = event.clientY
-      cancel()
-      finish(root, current)
+      if (current?.input !== "pointer" || current.pointerId !== event.pointerId)
+        return
+      end(event.clientX, event.clientY)
     }
+    function cancelPointer(event: PointerEvent) {
+      if (
+        gesture.current?.input === "pointer" &&
+        gesture.current.pointerId === event.pointerId
+      )
+        cancel()
+    }
+    function touchStart(event: TouchEvent) {
+      if (event.touches.length !== 1) {
+        cancel()
+        return
+      }
+      if (
+        !canStart() ||
+        !isOwnTarget(event) ||
+        isInteractiveTarget(event) ||
+        gesture.current
+      )
+        return
+      const touch = event.changedTouches[0]
+      if (touch) start("touch", touch.identifier, touch.clientX, touch.clientY)
+    }
+    function touchMove(event: TouchEvent) {
+      const current = gesture.current
+      if (current?.input !== "touch") return
+      if (event.touches.length !== 1) {
+        cancel()
+        return
+      }
+      const touch = [...event.changedTouches].find(
+        (value) => value.identifier === current.pointerId
+      )
+      if (!touch) return
+      if (current.active) {
+        if (!event.cancelable) {
+          cancel()
+          return
+        }
+        event.preventDefault()
+      }
+      update(touch.clientX, touch.clientY)
+    }
+    function touchEnd(event: TouchEvent) {
+      const current = gesture.current
+      if (current?.input !== "touch") return
+      const touch = [...event.changedTouches].find(
+        (value) => value.identifier === current.pointerId
+      )
+      if (touch) end(touch.clientX, touch.clientY)
+    }
+
     function click(event: MouseEvent) {
       if (suppressClick && isOwnTarget(event)) {
         event.preventDefault()
         event.stopPropagation()
         suppressClick = false
       }
-    }
-    function touchMove(event: TouchEvent) {
-      if (gesture.current?.active && event.cancelable) event.preventDefault()
     }
     function context(event: MouseEvent) {
       if (gesture.current && isOwnTarget(event) && !isInteractiveTarget(event))
@@ -289,10 +385,13 @@ export function LongPressOrder({
     root.addEventListener("pointerdown", down)
     root.addEventListener("pointermove", move)
     root.addEventListener("pointerup", up)
-    root.addEventListener("pointercancel", cancel)
-    root.addEventListener("lostpointercapture", cancel)
+    root.addEventListener("pointercancel", cancelPointer)
+    root.addEventListener("lostpointercapture", cancelPointer)
     root.addEventListener("click", click, true)
-    document.addEventListener("touchmove", touchMove, { passive: false })
+    root.addEventListener("touchstart", touchStart, { passive: true })
+    root.addEventListener("touchmove", touchMove, { passive: false })
+    root.addEventListener("touchend", touchEnd)
+    root.addEventListener("touchcancel", cancel)
     root.addEventListener("contextmenu", context)
     root.addEventListener("selectstart", select)
     root.addEventListener("keydown", key)
@@ -305,10 +404,13 @@ export function LongPressOrder({
       root.removeEventListener("pointerdown", down)
       root.removeEventListener("pointermove", move)
       root.removeEventListener("pointerup", up)
-      root.removeEventListener("pointercancel", cancel)
-      root.removeEventListener("lostpointercapture", cancel)
+      root.removeEventListener("pointercancel", cancelPointer)
+      root.removeEventListener("lostpointercapture", cancelPointer)
       root.removeEventListener("click", click, true)
-      document.removeEventListener("touchmove", touchMove)
+      root.removeEventListener("touchstart", touchStart)
+      root.removeEventListener("touchmove", touchMove)
+      root.removeEventListener("touchend", touchEnd)
+      root.removeEventListener("touchcancel", cancel)
       root.removeEventListener("contextmenu", context)
       root.removeEventListener("selectstart", select)
       root.removeEventListener("keydown", key)
@@ -339,6 +441,20 @@ export function LongPressOrder({
             : "Arrastrando. Busca un destino. Escape cancela."
           : ""}
       </span>
+      {dragging && point ? (
+        <OrderDragPreview
+          label={label}
+          x={point.x}
+          y={point.y}
+          destination={
+            target?.date
+              ? `Mover al ${target.date}`
+              : target
+                ? `Soltar ${target.side === "before" ? "antes" : "después"} de ${target.label}`
+                : undefined
+          }
+        />
+      ) : null}
       {dragging && target ? (
         <div
           aria-hidden="true"

@@ -1,5 +1,18 @@
 # Reordenación personal — siguiente bloque `07b`
 
+## Gesto vigente — 16c13
+
+El usuario sigue prefiriendo pulsación larga sobre la fila, sin handles ni botones arriba/abajo. El tacto utiliza TouchEvents propios:350ms y tolerancia12px para agarrar; movimiento previo cancela y deja scroll nativo. Tras agarrar, touchmove cancelable se bloquea y conserva destino/drag incluso si llega pointercancel de la ruta de puntero. Movimiento no cancelable/multitouch/touchcancel se cancelan sin guardar. Mouse conserva PointerEvents y captura; Escape y teclado conservados.
+
+Fila resaltada, etiqueta visible bajo el dedo y destino de orden/fecha. No scroll automático mientras se mantiene quieto; una vez movido puede recorrer bordes para alcanzar destino. Controles/checklist/campos mantienen sus acciones; supresión del click posterior impide abrir detalles al soltar. Listener touchmove no pasivo se limita a la fila, evitando uno global por cada elemento.
+
+Evidencia390×844 en navegador con componentes reales y particiones propias: scroll/toque corto/cancelación no escriben; orden genera sólo task.move, fecha genera sólo item.update o plan.update-occurrence por drop; serie intacta y recargas correctas. TouchEvents son sintéticos; comprobar sensación con dedo en móvil físico antes de cerrar aceptación. Capturas `/private/tmp/dalis-touch-order-proof.png` y `/private/tmp/dalis-touch-calendar-proof.png`. Sin nuevos contratos/índices/DBusuario/dependencias.
+
+Referencia del problema de arbitration: [MDN touch-action](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/touch-action) y [Touch events](https://developer.mozilla.org/en-US/docs/Web/API/Touch_events). Cambiar touch-action después de empezar no corrige el gesto actual; no bloquear todo el scroll/zoom del listado de forma permanente.
+
+## Histórico de implementación y contratos
+
+
 Diseño previo a implementar. `07a` ya agrupa y deriva atrasadas; aún no hay controles ni comandos de reordenación. Este corte documental concreta las siguientes entregas sin aceptar operaciones que el motor todavía no sabe ejecutar.
 
 Estado posterior: `07b1a–07b3b` entregados y verificados; los párrafos de base describen el snapshot previo al bloque. Botones, selector de categoría y arrastre usan los mismos ejecutores atómicos. Queda el piloto táctil de dispositivo real en `15` y sincronización remota en `11–13`.

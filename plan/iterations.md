@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 16c13 — Agarre táctil sin competencia con scroll
+
+- Estado: completada; ensayos táctiles en navegador para orden/fecha y recarga, DoD aprobado.
+- Objetivo: mejorar activación y arrastre para ordenar y reprogramar, preservando scroll previo y controles interactivos. Cumpleaños aparcado por decisión humana.
+- target_paths: `src/components/ui/{long-press-order,order-drag-preview}.tsx`, `src/lib/ordering/{long-press,long-press.test}.ts`, `test/browser/plan-gestures.tsx`, `plan/**`.
+- Dependencias: gesto/productores existentes y sincronización5 activa; entrada17% /26%, reservas10% /1%, corte acotado secuencial.
+- Aceptación: TouchEvents propios tras350ms, movimiento previo cancela y permite scroll; después de agarrar touchmove cancelable bloquea scroll, pointercancel no corta el gesto táctil; etiqueta visible sigue dedo y destino. Mouse/teclado/cancelación y scroll automático conservados. Sólo una intención por drop; ninguna por cancelación.
+- Validación: navegador con componentes/CSS/IndexedDB reales para orden y cambio de día simple/aparición, eventos táctiles sintéticos (no prueba física), suite/lint/tipos/build/worker, plan/log/commit+push/HEAD/cuotas.
+
 ## 10a — Apariciones anuales de cumpleaños
 
 - Estado: completada; seis tests nuevos / 37 aserciones y DoD aprobados. Sin UI ni soporte remoto de cumpleaños activado.
@@ -512,6 +521,8 @@ Toda nueva pantalla importante debe actualizar en la misma entrega el registro �
 - Riesgo: no partir este comando entre dos entregas que dejen tramos incoherentes; cerrar modelo+persistencia+UI de la operación juntos.
 
 ## 10 — Cumpleaños
+
+- Estado vigente: **aparcada por decisión humana**, sin implementar pantalla/persistencia/sincronización. 10a conserva su generador preparado sin caller; no retomarlo hasta nueva elección.
 
 - `target_paths`: `src/features/birthdays/**`, variantes de calendario, regla anual y schemas asociados.
 - Dependencias: `09c`.

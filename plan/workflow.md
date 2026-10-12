@@ -8,6 +8,10 @@ Reutilizar el worktree gestionado de `int` y conservar el checkout humano de `ma
 
 Si falta margen, no se puede leer la cuota o se necesita una intervención humana, cerrar el repositorio de forma coherente. El arranque Preview de `int` tiene selección autorizada y probada; comprobar el deployment antes de declarar la creación real. No desplegar producción.
 
+## Prioridad humana vigente — cumpleaños aparcado
+
+El usuario aparca cumpleaños y prioriza mejorar el agarre/arrastre para ordenar y cambiar fechas en calendario. No retomar UI/persistencia/sync de cumpleaños ni sharing. 16c13 corrige el gesto compartido y conserva los productores existentes; pruebas táctiles automatizadas no equivalen a valoración física. Estimación activa10% restante (8–15%), excluyendo los bloques aparcados. Consultar cuotas al cerrar y conservar10%5h/1%semanal.
+
 ## Reserva vigente por ventana
 
 El usuario reduce explícitamente la reserva semanal primero al5%, después al2% y finalmente al **1%** el 8 de octubre. Se mantiene **10% en 5h**. Esta política sustituye las reservas anteriores para futuras iteraciones; las entradas históricas conservan las condiciones de su ejecución. Consultar ambas cuotas tras cada commit/push y evaluar el margen de cada ventana por separado y el consumo observado, sin equiparar sus porcentajes. No empezar si 5h <=10% o 7d <=1%, ni si implementación, pruebas, reparación y cierre pueden cruzar sus reservas. Sin créditos/reinicios ni nuevas automatizaciones.

@@ -2,6 +2,11 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+16c13 mejora el gesto compartido: activación350ms/tolerancia12px, TouchEvents propios para preservar scroll antes de agarrar y bloquearlo después, pointercancel táctil no interrumpe el agarre; selección visible y etiqueta que acompaña al dedo/destino. Scroll automático sólo tras mover el dedo. Sin botones de arrastre nuevos ni cambios de contratos/persistencia. Orden y cambio de día simple/aparición pasan en navegador390×844 con React/CSS/IndexedDB reales y eventos táctiles simulados; cancelación/corto/scroll previo no escriben, drop escribe una intención, recarga conserva resultados. Pendiente valorar sensación en móvil físico.
+
+Validación actual: suite761pass/209skip/0fail/10347aserciones, lint788/tipos/buildWebpack/worker46. Pruebas propias y servidor limpios. Cumpleaños aparcado; siguientes bloques activos: preferencias/configuración y recuperación explícita residual, aceptación final móvil/dosdispositivos/offline/accesibilidad/guía y publicación productiva autorizada con índices centrales.
+
+
 **Generación 5 activada conjuntamente en el código de `int`**: planes simples y repetidos, progreso/checklist de apariciones, categorías, asignaciones y orden. Se conserva identidad, cursor, UUID, dependencias y evidencia; los históricos sin CAS siguen unsupported sin reescritura ni ACK falso. No hay nueva resolución de apariciones ni despliegue productivo.
 
 17e2b2a (`b9f1005`) añade el índice registrado desde el singleton únicamente en Preview de `int`, según autorización y petición del usuario. No necesita captura de secretos ni Reauthenticate Vercel. Producción, local y otras ramas conservan sus nueve índices automáticos; los cuatro índices personales anteriores siguen registrados/provisionados en Preview. Publicar repetición en producción requerirá habilitar allí su índice, usando el mismo registro central, antes de esa entrega.
@@ -14,13 +19,21 @@ Validación: **19 escenarios Next/React/IndexedDB/Mongo propios** con dos sesion
 
 Backup portable 3 validado con el decoder productivo: cinco items (cuatro anteriores y la serie), una aparición revision 2 y cuatro ACK del piloto — creación, vista/categoría, estado y checklist — con un intento cada uno, lease null y outcomes conservados. Shadow remoto de aparición coincide con el estado local; 18 acknowledged totales, cero pendientes. Estado y pasos persisten tras recarga. Las acciones 5 reales han pasado readiness obligatorio de cinco índices: el índice de aparición está operativo en Preview mediante bootstrap de la propia web. No se han capturado credenciales ni ejecutado el CLI sobre DB del usuario.
 
-Evidencia: `/private/tmp/dalis-recurring-preview-pilot.png`. No es una nueva prueba en dos dispositivos físicos ni reapertura sin red; esas comprobaciones pertenecen a la aceptación final. Las apariciones con conflicto tienen comparación, pero su resolución explícita sigue pendiente. Siguiente: cumpleaños y cierre residual del MVP, siguiendo [iterations.md](iterations.md).
+Evidencia: `/private/tmp/dalis-recurring-preview-pilot.png`. No es una nueva prueba en dos dispositivos físicos ni reapertura sin red; esas comprobaciones pertenecen a la aceptación final. Las apariciones con conflicto tienen comparación, pero su resolución explícita sigue pendiente. Cumpleaños aparcado; siguiente prioridad: usabilidad de arrastre y cierre residual del MVP, siguiendo [iterations.md](iterations.md).
 
 Autorización: continuar el plan completo, commit + push por entrega validada en `int`, cuotas automáticas; reservas 10% de 5h / 1% semanal. Entrada de activación 32% / 29%. Sin nueva automatización. Compartir Gmail fuera de alcance. Checkout humano `main` intacto; worktree gestionado de `int` conservado.
 
 10a cerrado: contrato y generación anual de cumpleaños, paginación civil/edad opcional y29feb sólo años bisiestos. No pantalla ni sincronización de cumpleaños activadas. Seis tests nuevos, suite761pass/209skip/0fail; lint787/tipos/buildWebpack/worker46. Detalle y siguiente entrega coherente en [birthdays.md](birthdays.md).
 
-Estimación vigente: **aproximadamente 15% pendiente**, rango orientativo10–20%, ponderado por complejidad. Restan cumpleaños completos con sincronización; preferencias/configuración y recuperación explícita residual —incluidas apariciones—; aceptación final móvil/dispositivos físicos/offline/accesibilidad y guía. Compartir Gmail excluido. La estimación20–25% de los apartados históricos precede a la activación de repetición y no representa el estado actual.
+Estimación vigente: **aproximadamente 10% pendiente del MVP activo**, rango orientativo8–15%, ponderado por complejidad. Cumpleaños queda **aparcado** por decisión humana, con 10a preparado y sin pantalla/remote; compartir Gmail sigue fuera de alcance. No contabilizar reducción de alcance como implementación entregada.
+
+Orden restante:
+1. Agarre/arrastre táctil corregido en16c13; validar la sensación en el móvil físico del usuario.
+2. Preferencias/configuración residual y recuperación explícita de conflictos pendientes, incluidas apariciones y contenido común donde falte.
+3. Aceptación final en móvil real, dos dispositivos físicos, reapertura offline/reconexión y accesibilidad; guía de uso.
+4. Preparar publicación productiva cuando el usuario la autorice, incluido bootstrap de los índices necesarios en el registro central. No desplegar producción por un push a `int`.
+
+Si se retoma cumpleaños, el total anterior rondaba15% pendiente (10–20%). Las estimaciones históricas20–25% preceden a la activación de repetición.
 
 ## Histórico — lote puntual de las 01:27 del 12 de octubre
 

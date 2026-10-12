@@ -204,6 +204,25 @@ const settle = () =>
   new Promise<void>((resolve) =>
     requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
   )
+function dispatchTouchGesture(
+  target: Element,
+  type: string,
+  identifier: number,
+  x: number,
+  y: number
+) {
+  const touch = new Touch({ identifier, target, clientX: x, clientY: y })
+  const ended = type === "touchend" || type === "touchcancel"
+  const event = new TouchEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    touches: ended ? [] : [touch],
+    targetTouches: ended ? [] : [touch],
+    changedTouches: [touch],
+  })
+  target.dispatchEvent(event)
+  return event
+}
 const run = document.createElement("button")
 run.textContent = "Probar gestos de orden"
 run.className = "min-h-11 rounded border px-3 text-sm"
@@ -252,21 +271,42 @@ run.onclick = async () => {
     const origin = title.getBoundingClientRect(),
       target = destination.getBoundingClientRect()
     const dispatch = (type: string, x = origin.left + 8, y = origin.top + 8) =>
-      title.dispatchEvent(
-        new PointerEvent(type, {
-          bubbles: true,
-          isPrimary: true,
-          pointerId: 42,
-          pointerType: "touch",
-          button: 0,
-          clientX: x,
-          clientY: y,
-        })
+      dispatchTouchGesture(
+        title,
+        type
+          .replace("pointerdown", "touchstart")
+          .replace("pointerup", "touchend")
+          .replace("pointermove", "touchmove"),
+        42,
+        x,
+        y
       )
     const outbox = await LocalOutbox.open(userId)
     const before = (await outbox.listEntries()).length
     outbox.close()
     try {
+      title.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          bubbles: true,
+          isPrimary: true,
+          pointerId: 99,
+          pointerType: "mouse",
+          button: 0,
+          clientX: origin.left + 8,
+          clientY: origin.top + 8,
+        })
+      )
+      title.dispatchEvent(
+        new PointerEvent("pointerup", {
+          bubbles: true,
+          isPrimary: true,
+          pointerId: 99,
+          pointerType: "mouse",
+          button: 0,
+          clientX: origin.left + 8,
+          clientY: origin.top + 8,
+        })
+      )
       dispatch("pointerdown")
       const menu = new MouseEvent("contextmenu", {
         bubbles: true,
@@ -279,11 +319,37 @@ run.onclick = async () => {
       )
       dispatch("pointerup")
       dispatch("pointerdown")
-      dispatch("pointermove", origin.left + 30)
+      assert(
+        !dispatch("pointermove", origin.left + 30).defaultPrevented,
+        "Movement before pickup must permit native scroll"
+      )
       dispatch("pointerup")
       dispatch("pointerdown")
       await new Promise((resolve) => setTimeout(resolve, 500))
-      dispatch("pointermove", target.left + 50, target.top + 3)
+      assert(
+        source.dataset.orderDragging === "true",
+        "Touch hold did not visibly select the plan"
+      )
+      source.dispatchEvent(
+        new PointerEvent("pointercancel", {
+          bubbles: true,
+          pointerId: 42,
+          pointerType: "touch",
+        })
+      )
+      assert(
+        source.dataset.orderDragging === "true",
+        "Pointer cancellation incorrectly cancelled the native touch gesture"
+      )
+      assert(
+        rootElement.querySelector("[data-order-preview]"),
+        "Touch pickup did not show a drag preview"
+      )
+      assert(
+        dispatch("pointermove", target.left + 50, target.top + 3)
+          .defaultPrevented,
+        "Picked-up touch must block native scroll"
+      )
       dispatch("pointerup", target.left + 50, target.top + 3)
       await new Promise((resolve) => setTimeout(resolve, 100))
       await settle()
@@ -395,25 +461,27 @@ move.onclick = async () => {
         x = origin.left + 8,
         y = origin.top + 8
       ) =>
-        title.dispatchEvent(
-          new PointerEvent(type, {
-            bubbles: true,
-            isPrimary: true,
-            pointerId: 43,
-            pointerType: "touch",
-            button: 0,
-            clientX: x,
-            clientY: y,
-          })
+        dispatchTouchGesture(
+          title,
+          type
+            .replace("pointerdown", "touchstart")
+            .replace("pointerup", "touchend")
+            .replace("pointermove", "touchmove"),
+          43,
+          x,
+          y
         )
       try {
         dispatch("pointerdown")
         await new Promise((resolve) => setTimeout(resolve, 500))
         const target = cell.getBoundingClientRect()
-        dispatch(
-          "pointermove",
-          target.left + target.width / 2,
-          target.top + target.height / 2
+        assert(
+          dispatch(
+            "pointermove",
+            target.left + target.width / 2,
+            target.top + target.height / 2
+          ).defaultPrevented,
+          "Calendar date drag must block native scroll after pickup"
         )
         if (cancelled)
           source.dispatchEvent(

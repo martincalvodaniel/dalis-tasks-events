@@ -1,5 +1,7 @@
 # Cumpleaños
 
+**Aparcado por decisión del usuario.** No conectar UI, persistencia ni sincronización de cumpleaños hasta nueva elección. 10a permanece como preparación histórica sin caller. Las notas con categoría y repetición anual ya cubren una alternativa disponible.
+
 ## 10a — Contrato civil y generador cerrado
 
 El contrato existente `birthday` es específico: persona/título, descripción, mes/día, año de nacimiento opcional y zona. No incorpora estado ni checklist. La aparición es anual y de día completo; no hay un timestamp UTC ni un comando de progreso por aparición.

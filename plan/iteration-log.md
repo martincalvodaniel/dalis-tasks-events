@@ -1,5 +1,14 @@
 # Registro de iteraciones
 
+## 16c13 — Agarre táctil y roadmap sin cumpleaños
+
+Petición humana: cumpleaños aparcado, estado total y mejorar orden/fecha por pulsación larga. Entrada17%5h/26%7d, reservas10%/1%, corte acotado. Separa TouchEvents propios de PointerEvents desktop,350ms/tolerancia12px, scroll previo permitido y touchmove bloqueado sólo al agarrar. Pointercancel de ruta táctil no desactiva la selección; touchcancel/multitouch/movimiento no cancelable cancelan. Etiqueta visible acompaña dedo/destino; autoscroll sólo al moverse, conservando teclado/cancelación/controles interactivos y productores existentes. Listener táctil local a fila, sin documento global por elemento.
+
+Ensayos390×844/React/CSS/IndexedDB propios: orden único, corto/scroll previo sin intención, cancelación/fechaigual sin writes, plan/aparición movidos con dos intenciones y padre intacto; recargas verificadas. Se corrige sólo el mapping de nombres pointerdown/up→touchstart/end del fixture después de su primer fallo; se limpió la partición fallida antes de repetir. Capturas `/private/tmp/dalis-touch-order-proof.png`, `/private/tmp/dalis-touch-calendar-proof.png`. Recursos/servidor propios limpios y viewport restaurado. No equivale a prueba física con dedo.
+
+Suite761pass/209skip/0fail/10347aserciones, lint788/tipos/buildWebpack/worker46/diff aprobados. Cumpleaños aparcado en master/iterations/birthdays/workflow; estimación10% activo pendiente, rango8–15%, con preferencias/recuperación residual y aceptaciónfinal/guía/publicación autorizada. No producción ni cambios de DB/índices/secretos. Mismo commit+pushint/HEAD/cuotas.
+
+
 ## 10a — Cumpleaños anuales civiles preparados
 
 Entrada22% /27%, reservas10% /1%, secuencial. Generador puro validado con schema existente, DTO/tipo de aparición sin progreso/checklist; fechas civiles/edad opcional y cursores exclusivos/límite500. Excluir fechas anteriores a nacimiento y borrados. Política29feb sólo bisiestos, consistente con recurrencia anual vigente; la futura UI deberá indicarla. Sin caller, IO, comandos nuevos ni activación; no prometer pantalla/sincronización de cumpleaños. Ninguna nueva consulta o índice.
