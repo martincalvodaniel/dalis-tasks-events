@@ -1,0 +1,28 @@
+"use client"
+
+import { ActiveSyncProvider } from "@/features/sync/components/active-sync-provider"
+import { SWRConfig } from "swr"
+import {
+  FixtureHookEngine,
+  type FixtureHookEngine as Engine,
+} from "@fixture/hook-engine"
+
+export function FixtureHookRoot({
+  account,
+  cache,
+  report,
+}: {
+  account: { userId: string; epoch: string }
+  cache: Map<string, { data?: unknown }>
+  report(engine: Engine): void
+}) {
+  return (
+    <SWRConfig value={{ provider: () => cache }}>
+      <ActiveSyncProvider
+        account={{ ...account, itemCount: 0, offlineReady: false }}
+      >
+        <FixtureHookEngine account={account} report={report} />
+      </ActiveSyncProvider>
+    </SWRConfig>
+  )
+}

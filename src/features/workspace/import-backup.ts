@@ -1,5 +1,6 @@
 "use client"
 
+import { recurringSyncReleaseEnabled } from "@/config/common-plan-release"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { readAccountBackup } from "@/features/workspace/local-backup"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
@@ -13,6 +14,8 @@ import { openLocalDatabase } from "@/lib/local-db/client"
 import {
   backupImportPreparationSchema,
   backupImportRequestSchema,
+  recurringBackupImportPreparationSchema,
+  recurringBackupImportRequestSchema,
 } from "@/schemas/backup-import"
 import type {
   BackupImportComparison,
@@ -40,7 +43,8 @@ export async function readAccountBackupImportPreview(
     sourceJson,
     expected,
     owner.userId,
-    policy
+    policy,
+    recurringSyncReleaseEnabled
   )
   await requireActiveAccount(owner)
   return { sourceJson, expected, preview }
@@ -51,7 +55,11 @@ export async function prepareAccountBackupImport(
   input: unknown
 ): Promise<BackupImportPlan> {
   const owner = { userId: account.userId, epoch: account.epoch }
-  const preparation = backupImportPreparationSchema.parse(input)
+  const preparation = (
+    recurringSyncReleaseEnabled
+      ? recurringBackupImportPreparationSchema
+      : backupImportPreparationSchema
+  ).parse(input)
   const current = await readAccountBackup(owner)
   const plan = planLocalBackupImport(
     {
@@ -66,7 +74,8 @@ export async function prepareAccountBackupImport(
       })),
     },
     preparation.sourceJson,
-    current
+    current,
+    recurringSyncReleaseEnabled
   )
   await requireActiveAccount(owner)
   return plan
@@ -77,7 +86,11 @@ export async function commitAccountBackupImport(
   plan: BackupImportPlan
 ) {
   const owner = { userId: account.userId, epoch: account.epoch }
-  const request = backupImportRequestSchema.parse(plan.request)
+  const request = (
+    recurringSyncReleaseEnabled
+      ? recurringBackupImportRequestSchema
+      : backupImportRequestSchema
+  ).parse(plan.request)
   const sourceJson = plan.sourceJson
   if (request.userId !== owner.userId)
     throw new Error("Import belongs to another account")
@@ -85,7 +98,9 @@ export async function commitAccountBackupImport(
   const importer = await LocalBackupImporter.open(owner.userId)
   try {
     await requireActiveAccount(owner)
-    const result = await importer.commit(request, sourceJson)
+    const result = recurringSyncReleaseEnabled
+      ? await importer.commitRecurring(request, sourceJson)
+      : await importer.commit(request, sourceJson)
     await requireActiveAccount(owner)
     return result
   } finally {

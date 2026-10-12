@@ -178,6 +178,10 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("cleanup-local") }),
   z.strictObject({ type: z.literal("retired-push"), input: z.unknown() }),
   z.strictObject({
+    type: z.literal("inactive-recurring-push"),
+    input: z.unknown(),
+  }),
+  z.strictObject({
     type: z.literal("bootstrap"),
     identity: nextSyncBootstrapSchema.shape.identity,
   }),

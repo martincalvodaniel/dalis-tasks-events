@@ -1,5 +1,11 @@
 # Dalis Tasks & Events — plan maestro
 
+## Punto de actuación humana — 12 de octubre, 17e2b1
+
+Cuatrocortes decontinuación general cerrados enint: guardiaépoca trascommit, backup3/import, overview/UIreadonly yconexiónconjunta. **Repetición remota preparada/probada como perfil5 propio, todavía desactivada enproducto4**. Unaúnicaselección conecta todasfronteras/consumidores/productores; referencia5inactiva noejecuta aunque hayaíndices. Next5 propio19escenarios yregresiónNext420escenarios pasan; suite753pass/206skip/0fail, lint782/tipos/buildWebpack/worker46. FixturesnoGoogle/deployment real.
+
+Siguiente17e2b2: autorizaciónespecífica pendiente para índice plan_occurrences_user_series_slot_uidx yregistradosfaltantesPreview; procedimientoprobado, fuentePreviewactualAtlasdebug distintaProduction revalidada, nombreDB confirmado dalis-tasks-events. Secreto oculto, noURIcapturado/conexiónDBusuario/índiceejecutado. Tras permiso: resolverdestino/provisiónreadyclosed/readiness5, selectorconjunto ypilotoPreview/Google; históricossinCAS preservadosunsupported. Worktreeint gestionado coherente, checkoutmain humano intacto; sin nuevaautomatización. Plancompleto autorizado, compartirGmail excluido; cumpleaños/preferencias/pilotofinal tras cierredep.
+
 ## Comparación recurrente — 17e2a2
 
 Overview futuro ypanel readonly deapariciones cerrados con lecturaTXdeconflicto real, preservandoevidencia/cola/padrelocal yseries separados. Diecinueve escenariosNext5 propios yDoD pasan; callersactivos4 intactos, ninguna resolución/ACK por consultar. Sigue conexiónconjunta17e2b de rutas/identidad/retiro4/provider/backup/import/incidentes/productores; índicePreview esperaautorizaciónespecífica. CompartirGmail fueraalcance, noDBusuario.

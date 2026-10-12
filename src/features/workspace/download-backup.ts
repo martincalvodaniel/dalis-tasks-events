@@ -1,15 +1,21 @@
 "use client"
 
+import { recurringSyncReleaseEnabled } from "@/config/common-plan-release"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { readAccountBackup } from "@/features/workspace/local-backup"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
-import { encodeLocalBackup } from "@/lib/backup/local-backup"
+import {
+  encodeLocalBackup,
+  encodeLocalRecurringBackup,
+} from "@/lib/backup/local-backup"
 
 export async function downloadAccountBackup(
   account: Pick<LocalAccount, "userId" | "epoch">
 ): Promise<void> {
   const backup = await readAccountBackup(account)
-  const json = encodeLocalBackup(backup, account.userId)
+  const json = (
+    recurringSyncReleaseEnabled ? encodeLocalRecurringBackup : encodeLocalBackup
+  )(backup, account.userId)
   await requireActiveAccount(account)
   const url = URL.createObjectURL(
     new Blob([json], { type: "application/json;charset=utf-8" })

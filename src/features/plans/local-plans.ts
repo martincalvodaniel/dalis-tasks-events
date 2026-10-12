@@ -1,5 +1,6 @@
 "use client"
 
+import { recurringSyncReleaseEnabled } from "@/config/common-plan-release"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
 import { openLocalDatabase } from "@/lib/local-db/client"
@@ -7,6 +8,12 @@ import { LocalOutbox } from "@/lib/local-db/outbox"
 import type { PlanOccurrenceCommitOptions } from "@/lib/local-db/plan-occurrence-outbox"
 import { commitLocalPlanSave } from "@/lib/local-db/plan-outbox"
 import { readLocalPlanSnapshot } from "@/lib/local-db/plan-snapshot"
+import { notifyLocalOutboxChange } from "@/lib/local-db/sync-notifications"
+import type { TaskMoveCommand } from "@/lib/local-db/task-move-mutation"
+import {
+  commitLocalRecurringPlanMoveCommand,
+  commitLocalTaskMoveCommand,
+} from "@/lib/local-db/task-move-outbox"
 import { compareRank } from "@/lib/ordering/rank"
 import {
   type PlanSaveRequest,
@@ -68,7 +75,10 @@ export async function changeLocalPlanOccurrence(
   const outbox = await LocalOutbox.open(account.userId)
   try {
     await requireActiveAccount(account)
-    return await outbox.commitPlanOccurrenceCommand(command, options)
+    return await outbox.commitPlanOccurrenceCommand(command, {
+      ...options,
+      captureRemoteRevision: recurringSyncReleaseEnabled,
+    })
   } finally {
     outbox.close()
   }
@@ -128,5 +138,35 @@ export async function updateLocalPlan(
     )
   } finally {
     outbox.close()
+  }
+}
+
+export async function moveLocalPlan(
+  account: LocalAccount,
+  command: TaskMoveCommand,
+  operationId: string
+) {
+  await requireActiveAccount(account)
+  const database = await openLocalDatabase(account.userId)
+  try {
+    await requireActiveAccount(account)
+    if (recurringSyncReleaseEnabled)
+      await commitLocalRecurringPlanMoveCommand(
+        database,
+        account.userId,
+        command,
+        { operationId }
+      )
+    else
+      await commitLocalTaskMoveCommand(
+        database,
+        account.userId,
+        command,
+        { operationId },
+        true
+      )
+    notifyLocalOutboxChange(account.userId)
+  } finally {
+    database.close()
   }
 }

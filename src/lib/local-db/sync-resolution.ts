@@ -19,7 +19,8 @@ export interface LocalResolutionResult {
 export function resolveLocalSyncIncident(
   database: IDBDatabase,
   userId: string,
-  input: unknown
+  input: unknown,
+  recurring = false
 ): Promise<LocalResolutionResult> {
   const request = syncResolutionRequestSchema.parse(input)
   if (request.userId !== userId)
@@ -27,7 +28,15 @@ export function resolveLocalSyncIncident(
   const key = `incident-resolution:${request.resolutionId}`
   return runLocalTransaction(
     database,
-    ["items", "outbox", "remoteShadows", "syncMetadata"],
+    [
+      "items",
+      "outbox",
+      "remoteShadows",
+      "syncMetadata",
+      ...(recurring
+        ? (["occurrences", "tags", "itemViews", "taskPlacements"] as const)
+        : []),
+    ],
     "readwrite",
     (context) => {
       const metadata = context.transaction.objectStore("syncMetadata")
@@ -173,10 +182,15 @@ export function resolveLocalSyncIncident(
               outcomeReady = true
               finish()
             }
-          queueLocalSyncIncidents(context, userId, (incidents, entries) => {
-            snapshot = [incidents, entries]
-            finish()
-          })
+          queueLocalSyncIncidents(
+            context,
+            userId,
+            (incidents, entries) => {
+              snapshot = [incidents, entries]
+              finish()
+            },
+            recurring
+          )
         } catch (error) {
           context.fail(error)
         }

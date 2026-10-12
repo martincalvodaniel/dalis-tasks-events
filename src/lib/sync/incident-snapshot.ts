@@ -184,9 +184,10 @@ function projectItemIncidents(
 }
 
 export function projectSyncIncidentSnapshot(
-  input: unknown
+  input: unknown,
+  recurring = false
 ): SyncIncidentSnapshot[] {
-  return projectItemIncidents(prepareIncidentEvidence(input))
+  return projectItemIncidents(prepareIncidentEvidence(input, recurring))
 }
 
 function projectPersonalIncident(

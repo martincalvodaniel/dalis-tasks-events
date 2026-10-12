@@ -4,6 +4,7 @@ import { openLocalDatabase } from "@/lib/local-db/client"
 import { applyLocalChangesPage } from "@/lib/local-db/pull-changes"
 import { readLocalSyncQueueSummary } from "@/lib/local-db/queue-summary"
 import {
+  readLocalRecurringSyncIncidentOverview,
   readLocalSyncIncidentOverview,
   readLocalSyncIncidents,
 } from "@/lib/local-db/sync-incidents"
@@ -78,13 +79,20 @@ export class LocalSyncStore {
     return readLocalSyncIncidentOverview(this.database, this.userId)
   }
 
-  resolveIncident(input: unknown) {
-    return resolveLocalSyncIncident(this.database, this.userId, input).then(
-      (result) => {
-        if (result.status === "applied") notifyLocalOutboxChange(this.userId)
-        return result
-      }
-    )
+  readRecurringIncidentOverview() {
+    return readLocalRecurringSyncIncidentOverview(this.database, this.userId)
+  }
+
+  resolveIncident(input: unknown, recurring = false) {
+    return resolveLocalSyncIncident(
+      this.database,
+      this.userId,
+      input,
+      recurring
+    ).then((result) => {
+      if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+      return result
+    })
   }
 
   close() {

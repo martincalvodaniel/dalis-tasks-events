@@ -17,14 +17,19 @@ import {
   nextSyncPublicConfigSchema,
 } from "@/schemas/next-sync-test"
 
-if (!commonPlanReleaseEnabled || activeProductSyncProtocol !== 4)
-  throw new Error(
-    "Product generation-four release must be selected before this proof"
-  )
-
 const recurring = process.argv[2] === "recurring"
 if (process.argv[2] !== undefined && !recurring)
   throw new Error("Unknown isolated Next fixture scope")
+if (
+  !commonPlanReleaseEnabled ||
+  (recurring
+    ? ![4, 5].includes(activeProductSyncProtocol)
+    : activeProductSyncProtocol !== 4)
+)
+  throw new Error(
+    "Selected product release cannot run this isolated Next proof"
+  )
+
 const { descriptor, path } = getNextSyncRunnerConfig()
 const root = resolve(import.meta.dir, "..")
 const directory = join(root, "build", `dalis-next-sync-${descriptor.runId}`)
@@ -239,7 +244,17 @@ try {
         isolatedModules: true,
         jsx: "react-jsx",
         plugins: [{ name: "next" }],
-        paths: { "@/*": ["../../src/*"], "@fixture/*": ["./features/*"] },
+        paths: {
+          "@/*": ["../../src/*"],
+          "@fixture/*": ["./features/*"],
+          ...(recurring
+            ? {
+                "@/config/common-plan-release": [
+                  "./features/release-profile.ts",
+                ],
+              }
+            : {}),
+        },
       },
       include: ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
       exclude: ["node_modules"],
@@ -284,14 +299,11 @@ try {
     ) ||
     !actionReferences.some(
       (reference) =>
-        (recurring
-          ? reference.filename === "features/actions.ts"
-          : referencesSource(
-              reference.filename,
-              "src/features/sync/actions-v3.ts"
-            )) &&
-        reference.exportedName ===
-          (recurring ? "rejectFixtureLegacyOperations" : "pushSyncOperationsV3")
+        referencesSource(
+          reference.filename,
+          `src/features/sync/actions-v${recurring ? 4 : 3}.ts`
+        ) &&
+        reference.exportedName === `pushSyncOperationsV${recurring ? 4 : 3}`
     )
   )
     throw new Error(

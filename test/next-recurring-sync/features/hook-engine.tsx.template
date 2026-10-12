@@ -1,16 +1,18 @@
 "use client"
 
-import { useRecurringSyncEngine } from "@/features/sync/hooks/use-recurring-sync-engine"
+import { useContext, type ContextType } from "react"
+import { SyncContext } from "@/features/sync/sync-context"
 import { FixtureHookReporter } from "@fixture/hook-reporter"
 
-export type FixtureHookEngine = ReturnType<typeof useRecurringSyncEngine>
+export type FixtureHookEngine = NonNullable<ContextType<typeof SyncContext>>
 export function FixtureHookEngine({
-  account,
   report,
 }: {
   account: { userId: string; epoch: string }
   report(engine: FixtureHookEngine): void
 }) {
-  const engine = useRecurringSyncEngine(account)
+  const engine = useContext(SyncContext)
+  if (!engine)
+    throw new Error("Fixture requires the selected product sync provider")
   return <FixtureHookReporter engine={engine} report={report} />
 }

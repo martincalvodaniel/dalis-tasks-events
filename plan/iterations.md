@@ -1,5 +1,24 @@
 # Iteraciones de implementación
 
+## 17e2b2 — Provisión Preview y activación
+
+- Estado: pendiente de autorización específica para índiceaparición; no comenzar actuaciónDB hasta respuesta afirmativa.
+- Objetivo: ejecutar procedimiento5 ya validado sólo sobre fuentePreview confirmada, obtener reciboready/closed yactivar selectorconjunto probado17e2b1, seguido depilotoPreview/Google.
+- target_paths: config/common-plan-release.ts yplan; actuación privada sólo CLIoperador existente, URI únicamenteenvprivado. Dependencias:17e2b1, permiso específico/resolución de fuente/target yreadiness5.
+- Aceptación: crear sólo índicesregistrados faltantes enPreview, conservar datos/duplicados/incompatibles, nuncaProduction; identidad/pull5/action4retired/action5/provider5/codec3/incidentes/CAS/orden junto. UUID/outcomes/shadows/tombstones/cursors intactos yhistóricos sinCAS unsupported explícitos. PilotoGoogle exactodeployment separado defixtures, pedir segundo dispositivo/perfilreal sólo si necesario.
+- Fuente12oct: panelVercel muestra dosMONGODB_URI: Preview ligado store_VHA2qnXTw8kvBBbL/debug yProduction aotro recurso; sinMONGODB_DB ni overrideint visible enlistado. GuíadePreview actual atlas-dalis-tasks-events-debug disponible/secretooculto, tab60 conservada. NombreDBhumano confirmado dalis-tasks-events, no repreguntar. Sin recapturarURI/abrirMongo delusuario ni ejecucióníndice enesta continuación.
+- Validación: reciboprivado saneado/provisión/readiness yDoD/cutcommitpushint/HEAD/cuotas; activaciónsinprerrequisitos queda bloqueada, noflipsolo porconfig ni anunciarGoogle/convergenciapordos pestañas.
+
+## 17e2b1 — Conexión conjunta con perfil recurrente todavía desactivado
+
+- Estado: completada12oct; selectorproducto falso conserva4, perfil5 propio prueba rutas/acción/proveedor/productores/consumidores reales; diecinueve escenarios5 yveinte regresiones4/guardia inactiva pasan.
+- Objetivo: conectar todoslospuertos deproducto5 mediante una sola seleccióncompilada falsa enproducto hastaíndicePreview/readiness autorizado; probarselección5 coherente enNext propio con aliasexplícito deperfil.
+- target_paths: config/common-plan-release.ts, app/api/sync/changes/route.ts, features/sync/{actions-v4,actions-v5,local-incidents,hooks/use-sync-incidents,components/active-sync-provider,components/recurring-sync-provider,components/device-sync-settings,components/sync-status-panel}, features/plans/{local-plans,hooks/use-plan-order}, features/workspace/{local-backup,download-backup,import-backup}, lib/local-db/{sync-store,sync-incidents,sync-resolution}, lib/sync/incident-snapshot, scripts/next-sync-test-runner.ts yfixtureNext4/Next5/schemafixture/plan.
+- Dependencias:17e1/17e2a1/17e2a2; entrada68%5h/34%7d, reservas10%/1%, secuencial. Previewíndice no autorizado aún; preparar noesactivar ni accederDBusuario.
+- Aceptación: identidad/pull5/action4retirement/provider5/cache5/codec3/import/incidentes/CASaparición/orderecurrente seleccionados juntos. Producto4 conserva defaults con flagfalse; fixture5 delega rutasproductivas yaction4real, proveedor/context reales, snapshot delresolveritem conserva cola/evidenciaaparición sin ofrecer nuevas elecciones. ViejoIDausente409/noACK ymatrix headerbeforebody intactos; no rewriting históriconi recuperaciónapariciónnueva.
+- Validación: Next compilado perfil5/Mongo propio/BetterAuth/dosIndexedDB, regresionespuras/DoDbuildWebpack; plan/log mismo commitpushint/HEAD/cuotas. Sólo después autorizacióníndicePreview/readiness yprueba publicación cambiarselectorconjunto.
+
+
 ## 17e2a2 — Comparación y UI de incidentes recurrentes
 
 - Estado: completada12oct; overview/UIreadonly futuro probados con conflicto real, diecinueve escenariosNext5 yDoD pasan.

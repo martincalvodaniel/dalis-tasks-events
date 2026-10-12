@@ -1,5 +1,6 @@
 "use client"
 
+import { dispatchSyncOperationsV5 } from "@/features/sync/client-action-v5"
 import { dispatchFixtureRetiredOperations } from "@fixture/retired-client"
 import { dispatchSyncOperationsV4 } from "@/features/sync/client-action-v4"
 import type { z } from "zod"
@@ -85,6 +86,8 @@ async function executeCommand(
       `/fixture/changes?expectedUserId=${encodeURIComponent(command.userId)}&after=0&limit=100`
     )
   if (command.type === "push") return dispatchSyncOperationsV4(command.input)
+  if (command.type === "inactive-recurring-push")
+    return dispatchSyncOperationsV5(command.input)
   if (command.type !== "retired-push")
     throw new Error("Fixture command is unsupported")
   return dispatchFixtureRetiredOperations(command.input)

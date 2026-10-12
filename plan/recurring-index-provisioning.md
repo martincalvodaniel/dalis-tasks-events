@@ -6,6 +6,10 @@
 
 Nuevo índice registrado en ensure-indexes: colección `plan_occurrences`, nombre `plan_occurrences_user_series_slot_uidx`, keys `{userId:1,seriesId:1,slotKey:1}`, `unique:true`, provisión explícita. Selector recurrente incluye los cuatro índices personales ya registrados más éste; no definiciones ad hoc. El singleton puede crear nueve índices automáticos faltantes antes de los explícitos: no llamar readonly a la ejecución.
 
+## Revalidación de fuente — 12oct
+
+Vercelautenticado: búsquedaMONGODB envariablesdelproyecto muestra dosMONGODB_URI con Preview yProduction vinculados arecursosdistintos, sin MONGODB_DB ni overrideint visible. LinkPreview abre guíade atlas-dalis-tasks-events-debug disponible, conexiónoculta. Tab60 delnavegadorintegrado conservada para retomar; no recapturarURI hasta actuacióndestinoautorizado, ninguna conexión/creaciónenDBusuario encontinuaciónactual. Nombre dalis-tasks-events ya confirmado, no repreguntar. Permisoespecífico de índiceaparición sigue pendiente; elecciónconjunta5 preparada/desactivada yprobada17e2b1, noflipantesreadiness.
+
 ## Prerrequisitos antes de abrir una conexión
 
 1. Respuesta humana afirmativa para Preview únicamente; no producción ni repair/delete de datos.

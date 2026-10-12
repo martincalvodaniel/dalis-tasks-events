@@ -89,10 +89,23 @@ export function queueLocalSyncIncidents(
   onSnapshot: (
     incidents: SyncIncidentSnapshot[],
     entries: OutboxEntry[]
-  ) => void
+  ) => void,
+  recurring = false
 ) {
-  queueIncidentEvidence(context, userId, false, (incidents, entries) =>
-    onSnapshot(incidents as SyncIncidentSnapshot[], entries)
+  queueIncidentEvidence(
+    context,
+    userId,
+    recurring,
+    (incidents, entries) =>
+      onSnapshot(
+        recurring
+          ? (incidents as RecurringSyncIncidentOverview[]).flatMap((value) =>
+              value.kind === "item" ? [value.incident] : []
+            )
+          : (incidents as SyncIncidentSnapshot[]),
+        entries
+      ),
+    recurring
   )
 }
 

@@ -6,6 +6,7 @@ import { GET as getProductSyncIdentity } from "@/app/api/sync/identity/route"
 import { GET as getProductSyncChanges } from "@/app/api/sync/changes/route"
 import {
   bootstrapNextSyncSession,
+  prepareNextRecurringSyncFixture,
   controlNextSyncFixtureReadiness,
   controlNextSyncSession,
   readNextSyncFixtureState,
@@ -121,6 +122,7 @@ export async function handleFixtureRequest(request: Request) {
     if (command === "guard" && request.method === "GET")
       return Response.json({ ready: true })
     if (command === "bootstrap" && request.method === "POST") {
+      await prepareNextRecurringSyncFixture(request)
       const prepared = await bootstrapNextSyncSession(
         request,
         await request.json()

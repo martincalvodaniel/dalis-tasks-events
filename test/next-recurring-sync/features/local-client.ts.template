@@ -11,6 +11,8 @@ import { dispatchFixtureRetiredOperations } from "@fixture/retired-client"
 import { dispatchSyncOperationsV5 } from "@/features/sync/client-action-v5"
 import { createHttpRecurringSyncTransport } from "@/features/sync/http-recurring-transport"
 import { openLocalRecurringSyncRuntime } from "@/features/sync/local-recurring-runtime"
+import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { queueLocalSyncIncidents } from "@/lib/local-db/sync-incidents"
 import { readLocalRecurringSyncIncidentOverview } from "@/lib/local-db/sync-incidents"
 import { importLocalBackupCopies } from "@/lib/local-db/backup-import"
 import { encodeLocalRecurringBackup } from "@/lib/backup/local-backup"
@@ -44,7 +46,16 @@ import {
   synchronizeHook,
   unmountHook,
 } from "@fixture/hook-host"
-import { commitLocalRecurringPlanMoveCommand } from "@/lib/local-db/task-move-outbox"
+import {
+  moveLocalPlan,
+  changeLocalPlanOccurrence,
+} from "@/features/plans/local-plans"
+import { readAccountBackup } from "@/features/workspace/local-backup"
+import {
+  readAccountBackupImportPreview,
+  prepareAccountBackupImport,
+  commitAccountBackupImport,
+} from "@/features/workspace/import-backup"
 import { saveLocalPlan, deleteLocalPlan } from "@/features/plans/local-plans"
 
 const markerKey = "dalis:account-change"
@@ -466,18 +477,12 @@ export async function executeLocalFixtureCommand(
     case "commit-recurring-move": {
       if (command.command.type !== "task.move")
         throw new Error("Recurring move command changed")
-      const database = await openLocalDatabase(active.userId)
-      try {
-        await requireActiveAccount(active)
-        return await commitLocalRecurringPlanMoveCommand(
-          database,
-          active.userId,
-          command.command,
-          { operationId: command.operationId, now: new Date(command.now) }
-        )
-      } finally {
-        database.close()
-      }
+      await moveLocalPlan(
+        { ...active, itemCount: 0, offlineReady: false },
+        command.command,
+        command.operationId
+      )
+      return true
     }
     case "delete-plan":
       return deleteLocalPlan(
@@ -486,19 +491,16 @@ export async function executeLocalFixtureCommand(
         command.operationId
       )
     case "commit-occurrence": {
-      const outbox = await LocalOutbox.open(active.userId)
-      try {
-        await requireActiveAccount(active)
-        return await outbox.commitPlanOccurrenceCommand(command.command, {
+      return changeLocalPlanOccurrence(
+        { ...active, itemCount: 0, offlineReady: false },
+        command.command,
+        {
           operationId: command.operationId,
           now: new Date(command.now),
           expectedItem: command.expectedItem,
           expectedOccurrence: command.expectedOccurrence,
-          captureRemoteRevision: true,
-        })
-      } finally {
-        outbox.close()
-      }
+        }
+      )
     }
     case "lost-recurring-response-run": {
       let lost = false
@@ -547,11 +549,11 @@ export async function executeLocalFixtureCommand(
       const database = await openLocalDatabase(active.userId)
       try {
         const timestamp = new Date().toISOString()
-        const before = await readLocalRecurringBackup(
-          database,
-          active.userId,
-          timestamp
-        )
+        const before = await readAccountBackup(active)
+        if (before.version !== 3)
+          throw new Error(
+            "Selected product backup did not use the recurrent codec"
+          )
         const item = applyItemCommand(
           null,
           {
@@ -582,19 +584,13 @@ export async function executeLocalFixtureCommand(
           },
           active.userId
         )
-        const request = {
-          userId: active.userId,
-          importId: crypto.randomUUID(),
-          createdAt: timestamp,
-          expected: before,
-          copies: [
-            {
-              sourceItemId: item.id,
-              itemId: crypto.randomUUID(),
-              operationId: crypto.randomUUID(),
-            },
-          ],
-        }
+        const preview = await readAccountBackupImportPreview(active, source)
+        const plan = await prepareAccountBackupImport(active, {
+          sourceJson: source,
+          expected: preview.expected,
+          sourceItemIds: [item.id],
+        })
+        const request = plan.request
         let legacyRejected = false,
           rollbackRejected = false
         try {
@@ -618,13 +614,7 @@ export async function executeLocalFixtureCommand(
         }
         try {
           try {
-            await importLocalBackupCopies(
-              database,
-              active.userId,
-              request,
-              source,
-              true
-            )
+            await commitAccountBackupImport(active, plan)
           } catch {
             rollbackRejected = true
           }
@@ -640,25 +630,13 @@ export async function executeLocalFixtureCommand(
           throw new Error(
             "Recurring import did not roll back its complete transaction"
           )
-        const applied = await importLocalBackupCopies(
-          database,
-          active.userId,
-          request,
-          source,
-          true
-        )
+        const applied = await commitAccountBackupImport(active, plan)
         const after = await readLocalRecurringBackup(
           database,
           active.userId,
           timestamp
         )
-        const replayed = await importLocalBackupCopies(
-          database,
-          active.userId,
-          request,
-          source,
-          true
-        )
+        const replayed = await commitAccountBackupImport(active, plan)
         const replay = await readLocalRecurringBackup(
           database,
           active.userId,
@@ -715,6 +693,49 @@ export async function executeLocalFixtureCommand(
           database,
           active.userId
         )
+        const rootSnapshot = await runLocalTransaction<{
+          incidentIds: string[]
+          entryCount: number
+        }>(
+          database,
+          [
+            "items",
+            "outbox",
+            "remoteShadows",
+            "syncMetadata",
+            "occurrences",
+            "tags",
+            "itemViews",
+            "taskPlacements",
+          ],
+          "readonly",
+          (context) => {
+            queueLocalSyncIncidents(
+              context,
+              active.userId,
+              (incidents, entries) =>
+                context.setResult({
+                  incidentIds: incidents.map(
+                    (value) => value.entry.operation.operationId
+                  ),
+                  entryCount: entries.length,
+                }),
+              true
+            )
+          }
+        )
+        const expectedRoots = result
+          .filter((value) => value.kind === "item")
+          .map((value) => value.incident.entry.operation.operationId)
+        if (
+          JSON.stringify(rootSnapshot.incidentIds) !==
+            JSON.stringify(expectedRoots) ||
+          rootSnapshot.entryCount !==
+            (await readFixtureBackup(active)).stores.outbox.length
+        )
+          throw new Error(
+            "Selected item resolution snapshot lost complete recurrent queue evidence"
+          )
         await requireActiveAccount(active)
         return result
       } finally {

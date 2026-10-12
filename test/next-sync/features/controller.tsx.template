@@ -357,6 +357,28 @@ export function FixtureController() {
         operations: [creation],
       }
       await check(
+        "Referencia futura5 desactivada rechaza incluso con índices5 propios preparados",
+        async () => {
+          const before = await state(owner)
+          for (let index = 0; index < 2; index++) {
+            const rejected = remotePushResultV2Schema.parse(
+              await call(index, {
+                type: "inactive-recurring-push",
+                input: { ...batch, expectedUserId: owner },
+              })
+            )
+            assert(
+              rejected.status === "update_required",
+              `Disabled recurring reference returned ${rejected.status}`
+            )
+          }
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(before),
+            "Inactive future reference changed owned data"
+          )
+        }
+      )
+      await check(
         "RPC de tarea, categoría y asignación usa el ejecutor y diario reales",
         async () => {
           batch.expectedUserId = owner
@@ -1629,7 +1651,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Diecinueve escenarios Next, React e IndexedDB correctos; cookies y recursos propios cerrados"
+            "Veinte escenarios Next, React e IndexedDB correctos; cookies y recursos propios cerrados"
           )
         await fetch("/fixture/finish", {
           method: "POST",
