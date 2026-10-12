@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 18c3b — Descarga completa y cursor de ajustes
+
+Puerto futuro captura todas las familias, incluyendo settings, en una TX. La proyección valida página, actor, checkpoint, registros locales y toda la cola antes de guardar. Ajustes pendientes conservan valor/identidad sin congelar categorías; una categoría bloqueada no impide settings. Planes y apariciones conservan su zona/ancla. Página vieja se ignora; ninguna descarga crea ACK o modifica outcomes/intenciones.
+
+Seis tests puros / 24 aserciones y ocho checks IndexedDB con recarga pasan. Fallo tardío del cursor revierte categorías/shadows; corrupción y solapamiento no producen escritura parcial, familia extranjera no se filtra. Un caso de fixture confundía una página vieja válida con un solapamiento inválido: corregido antes del ensayo final. Particiones/tab/servidor propios retirados. Suite 785 pass / 217 skip / 0 fail / 10454 aserciones, lint 808, tipos/build Webpack/worker 46 aprobados. Captura `/private/tmp/dalis-settings-pull-proof.png`. Generación 5 intacta; sigue reader privado/evidencia/consumidores y frontera 6 antes de UI/activación.
+
+
 ## 18c3a — Confirmación durable de ajustes
 
 Puerto futuro `applyLocalSettingsPreferenceResult` captura settings, preferencias, items, cola, shadows y outcome en una única TX. La composición valida todas las familias recurrentes antes de proyectar; cada familia conserva sus pendientes. Valor local, ACK, lease, dependientes directos, shadow y outcome se confirman juntos. Puertos activos siguen estrictos y no se modifica negociación/UI.

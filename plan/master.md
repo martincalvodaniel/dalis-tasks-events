@@ -2,6 +2,8 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+18c3b cerrado: descarga futura de ajustes/planes/apariciones completa y cursor atómico, sin ACK ni modificación de intenciones. Seis tests puros y ocho checks IndexedDB + recarga; suite 785 pass / 217 skip / 0 fail, lint 808, tipos/build Webpack/worker 46. Generación 5 sigue activa; siguiente reader/evidencia y composición 6. [settings-sync.md](settings-sync.md).
+
 18c3a cerrado: ACK durable de ajustes probado en IndexedDB con rollback/replay/independencia y recarga. Generación 5 intacta; siguiente descarga/cursor 18c3b. Suite 779 pass / 217 skip / 0 fail; lint 805, tipos/build Webpack/worker 46. [settings-sync.md](settings-sync.md).
 
 18c2 cerrado: proyección futura independiente y ACK puro probados, preservando cola y evidencia ante respuestas tardías. Suite 779 pass / 217 skip / 0 fail; lint 803, tipos y build Webpack aprobados. Siguiente 18c3: ACK/pull durables; generación 5 sigue activa sin ajustes remotos. [settings-sync.md](settings-sync.md).

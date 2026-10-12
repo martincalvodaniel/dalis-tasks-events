@@ -5,15 +5,19 @@ import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
 import {
   planLocalRecurringChangesPage,
+  planLocalSettingsChangesPage,
   validateLocalRecurringChangesPageInput,
+  validateLocalSettingsChangesPageInput,
 } from "@/lib/sync/local-recurring-pull"
 import { taskPlacementEntityKey } from "@/schemas/ordering"
 import {
   itemViewSchema,
   tagSchema,
   taskPlacementSchema,
+  userSettingsSchema,
 } from "@/schemas/preferences"
 import { userIdSchema } from "@/schemas/primitives"
+import { userSettingsEntityKey } from "@/schemas/user-settings-key"
 import type { PersonalSnapshot } from "@/types/personal-snapshot"
 
 // Prepared generation-five port. The caller owns epoch checks around this transaction.
@@ -22,12 +26,32 @@ export function applyLocalRecurringChangesPage(
   userIdInput: unknown,
   receiptInput: unknown
 ): Promise<"applied" | "ignored"> {
+  return applyRecurringChangesPage(database, userIdInput, receiptInput, false)
+}
+
+export function applyLocalSettingsChangesPage(
+  database: IDBDatabase,
+  userIdInput: unknown,
+  receiptInput: unknown
+): Promise<"applied" | "ignored"> {
+  return applyRecurringChangesPage(database, userIdInput, receiptInput, true)
+}
+
+function applyRecurringChangesPage(
+  database: IDBDatabase,
+  userIdInput: unknown,
+  receiptInput: unknown,
+  allowSettings: boolean
+): Promise<"applied" | "ignored"> {
   const userId = userIdSchema.parse(userIdInput)
   if (database.name !== localDatabaseName(userId))
     return Promise.reject(
       new Error("Recurring pull database belongs to another partition")
     )
-  const receipt = validateLocalRecurringChangesPageInput(receiptInput, userId)
+  const validate = allowSettings
+    ? validateLocalSettingsChangesPageInput
+    : validateLocalRecurringChangesPageInput
+  const receipt = validate(receiptInput, userId)
   const stores = [
     "items",
     "occurrences",
@@ -37,6 +61,7 @@ export function applyLocalRecurringChangesPage(
     "outbox",
     "remoteShadows",
     "syncMetadata",
+    ...(allowSettings ? ["settings"] : []),
   ]
   return runLocalTransaction(database, stores, "readwrite", (context) => {
     const transaction = context.transaction
@@ -54,16 +79,28 @@ export function applyLocalRecurringChangesPage(
       shadows: transaction
         .objectStore("remoteShadows")
         .getAll(undefined, 10001),
+      settings: allowSettings
+        ? transaction.objectStore("settings").getAll(undefined, 10001)
+        : null,
       cursor: transaction.objectStore("syncMetadata").get("pull-cursor"),
     }
-    let remaining = Object.keys(requests).length
+    let remaining = Object.values(requests).filter(Boolean).length
     const finish = () => {
       if (--remaining) return
       try {
         for (const [name, request] of Object.entries(requests))
-          if (name !== "cursor" && request.result.length > 10000)
+          if (request && name !== "cursor" && request.result.length > 10000)
             throw new Error("Recurring pull snapshot exceeds its record limit")
         const local: PersonalSnapshot = [
+          ...(requests.settings?.result ?? []).map((input: unknown) => {
+            const record = userSettingsSchema.parse(input)
+            if (record.userId !== userId)
+              throw new Error("Pull settings belong to another account")
+            return {
+              entityKey: userSettingsEntityKey(userId),
+              record: { store: "settings" as const, record },
+            }
+          }),
           ...requests.tags.result.map((input: unknown) => {
             const record = tagSchema.parse(input)
             return {
@@ -90,7 +127,10 @@ export function applyLocalRecurringChangesPage(
             }
           }),
         ]
-        const plan = planLocalRecurringChangesPage({
+        const project = allowSettings
+          ? planLocalSettingsChangesPage
+          : planLocalRecurringChangesPage
+        const plan = project({
           userId,
           receipt,
           cursor: requests.cursor.result ?? {
@@ -143,6 +183,9 @@ export function applyLocalRecurringChangesPage(
           ["tags", requests.tags.result],
           ["itemViews", requests.views.result],
           ["taskPlacements", requests.placements.result],
+          ...(allowSettings
+            ? [["settings", requests.settings?.result ?? []] as const]
+            : []),
         ] as const) {
           const after = plan.local.flatMap((entry) =>
             entry.record?.store === store ? [entry.record.record] : []
@@ -169,6 +212,7 @@ export function applyLocalRecurringChangesPage(
         context.fail(error)
       }
     }
-    for (const request of Object.values(requests)) request.onsuccess = finish
+    for (const request of Object.values(requests))
+      if (request) request.onsuccess = finish
   })
 }

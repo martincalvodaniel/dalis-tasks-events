@@ -3,6 +3,7 @@ import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sy
 import { planRemotePlanOccurrenceProjection } from "@/lib/sync/plan-occurrence-projection"
 import { planRemotePreferenceProjection } from "@/lib/sync/preference-projection"
 import { validateRemoteRecurringChangesPage } from "@/lib/sync/remote-recurring-changes"
+import { planSettingsPreferenceProjection } from "@/lib/sync/settings-preference-projection"
 import { planOccurrenceEntityKey } from "@/schemas/local-plan-occurrence-sync"
 import {
   localRecurringChangesPageInputSchema,
@@ -19,6 +20,21 @@ export function validateLocalRecurringChangesPageInput(
   input: unknown,
   userId: unknown
 ) {
+  return validateRecurringChangesPageInput(input, userId, false)
+}
+
+export function validateLocalSettingsChangesPageInput(
+  input: unknown,
+  userId: unknown
+) {
+  return validateRecurringChangesPageInput(input, userId, true)
+}
+
+function validateRecurringChangesPageInput(
+  input: unknown,
+  userId: unknown,
+  allowSettings: boolean
+) {
   const value = localRecurringChangesPageInputSchema.parse(input)
   const page = validateRemoteRecurringChangesPage(
     value.page,
@@ -31,7 +47,12 @@ export function validateLocalRecurringChangesPageInput(
       if (
         change.effects.effects.some(
           (effect) =>
-            !["tags", "itemViews", "taskPlacements"].includes(effect.store)
+            ![
+              "tags",
+              "itemViews",
+              "taskPlacements",
+              ...(allowSettings ? ["settings"] : []),
+            ].includes(effect.store)
         )
       )
         throw new Error("Recurring pull does not support this personal store")
@@ -74,9 +95,26 @@ export interface LocalRecurringPullPlan {
 export function planLocalRecurringChangesPage(
   input: unknown
 ): LocalRecurringPullPlan {
+  return planRecurringChangesPage(input, false)
+}
+
+export function planLocalSettingsChangesPage(
+  input: unknown
+): LocalRecurringPullPlan {
+  return planRecurringChangesPage(input, true)
+}
+
+function planRecurringChangesPage(
+  input: unknown,
+  allowSettings: boolean
+): LocalRecurringPullPlan {
   const value = localRecurringPullPlanInputSchema.parse(input)
   const { userId, cursor } = value
-  const receipt = validateLocalRecurringChangesPageInput(value.receipt, userId)
+  const receipt = validateRecurringChangesPageInput(
+    value.receipt,
+    userId,
+    allowSettings
+  )
   const { query, page } = receipt
   personalQueueDiagnosticsInputSchema.parse({
     userId,
@@ -104,7 +142,10 @@ export function planLocalRecurringChangesPage(
       throw new Error("Recurring pull contains duplicate shadow identities")
     shadows.set(shadow.entityKey, shadow)
   }
-  let personal = planRemotePreferenceProjection({
+  const project = allowSettings
+    ? planSettingsPreferenceProjection
+    : planRemotePreferenceProjection
+  let personal = project({
     userId,
     local: value.local,
     entries: value.entries,
@@ -152,7 +193,7 @@ export function planLocalRecurringChangesPage(
         record: projection.shadow,
       })
     } else if (change.kind === "preference") {
-      personal = planRemotePreferenceProjection({
+      personal = project({
         userId,
         local: personal.local,
         shadows: personal.shadows,

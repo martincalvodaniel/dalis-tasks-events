@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 18c3b — Descarga de ajustes y cursor atómicos
+
+- Objetivo: consumir una página completa con ajustes, categorías, planes y apariciones sin filtrar familias ni fabricar ACK.
+- target_paths: `src/lib/sync/local-recurring-pull.ts`, `src/lib/local-db/pull-recurring-changes.ts`, `src/lib/sync/settings-pull.test.ts`, `test/browser/user-settings-pull.ts`, `scripts/user-settings-pull-test-server.ts`, `plan/**`.
+- Dependencias: 18c3a publicado c5cb506; entrada 56% 5h / 18% 7d, reserva 10% / 1%, secuencial.
+- Aceptación: página/actor/checkpoint completos validados; ajustes locales pendientes preservados sin congelar categorías; categorías pendientes no impiden ajustes; cursor/datos/shadows en una TX; error tardío revierte todo; páginas viejas no degradan evidencias; generaciones activas estrictas, cola/outcomes intactos.
+- Validación: pruebas puras y IndexedDB propio, fallo tardío/corrupción/recarga, DoD/worker, registro/commit/push/HEAD/cuotas. No motor/UI/negociación activa ni DB usuario.
+
 ## 18c3a — Confirmación durable de ajustes
 
 - Objetivo: ACK personal futuro con ajustes en una TX IndexedDB, conservando todas las familias recurrentes y la independencia de categorías.
