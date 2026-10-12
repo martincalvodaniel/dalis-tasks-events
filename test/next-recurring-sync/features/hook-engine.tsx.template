@@ -1,0 +1,16 @@
+"use client"
+
+import { useRecurringSyncEngine } from "@/features/sync/hooks/use-recurring-sync-engine"
+import { FixtureHookReporter } from "@fixture/hook-reporter"
+
+export type FixtureHookEngine = ReturnType<typeof useRecurringSyncEngine>
+export function FixtureHookEngine({
+  account,
+  report,
+}: {
+  account: { userId: string; epoch: string }
+  report(engine: FixtureHookEngine): void
+}) {
+  const engine = useRecurringSyncEngine(account)
+  return <FixtureHookReporter engine={engine} report={report} />
+}

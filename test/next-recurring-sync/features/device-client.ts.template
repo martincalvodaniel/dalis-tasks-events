@@ -130,6 +130,14 @@ async function execute(
     throw new Error("Fixture blocked before touching foreign auth cookies")
   if (
     [
+      "hook-mount",
+      "hook-rerender",
+      "hook-state",
+      "hook-observe",
+      "hook-sync",
+      "hook-unmount",
+      "hook-quiet",
+      "rotate-local",
       "prepare-local",
       "save-plan",
       "commit-local",

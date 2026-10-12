@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 17e1b2 — Lifecycle React real del hook5
+
+- Estado: completada12oct; once escenarios Next5/React/IndexedDB/Mongo propios pasan, epoch/cache/listeners y ACKdurables probados.
+
+- Objetivo: validar hook5 real/caché5 frente a4, notificación/ACK, época/unkeyedrerender y limpieza de listeners sin reports/writes tardíos.
+- target_paths: test/next-recurring-sync/features/{hook-engine,hook-host,local-client,device-client,controller}.ts*.template y plan. Dependencias:17e1b1; entrada62%5h/47%7d, reservas10%/1%, secuencial.
+- Aceptación: productor real de plan/vista, resumen pending y ACK únicos víahook, cache4 conservada/cache5 presente; cliente anterior inválido tras época, mismo componente sinestado obsoleto; unmount más outbox/wake conserva nueva cola sinintentos, recuperación5 final y ambos clientes reachjournal. SinGoogle/productorlocalaparición declarado todavía.
+- Validación: Next real/React/IndexedDB/Mongo propios yDoD, plan/log mismo commitpushint/HEAD/cuotas; sin producción/DBusuario/activación.
+
 ## 17e1b1 — Recuperación por defecto5 y convergencia durable
 
 - Estado: completada12oct; diez escenarios Next5 reales pasan, seis recibos/journal y cinco proyecciones exactas en dos particiones.

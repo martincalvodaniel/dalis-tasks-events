@@ -29,6 +29,14 @@ import {
   nextSyncMissingActionId,
 } from "@/schemas/next-sync-test"
 import { workspaceIdentitySchema } from "@/schemas/workspace"
+import {
+  hookState,
+  mountHook,
+  observeHook,
+  quietHook,
+  synchronizeHook,
+  unmountHook,
+} from "@fixture/hook-host"
 import { saveLocalPlan } from "@/features/plans/local-plans"
 
 const markerKey = "dalis:account-change"
@@ -168,6 +176,7 @@ export async function executeLocalFixtureCommand(
     return account()
   }
   if (command.type === "cleanup-local") {
+    await unmountHook()
     if (!owned) return true
     const current = await readAccountControl()
     if (
@@ -361,6 +370,89 @@ export async function executeLocalFixtureCommand(
         }
       } finally {
         store.close()
+      }
+    }
+    case "hook-mount":
+      return mountHook(active)
+    case "hook-rerender":
+      return mountHook(active, true)
+    case "hook-state":
+      return hookState()
+    case "hook-observe":
+      return observeHook(command.state)
+    case "hook-sync":
+      return synchronizeHook()
+    case "hook-unmount":
+      return unmountHook()
+    case "hook-quiet":
+      return quietHook()
+    case "rotate-local": {
+      const oldClient = client!
+      const previous = await readAccountControl()
+      if (
+        !owned ||
+        previous.userId !== active.userId ||
+        previous.epoch !== active.epoch ||
+        previous.logoutPending
+      )
+        throw new Error("Fixture epoch rotation account changed")
+      const rotated = await activatePreparedAccount(
+        active.userId,
+        new Date().toISOString(),
+        active.epoch
+      )
+      // Track the durable epoch immediately so cleanup follows the committed account control.
+      owned.epoch = rotated.epoch
+      owned.markerAfter = localStorage.getItem(markerKey)
+      client = createMixedSyncClientV5({
+        userId: active.userId,
+        epoch: rotated.epoch,
+      })
+      const current = await readAccountControl()
+      if (
+        current.userId !== owned.userId ||
+        current.epoch !== owned.epoch ||
+        current.logoutPending ||
+        current.epoch === active.epoch
+      )
+        throw new Error("Fixture rotated account control is inconsistent")
+      await requireActiveAccount(account())
+      const rejected = async (work: () => Promise<unknown>) => {
+        try {
+          await work()
+          return false
+        } catch (error) {
+          if (
+            !(error instanceof Error) ||
+            error.message !== "Local account changed during the operation"
+          )
+            throw new Error(
+              "Fixture observed an unrelated old-client rejection"
+            )
+          return true
+        }
+      }
+      const oldAccountRejected = await rejected(() =>
+        requireActiveAccount(active)
+      )
+      const oldSummaryRejected = await rejected(() => oldClient.readSummary())
+      const oldAttempt = oldClient.createAttempt(async () =>
+        oldClient.readSummary()
+      )
+      let oldAttemptRejected = false
+      try {
+        oldAttemptRejected = await rejected(() => oldAttempt.run())
+      } finally {
+        oldAttempt.stop()
+      }
+      await requireActiveAccount(account())
+      return {
+        previousEpoch: active.epoch,
+        currentEpoch: rotated.epoch,
+        controlActive: true,
+        oldAccountRejected,
+        oldSummaryRejected,
+        oldAttemptRejected,
       }
     }
     case "save-plan":

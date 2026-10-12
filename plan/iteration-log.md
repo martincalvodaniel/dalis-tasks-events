@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17e1b2 — Hook recurrente React real
+
+Cerrado12oct: wrapper5 real, cache5 presente/cache4 intacta, productor plan/vista notifica resumenpending y confirma dos ACKremotos únicos. Cambio deépoca rechaza cuenta/resumen/intento antiguo, componente/provider sin key resetea pass y no reports stale. Unmount/luego productor y eventoswake conservan dos intenciones pending0 sinleases ni reports; clientefresh recupera y ambos llegan journal10. Once escenarios Next5/React/IndexedDB/Mongo propios pasan, sin reparaciones de fixture en este corte. Suite749pass/201skip/0fail/10261aserciones, lint773/tipos/buildWebpack/worker46/diff aprobados; screenshot /private/tmp/dalis-next5-hook-proof.png, resources/cookies/particiones/server/container propios cerrados. NoGoogle/activación/productorlocalaparición. Mismo commitpushint/HEAD ycuotas; sigue17e1b3 si margen.
+
 ## 17e1b1 — Cliente predeterminado y convergencia real
 
 Cerrado12oct: diez escenarios Next5/IndexedDB/Mongo propios pasan. Cliente5/runtime/action/defaults confirma cuatro intenciones originales de root/vista tras intentos antiguos rechazados; UUID/payload/dependencias/evidencia exactos, ACK remotos reales únicos. Dos particiones alcanzan journal6 y cinco proyecciones completas iguales al fold remoto, incluida serie/aparición RPCprevia. Runtime cerrado/reabierto idle no añade writes ni recibos y conserva stores. Sin fixturecorrected en este corte; no lifecyclehook5 ni productorlocal de aparición/Google todavía. Suite749pass/201skip/0fail/10261aserciones, lint773/tipos/buildWebpack/worker46/diff aprobados. Recursos propios/cookies cerrados, screenshot /private/tmp/dalis-next5-convergence-proof.png; producto4 intacto, sin DBusuario. Mismo commitpushint/HEAD ycuotas; sigue17e1b2 si margen.

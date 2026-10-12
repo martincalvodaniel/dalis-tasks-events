@@ -701,6 +701,181 @@ export function FixtureController() {
         }
       )
       await check(
+        "Hook5 real separa caché4 y conserva época, cola y listeners",
+        async () => {
+          const snapshot = async () => {
+            const value = (await call(1, { type: "local-snapshot" })) as {
+              backup: unknown
+            }
+            return validateLocalRecurringBackup(value.backup, owner)
+          }
+          const mounted = (await call(1, { type: "hook-mount" })) as {
+            mounted: boolean
+            epoch: string
+            mixedCachePresent: boolean
+            legacyCacheIntact: boolean
+          }
+          assert(
+            mounted.mounted &&
+              mounted.mixedCachePresent &&
+              mounted.legacyCacheIntact,
+            "Real hook lacks isolated generation-five cache"
+          )
+          const before = await state(owner)
+          const request = () => ({
+            mode: "create" as const,
+            itemId: crypto.randomUUID(),
+            contentOperationId: crypto.randomUUID(),
+            viewOperationId: crypto.randomUUID(),
+            primaryTagId: null,
+            now: new Date().toISOString(),
+            input: {
+              kind: "plan" as const,
+              variant: "event" as const,
+              title: "Hook recurrente real",
+              description: "",
+              status: "not_started" as const,
+              checklist: [],
+              recurrence: null,
+              schedule: {
+                mode: "all_day" as const,
+                startDate: "2026-10-12",
+                endDateExclusive: "2026-10-13",
+              },
+            },
+          })
+          const first = request()
+          await call(1, { type: "save-plan", request: first })
+          const pending = await snapshot()
+          assert(
+            pending.stores.outbox.find(
+              (entry) =>
+                entry.operation.operationId === first.contentOperationId
+            )?.state === "pending",
+            "Hook receives no fresh durable root"
+          )
+          const notified = (await call(1, {
+            type: "hook-observe",
+            state: "pending",
+          })) as { pendingSeen: boolean }
+          assert(
+            notified.pendingSeen,
+            "Outbox notification did not update the actual hook"
+          )
+          await call(1, { type: "hook-sync" })
+          const settled = (await call(1, {
+            type: "hook-observe",
+            state: "settled",
+          })) as {
+            epoch: string
+            mixedCachePresent: boolean
+            legacyCacheIntact: boolean
+            result: unknown
+          }
+          assert(
+            settled.epoch === mounted.epoch &&
+              settled.result !== null &&
+              settled.mixedCachePresent &&
+              settled.legacyCacheIntact,
+            "Settled hook lost its result or legacy cache"
+          )
+          const committed = await state(owner)
+          assert(
+            committed.counts.receipts === before.counts.receipts + 2 &&
+              committed.page.through === before.page.through + 2,
+            "Hook did not commit two unique original intentions"
+          )
+          const storesBefore = (await snapshot()).stores
+          const rotated = (await call(1, { type: "rotate-local" })) as {
+            currentEpoch: string
+            oldAccountRejected: boolean
+            oldSummaryRejected: boolean
+            oldAttemptRejected: boolean
+          }
+          assert(
+            rotated.oldAccountRejected &&
+              rotated.oldSummaryRejected &&
+              rotated.oldAttemptRejected,
+            "Old client remained usable after account epoch changed"
+          )
+          const rerender = (await call(1, { type: "hook-rerender" })) as {
+            epoch: string
+            epochResetObserved: boolean
+            mixedCachePresent: boolean
+            legacyCacheIntact: boolean
+            staleReports: number
+          }
+          assert(
+            rerender.epoch === rotated.currentEpoch &&
+              rerender.epoch !== settled.epoch &&
+              rerender.epochResetObserved &&
+              rerender.mixedCachePresent &&
+              rerender.legacyCacheIntact &&
+              rerender.staleReports === 0,
+            "Unkeyed generation-five hook rendered stale pass state"
+          )
+          assert(
+            JSON.stringify((await snapshot()).stores) ===
+              JSON.stringify(storesBefore) &&
+              JSON.stringify(await state(owner)) === JSON.stringify(committed),
+            "Epoch rerender changed local or remote history"
+          )
+          const unmounted = (await call(1, { type: "hook-unmount" })) as {
+            mounted: boolean
+            reports: number
+          }
+          assert(!unmounted.mounted, "Hook stayed mounted")
+          const second = request()
+          await call(1, { type: "save-plan", request: second })
+          const afterUnmount = await snapshot()
+          assert(
+            afterUnmount.stores.outbox
+              .filter((entry) =>
+                [second.contentOperationId, second.viewOperationId].includes(
+                  entry.operation.operationId
+                )
+              )
+              .every(
+                (entry) =>
+                  entry.state === "pending" &&
+                  entry.attempts === 0 &&
+                  entry.lease === null
+              ),
+            "Unmounted hook claimed newly queued work"
+          )
+          const quiet = (await call(1, { type: "hook-quiet" })) as {
+            mounted: boolean
+            reports: number
+          }
+          assert(
+            !quiet.mounted &&
+              quiet.reports === unmounted.reports &&
+              JSON.stringify((await snapshot()).stores) ===
+                JSON.stringify(afterUnmount.stores) &&
+              JSON.stringify(await state(owner)) === JSON.stringify(committed),
+            "Unmounted hook reacted to wake or outbox events"
+          )
+          const recovered = (await call(1, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            recovered.status === "settled" && recovered.uploaded === 2,
+            "Fresh epoch client did not recover post-unmount intentions"
+          )
+          await call(0, { type: "mixed-run" })
+          const final = await state(owner)
+          assert(
+            final.counts.receipts === committed.counts.receipts + 2 &&
+              (await snapshot()).stores.outbox.every(
+                (entry) =>
+                  entry.state === "acknowledged" && entry.lease === null
+              ),
+            "Lifecycle recovery lacks real durable ACKs"
+          )
+        }
+      )
+      await check(
         "Revocar sesión bloquea RPC sin alterar datos confirmados",
         async () => {
           const before = await state(owner)
@@ -760,7 +935,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Diez escenarios de frontera Next5 correctos; sesiones propias cerradas"
+            "Once escenarios de frontera Next5 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

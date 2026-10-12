@@ -2,6 +2,10 @@
 
 Estado11oct: generación4 sólo sincroniza planes simples; series/apariciones/progreso/cambios de fecha siguen locales. Arrastre simple y checklist heredada entregados16c1–3. No activar parcialmente un nuevo alcance.
 
+## Hook y época reales — 17e1b2
+
+Hook useRecurringSyncEngine real con action5/defaults y MapSWR propio separa key5 de cache4 preexistente. Outbox de plan/vista notifica resumenpending y obtiene ACK únicos. Nuevaépoca invalida cliente/resumen/intento anteriores; mismo árbol/provider sin key observa reset sinresult/summary/busy obsoletos. Unmount seguido de outbox/online/focus/visibility deja dos intenciones nuevas pending0 y sin reports; cliente5 fresco las confirma y ambos runtimes alcanzan journal10. Once escenariosNext5 propios pasan, sinGoogle ni productorlocalaparición todavía; screenshot /private/tmp/dalis-next5-hook-proof.png ycleanup propio completo. Sigue17e1b3.
+
 ## Recuperación y convergencia — 17e1b1
 
 Cliente5/defaults reales recupera cuatro intenciones originales guardadas por productor atómico y antes rechazadas por cliente4. ACKs/evidencia durables conservan UUID/payload/deps; rawRPC de serie/aparición complementan journal con seis operaciones únicas. Ambos runtimes reabiertos alcanzan cursor6 y proyecciones completas items/occurrences/tags/views/placements iguales al fold autoritativo. Idle conserva todosstores y Mongo. Diez escenariosNext compilado/Mongo propios pasan; noGoogle ni lifecyclehook5/productor local de aparición declarados. Siguiente17e1b2 cubre esos límites antes provisión/activación; screenshot /private/tmp/dalis-next5-convergence-proof.png.
