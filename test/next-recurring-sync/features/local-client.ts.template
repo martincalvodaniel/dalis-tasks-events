@@ -8,6 +8,9 @@ import { OFFLINE_ACCOUNT_KEY } from "@/config/pwa"
 import { syncProtocolHeader } from "@/config/sync-protocol"
 import { createHttpSyncTransportV4 } from "@/features/sync/http-transport-v4"
 import { dispatchFixtureRetiredOperations } from "@fixture/retired-client"
+import { dispatchSyncOperationsV5 } from "@/features/sync/client-action-v5"
+import { createHttpRecurringSyncTransport } from "@/features/sync/http-recurring-transport"
+import { openLocalRecurringSyncRuntime } from "@/features/sync/local-recurring-runtime"
 import { readLocalRecurringBackup } from "@/lib/local-db/backup"
 import { SyncTransportError } from "@/features/sync/transport-error"
 
@@ -453,6 +456,42 @@ export async function executeLocalFixtureCommand(
         oldAccountRejected,
         oldSummaryRejected,
         oldAttemptRejected,
+      }
+    }
+    case "commit-occurrence": {
+      const outbox = await LocalOutbox.open(active.userId)
+      try {
+        await requireActiveAccount(active)
+        return await outbox.commitPlanOccurrenceCommand(command.command, {
+          operationId: command.operationId,
+          now: new Date(command.now),
+          expectedItem: command.expectedItem,
+          expectedOccurrence: command.expectedOccurrence,
+          captureRemoteRevision: true,
+        })
+      } finally {
+        outbox.close()
+      }
+    }
+    case "lost-recurring-response-run": {
+      let lost = false
+      const runtime = await openLocalRecurringSyncRuntime(
+        active,
+        createHttpRecurringSyncTransport(active.userId, async (input) => {
+          const result = await dispatchSyncOperationsV5(input)
+          if (!lost) {
+            lost = true
+            throw new Error(
+              "Fixture lost a committed recurring action response"
+            )
+          }
+          return result
+        })
+      )
+      try {
+        return await runtime.run()
+      } finally {
+        await runtime.close()
       }
     }
     case "save-plan":

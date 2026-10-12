@@ -1,0 +1,45 @@
+import type { RemoteRecurringChangesPage } from "@/types/remote-recurring-sync"
+
+export function canonical(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`
+  if (value !== null && typeof value === "object")
+    return `{${Object.entries(value)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, entry]) => `${JSON.stringify(key)}:${canonical(entry)}`)
+      .join(",")}}`
+  const serialized = JSON.stringify(value)
+  if (serialized === undefined)
+    throw new Error("Fixture projection must be JSON data")
+  return serialized
+}
+export function ordered(records: unknown[]): string {
+  return JSON.stringify(records.map(canonical).sort())
+}
+export function foldRecurringChanges(page: RemoteRecurringChangesPage) {
+  const projection = {
+    items: new Map<string, unknown>(),
+    occurrences: new Map<string, unknown>(),
+    tags: new Map<string, unknown>(),
+    itemViews: new Map<string, unknown>(),
+    taskPlacements: new Map<string, unknown>(),
+  }
+  for (const change of page.changes) {
+    if (change.kind === "item")
+      projection.items.set(change.item.id, change.item)
+    else if (change.kind === "plan-occurrence")
+      projection.occurrences.set(change.occurrence.id, change.occurrence)
+    else
+      for (const effect of change.effects.effects) {
+        if (effect.store === "tags")
+          projection.tags.set(effect.record.id, effect.record)
+        else if (effect.store === "itemViews")
+          projection.itemViews.set(effect.record.itemId, effect.record)
+        else if (effect.store === "taskPlacements")
+          projection.taskPlacements.set(
+            `${effect.record.scope}:${effect.record.date}:${effect.record.occurrenceId}`,
+            effect.record
+          )
+      }
+  }
+  return projection
+}

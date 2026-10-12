@@ -2,6 +2,10 @@
 
 Estado11oct: generación4 sólo sincroniza planes simples; series/apariciones/progreso/cambios de fecha siguen locales. Arrastre simple y checklist heredada entregados16c1–3. No activar parcialmente un nuevo alcance.
 
+## Productor de aparición y replay — 17e1b3
+
+Productor plan-occurrence-outbox real captura parentCAS1/slotCAS0 y enlaza dos UUID. Primera respuesta realaction5 se pierde después decommitMongo: receipt/journal crece uno, localfirst pending1/lease null y childpending0 sinACK. Defaultclient5 reenvía UUID/payload exactos, obtiene replayúnico y sólo rebasa CAS del dependiente nointentado0→1. Segundo ACK deja slotrevision2/in_progress y padre1 intacto; dosparticiones/cursor12/cinco proyecciones exactos y sinextra writes. Doce escenarios pasan; helperfold/canonical común evita comparación por orden de claves. DTOfixture impide actor/toggleCAS/referencia cruzada inyectados. Screenshot /private/tmp/dalis-next5-occurrence-proof.png, recursos propios limpios; siguientes categorías/orden/conflictos/tombstones y operación de índicePreview autorizada antes activación.
+
 ## Hook y época reales — 17e1b2
 
 Hook useRecurringSyncEngine real con action5/defaults y MapSWR propio separa key5 de cache4 preexistente. Outbox de plan/vista notifica resumenpending y obtiene ACK únicos. Nuevaépoca invalida cliente/resumen/intento anteriores; mismo árbol/provider sin key observa reset sinresult/summary/busy obsoletos. Unmount seguido de outbox/online/focus/visibility deja dos intenciones nuevas pending0 y sin reports; cliente5 fresco las confirma y ambos runtimes alcanzan journal10. Once escenariosNext5 propios pasan, sinGoogle ni productorlocalaparición todavía; screenshot /private/tmp/dalis-next5-hook-proof.png ycleanup propio completo. Sigue17e1b3.

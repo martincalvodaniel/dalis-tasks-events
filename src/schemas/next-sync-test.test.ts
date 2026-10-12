@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test"
+import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
 import {
   nextRecurringSyncStateSchema,
   nextSyncDeviceCommandSchema,
   nextSyncIndexControlSchema,
   nextSyncStateSchema,
 } from "@/schemas/next-sync-test"
+import { planSchema } from "@/schemas/plan-item"
 import { planSaveRequestSchema } from "@/schemas/plan-save"
 
 const request = planSaveRequestSchema.parse({
@@ -117,4 +119,53 @@ test("recurring fixture state admits appearances without widening generation fou
       page: { ...state.page, nextAfter: 0 },
     })
   ).toThrow()
+})
+
+test("appearance fixture binds expected records and cannot inject the captured CAS toggle", () => {
+  const series = planSchema.parse({
+    ...request.input,
+    id: request.itemId,
+    ownerId: "fixture-owner",
+    completedAt: null,
+    revision: 1,
+    createdAt: request.now,
+    updatedAt: request.now,
+    deletedAt: null,
+    recurrence: {
+      frequency: "daily",
+      interval: 1,
+      anchorDate: "2026-10-10",
+      timeZone: "Europe/Madrid",
+      end: { type: "never" },
+    },
+  })
+  const command = {
+    type: "plan.set-occurrence-status" as const,
+    itemId: series.id,
+    occurrenceId: `${series.id}:2026-10-10`,
+    status: "in_progress" as const,
+  }
+  const input = {
+    type: "commit-occurrence",
+    command,
+    operationId: request.contentOperationId,
+    now: request.now,
+    expectedItem: series,
+    expectedOccurrence: editablePlanOccurrence(
+      series,
+      null,
+      command,
+      series.ownerId
+    ).current,
+  }
+  expect(nextSyncDeviceCommandSchema.parse(input).type).toBe(
+    "commit-occurrence"
+  )
+  for (const invalid of [
+    { ...input, captureRemoteRevision: false },
+    { ...input, command: { ...command, expectedOccurrenceRevision: 12 } },
+    { ...input, expectedItem: { ...series, id: request.viewOperationId } },
+    { ...input, userId: "foreign" },
+  ])
+    expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
 })

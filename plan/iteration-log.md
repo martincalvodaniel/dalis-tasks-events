@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 17e1b3 — Aparición local y commit con respuesta perdida
+
+Cerrado12oct: doce escenarios Next5/IndexedDB/Mongo propios pasan. Productorreal captura CASparent1/appearance0 y dependencia; primer commitMongo pierde respuesta sinACKlocal, intento1 conservado/lease propio liberado/dependiente0. Replay UUID/payload exacto confirma único recibo y rebasa CAS del dependiente sólo nointentado0→1; revisionfinal2/in_progress, parent1 intacto y ambas particiones/cursor12/cinco proyecciones exactos. DTOfixture no permite actor/CAS/toggle/referencias cruzadas inyectados; helpers puros de comparación reutilizados. Reparado narrowing de itemId en callback de fixture antes ejecución. Suite750pass/201skip/0fail/10266aserciones, lint773/tipos/buildWebpack/worker46/diff aprobados, recursos/cookies/particiones propios limpiados; screenshot /private/tmp/dalis-next5-occurrence-proof.png. SinGoogle/activación/DBusuario; mismo commitpushint/HEAD/cuotas y siguiente17e1b4 si margen.
+
 ## 17e1b2 — Hook recurrente React real
 
 Cerrado12oct: wrapper5 real, cache5 presente/cache4 intacta, productor plan/vista notifica resumenpending y confirma dos ACKremotos únicos. Cambio deépoca rechaza cuenta/resumen/intento antiguo, componente/provider sin key resetea pass y no reports stale. Unmount/luego productor y eventoswake conservan dos intenciones pending0 sinleases ni reports; clientefresh recupera y ambos llegan journal10. Once escenarios Next5/React/IndexedDB/Mongo propios pasan, sin reparaciones de fixture en este corte. Suite749pass/201skip/0fail/10261aserciones, lint773/tipos/buildWebpack/worker46/diff aprobados; screenshot /private/tmp/dalis-next5-hook-proof.png, resources/cookies/particiones/server/container propios cerrados. NoGoogle/activación/productorlocalaparición. Mismo commitpushint/HEAD ycuotas; sigue17e1b3 si margen.

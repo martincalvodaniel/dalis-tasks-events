@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 17e1b3 — Aparición local, respuesta perdida y dependencia real
+
+- Estado: completada12oct; doce escenarios Next5/IndexedDB/Mongo propios pasan, slot revision2 y journal12 convergentes.
+
+- Objetivo: productor local real con CAS capturado, pérdida de respuesta después de commit remoto y replay/ACK/rebase de dependiente nointentado.
+- target_paths: src/schemas/next-sync-test.ts y test, test/next-recurring-sync/features/{local-client,device-client,controller,projection}.ts*.template y plan. Dependencias:17e1b2/ACK productor preparados; entrada56%5h/46%7d, reservas10%/1%, secuencial.
+- Aceptación: raízserie confirmada1, slotnuevo CAS0 y dos UUID originales; primer commit confirmado enMongo sinACKlocal, dependiente pending0 y lease propio liberado; replay único de primera aparición y CAS1 del dependiente sólo nointentado, revisiónfinal2/cursor/proyecciones exactas en ambos clientes y padresemántico intacto. Helpers de comparación reutilizados.
+- Validación: Next5/IndexedDB/Mongo reales yDoD, plan/log mismo commitpushint/HEAD/cuotas; sin Google/activación/DBusuario.
+
 ## 17e1b2 — Lifecycle React real del hook5
 
 - Estado: completada12oct; once escenarios Next5/React/IndexedDB/Mongo propios pasan, epoch/cache/listeners y ACKdurables probados.

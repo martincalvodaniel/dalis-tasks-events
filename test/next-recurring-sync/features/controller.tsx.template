@@ -7,6 +7,9 @@ import {
   nextSyncDeviceCommandSchema,
   nextRecurringSyncStateSchema,
 } from "@/schemas/next-sync-test"
+import { canonical, ordered, foldRecurringChanges } from "@fixture/projection"
+import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
+import { planSchema } from "@/schemas/plan-item"
 import { remoteRecurringPushResultSchema } from "@/schemas/remote-recurring-push"
 import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
 import { validateLocalRecurringBackup } from "@/lib/backup/local-backup"
@@ -578,48 +581,7 @@ export function FixtureController() {
               authoritative.page.through === remoteBefore.page.through + 4,
             "Recovery did not commit exactly four original operations"
           )
-          const projection = {
-            items: new Map<string, unknown>(),
-            occurrences: new Map<string, unknown>(),
-            tags: new Map<string, unknown>(),
-            itemViews: new Map<string, unknown>(),
-            taskPlacements: new Map<string, unknown>(),
-          }
-          for (const change of authoritative.page.changes) {
-            if (change.kind === "item")
-              projection.items.set(change.item.id, change.item)
-            else if (change.kind === "plan-occurrence")
-              projection.occurrences.set(
-                change.occurrence.id,
-                change.occurrence
-              )
-            else
-              for (const effect of change.effects.effects) {
-                if (effect.store === "tags")
-                  projection.tags.set(effect.record.id, effect.record)
-                else if (effect.store === "itemViews")
-                  projection.itemViews.set(effect.record.itemId, effect.record)
-                else if (effect.store === "taskPlacements")
-                  projection.taskPlacements.set(
-                    `${effect.record.scope}:${effect.record.date}:${effect.record.occurrenceId}`,
-                    effect.record
-                  )
-              }
-          }
-          const canonical = (value: unknown): string => {
-            if (Array.isArray(value))
-              return `[${value.map(canonical).join(",")}]`
-            if (value !== null && typeof value === "object")
-              return `{${Object.entries(value)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(
-                  ([key, entry]) => `${JSON.stringify(key)}:${canonical(entry)}`
-                )
-                .join(",")}}`
-            return JSON.stringify(value)
-          }
-          const ordered = (records: unknown[]) =>
-            JSON.stringify(records.map(canonical).sort())
+          const projection = foldRecurringChanges(authoritative.page)
           for (let index = 0; index < 2; index++) {
             const idle = (await call(index, { type: "mixed-run" })) as {
               status: string
@@ -876,6 +838,205 @@ export function FixtureController() {
         }
       )
       await check(
+        "Aparición local conserva UUID tras respuesta perdida y rebasa sólo dependiente",
+        async () => {
+          const snapshot = async (index: number) => {
+            const value = (await call(index, { type: "local-snapshot" })) as {
+              backup: unknown
+              cursor: unknown
+            }
+            return {
+              backup: validateLocalRecurringBackup(value.backup, owner),
+              cursor: localPullCursorSchema.parse(value.cursor),
+            }
+          }
+          assert(
+            creation.command.type === "item.create",
+            "Fixture series creation changed"
+          )
+          const before = await state(owner)
+          const seriesId = creation.command.itemId
+          const parent = planSchema.parse(
+            (await snapshot(0)).backup.stores.items.find(
+              (item) => item.id === seriesId
+            )
+          )
+          const command = {
+            type: "plan.set-occurrence-status" as const,
+            itemId: parent.id,
+            occurrenceId: `${parent.id}:2026-10-13`,
+            status: "completed" as const,
+          }
+          const firstId = crypto.randomUUID(),
+            secondId = crypto.randomUUID()
+          const initial = editablePlanOccurrence(
+            parent,
+            null,
+            command,
+            owner
+          ).current
+          await call(0, {
+            type: "commit-occurrence",
+            command,
+            operationId: firstId,
+            now: new Date().toISOString(),
+            expectedItem: parent,
+            expectedOccurrence: initial,
+          })
+          const firstSnapshot = await snapshot(0)
+          const current = firstSnapshot.backup.stores.occurrences.find(
+            (occurrence) => occurrence.id === command.occurrenceId
+          )
+          assert(
+            current?.kind === "plan" && current.revision === 0,
+            "Local appearance did not retain confirmed CAS zero"
+          )
+          await call(0, {
+            type: "commit-occurrence",
+            command: { ...command, status: "in_progress" },
+            operationId: secondId,
+            now: new Date().toISOString(),
+            expectedItem: parent,
+            expectedOccurrence: current,
+          })
+          const pending = await snapshot(0)
+          const first = pending.backup.stores.outbox.find(
+            (entry) => entry.operation.operationId === firstId
+          )
+          const second = pending.backup.stores.outbox.find(
+            (entry) => entry.operation.operationId === secondId
+          )
+          assert(
+            first &&
+              second &&
+              first.operation.command.type === "plan.set-occurrence-status" &&
+              second.operation.command.type === "plan.set-occurrence-status" &&
+              first.operation.baseRevision === 1 &&
+              first.operation.command.expectedOccurrenceRevision === 0 &&
+              second.operation.command.expectedOccurrenceRevision === 0 &&
+              second.dependencies.includes(firstId),
+            "Real producer did not capture separate appearance CAS and exact dependency"
+          )
+          const lost = (await call(0, {
+            type: "lost-recurring-response-run",
+          })) as { status: string; uploaded: number }
+          assert(
+            lost.status === "retry_later" && lost.uploaded === 0,
+            "Lost response manufactured local ACK"
+          )
+          const committed = await state(owner)
+          assert(
+            committed.counts.receipts === before.counts.receipts + 1 &&
+              committed.page.through === before.page.through + 1 &&
+              committed.counts.occurrences === before.counts.occurrences + 1,
+            "Lost response lacks one real remote commit"
+          )
+          const retained = await snapshot(0)
+          const attempted = retained.backup.stores.outbox.find(
+            (entry) => entry.operation.operationId === firstId
+          )
+          const dependent = retained.backup.stores.outbox.find(
+            (entry) => entry.operation.operationId === secondId
+          )
+          assert(
+            attempted?.state === "pending" &&
+              attempted.attempts === 1 &&
+              attempted.lease === null &&
+              canonical(attempted.operation) === canonical(first.operation) &&
+              dependent?.state === "pending" &&
+              dependent.attempts === 0 &&
+              dependent.lease === null &&
+              canonical(dependent.operation) === canonical(second.operation),
+            "Lost response rewrote attempted intention or acknowledged dependent"
+          )
+          const replay = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            replay.status === "settled" && replay.uploaded === 2,
+            "Replay failed to ACK original and its dependent"
+          )
+          const final = await state(owner)
+          assert(
+            final.counts.receipts === before.counts.receipts + 2 &&
+              final.page.through === before.page.through + 2 &&
+              final.counts.items === before.counts.items,
+            "Replay duplicated journal or changed root semantics"
+          )
+          const projection = foldRecurringChanges(final.page)
+          const occurrence = projection.occurrences.get(
+            command.occurrenceId
+          ) as { revision: number; status: string; completedAt: string | null }
+          assert(
+            occurrence.revision === 2 &&
+              occurrence.status === "in_progress" &&
+              occurrence.completedAt === null &&
+              canonical(projection.items.get(parent.id)) === canonical(parent),
+            "Dependent appearance did not commit revision two with unchanged parent"
+          )
+          for (const id of [firstId, secondId])
+            assert(
+              final.page.changes.filter((change) => change.operationId === id)
+                .length === 1,
+              "Appearance UUID committed more than once"
+            )
+          for (let index = 0; index < 2; index++) {
+            const idle = (await call(index, { type: "mixed-run" })) as {
+              status: string
+              uploaded: number
+            }
+            assert(
+              idle.status === "settled" && idle.uploaded === 0,
+              "Appearance convergence repeated a write"
+            )
+            const complete = await snapshot(index)
+            assert(
+              complete.cursor.after === final.page.through &&
+                complete.cursor.through === null,
+              "Appearance pull did not converge cursor"
+            )
+            for (const store of [
+              "items",
+              "occurrences",
+              "tags",
+              "itemViews",
+              "taskPlacements",
+            ] as const)
+              assert(
+                ordered(complete.backup.stores[store]) ===
+                  ordered([...projection[store].values()]),
+                `Appearance ${store} differs from Mongo`
+              )
+            if (index === 0) {
+              const ack = complete.backup.stores.outbox.find(
+                (entry) => entry.operation.operationId === firstId
+              )
+              const child = complete.backup.stores.outbox.find(
+                (entry) => entry.operation.operationId === secondId
+              )
+              assert(
+                ack?.state === "acknowledged" &&
+                  ack.attempts === 2 &&
+                  canonical(ack.operation) === canonical(first.operation) &&
+                  child?.state === "acknowledged" &&
+                  child.attempts === 1 &&
+                  child.operation.command.type ===
+                    "plan.set-occurrence-status" &&
+                  child.operation.command.expectedOccurrenceRevision === 1 &&
+                  canonical(child.dependencies) ===
+                    canonical(second.dependencies),
+                "ACK/rebase changed attempted payload or lost direct dependent"
+              )
+            }
+          }
+          assert(
+            canonical(await state(owner)) === canonical(final),
+            "Final idle changed remote history"
+          )
+        }
+      )
+      await check(
         "Revocar sesión bloquea RPC sin alterar datos confirmados",
         async () => {
           const before = await state(owner)
@@ -935,7 +1096,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Once escenarios de frontera Next5 correctos; sesiones propias cerradas"
+            "Doce escenarios de frontera Next5 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

@@ -1,6 +1,13 @@
 import { z } from "zod"
+import { planSchema } from "@/schemas/plan-item"
+import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
+import { planOccurrenceCommandSchema } from "@/schemas/plan-occurrence-command"
 import { planSaveRequestSchema } from "@/schemas/plan-save"
-import { entityIdSchema, userIdSchema } from "@/schemas/primitives"
+import {
+  entityIdSchema,
+  timestampSchema,
+  userIdSchema,
+} from "@/schemas/primitives"
 import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
 import { remoteRecurringChangesPageSchema } from "@/schemas/remote-recurring-changes"
 import { syncCommandSchema } from "@/schemas/sync"
@@ -115,6 +122,23 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
     type: z.literal("save-plan"),
     request: planSaveRequestSchema,
   }),
+  z
+    .strictObject({
+      type: z.literal("commit-occurrence"),
+      command: planOccurrenceCommandSchema,
+      operationId: entityIdSchema,
+      now: timestampSchema,
+      expectedItem: planSchema,
+      expectedOccurrence: planOccurrenceSchema,
+    })
+    .refine(
+      (value) =>
+        value.command.itemId === value.expectedItem.id &&
+        value.command.occurrenceId === value.expectedOccurrence.id &&
+        value.expectedOccurrence.seriesId === value.expectedItem.id,
+      "Fixture appearance references must match their expected records"
+    ),
+  z.strictObject({ type: z.literal("lost-recurring-response-run") }),
   z.strictObject({ type: z.literal("mixed-summary") }),
   z.strictObject({ type: z.literal("mixed-run") }),
   z.strictObject({ type: z.literal("legacy-missing-action-run") }),
