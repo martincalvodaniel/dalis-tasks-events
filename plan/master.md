@@ -1,24 +1,30 @@
 # Dalis Tasks & Events — plan maestro
 
-## Punto de actuación humana — 12 de octubre, 17e2b1
+## Estado operativo — 12 de octubre de 2026
 
-Cuatrocortes decontinuación general cerrados enint: guardiaépoca trascommit, backup3/import, overview/UIreadonly yconexiónconjunta. **Repetición remota preparada/probada como perfil5 propio, todavía desactivada enproducto4**. Unaúnicaselección conecta todasfronteras/consumidores/productores; referencia5inactiva noejecuta aunque hayaíndices. Next5 propio19escenarios yregresiónNext420escenarios pasan; suite753pass/206skip/0fail, lint782/tipos/buildWebpack/worker46. FixturesnoGoogle/deployment real.
+Último código publicado: `d0f7334`, en `int`. **El producto sigue en generación 4: sincroniza planes simples, categorías, asignaciones y orden. La repetición remota está preparada y probada, pero todavía no está activada.**
 
-Siguiente17e2b2: autorizaciónespecífica pendiente para índice plan_occurrences_user_series_slot_uidx yregistradosfaltantesPreview; procedimientoprobado, fuentePreviewactualAtlasdebug distintaProduction revalidada, nombreDB confirmado dalis-tasks-events. Secreto oculto, noURIcapturado/conexiónDBusuario/índiceejecutado. Tras permiso: resolverdestino/provisiónreadyclosed/readiness5, selectorconjunto ypilotoPreview/Google; históricossinCAS preservadosunsupported. Worktreeint gestionado coherente, checkoutmain humano intacto; sin nuevaautomatización. Plancompleto autorizado, compartirGmail excluido; cumpleaños/preferencias/pilotofinal tras cierredep.
+| Entrega cerrada | Resultado | Commit |
+| --- | --- | --- |
+| 17e1b5b | Cambio de época después de un commit remoto: cola conservada y recuperación sin duplicados. | `05cdeb8` |
+| 17e2a1 | Backup portable 3 e importación de copias simples, con evidencia recurrente, rollback y replay. | `22cd1aa` |
+| 17e2a2 | Comparación de conflictos de aparición, sin escrituras ni nuevas elecciones de resolución. | `3fe46ea` |
+| 17e2b1 | Selección conjunta de rutas, acciones, proveedor, caché, productores y consumidores de generación 5. El selector del producto permanece desactivado. | `d0f7334` |
 
-## Comparación recurrente — 17e2a2
+Validación: **19 escenarios Next/React/IndexedDB/Mongo del perfil recurrente y 20 de regresión del perfil activo**, con sesiones Better Auth persistidas y recursos propios. Suite general: 753 pass, 206 opt-in skip, 0 fail; 10.298 aserciones. Lint, tipos, build Webpack y worker con 46 recursos aprobados. Estas pruebas no sustituyen el piloto Google ni prueban el ID exacto de la acción del deployment.
 
-Overview futuro ypanel readonly deapariciones cerrados con lecturaTXdeconflicto real, preservandoevidencia/cola/padrelocal yseries separados. Diecinueve escenariosNext5 propios yDoD pasan; callersactivos4 intactos, ninguna resolución/ACK por consultar. Sigue conexiónconjunta17e2b de rutas/identidad/retiro4/provider/backup/import/incidentes/productores; índicePreview esperaautorizaciónespecífica. CompartirGmail fueraalcance, noDBusuario.
+**Siguiente paso: 17e2b2.** Falta la autorización específica para crear `plan_occurrences_user_series_slot_uidx` y los índices registrados anteriores que falten **únicamente en preproducción**. El [procedimiento](recurring-index-provisioning.md) ya pasó tres escenarios con Mongo propio. Después: validar destino, ejecutar hasta recibir `ready` y `closed`, comprobar readiness 5, activar el selector conjunto y realizar el piloto Preview/Google.
 
-## Consumidores de repetición — 17e2a1
+Fuente revalidada: Vercel vincula `MONGODB_URI` de Preview a `atlas-dalis-tasks-events-debug`, distinto del recurso de Production. No se ve `MONGODB_DB` ni un override de `int` en el listado. El nombre `dalis-tasks-events` ya está confirmado por el usuario. La guía permanece con el secreto oculto; no se han leído credenciales, abierto Mongo del usuario ni creado índices en esta continuación.
 
-Backup/importación futura3 preparados yprobados con snapshotTX/rollback/replay/ACKMongo único de una copia simple nueva. Evidencia ycola recurrentes íntegras; no restaurarapariciones/series ni comandosarchivados. Dieciocho escenariosNext5 propios yDoD pasan; callersactivos4 intactos. Sigue overview/UI deconflictos17e2a2 yconexiónconjunta17e2b; permisoíndicePreview pendiente, sinDBusuario.
+Se conservan UUID, payloads, dependencias, intentos, outcomes, shadows, tombstones y cursores. Las intenciones históricas de aparición sin CAS siguen fuera del soporte; no se reescriben ni reciben ACK falso. La comparación recurrente no ofrece todavía resolución de apariciones.
 
-## Continuación general autorizada — 12 de octubre
+Autorización vigente: continuar el plan completo, con commit + push por entrega validada en `int` y consulta de ambas cuotas. Reserva: 10% de 5h y 1% semanal. Última lectura tras el código: **42% / 30%**. La siguiente actuación exige respuesta humana, no falta de presupuesto. No se ha programado una nueva automatización. Compartir por Gmail sigue fuera del alcance.
 
-17e1b5b cerrado: época real cambiada tras commitMongo en vuelo conserva intención ydepenciente, recuperación única con cliente fresco; diecisiete escenariosNext5 propios pasan yDoDglobal aprobado. Usuario autoriza continuar el plan completo, reservando10%5h/1%7d yconsultando cuotas trascada commitpushint. Entrada99%5h/39%7d, reset5h1791799993. Trabajo worktreeint, checkoutmain intacto; no nueva automatización. ÍndiceapariciónPreview requiere permiso específico (pregunta pendiente); **repetición remota sigue preparatoria4 activa**. Siguiente integración consumidores/backup/incidentes/productores yconexión conjunta17e2 después readiness.
+Trabajo en el worktree gestionado `/Users/03762078/.codex/worktrees/recurring-sync-next/dalis-tasks-events`; el checkout humano de `main` permanece intacto. Tras cerrar la repetición: cumpleaños, preferencias y validación final del MVP, siguiendo [iterations.md](iterations.md).
 
-## Estado operativo actual — 12 de octubre
+## Histórico — lote puntual de las 01:27 del 12 de octubre
+
 
 **Lote01:27 cerrado tras17e1b5a.** Ocho cortes publicados enint: fronteraNext5, colaantigua conservada, recuperación/convergencia, hook/época, productoraparición/replay, preferencias/conflictos/tombstones, operadoríndices y cuentaRemota. Dieciséis escenarios reales Next/React/IndexedDB/Mongo propios pasan; operadorCLI trescasos100aserciones y regresiónNext4 diecinuevecasos aprobados. ÚltimoDoD751pass/206skip/0fail, lint779/tipos/buildWebpack/worker46. **Producto sigue generación4; repetición remota NO activada.**
 

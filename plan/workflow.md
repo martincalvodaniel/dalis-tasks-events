@@ -1,8 +1,12 @@
 # Flujo de trabajo con Codex
 
-## Continuación general12oct
+## Continuación general autorizada — 12 de octubre
 
-El usuario aclara «Mi continúa es general. Adelante con el plan completo»: continuar cortes coherentes con commitpushint/HEAD y consulta automática deambascuotas después de cadaentrega, reservas10%5h/1%7d. Entrada99%/39%, reset5h real1791799993. Reutilizar worktreeint gestionado, checkoutmain ajeno intacto. No autoriza nueva cadena deautomatizaciones ni nuevas actuacionesDB ajenas sin alcance específico; permisoíndiceapariciónPreview preguntado ypendiente. Si falta margen/lectura o intervenciónnecesaria, cerrar repo coherente.
+El usuario aclara: «Mi continúa es general. Adelante con el plan completo». Se completan cortes coherentes con commit y push a `int`, verificación de HEAD remoto y consulta automática de ambas cuotas después de cada entrega. Reservas: 10% en 5h y 1% semanal. Entrada: 99% / 39%; reset de 5h publicado: `1791799993`. Tras cuatro cortes técnicos: 42% / 30%.
+
+Reutilizar el worktree gestionado de `int` y conservar el checkout humano de `main`. La continuación no programa una nueva cadena de automatizaciones. La autorización específica del índice de aparición Preview sigue pendiente; la fuente de configuración y el procedimiento ya están preparados. Antes de actuar, seguir [recurring-index-provisioning.md](recurring-index-provisioning.md).
+
+Si falta margen, no se puede leer la cuota o se necesita una intervención humana, cerrar el repositorio de forma coherente. El cierre actual se debe a la autorización pendiente del índice; no se empieza otra entrega dependiente ni se presume una respuesta por el tiempo transcurrido.
 
 ## Reserva vigente por ventana
 

@@ -1,32 +1,25 @@
 # Sincronización de series y apariciones comunes
 
-## 17e2b1 — Conexión conjunta recurrente en espera de índice Preview
+## Estado — 12 de octubre
 
-12oct: una seleccióncompilada recurringSyncReleaseEnabled=false conecta condicionalmente identidad/pull5, action4retirement, action5/defaults, proveedor5/context/cache, export/import3, overview5, snapshotdelresolver, capturaCASaparición yproductororden. Mientrasfalse producto4/defaults intactos; action5compilada autenticaenvelope2 ydevuelveupdate_required ANTES readiness/ejecutor, sinactivarparcialmente. No eleccionesnuevas deresolución: políticaantigua se conserva yapariciones siguenreadonly.
+Código `d0f7334` publicado en `int`. **Generación 4 activa; generación 5 preparada y probada como perfil aislado, sin repetición remota activada todavía.** Compartir por Gmail está fuera del alcance.
 
-FixtureNext5 usa aliasexplícito release-profile propio (no env/producción) ydelegarutasGETproductivas/action4real yActiveSyncProvider/SyncContext; productoresUI changeLocalPlanOccurrence/moveLocalPlan ylectores/preparador/commit debackup reales. Snapshotdelresolverrecibe cola completa junto aevidenciaaparición; ochostores de lectura readonly. Diecinueveescenarios5 completos pasan, incluidos matriz/captured4/ID409/ACKreplay/epoch/CAS/pref/conflicto/historia/backup/overview. RegresiónNext4 añadeceguardiaaction5inactiva con índices5 propios presentes:20escenarios pasan yMongo intacto. Espruebadeperfilcompiladopropio, noendpointPreview niGooglefísico.
+La selección conjunta conecta identidad/pull, retiro de acción 4, acción 5, proveedor/contexto/caché, productores de aparición/orden y consumidores de backup/importación/incidentes. La referencia 5 inactiva rechaza antes de readiness o ejecución, incluso cuando sus índices existen.
 
-Correccionesdefixture cerradas: tipo de entradaunknown de referenciaretirada, resultadoTXtipado ybatchdelcasoinactivo con actorownerenlugarcadena vacía. Última suite753pass/206opt-in skip/0fail/10298aserciones, lint782/tipos/Next16.4Webpack/worker46/diff aprobados. RecursosDocker/loopback/Next/particiones/cookies propioslimpios, checkoutmain limpioeintacto. Screenshots /private/tmp/dalis-next5-product-wiring-proof.png y /private/tmp/dalis-next4-inactive-reference-proof.png.
+Evidencia propia: 19 escenarios Next 5 y 20 de regresión Next 4, con sesiones Better Auth persistidas, dos particiones IndexedDB y Mongo propio. Incluyen replay tras respuesta perdida, cambio de época después de commit, CAS independientes, conflictos/dependientes, tombstones, copias portables con rollback y comparación readonly. 753 pass / 206 opt-in skip / 0 fail; lint, tipos, build Webpack y worker 46 aprobados. No equivale a Google interactivo, dos dispositivos físicos ni endpoint exacto desplegado.
 
-FuenteVercelPreview revalidada por listadoMONGODB_URI ylink Atlasdebug distintoProduction; sinMONGODB_DB ni overrideint visible, guíaDisponible/secretooculto ytab60 conservada para continuidad. NingúnURIcapturado/MongoUsuarioabierto/índicePreviewcreado. Permisoespecífico continúa pendiente; siguiente17e2b2 procedimientoreadyclosed→selectorconjunto→piloto. Cerrar lote coherentemientras requiere actuaciónhumana, sin nuevaautomatización; compartirGmail fueraalcance.
+La comparación de aparición separa serie actual, aparición local, estado congelado al resultado y remoto conocido. La cola pendiente puede conservar el padre local aunque el servidor lo haya borrado. No se ofrece recuperación de apariciones ni se supone que un shadow observado sea ancestro. Históricos sin CAS permanecen unsupported, sin reescritura ni ACK falso.
 
+Siguiente: **17e2b2**, autorización específica del índice Preview, destino validado y provisión `ready` / `closed`, readiness 5, selector conjunto y piloto. Fuente Preview revalidada en Vercel; secreto oculto, sin capturar URI ni abrir DB del usuario. Procedimiento en [recurring-index-provisioning.md](recurring-index-provisioning.md). Worktree `int` coherente; `main` humano intacto. Última lectura tras el código: 42% / 30%; reservas 10% / 1%. No hay nueva automatización.
 
-## 17e2a2 — Overview y comparación readonly recurrentes
+## Entregas de la continuación general
 
-12oct: readerfuturo unaTX de ochostores bounded10001/rechazooverflow/partición/decoder5, completo sin filtrar evidencia inválida. Overview compone item/personal/aparición porsequence yconserva intenciones/frozenoutcomes; puertosactivos4 strict. Panel compacto español distingue serie y slot, localactual/resultadofrozen/shadow/remotoconocido/cancelación/pasos, noofrece recuperaciónaparición niACK. Testpuro/SSR15aserciones incluye conflictomixto raíz+aparición, duplicates/foreign/orphan/overflow ylegacyreject; 22testsespecíficos192aserciones pasan. FixtureNext5 real comprueba overviewB deconflicto condependiente, remotocancelado4 frentealocalconservado ypadreactualexacto, ceroescrituras/ACK/alteraciónMongo; A sinincidentes. Primera expectativa asumíatombstonelocaldelpadre, corregida porquecola pendiente preserva versiónlocal; repetir19escenarios aprobado. Suite753pass/206opt-in skip/0fail/10298aserciones, lint781/tipos/Next16.4Webpack/worker46/diff aprobados. Recursos propios cerrados; screenshot /private/tmp/dalis-next5-incidents-proof.png. SinDBusuario/activación; siguiente17e2b conexiónconjunta preparatoria ypermisopendienteíndicePreview.
+- `05cdeb8` / 17e1b5b: cambio de época tras commit remoto, sin ACK antiguo y con recuperación única.
+- `22cd1aa` / 17e2a1: formato portable 3 y copia simple con rollback/replay, sin restaurar comandos archivados.
+- `3fe46ea` / 17e2a2: overview en una TX y panel compacto readonly para apariciones.
+- `d0f7334` / 17e2b1: todos los puertos seleccionados juntos, todavía desactivados en el producto.
 
-
-## 17e2a1 — Backup3, comparación e importación por copia
-
-12oct: puertos preparados readRecurring/commitRecurring ycodecschemas futuro3 mantienen parsers1/2 strict. Snapshot/copia usa encoder/validator futuro juntos; archivooriginal de recibo3 se valida como evidenciaopaca sinrestaurarcola. Copia únicamente plan simple con UUID nuevo, sin tocar series/apariciones/cola/evidencia originales. Un testpuro13aserciones comprueba soporte/selections/stale/newidentity/poststate archived3, regresionesbackup34tests394aserciones pasan. FixtureNext5 real añade rollbackfalloúltimorecibo/retry/replay/storesexactos y únicoACKMongo de copia nueva; dieciochoescenarios pasan. Primerensayo detectó decoderarchivo1/2 en recibo, reparado yrepetido; literalTS decontador estrechado. Suite752pass/206opt-in skip/0fail/10283aserciones, lint779/tipos/Next16.4Webpack/worker46/diff aprobados. Recursos propios cerrados; screenshot /private/tmp/dalis-next5-import-proof.png. SinDBusuario/callers5/activación, permisoíndicePreview pendiente. Siguiente17e2a2 overview/UI recurrente ydespués conexión conjunta17e2b.
-
-
-## 17e1b5b — Época después de commit remoto en vuelo
-
-12oct: runtime5 real despacha action5/defaults y rota cuenta-control durable después del commitMongo, antes de entregar respuesta. Pasada anterior devuelve account_changed uploaded0, rootpending1/dependentpending0 UUID/payload/deps exactos, leasespropios liberados y sinoutcome. Cliente5 fresco replaysroot yACKdependiente, dosrecibos/dossecuencias únicas, cinco proyecciones/cursor exactos; peerconflictivo no cambia. Diecisiete escenariosNext5/BetterAuth/IndexedDB/Mongo propios pasan; primerensayo omitió allowlistcomando de fixture, corregido yrepetido completo. Recursos propios limpios; screenshot /private/tmp/dalis-next5-epoch-proof.png. Suite751pass/206opt-in skip/0fail/10270aserciones, lint779/tipos/Next16.4Webpack/worker46/diff aprobados. Checkoutmain intacto, trabajo worktreeint. PermisoíndicePreview pendiente, sinDBusuario/activación; siguiente17e2 consumidores yconexión conjunta.
-
-
-Estado11oct: generación4 sólo sincroniza planes simples; series/apariciones/progreso/cambios de fecha siguen locales. Arrastre simple y checklist heredada entregados16c1–3. No activar parcialmente un nuevo alcance.
+## Registro histórico anterior
 
 ## Cuenta distinta y cierre — 17e1b5a
 

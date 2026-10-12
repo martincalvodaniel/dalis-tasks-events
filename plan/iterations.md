@@ -1,52 +1,59 @@
 # Iteraciones de implementación
 
+## 17z2 — Cierre documental legible de la continuación general
+
+- Estado: completada; referencias, consistencia y diff aprobados. Documentación únicamente.
+- Objetivo: resumir el estado actual, la evidencia y la actuación humana pendiente sin confundir preparación con activación.
+- target_paths: `plan/{master,workflow,iterations,recurrence-sync,iteration-log,recurring-index-provisioning}.md`.
+- Dependencias: 17e2b1 publicado; entrada 42% de 5h / 30% semanal, reservas 10% / 1%.
+- Aceptación: commits y cifras comprobados, producto 4 activo / perfil 5 preparado, permiso Preview pendiente y fuente verificada. Historia anterior conservada y sin nuevas actuaciones externas.
+- Validación: referencias, consistencia y `git diff --check`; commit + push a `int`, HEAD remoto y ambas cuotas.
+
 ## 17e2b2 — Provisión Preview y activación
 
-- Estado: pendiente de autorización específica para índiceaparición; no comenzar actuaciónDB hasta respuesta afirmativa.
-- Objetivo: ejecutar procedimiento5 ya validado sólo sobre fuentePreview confirmada, obtener reciboready/closed yactivar selectorconjunto probado17e2b1, seguido depilotoPreview/Google.
-- target_paths: config/common-plan-release.ts yplan; actuación privada sólo CLIoperador existente, URI únicamenteenvprivado. Dependencias:17e2b1, permiso específico/resolución de fuente/target yreadiness5.
-- Aceptación: crear sólo índicesregistrados faltantes enPreview, conservar datos/duplicados/incompatibles, nuncaProduction; identidad/pull5/action4retired/action5/provider5/codec3/incidentes/CAS/orden junto. UUID/outcomes/shadows/tombstones/cursors intactos yhistóricos sinCAS unsupported explícitos. PilotoGoogle exactodeployment separado defixtures, pedir segundo dispositivo/perfilreal sólo si necesario.
-- Fuente12oct: panelVercel muestra dosMONGODB_URI: Preview ligado store_VHA2qnXTw8kvBBbL/debug yProduction aotro recurso; sinMONGODB_DB ni overrideint visible enlistado. GuíadePreview actual atlas-dalis-tasks-events-debug disponible/secretooculto, tab60 conservada. NombreDBhumano confirmado dalis-tasks-events, no repreguntar. Sin recapturarURI/abrirMongo delusuario ni ejecucióníndice enesta continuación.
-- Validación: reciboprivado saneado/provisión/readiness yDoD/cutcommitpushint/HEAD/cuotas; activaciónsinprerrequisitos queda bloqueada, noflipsolo porconfig ni anunciarGoogle/convergenciapordos pestañas.
+- Estado: pendiente de autorización específica para el índice de aparición.
+- Objetivo: ejecutar el procedimiento validado en Preview, obtener recibo `ready` / `closed` y readiness 5; activar la selección conjunta y realizar el piloto Preview/Google.
+- target_paths: `src/config/common-plan-release.ts` y `plan/**`; ejecución privada mediante el CLI existente, con URI sólo en entorno privado.
+- Dependencias: 17e2b1, autorización afirmativa, fuente y destino verificados. Nombre de DB confirmado: `dalis-tasks-events`; no repreguntarlo.
+- Aceptación: sólo índices registrados faltantes en Preview, conservación de datos y parada ante incompatibilidades o duplicados. Selector conjunto de identidad/pull/acciones/proveedor/codec/incidentes/CAS/orden; UUID y evidencia intactos. Históricos sin CAS conservados como unsupported.
+- Fuente: `MONGODB_URI` de Preview está vinculada al recurso Atlas debug, distinto del recurso de Production. Sin `MONGODB_DB` ni override de `int` visible. Guía disponible con secreto oculto; pestaña 60 conservada. No se han capturado credenciales ni abierto Mongo del usuario.
+- Validación: recibo saneado, readiness y DoD; commit + push / HEAD remoto / cuotas. El piloto Google y el deployment exacto requieren evidencia propia; dos pestañas no son dos dispositivos físicos.
 
-## 17e2b1 — Conexión conjunta con perfil recurrente todavía desactivado
+## 17e2b1 — Conexión conjunta con perfil todavía desactivado
 
-- Estado: completada12oct; selectorproducto falso conserva4, perfil5 propio prueba rutas/acción/proveedor/productores/consumidores reales; diecinueve escenarios5 yveinte regresiones4/guardia inactiva pasan.
-- Objetivo: conectar todoslospuertos deproducto5 mediante una sola seleccióncompilada falsa enproducto hastaíndicePreview/readiness autorizado; probarselección5 coherente enNext propio con aliasexplícito deperfil.
-- target_paths: config/common-plan-release.ts, app/api/sync/changes/route.ts, features/sync/{actions-v4,actions-v5,local-incidents,hooks/use-sync-incidents,components/active-sync-provider,components/recurring-sync-provider,components/device-sync-settings,components/sync-status-panel}, features/plans/{local-plans,hooks/use-plan-order}, features/workspace/{local-backup,download-backup,import-backup}, lib/local-db/{sync-store,sync-incidents,sync-resolution}, lib/sync/incident-snapshot, scripts/next-sync-test-runner.ts yfixtureNext4/Next5/schemafixture/plan.
-- Dependencias:17e1/17e2a1/17e2a2; entrada68%5h/34%7d, reservas10%/1%, secuencial. Previewíndice no autorizado aún; preparar noesactivar ni accederDBusuario.
-- Aceptación: identidad/pull5/action4retirement/provider5/cache5/codec3/import/incidentes/CASaparición/orderecurrente seleccionados juntos. Producto4 conserva defaults con flagfalse; fixture5 delega rutasproductivas yaction4real, proveedor/context reales, snapshot delresolveritem conserva cola/evidenciaaparición sin ofrecer nuevas elecciones. ViejoIDausente409/noACK ymatrix headerbeforebody intactos; no rewriting históriconi recuperaciónapariciónnueva.
-- Validación: Next compilado perfil5/Mongo propio/BetterAuth/dosIndexedDB, regresionespuras/DoDbuildWebpack; plan/log mismo commitpushint/HEAD/cuotas. Sólo después autorizacióníndicePreview/readiness yprueba publicación cambiarselectorconjunto.
-
+- Estado: completada; código `d0f7334`.
+- Objetivo: seleccionar todos los puertos del producto 5 juntos y conservar el producto 4 hasta la provisión autorizada.
+- target_paths: configuración de release, ruta de descarga, acciones 4/5, proveedor/contexto, productores de aparición/orden, backup/importación/incidentes, snapshot del resolver y fixtures Next 4/5.
+- Dependencias: 17e1 y 17e2a; entrada 68% / 34%, reservas 10% / 1%, trabajo secuencial.
+- Aceptación: perfil 5 aislado usa rutas y acciones productivas, proveedor real, productores de la UI y funciones de backup de cuenta. La referencia 5 desactivada rechaza antes de readiness/ejecución incluso con índices preparados. Política de resolución anterior conservada; ninguna elección nueva para apariciones.
+- Validación: 19 escenarios Next 5 y 20 Next 4 aprobados, suite 753 pass / 206 skip / 0 fail, lint 782, tipos, build Webpack y worker 46. Recursos propios limpiados; sin actuación en DB del usuario.
 
 ## 17e2a2 — Comparación y UI de incidentes recurrentes
 
-- Estado: completada12oct; overview/UIreadonly futuro probados con conflicto real, diecinueve escenariosNext5 yDoD pasan.
-- Objetivo: overview futuro completo en unaTX ypanel compacto readonly para apariciones junto a conflictos de contenido/personal, conservando consumidoresactivos4 strict.
-- target_paths: schemas/recurring-sync-incident.ts, types/recurring-sync-incident.ts, lib/sync/{incident-snapshot,recurring-incident-snapshot,recurring-incident-snapshot.test}.ts, lib/local-db/sync-incidents.ts, features/sync/components/{sync-incident-panel,plan-occurrence-incident-card,plan-occurrence-incident-version}.tsx, fixtureNext5/schemas-next-sync-test yplan.
-- Dependencias:17c3/17e2a1; entrada78%5h/36%7d, reservas10%/1%, secuencial. NoDBusuario niactivación parcial.
-- Aceptación: captura completa bounded/ownership/decoder5 coherentes; ninguna omisión silenciosa deaparición/outcome; separarlocalactual/resultadofrozen/remotoconocido/serieactual, shadow noancestro. UIespañola compacta sinofrecer recuperación noimplementada niACK; readonly storesexactos ypeerconflictivo conservado.
-- Validación: puro forged/duplicates/foreign/legacystrict ySSR, readerTXrealNext5, suite/lint/tipos/buildWebpack; plan/log mismo commitpushint/HEAD/cuotas.
+- Estado: completada; código `3fe46ea`.
+- Objetivo: overview completo en una TX y comparación compacta de apariciones, junto a incidentes de contenido y preferencias.
+- target_paths: schemas/types de incidentes, planners y reader IndexedDB, panel/versiones de aparición y fixtures Next 5.
+- Dependencias: 17c3 y 17e2a1; entrada 78% / 36%, reservas 10% / 1%.
+- Aceptación: snapshot bounded, ownership y decoders coherentes; padre, aparición, estado local, evidencia congelada y remoto conocido separados. Sin escrituras, ACK ni resolución nueva.
+- Validación: test puro/SSR de corrupción y comparación mixta, lectura de conflicto real con dependiente conservado; 19 escenarios Next 5 y DoD aprobados.
 
+## 17e2a1 — Importación y lectura portable recurrentes
 
-## 17e2a1 — Importación y lectura portable recurrentes coherentes
+- Estado: completada; código `22cd1aa`.
+- Objetivo: leer/exportar formato 3 e importar copias de planes simples en presencia de evidencia recurrente, manteniendo los consumidores activos estrictos.
+- target_paths: schemas/types de importación, codecs/planners, reader/importer IndexedDB y fixtures Next 5.
+- Dependencias: 17c5 y 17e1b5b; entrada 89% / 38%, reservas 10% / 1%.
+- Aceptación: snapshot completo, copias con UUID nuevos, conservación de cola/evidencia y archivos originales opacos. Rechazar selección de series/apariciones; rollback y replay atómicos.
+- Validación: 34 tests de backup, fallo inducido en el último recibo, retry/replay y ACK remoto único de una copia; 18 escenarios Next 5 y DoD aprobados.
 
-- Estado: completada12oct; portable3 comparación/copia simple yTXrollback/replay/ACK real probados, callersactivos intactos.
-- Objetivo: preparar lectura/exportación, comparación e importación por copia de planes simples en presencia de evidencia recurrente portable3, sin ampliar callers activos4.
-- target_paths: schemas/backup-import.ts, types/backup-import.ts, lib/backup/{import-preview,import-plan,import-record,local-backup,local-recurring-backup.test}.ts, lib/local-db/{backup,backup-import}.ts yfixtureNext5/schemas-next-sync-test yplan.
-- Dependencias:17c5/17e1b5b; entrada89%5h/38%7d, reservas10%/1%, secuencial. PermisoPreview pendiente sin bloquear este puerto propio.
-- Aceptación: codecs viejos strict; futuro lee1/2/3 yconserva todo snapshot/shadows/outcomes/cola; copies sólo planes simples nuevos sin reactivarUUID/historia; comparación completa stale/replay/rollback y límites existentes; ninguna selecciónseries/apariciones/legacy para copiar. TX usa snapshot yencoder futuro juntos, calleractual intacto.
-- Validación: pruebas puras yTXbrowser propia integradas enfixtureNext5, suite/lint/tipos/buildWebpack; plan/log mismo commitpushint/HEAD/cuotas. SinDBusuario/activación.
+## 17e1b5b — Época después de commit remoto en vuelo
 
-
-## 17e1b5b — Cambio de época después de commit remoto en vuelo
-
-- Estado: completada12oct; diecisiete escenariosNext5 propios yDoD pasan, commitremoto en vuelo conserva cola sinACK y recupera dosrecibos únicos.
-- Objetivo: guardar un plan real en Mongo mediante action5 y cambiar la época durable antes de entregar la respuesta al runtime anterior; recuperar después con cliente nuevo.
-- target_paths: `src/schemas/next-sync-test.ts`, `test/next-recurring-sync/features/{local-client,device-client,controller}.ts*.template` y documentos de plan.
-- Dependencias:17e1b5a; usuario autoriza continuar plan completo, entrada99%5h/39%7d, reservas10%/1%, secuencial en worktreeint sin alterar checkoutmain.
-- Aceptación: primera intención conserva UUID/payload/deps pending1 sinACK/lease; dependiente pending0 intacto; cambioépoca devuelve account_changed después de commitreal; replay fresco confirma dos intenciones con sólo dos recibos/secuencias totales, cursor/proyección exactos y peerconflictivo sin cambios. ÍndicePreview requiere autorización específica pendiente; trabajo independiente sinDBusuario.
-- Validación: fronteraNext5 compilada/BetterAuth/IndexedDB/Mongo propios, suite/lint/tipos/buildWebpack/worker; plan/log mismo ConventionalCommit+pushorigin/int/HEAD exacto y cuotas.
+- Estado: completada; código `05cdeb8`.
+- Objetivo: cambiar la época durable después del commit Mongo y antes de entregar su respuesta al runtime anterior.
+- target_paths: schema de fixture, comandos/dispositivo/controlador Next 5 y plan.
+- Dependencias: 17e1b5a; entrada 99% / 39%, reservas 10% / 1%.
+- Aceptación: root pending1 y dependiente pending0 intactos, sin ACK ni lease; pasada anterior account_changed. Cliente fresco confirma ambos originales con dos recibos únicos, proyecciones/cursor exactos y peer sin cambios.
+- Validación: 17 escenarios Next 5, sesiones persistidas, IndexedDB/Mongo propios y DoD aprobados.
 
 ## 17e1b5a — Cuenta remota distinta conserva cola propia
 
