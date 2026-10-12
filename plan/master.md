@@ -2,6 +2,9 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+Nueva ventana:100%5h/24%7d, reset1791818023; continuar secuencialmente con reservas10%/1%, commit+pushint/HEAD/cuotas por corte. Main del usuario también contiene e354005 y está limpio; conservarlo. 18a prepara comando/CAS puro de zona personal; no UI/IO/ACK/cambio de generación5. Siete tests nuevos, suite768pass/209skip/0fail, lint793/tipos/buildWebpack/worker46. Siguiente18b repo/ejecutor Mongo atómico propio; ruta concreta en [settings-sync.md](settings-sync.md). Cumpleaños aparcado/sharing fuera.
+
+
 16c13 mejora el gesto compartido: activación350ms/tolerancia12px, TouchEvents propios para preservar scroll antes de agarrar y bloquearlo después, pointercancel táctil no interrumpe el agarre; selección visible y etiqueta que acompaña al dedo/destino. Scroll automático sólo tras mover el dedo. Sin botones de arrastre nuevos ni cambios de contratos/persistencia. Orden y cambio de día simple/aparición pasan en navegador390×844 con React/CSS/IndexedDB reales y eventos táctiles simulados; cancelación/corto/scroll previo no escriben, drop escribe una intención, recarga conserva resultados. Pendiente valorar sensación en móvil físico.
 
 Validación actual: suite761pass/209skip/0fail/10347aserciones, lint788/tipos/buildWebpack/worker46. Pruebas propias y servidor limpios. Cumpleaños aparcado; siguientes bloques activos: preferencias/configuración y recuperación explícita residual, aceptación final móvil/dosdispositivos/offline/accesibilidad/guía y publicación productiva autorizada con índices centrales.

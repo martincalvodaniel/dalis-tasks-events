@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 18a — Preferencia personal: comando y CAS puros
+
+Nueva ventana verificada100%5h/24%7d, reset1791818023; reservas10%/1%, lote general secuencial. Worktreeint limpio en e354005; main humano también contiene ese commit y se conserva sin editar. Se preparan schema/type/planner/helper de settings.update existente: actor propio, registro remoto positivo/null, CAS0 creación/CASexacto update, timestamps/createdAt conservados, stale/tombstone sin efectos, overflow invalid_command. Local no avanza revisión antes de ACK real. No zona/propietario inválido, cambio de lunes/español o metadatos inyectados.
+
+Siete tests nuevos/23aserciones, suite768pass/209skip/0fail/10370aserciones; lint793/tipos/buildWebpack/worker46/diff aprobados. Sin IO/caller/productor/ACK/transporte/UI y sin nueva consulta DB. Documentado alcance18b–e en settings-sync: índice/repo/ejecutor, atomicidad local/consumidores, negociación y conexión conjunta, pruebas reales antes activar. Cumpleaños aparcado y sharing excluido. Commit+pushint/HEAD y ambas cuotas.
+
+
 ## 16c13 — Agarre táctil y roadmap sin cumpleaños
 
 Petición humana: cumpleaños aparcado, estado total y mejorar orden/fecha por pulsación larga. Entrada17%5h/26%7d, reservas10%/1%, corte acotado. Separa TouchEvents propios de PointerEvents desktop,350ms/tolerancia12px, scroll previo permitido y touchmove bloqueado sólo al agarrar. Pointercancel de ruta táctil no desactiva la selección; touchcancel/multitouch/movimiento no cancelable cancelan. Etiqueta visible acompaña dedo/destino; autoscroll sólo al moverse, conservando teclado/cancelación/controles interactivos y productores existentes. Listener táctil local a fila, sin documento global por elemento.

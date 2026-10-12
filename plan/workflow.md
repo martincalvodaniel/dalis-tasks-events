@@ -12,6 +12,10 @@ Si falta margen, no se puede leer la cuota o se necesita una intervención human
 
 El usuario aparca cumpleaños y prioriza mejorar el agarre/arrastre para ordenar y cambiar fechas en calendario. No retomar UI/persistencia/sync de cumpleaños ni sharing. 16c13 corrige el gesto compartido y conserva los productores existentes; pruebas táctiles automatizadas no equivalen a valoración física. Estimación activa10% restante (8–15%), excluyendo los bloques aparcados. Consultar cuotas al cerrar y conservar10%5h/1%semanal.
 
+## Continuación de nueva ventana — 12 de octubre
+
+Usuario: «Nueva ventana de5h. Continúa con el plan». Lectura real100%5h/24%7d, reset5h1791818023. Continúa lote general secuencial, reservas10%/1%, commit+pushint/HEAD/cuotas por entrega. Ambos checkouts limpios en e354005; main del usuario ahora contiene ese commit, sin editarlo. Reutilizar worktreeint. Cumpleaños aparcado/sharing excluido. Primer corte18a prepara mutación/CAS de zona personal; luego repositorio/ejecutor y consumidores/frontera/UI juntos sólo después de pruebas. Sin nueva automatización ni despliegue de producción.
+
 ## Reserva vigente por ventana
 
 El usuario reduce explícitamente la reserva semanal primero al5%, después al2% y finalmente al **1%** el 8 de octubre. Se mantiene **10% en 5h**. Esta política sustituye las reservas anteriores para futuras iteraciones; las entradas históricas conservan las condiciones de su ejecución. Consultar ambas cuotas tras cada commit/push y evaluar el margen de cada ventana por separado y el consumo observado, sin equiparar sus porcentajes. No empezar si 5h <=10% o 7d <=1%, ni si implementación, pruebas, reparación y cierre pueden cruzar sus reservas. Sin créditos/reinicios ni nuevas automatizaciones.

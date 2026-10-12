@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 18a — Zona personal: comando y CAS puros
+
+- Estado: completada; siete tests nuevos / 23 aserciones, DoD aprobado; generación5 intacta.
+- Objetivo: preparar settings.update sin activar UI/transporte ni cambiar la generación5 existente.
+- target_paths: `src/{schemas,types}/remote-user-settings-planning.ts`, `src/lib/preferences/{user-settings-command,remote-user-settings-plan,remote-user-settings-plan.test}.ts`, `plan/**`.
+- Dependencias: comando/settings schema existente, 16c13 publicado e354005; entrada100%5h/24%7d, reservas10%/1%, secuencial. Reinicio5h observado1791818023.
+- Aceptación: actor derivado por futura frontera, registro único propio/revisión remota positiva, creaciónCAS0/updateCASexacto, timestamps/creación conservados, tombstone sin resurrección, overflow sin efecto. Sólo zona horaria; lunes y español se mantienen según schema vigente. No ACK/IO/caller nuevo.
+- Validación: cambios/replay semántico/ownership/strictinput/colas futuras/revisiones/tombstone/noop; lint/tipos/suite/build/worker, plan/log/commit+push/HEAD/cuotas.
+
 ## 16c13 — Agarre táctil sin competencia con scroll
 
 - Estado: completada; ensayos táctiles en navegador para orden/fecha y recarga, DoD aprobado.
