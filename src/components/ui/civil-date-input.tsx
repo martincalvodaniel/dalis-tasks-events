@@ -35,7 +35,7 @@ export function CivilDateInput({
     onChange?.(nextValue)
   }
   return (
-    <div className="flex min-w-0 items-center gap-1">
+    <div className="flex min-w-0 items-center">
       {showDayControls ? (
         <button
           type="button"
@@ -45,7 +45,7 @@ export function CivilDateInput({
           onClick={() => {
             if (previous) change(previous)
           }}
-          className="flex size-11 shrink-0 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 dark:hover:bg-zinc-800"
+          className="flex h-11 w-8 shrink-0 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 dark:hover:bg-zinc-800"
         >
           <svg
             aria-hidden="true"
@@ -79,7 +79,7 @@ export function CivilDateInput({
           onClick={() => {
             if (next) change(next)
           }}
-          className="flex size-11 shrink-0 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 dark:hover:bg-zinc-800"
+          className="flex h-11 w-8 shrink-0 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 dark:hover:bg-zinc-800"
         >
           <svg
             aria-hidden="true"

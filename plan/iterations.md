@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 16c14b — Fecha y hora en una misma fila móvil
+
+Estado: completado; corrección visual verificada con formulario real.
+
+- Objetivo: corregir salto de hora introducido en16c14, reduciendo ancho de etiqueta/flechas/padding y manteniendo fecha+hora juntas.
+- target_paths: `src/components/ui/{civil-date-input,date-time-fields}.tsx`, `plan/**`; reutilizar fixture4266 existente sin lógica nueva.
+- Dependencias: petición humana explícita, HEAD5310b09/int limpio, guías Next/React leídas; cuota83%5h/7%7d/reservas10%/1%.
+- Aceptación: inicio y fin timed en una fila desde320px; fecha/hora legibles y utilizables, flechas con targets32×44px, ningún overflow. Todo el día continúa sin horas y conserva correlación/fin opcional.
+- Validación: browserReact/CSS compilados a320/desktop con medición de rectángulos y guardado trasflecha; lint/tipos/suite/build/worker/diff, plan/log y commitpushint/HEAD/cuotas. Sin tests espejo paraCSS ni cambiosDB/sync.
+
 ## 18e1a0 — Selección de frontera futura para la aceptación Next
 
 Estado: completado; selección6 permanece inactiva y evidencia Next aún pendiente.

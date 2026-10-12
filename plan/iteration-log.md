@@ -1,5 +1,11 @@
 # Registro de iteraciones
 
+## 16c14b — Fecha y hora juntas en móvil
+
+Petición humana tras16c14: hora caía a siguiente fila. Ajuste exclusivo de CivilDateInput/DateTimeFields: cuadrícula3columnas en móvil timed, etiqueta40px/hora80px/fecha flexible, gap4px/padding4px/flechas32px sin gaps extra. Todo el día continúa2columnas sinhora, callers antiguos conservados. Controles compactos dan altura visual36px/extensión44px; texto efectivo14px legible. No nuevo estado/contrato/DB/sync ni test espejo paraCSS.
+
+FixtureReact/CSS compilado propio4266 a320px: fechas104px/horas80px, top idéntico en cada pareja, sin overflow y captura confirma fecha completa/hora. Escritorio real1280 verifica mismafila con fechas152px/horas96px. Arrow/Guardar conserva duración y22:15/08:45; Todo el día oculta horas y alternar recupera valores. No pilotoGoogle ni dispositivo físico nuevo. Captura `/private/tmp/dalis-plan-date-time-one-row.png`; tres tabs y servidor propios limpiados, viewport restablecido. Suite824pass/221skip/0fail/10723aserciones; lint837/tipos/Webpack/worker46/diff aprobados. Entrada83%5h/7%7d, reservas10%/1%, commitpushint/HEAD y cuotas finales.
+
 ## 18e1a0 — Frontera futura de ajustes seleccionable
 
 Tras16c14 publicado7ea2bcd, cuota86%5h/7%7d permite corte preparatorio pequeño. Selector3–6 exige dependencias comunes/recurrentes; producto mantiene5/settingsfalse. Rutas reales de identidad/pull incluyen defaults6 guardados; action5 retira antes readiness/ejecutor si selector6, action6 también exige selección completa. Sin provider/UI/DB activos6 ni datos modificados. Matriz8combinaciones y guardia actual dos tests10aserciones; once específicos91aserciones pasan. Suite824pass/221skip/0fail/10723aserciones, lint837/tipos/Webpack/worker46/diff aprobados. No fixture nuevo ni Next6/Google/convergencia demostrados. Siguiente18e1a1 overlay/fronteraNext propia antes prueba de lifecycle/particiones. Commitpushint/HEAD y cuotas finales según continuación general autorizada, sin automatización/créditos.

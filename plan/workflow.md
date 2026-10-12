@@ -428,3 +428,8 @@ Entrada real100%5h/9%7d, reset1791839451, reservas10%/1%. Continuación general 
 ### Continuación acotada18e1a0
 
 Después16c14 real86%5h/7%7d permite sólo preparación coherente de selector/rutas/retiro para Next6. Settingsfalse y generación5 siguen activos, sin ampliar permisos/DB ni conectar UI. Matriz/tests existentes/fullDoD y mismo commitpushint/HEAD/cuotas; futura aceptaciónNext/dependientes/lifecycle exige corte propio y margen semanal observado, no asumir que toda la ventana5h disponible permite agotarla.
+
+
+### Corrección humana16c14b
+
+Entrada83%5h/7%7d, petición específica de mantener fecha/hora en misma fila tras16c14. Corte CSS pequeño sobreint5310b09 limpio; sin reabrir contratos/DB/settings. Validación real320/escritorio y DoD completo; plan/log mismo commitpushint/HEAD y consulta real de ambas cuotas según continuación general autorizada. Reservas10%/1% conservadas; sin automatización nueva.
