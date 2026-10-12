@@ -3,10 +3,14 @@ import "server-only"
 import type { z } from "zod"
 import {
   recurringSyncProtocolVersion,
+  settingsSyncProtocolVersion,
   syncProtocolHeader,
 } from "@/config/sync-protocol"
 import { RemoteCursorAheadError } from "@/lib/db/remote-changes"
-import { validateLocalRecurringChangesPageInput } from "@/lib/sync/local-recurring-pull"
+import {
+  validateLocalRecurringChangesPageInput,
+  validateLocalSettingsChangesPageInput,
+} from "@/lib/sync/local-recurring-pull"
 import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
 import { mixedPullRequestSchema } from "@/schemas/mixed-pull-request"
 import { userIdSchema } from "@/schemas/primitives"
@@ -30,13 +34,30 @@ export async function getRecurringSyncChangesResponse(
   request: Request,
   dependencies: RecurringPullDependencies
 ): Promise<Response> {
+  return getScopedRecurringChangesResponse(request, dependencies, false)
+}
+
+export function getSettingsSyncChangesResponse(
+  request: Request,
+  dependencies: RecurringPullDependencies
+): Promise<Response> {
+  return getScopedRecurringChangesResponse(request, dependencies, true)
+}
+
+async function getScopedRecurringChangesResponse(
+  request: Request,
+  dependencies: RecurringPullDependencies,
+  allowSettings: boolean
+): Promise<Response> {
   const respond = (body: unknown, status: number) =>
     Response.json(body, {
       status,
       headers: {
         "Cache-Control": "private, no-store",
         [syncProtocolHeader]: encodeSyncProtocolRange(
-          recurringSyncProtocolVersion
+          allowSettings
+            ? settingsSyncProtocolVersion
+            : recurringSyncProtocolVersion
         ),
       },
     })
@@ -80,10 +101,10 @@ export async function getRecurringSyncChangesResponse(
         )
       throw error
     }
-    const validated = validateLocalRecurringChangesPageInput(
-      { query, page },
-      actor.data
-    )
+    const validatePage = allowSettings
+      ? validateLocalSettingsChangesPageInput
+      : validateLocalRecurringChangesPageInput
+    const validated = validatePage({ query, page }, actor.data)
     return respond(validated.page, 200)
   } catch {
     return unavailable()

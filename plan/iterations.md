@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 18d3b — Identidad y descarga autenticadas privadas 6
+
+- Objetivo: endpoints internos coherentes con transport 6, sin conectar las rutas activas.
+- target_paths: `src/features/sync/{pull-recurring-response,authenticated-settings-pull,authenticated-settings-pull.test,settings-identity-response}.ts`, `plan/**`.
+- Dependencias: 18d3a publicado 3b05f33 y reader/readiness6 preparados; entrada 24% 5h / 13% 7d, reserva 10% / 1%, secuencial.
+- Aceptación: identidad expone sólo userId autorizado/header6/no-store; pull valida sesión/query/expected actor antes readiness6 y reader privado, valida página completa settings antes devolver; foreign/corrupt/errors no filtran ni exponen datos/secretos. Reader/respuesta 5 activos intactos.
+- Validación: puertos de auth/query/orden/readiness/errores/cursor/header/privacy, DoD/worker/plan/log/commit/push/HEAD/cuotas. Sin rutas activas/DB usuario; fixture Next y activación siguen pendientes.
+
 ## 18d3a — Referencia action/cliente/hook 6 privada
 
 - Objetivo: conectar internamente defaults 6 y cache por generación sin seleccionar el proveedor activo.

@@ -1,5 +1,12 @@
 # Zona horaria personal y sincronización de ajustes
 
+## 18d3b — Identidad y descarga privadas autenticadas
+
+Identidad privada 6 devuelve únicamente userId autorizado/no-store; fallo o shape con información extra se sanea. Pull futuro usa sesión persistida/allowlist existente, valida query/expected actor antes de readiness6/reader privado y valida página completa con settings antes de devolver. Errores, cursor ahead y corrupción no entregan diario parcial ni mensajes internos. Respuesta 5 y rutas activas intactas.
+
+Cinco tests nuevos / 49 aserciones cubren identidad/header/privacy, página/orden/strict5, autenticación/query/actor, readiness/cursor y errores/foreign. Suite 814 pass / 221 skip / 0 fail / 10661 aserciones, lint 825, tipos/build Webpack/worker 46 aprobados. Sin DB usuario ni selección del producto6. Siguiente aceptación Next compilada/sesiones persistidas, lifecycle y convergencia de dos particiones; después UI/activación conjunta. No confundir tests de puertos con Google real.
+
+
 ## 18d3a — Acción, cliente y hook 6 privados
 
 Referencia `pushSyncOperationsV6` usa headers Next y guard de release inactivo: todavía sólo retiro, no ejecución. Dispatcher cliente usa startTransition; cliente futuro reúne transport 6, summary/settings runtime; hook comparte scheduler/cuenta/listeners existentes con cache 6 separada y posiciones de cuenta intactas. Proveedor, APIs, acciones5 y generación activa no cambian.
