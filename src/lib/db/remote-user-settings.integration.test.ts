@@ -5,6 +5,10 @@ import { getSyncDatabaseTestConfig } from "@/config/env"
 import { closeDatabaseConnection, getDatabase } from "@/lib/db/client"
 import { COLLECTION_NAMES, getCollection } from "@/lib/db/collections"
 import { ensureIndexes, INDEX_SPECS } from "@/lib/db/ensure-indexes"
+import {
+  readRemoteRecurringChangesV2,
+  readRemoteSettingsChangesV2,
+} from "@/lib/db/remote-changes-v2"
 import { readRemoteRecurringOperationReceipt } from "@/lib/db/remote-recurring-operation-receipts"
 import { RemoteUserSettingsRepository } from "@/lib/db/remote-user-settings"
 import {
@@ -388,6 +392,110 @@ describe.skipIf(!config)("owned atomic personal settings", () => {
       receipts: 0,
       changes: 0,
       counter: 0,
+    })
+  })
+  test("private settings reader paginates exact history, replay and account isolation", async () => {
+    const actor = owner("reader"),
+      other = owner("reader-other"),
+      first = operation()
+    await executeRemoteUserSettingsOperation(actor, first)
+    await executeRemoteUserSettingsOperation(actor, operation("Asia/Tokyo", 1))
+    const query = { after: 0, through: null, limit: 1 }
+    const page = await readRemoteSettingsChangesV2(actor, query)
+    expect(page.changes).toHaveLength(1)
+    expect(page.through).toBe(2)
+    expect(page.nextAfter).toBe(1)
+    expect(page.hasMore).toBe(true)
+    expect(page.changes[0].operationId).toBe(first.operationId)
+    expect(
+      page.changes[0].kind === "preference" &&
+        page.changes[0].effects.effects[0].record.revision
+    ).toBe(1)
+    await executeRemoteUserSettingsOperation(actor, first)
+    expect(await readRemoteSettingsChangesV2(actor, query)).toEqual(page)
+    const next = await readRemoteSettingsChangesV2(actor, {
+      after: 1,
+      through: 2,
+      limit: 1,
+    })
+    expect(next.nextAfter).toBe(2)
+    expect(next.hasMore).toBe(false)
+    expect(
+      next.changes[0].kind === "preference" &&
+        next.changes[0].effects.effects[0].record.revision
+    ).toBe(2)
+    expect(
+      (
+        await readRemoteSettingsChangesV2(other, {
+          after: 0,
+          through: null,
+          limit: 100,
+        })
+      ).changes
+    ).toEqual([])
+    await expect(readRemoteRecurringChangesV2(actor, query)).rejects.toThrow(
+      "not supported"
+    )
+    expect(await history(actor)).toEqual({
+      receipts: 2,
+      changes: 2,
+      counter: 2,
+    })
+  })
+  test("private reader preserves tombstoned history but rejects unavailable or foreign ownership", async () => {
+    const actor = owner("reader-ownership"),
+      other = owner("reader-foreign")
+    await executeRemoteUserSettingsOperation(actor, operation())
+    const collection = await getCollection<UserSettings & { _id: string }>(
+      COLLECTION_NAMES.userSettings
+    )
+    const own = await collection.findOne({ userId: actor })
+    if (!own) throw new Error("Owned reader record is missing")
+    await collection.updateOne(
+      { _id: own._id },
+      { $set: { deletedAt: timestamp, updatedAt: timestamp, revision: 2 } }
+    )
+    const query = { after: 0, through: null, limit: 100 }
+    expect(
+      (await readRemoteSettingsChangesV2(actor, query)).changes
+    ).toHaveLength(1)
+    await collection.updateOne({ _id: own._id }, { $set: { userId: other } })
+    await expect(readRemoteSettingsChangesV2(actor, query)).rejects.toThrow(
+      "unavailable"
+    )
+    await collection.deleteOne({ _id: own._id })
+    await expect(readRemoteSettingsChangesV2(actor, query)).rejects.toThrow(
+      "unavailable"
+    )
+    expect(await history(actor)).toEqual({
+      receipts: 1,
+      changes: 1,
+      counter: 1,
+    })
+  })
+  test("private reader rejects current revision below history and corrupt canonical identity", async () => {
+    const actor = owner("reader-evidence")
+    await executeRemoteUserSettingsOperation(actor, operation())
+    await executeRemoteUserSettingsOperation(actor, operation("UTC", 1))
+    const collection = await getCollection<UserSettings & { _id: string }>(
+      COLLECTION_NAMES.userSettings
+    )
+    const own = await collection.findOne({ userId: actor })
+    if (!own) throw new Error("Owned reader evidence is missing")
+    const query = { after: 0, through: null, limit: 100 }
+    await collection.updateOne({ _id: own._id }, { $set: { revision: 1 } })
+    await expect(readRemoteSettingsChangesV2(actor, query)).rejects.toThrow(
+      "exceeds"
+    )
+    await collection.deleteOne({ _id: own._id })
+    await collection.insertOne({ ...own, _id: `owned-corrupt-${actor}` })
+    await expect(readRemoteSettingsChangesV2(actor, query)).rejects.toThrow(
+      "identity"
+    )
+    expect(await history(actor)).toEqual({
+      receipts: 2,
+      changes: 2,
+      counter: 2,
     })
   })
 })

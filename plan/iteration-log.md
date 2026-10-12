@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 18c4a — Historia remota privada de ajustes
+
+Nuevo reader privado reutiliza paginación, snapshot, byte ceiling y colecciones del reader recurrente. Cada efecto settings necesita registro actual propio, identidad canónica y revisión actual no inferior a la histórica. Tombstone conserva autorización de historia; ausencia, otra cuenta o corrupción impiden devolver una página parcial. Reader activo 5 sigue rechazando ajustes y no cambia caller, bootstrap o negociación.
+
+Mongo propio: nueve casos / 76 aserciones, incluyendo los seis de executor y tres nuevos de páginas/replay/checkpoint/ownership/tombstone/revisión/identidad. Docker e imagen pinned revalidados por runner, recursos retirados; nunca DB del usuario. Índice userId de 18b ya cubre la consulta. Suite 785 pass / 220 skip / 0 fail / 10454 aserciones, lint 808, tipos/build Webpack/worker 46 aprobados. Siguiente 18c4b: evidencia local actual/backup antes de consumidores y frontera 6.
+
+
 ## 18c3b — Descarga completa y cursor de ajustes
 
 Puerto futuro captura todas las familias, incluyendo settings, en una TX. La proyección valida página, actor, checkpoint, registros locales y toda la cola antes de guardar. Ajustes pendientes conservan valor/identidad sin congelar categorías; una categoría bloqueada no impide settings. Planes y apariciones conservan su zona/ancla. Página vieja se ignora; ninguna descarga crea ACK o modifica outcomes/intenciones.

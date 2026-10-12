@@ -9,6 +9,7 @@ import { RemoteItemRepository } from "@/lib/db/remote-items"
 import { RemotePlanOccurrenceRepository } from "@/lib/db/remote-plan-occurrences"
 import { RemoteTagRepository } from "@/lib/db/remote-tags"
 import { RemoteTaskPlacementRepository } from "@/lib/db/remote-task-placements"
+import { RemoteUserSettingsRepository } from "@/lib/db/remote-user-settings"
 import { decodeRemoteChange } from "@/lib/sync/remote-change-v2"
 import { validateRemoteChangesPageV2 } from "@/lib/sync/remote-changes-page-v2"
 import {
@@ -66,13 +67,30 @@ export async function readRemoteRecurringChangesV2(
   )
 }
 
+// Settings history requires an exclusive future negotiation before this port is selected.
+export async function readRemoteSettingsChangesV2(
+  actorInput: unknown,
+  queryInput: unknown
+): Promise<RemoteRecurringChangesPage> {
+  return readChanges(
+    actorInput,
+    queryInput,
+    true,
+    decodeRemoteRecurringChange,
+    validateRemoteRecurringChangesPage,
+    true,
+    true
+  )
+}
+
 async function readChanges<Change extends RemoteRecurringChange, Page>(
   actorInput: unknown,
   queryInput: unknown,
   allowPlans: boolean,
   decode: (input: unknown, actor: string) => Change,
   validate: (input: unknown, actor: string, query: unknown) => Page,
-  allowSeries = false
+  allowSeries = false,
+  allowSettings = false
 ): Promise<Page> {
   const actor = userIdSchema.parse(actorInput)
   const query = remotePullQuerySchema.parse(queryInput)
@@ -112,6 +130,9 @@ async function readChanges<Change extends RemoteRecurringChange, Page>(
           actor,
           session
         )
+        const settings = allowSettings
+          ? await RemoteUserSettingsRepository.open(actor, session)
+          : null
         const changes: Change[] = []
         let recordsBytes = 0
         let stoppedForBytes = false
@@ -219,6 +240,16 @@ async function readChanges<Change extends RemoteRecurringChange, Page>(
                       throw new Error(
                         "Journal task placement category access is unavailable"
                       )
+                } else if (effect.store === "settings" && settings) {
+                  const current = await settings.read()
+                  if (!current)
+                    throw new Error(
+                      "Journal personal settings access is unavailable"
+                    )
+                  if (current.revision < effect.record.revision)
+                    throw new Error(
+                      "Journal settings evidence exceeds its current revision"
+                    )
                 } else
                   throw new Error(
                     "Journal preference store is not supported by this reader"

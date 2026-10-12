@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 18c4a — Reader privado de ajustes remotos
+
+- Objetivo: página histórica de ajustes con autorización actual y snapshot transaccional, sin modificar el reader 5 activo.
+- target_paths: `src/lib/db/remote-changes-v2.ts`, `src/lib/db/remote-user-settings.integration.test.ts`, `plan/**`.
+- Dependencias: 18b executor/repo y 18c3b consumidor publicados; entrada 51% 5h / 17% 7d, reservas 10% / 1%, secuencial.
+- Aceptación: ajustes del actor existen e identidad/revisión actuales autorizan cada efecto; tombstones preservan historia; ausencia/otra cuenta/revisión insuficiente/corrupción rechazan toda página sin cursor parcial; páginas/replay mantienen bytes/checkpoint exactos. Reader 5 rechaza settings, sin caller/API/bootstrap nuevos.
+- Validación: Mongo propio descriptor/imagen pinned/Docker revalidados, ejecución real y limpieza propia; suite/lint/tipos/build/worker, plan/log/commit/push/HEAD/cuotas. Índice userId ya registrado en 18b, sin consulta nueva adicional.
+
 ## 18c3b — Descarga de ajustes y cursor atómicos
 
 - Objetivo: consumir una página completa con ajustes, categorías, planes y apariciones sin filtrar familias ni fabricar ACK.
