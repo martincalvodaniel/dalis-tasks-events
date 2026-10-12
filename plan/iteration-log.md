@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 18d1 — HTTP exclusivo de ajustes preparado
+
+Factory 6 comparte conexión/deadline con transporte recurrente, selecciona header exclusivo 6 y valida página completa con settings. Factory 5 mantiene rechazo estricto; rango 5–6, header ausente o generación distinta se rechazan antes del body de identidad/pull. Cookies same-origin de Preview intactas. Envío conserva intención 1 y sobre 2; expected actor falla antes del envío y timeout no implica ACK.
+
+Cinco tests nuevos / 27 aserciones prueban matriz, body no leído, página/actor, credentials/query, payload y deadline. Se corrigieron tipos de los mocks/literales antes del DoD final. Suite 798 pass / 220 skip / 0 fail / 10515 aserciones, lint 812, tipos/build Webpack/worker 46 aprobados. Sin ruta/acción/caller activo. Sigue 18d2 frontera autenticada, readiness de seis índices y retiro 5 preparatorios, luego Next/dos particiones/UI/activación conjunta.
+
+
 ## 18c5 — Bundle local privado de ajustes
 
 Política congelada de settings amplía la recurrente y conserva sus validaciones/unsupported. Store futuro selecciona ACK y pull completos; runtime compartido elige store/política/coordinador juntos y reutiliza cuenta/epoch/cierre. Resumen y coordinador usan la misma política, incluida revalidación después del claim. Defaults/callers 5 siguen intactos; sin transporte/API/UI/bootstrap nuevos.

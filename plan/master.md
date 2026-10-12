@@ -2,6 +2,8 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+18d1 cerrado: transporte privado 6 y matriz con 5/ambigüedad, rechazando headers antes del body. Producto sigue 5. Suite 798 pass / 220 skip / 0 fail; lint 812, tipos/build Webpack/worker 46. Siguiente frontera/readiness/retiro 5 y pruebas Next antes de activación/UI. [settings-sync.md](settings-sync.md).
+
 18c5 cerrado: bundle privado local coherente de ajustes, store/ACK/pull/summary/coordinador/runtime. Defaults 5 intactos. Suite 793 pass / 220 skip / 0 fail; lint 811, tipos/build Webpack/worker 46. Siguiente HTTP 6/frontera/Next/UI antes de activación. [settings-sync.md](settings-sync.md).
 
 18c4b cerrado: evidencia actual de ajustes y backup 3 probado sin escrituras, conservando valores congelados. Diez checks IndexedDB + recarga; suite 788 pass / 220 skip / 0 fail, lint 809, tipos/build Webpack/worker 46. Generación 5 sigue activa; siguiente política/store/runtime y frontera 6 antes de UI. [settings-sync.md](settings-sync.md).

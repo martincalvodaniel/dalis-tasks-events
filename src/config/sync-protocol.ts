@@ -7,3 +7,6 @@ export const planSyncProtocolVersion = 4
 // Prepared recurrence negotiation; active routes and providers still announce four.
 export const recurringSyncProtocolVersion = 5
 export const syncProtocolHeader = "x-dalis-sync-protocol"
+
+// Prepared personal-settings negotiation; active callers keep their current generation.
+export const settingsSyncProtocolVersion = 6

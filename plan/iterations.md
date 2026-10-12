@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 18d1 — HTTP de ajustes con negociación exclusiva 6
+
+- Objetivo: frontera cliente 6 que rechaza servidores incompatibles antes del body y conserva intención 1/sobres 2.
+- target_paths: `src/config/sync-protocol.ts`, `src/features/sync/http-recurring-transport.ts`, `src/features/sync/http-settings-transport.test.ts`, `plan/**`.
+- Dependencias: bundle privado 18c5 publicado 2b51bf4; entrada 38% 5h / 15% 7d, reservas 10% / 1%, secuencial.
+- Aceptación: factory futura selecciona rango exclusivo 6 y consumidor settings; factory activa 5 intacta; identity/pull no leen body con header 5/rango5–6/ausente; same-origin credentials conserva protección Preview; expected actor validado antes send; deadlines no fabrican ACK.
+- Validación: matriz de headers/body, efectos/actor, credentials/timeout y suite/lint/tipos/build/worker, plan/log/commit/push/HEAD/cuotas. No acción, ruta ni capacidad activa todavía.
+
 ## 18c5 — Composición privada de ajustes
 
 - Objetivo: política, diagnóstico/resumen, store, coordinador y runtime seleccionan juntos ajustes sin cambiar callers 5.

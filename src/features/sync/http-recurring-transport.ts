@@ -2,11 +2,15 @@
 
 import {
   recurringSyncProtocolVersion,
+  settingsSyncProtocolVersion,
   syncProtocolHeader,
 } from "@/config/sync-protocol"
 import type { SyncPullQueryV2 } from "@/features/sync/http-transport-v2"
 import { SyncTransportError } from "@/features/sync/transport-error"
-import { validateLocalRecurringChangesPageInput } from "@/lib/sync/local-recurring-pull"
+import {
+  validateLocalRecurringChangesPageInput,
+  validateLocalSettingsChangesPageInput,
+} from "@/lib/sync/local-recurring-pull"
 import { validateRemoteRecurringPushResult } from "@/lib/sync/remote-recurring-push"
 import { acceptsExclusiveSyncProtocolRange } from "@/lib/sync/sync-protocol"
 import { userIdSchema } from "@/schemas/primitives"
@@ -33,7 +37,40 @@ export function createHttpRecurringSyncTransport(
   fetchRequest: typeof fetch = fetch,
   timeoutMs = 30000
 ): RecurringSyncTransport {
-  const protocolVersion = recurringSyncProtocolVersion
+  return createScopedRecurringTransport(
+    userIdInput,
+    sendOperations,
+    fetchRequest,
+    timeoutMs,
+    false
+  )
+}
+
+export function createHttpSettingsSyncTransport(
+  userIdInput: string,
+  sendOperations: (input: unknown) => Promise<unknown>,
+  fetchRequest: typeof fetch = fetch,
+  timeoutMs = 30000
+): RecurringSyncTransport {
+  return createScopedRecurringTransport(
+    userIdInput,
+    sendOperations,
+    fetchRequest,
+    timeoutMs,
+    true
+  )
+}
+
+function createScopedRecurringTransport(
+  userIdInput: string,
+  sendOperations: (input: unknown) => Promise<unknown>,
+  fetchRequest: typeof fetch,
+  timeoutMs: number,
+  allowSettings: boolean
+): RecurringSyncTransport {
+  const protocolVersion = allowSettings
+    ? settingsSyncProtocolVersion
+    : recurringSyncProtocolVersion
   const userId = userIdSchema.parse(userIdInput)
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 60000)
     throw new RangeError("Invalid mixed sync transport timeout")
@@ -112,10 +149,10 @@ export function createHttpRecurringSyncTransport(
         parameters.set("through", String(query.through))
       return request(`/api/sync/changes?${parameters}`, async (response) => {
         await check(response)
-        return validateLocalRecurringChangesPageInput(
-          { query, page: await response.json() },
-          userId
-        ).page
+        const validatePage = allowSettings
+          ? validateLocalSettingsChangesPageInput
+          : validateLocalRecurringChangesPageInput
+        return validatePage({ query, page: await response.json() }, userId).page
       })
     },
     push: async (input) => {
