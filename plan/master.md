@@ -6,7 +6,7 @@
 
 **Arrastre cerrado por el usuario.** Checklist física de dos dispositivos entregada; resultados pendientes en [manual-device-checklist.md](manual-device-checklist.md). No se ha ejecutado ni aprobado todavía este recorrido.
 
-Lote cerrado tras 5cd93f4: quince cortes de código publicados; lectura real 13% 5h / 11% semanal, reserva 10% / 1%. Siguiente 18e1a delimitado en [iterations.md](iterations.md); no se inicia Next amplio sin margen para reparar/cerrar. Sin nueva automatización.
+Lote cerrado tras 5cd93f4: quince cortes de código publicados; lectura real 13% 5h / 11% semanal, reserva 10% / 1%. 18e1a0 ahora prepara selector/rutas/retiro para la frontera Next6, aún inactiva; siguiente 18e1a1 delimitado en [iterations.md](iterations.md); no se inicia Next amplio sin margen para reparar/cerrar. Sin nueva automatización.
 
 En esta ventana se cerraron 18a–18e0b: preparación de zona personal offline/remota, repo/CAS/ejecutor atómicos, productor independiente, ACK/pull/evidencia/backup, runtime/política y frontera privada 6 (HTTP/auth/readiness/action/cliente/hook). Quince cortes de código validados, cada uno con commit/push/HEAD y cuota. Diez casos Mongo / 81 aserciones; nueve checks de productor, diez ACK/evidencia y ocho descarga en IndexedDB con recargas. **Todavía no está activada la sincronización ni la edición de ajustes.** La generación 5 del producto sigue activa.
 

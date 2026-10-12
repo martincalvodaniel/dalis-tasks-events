@@ -1,5 +1,9 @@
 # Registro de iteraciones
 
+## 18e1a0 — Frontera futura de ajustes seleccionable
+
+Tras16c14 publicado7ea2bcd, cuota86%5h/7%7d permite corte preparatorio pequeño. Selector3–6 exige dependencias comunes/recurrentes; producto mantiene5/settingsfalse. Rutas reales de identidad/pull incluyen defaults6 guardados; action5 retira antes readiness/ejecutor si selector6, action6 también exige selección completa. Sin provider/UI/DB activos6 ni datos modificados. Matriz8combinaciones y guardia actual dos tests10aserciones; once específicos91aserciones pasan. Suite824pass/221skip/0fail/10723aserciones, lint837/tipos/Webpack/worker46/diff aprobados. No fixture nuevo ni Next6/Google/convergencia demostrados. Siguiente18e1a1 overlay/fronteraNext propia antes prueba de lifecycle/particiones. Commitpushint/HEAD y cuotas finales según continuación general autorizada, sin automatización/créditos.
+
 ## 16c14 — Fechas correlacionadas, fin opcional y flechas de día
 
 Petición humana12oct: desplazar fin con inicio, resolver opcionalidad y añadir flechas a todas las fechas del editor. CivilDateInput compartido/DateTimeFields mantienen callers anteriores; cuatro variantes comunes conservan intervalo civil y horas separadas. Inicio vacío/incompleto no rompe duración, manual fin define nueva duración, límites acotados. «Con fin» quita campos y guarda timed localEndnull/all_day un día; reañadir usa inicio actual. Última fecha de repetición incorpora mismos controles. Sin cambio de contratos/persistencia/índices/DB ni activación settings6.

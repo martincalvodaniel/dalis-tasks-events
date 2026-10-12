@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 18e1a0 — Selección de frontera futura para la aceptación Next
+
+Estado: completado; selección6 permanece inactiva y evidencia Next aún pendiente.
+
+- Objetivo: preparar rutas productivas de identidad/pull y retiro de acción5 para el fixture compilado6, sin activar producto6.
+- target_paths: `src/config/{common-plan-release,product-sync-protocol,product-sync-protocol.test}.ts`, `src/app/api/sync/{identity,changes}/route.ts`, `src/features/sync/actions-v{5,6}.ts`, `plan/**`.
+- Dependencias: settings6 privado completo, próximo18e1a necesita usar referencias productivas reales; 16c14 publicado7ea2bcd, margen86%5h/7%7d con reservas10%/1%. Guía RouteHandlers instalada leída. Secuencial, sin DB/fixtureNuevo/activación.
+- Aceptación: selector respeta dependencias common/recurring/settings y mantiene5 actual; únicamente selección6 elige identidad/pull6 y retira acción5 antes readiness/ejecutor. Acción6 permanece inaccesible en producto5. No activar provider/editor ni mutar flags activos, DB o formatos.
+- Validación: matriz de selección, pruebas existentes authenticated-settings/pull/retirement, lint/tipos/suite/build/worker/diff; plan/log mismo commitpushint/HEAD/cuotas. No declarar pruebaNext6 ni convergencia por tests puros.
+
 ## 16c14 — Fechas correlacionadas, fin opcional y controles de día
 
 Estado: completado; validación y evidencia en iteration-log/item-editor-redesign.

@@ -1,5 +1,11 @@
 # Zona horaria personal y sincronización de ajustes
 
+## 18e1a0 — Frontera productiva futura seleccionable, aún inactiva
+
+El selector3/4/5/6 valida dependencias de generación: settings sólo puede elegir6 si common y recurring también están seleccionados. Producto continúa5 con settingsfalse. Rutas reales de identidad/pull incluyen ahora ramas6 hacia los defaults autenticados preparados; acción5 retorna retiro antes readiness/ejecutor cuando se selecciona6 y acción6 también requiere el selector completo. No conecta provider/hook/UI ni cambia DB/formatos; aún no hay activación.
+
+Matriz de ocho combinaciones y guardia del producto actual: dos tests/10aserciones. Once pruebas específicas/91aserciones junto a authenticated-settings existentes pasan; no prueban el ID compilado ni endpoint desplegado. Suite824pass/221opt-in skip/0fail/10723aserciones; lint837/tipos/Webpack/worker46. Siguiente18e1a1 delimita overlayNext6/5 con defaults/sesiones propias y prueba de fronteras antes lifecycle y dos particiones exactas; conservar preparaciones2–5 históricas. No iniciar toda la integración con margen semanal insuficiente para reparación/cierre.
+
 ## 18z1 — Cierre de nueva ventana del 12 de octubre
 
 Quince cortes de código desde e354005 publicados y validados, último 5cd93f4 / origin/int exacto. Cuota real de cierre de código: 13% 5h / 11% 7d; reserva 10% / 1%, reset publicado 1791818023. La prueba Next completa, potencial reparación y activación exceden los tres puntos disponibles hasta reserva: no se inicia. Siguiente 18e1a delimitado en iterations; continuación general autorizada mantiene cumpleaños aparcado/sharing fuera, sin nueva automatización.

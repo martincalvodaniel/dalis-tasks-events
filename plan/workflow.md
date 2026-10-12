@@ -423,3 +423,8 @@ Lote secuencial desde8cfd34b en worktreeint propio para preservar main humano. O
 ### Intercalada humana16c14 — Nueva ventana12oct
 
 Entrada real100%5h/9%7d, reset1791839451, reservas10%/1%. Continuación general previamente autorizada, priorizada la petición concreta del editor: fechas correlacionadas, fin opcional real y flechas de día. Corte secuencial completo sobreint23fc6c3, sin comenzar Nextsettings6 ni automatización. DoD/plan/log en mismo commit, pushint/HEAD remoto y lectura de ambas cuotas antes de elegir siguiente entrega. Main humano y datos de usuario intactos.
+
+
+### Continuación acotada18e1a0
+
+Después16c14 real86%5h/7%7d permite sólo preparación coherente de selector/rutas/retiro para Next6. Settingsfalse y generación5 siguen activos, sin ampliar permisos/DB ni conectar UI. Matriz/tests existentes/fullDoD y mismo commitpushint/HEAD/cuotas; futura aceptaciónNext/dependientes/lifecycle exige corte propio y margen semanal observado, no asumir que toda la ventana5h disponible permite agotarla.
