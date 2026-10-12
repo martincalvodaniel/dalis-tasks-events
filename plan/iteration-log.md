@@ -1,5 +1,11 @@
 # Registro de iteraciones
 
+## 16c15 — Mostrar el color elegido en categorías
+
+Reporte humano de raya gris al crear categoría reproducido con TagForm/CSS reales en fixture4267 a390px. Causa: regla compacta inputnotcheckbox aplica heightauto y colapsa swatch nativo. Se excluye también typecolor; conserva44×44px original y pinta verde#059669, azul#2563eb al editar y naranja#e85d04 después de cambio. No cambia TagForm, lógica/validación/estado/persistencia ni picker nativo, y otros campos siguen compactos.
+
+Cambio de valor programado por fixture mediante setter/eventos nativos, muestra screenshot naranja y submit real onSave captura color#e85d04 exacto; no afirmar interacción manual con diálogo de color del sistema. Label/foco/disabled siguen presentes; fixturedisabled bloquea input/Guardar. CeroDB/red/sesión de usuario. Captura `/private/tmp/dalis-category-color-preview.png`; tab/servidor propios limpiados y viewport restablecido. Lint inicial de selector largo y types de fixture exigieron formato/normalizedName, reparados. Final lint839/tipos/Webpackbuild/worker46 aprobados; suite824pass/221skip/0fail/10723aserciones. Sin tests espejo paraCSS reversible. Entrada78%5h/6%7d, reservas10%/1%, commitpushint/HEAD y cuota final.
+
 ## 16c14b — Fecha y hora juntas en móvil
 
 Petición humana tras16c14: hora caía a siguiente fila. Ajuste exclusivo de CivilDateInput/DateTimeFields: cuadrícula3columnas en móvil timed, etiqueta40px/hora80px/fecha flexible, gap4px/padding4px/flechas32px sin gaps extra. Todo el día continúa2columnas sinhora, callers antiguos conservados. Controles compactos dan altura visual36px/extensión44px; texto efectivo14px legible. No nuevo estado/contrato/DB/sync ni test espejo paraCSS.

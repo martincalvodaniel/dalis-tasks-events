@@ -2,6 +2,8 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+**16c15 corrige el color de categoría:** la muestra nativa vuelve a pintar el color elegido en creación/edición, al excluir inputcolor de la regla compacta heightauto. Sin cambio de guardado/sync.
+
 **16c14b corrige la fila móvil:** fecha, flechas y hora permanecen juntas desde320px, con menores anchos/márgenes; todo el día sigue ocultando horas.
 
 **16c14 entregado:** inicio/fin correlacionados por días civiles, fin explícito opcional con «Con fin» y flechas de día en inicio, fin y última fecha de repetición. Conserva horas elegidas; todo el día sin fin explícito ocupa un día. Formulario real probado en creación/edición y cuatro variantes, sin cambios de contrato/DB/sync. Detalle en [item-editor-redesign.md](item-editor-redesign.md). La checklist física de dos dispositivos sigue pendiente.

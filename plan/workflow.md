@@ -433,3 +433,8 @@ Después16c14 real86%5h/7%7d permite sólo preparación coherente de selector/ru
 ### Corrección humana16c14b
 
 Entrada83%5h/7%7d, petición específica de mantener fecha/hora en misma fila tras16c14. Corte CSS pequeño sobreint5310b09 limpio; sin reabrir contratos/DB/settings. Validación real320/escritorio y DoD completo; plan/log mismo commitpushint/HEAD y consulta real de ambas cuotas según continuación general autorizada. Reservas10%/1% conservadas; sin automatización nueva.
+
+
+### Corrección humana16c15 — Muestra de color
+
+Entrada78%5h/6%7d, int8952da0 limpio. Reproducción propia confirma raya gris por heightauto global sobre inputcolor; corrección mínima del selector CSS, sin estado/contratos ni componentes nuevos. FixtureReact/CSS propio4267 verifica valor inicial/editado/cambio y payload guardado exacto, disabled intacto. DoD completo, plan/log mismo commitpushint/HEAD y cuota real tras cierre según continuación general autorizada; reservas10%/1%, sin automatización ni datos de usuario.

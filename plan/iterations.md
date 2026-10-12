@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 16c15 — Muestra real del color de categoría
+
+Estado: completado; regla compacta excluye inputcolor y el swatch nativo vuelve a mostrar el valor.
+
+- Objetivo: corregir el swatch nativo colapsado/raya gris para mostrar el color elegido en creación/edición, conservando picker nativo accesible.
+- target_paths: `src/app/globals.css`, `test/browser/tag-color.tsx`, `scripts/tag-color-test-server.ts`, `plan/**`.
+- Dependencias: petición humana; int8952da0 limpio, cuota78%5h/6%7d/reservas10%/1%; guíasNext/use-client/React vigentes ya leídas. Corte secuencial UI sinDB/sync.
+- Aceptación: muestra inicial verde/valor editado y actualización inmediata al cambiar color; mismo valor exacto enFormData/onSave, foco/label/inputdisabled intactos, móvil compacto. Nativepicker no se sustituye por dependencia nueva.
+- Validación: React/CSS reales propios4267 creación/edición/color+guardado y estado disabled, lint/tipos/suite/build/worker/diff, plan/log mismo commitpushint/HEAD/cuotas. Sin tests espejo deCSS ni escrituras de usuario.
+
 ## 16c14b — Fecha y hora en una misma fila móvil
 
 Estado: completado; corrección visual verificada con formulario real.

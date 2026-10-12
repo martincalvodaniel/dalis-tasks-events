@@ -41,7 +41,8 @@ body {
   inset: -0.25rem 0;
 }
 
-.dalis-compact-controls :is(input:not([type="checkbox"]), select) {
+.dalis-compact-controls
+  :is(input:not([type="checkbox"]):not([type="color"]), select) {
   min-height: 2.25rem;
   height: auto;
   font-size: 0.875rem;
