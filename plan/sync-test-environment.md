@@ -303,3 +303,8 @@ El usuario pide cerrar categorías/asignaciones y después recibir porcentaje es
 ## 17e1a1 — Frontera Next recurrente aislada
 
 `bun --no-env-file scripts/sync-db-test-runner.ts next-recurring` reutiliza descriptor/Mongo pinned y runnerNext, con overlays test/next-recurring-sync. Webpack soportado compila referencia real action5 y wrapper retiro4; inventario resuelve la ruta relativa exacta del manifiesto, sin aceptar otra fuente. Ocho escenarios propios validan auth/actor/readiness5/matrix4↔5 antesbody/serie/aparición/replay y dos recibos exactos. Provisión/faultinjection sólo índice registrado deaparición en DB exacta del descriptor, noPreview. Cookies/sesiones/servidores/directorio/contendor limpiados. Regresión modoNext4:19casos pasan. Next16.4 IDausente usa409+marker; no preservar assertion404 desactualizada. PruebaRPC no es Googleinteractivo ni convergenciaIndexedDB5.
+
+
+## 17e1c1 — Operador recurrente propio
+
+Modo recurring-operator selecciona exclusivamente recurring-index-operator.integration.test.ts en descriptor/pinnedimage propios. CLI con flags no-env-file/react-server, env sólo propio y target guard; tres casos100aserciones pasan con9automáticos+5personales, target inválido sin recrear índices, prefix4 ante duplicados y retry sólo aparición/noop/cierre. Limpieza exclusivamente filas/índices tracked de fixture y container/tmpfs/bridge propios. Nunca ejecutarlo con DB del usuario para probar destructivamente.

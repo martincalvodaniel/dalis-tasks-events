@@ -2,6 +2,8 @@
 
 ## Estado operativo actual — 12 de octubre
 
+17e1c1 cerrado: operador recurrente separado/singleton/ensureIndexes/guardias antes de conexión y cierre saneado, validado con tres casosMongo propios100aserciones. Bootstrap9+personal5/noop, target inválido sinIO y duplicados conservados/prefix4/retry sólo índiceaparición. ProvisiónPreview NO ejecutada: autorización específica solicitada por UI para plan_occurrences_user_series_slot_uidx; esperar respuesta y verificar fuentePreview/target antes abrir. Procedimiento en [recurring-index-provisioning.md](recurring-index-provisioning.md).
+
 17e1b4 cerrado: categoría/vista de serie y placement de aparición usan productores reales/CAS independientes; cinco proyecciones convergen. Conflicto entre clientes conserva operación y dependiente sinACK; cancelación/root-tombstone mantienen descarga de historia/placement/cursor y replay antiguo no resucita nada. Evidencia del conflicto sigue original3 incluso tras cancelar4/borrarparent2. Quince escenarios pasan, journal18/receipts19; peer con conflicto sigue deliberadamente bloqueado pese a pasada settled.
 
 17e1b3 cerrado: productor local real captura CAS0 para slotnuevo y dependencia directa; se pierde respuesta tras commitMongo sinACKlocal. Replay conserva UUID/payload intentado, sólo rebasa CAS1 del dependiente nointentado y ambos obtienen ACK únicos. Slot revision2/estadoin_progress, padre1 intacto, cinco proyecciones/cursor12 iguales en dos particiones. Doce escenarios reales pasan. Faltan integración ampliada de categoría/orden/conflictos/tombstones y procedimiento específico de índices/autorización/activación conjunta.

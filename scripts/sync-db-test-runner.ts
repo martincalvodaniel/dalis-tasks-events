@@ -17,6 +17,7 @@ if (
   mode !== "next-recurring" &&
   mode !== "operator" &&
   mode !== "placement-operator" &&
+  mode !== "recurring-operator" &&
   mode !== "indexes"
 )
   throw new Error("Unknown isolated sync test mode")
@@ -172,18 +173,23 @@ try {
   ])
   await ready("if (!db.hello().isWritablePrimary) quit(1)")
   const argumentsForMode =
-    mode === "indexes" || mode === "operator" || mode === "placement-operator"
+    mode === "indexes" ||
+    mode === "operator" ||
+    mode === "placement-operator" ||
+    mode === "recurring-operator"
       ? [
           "bun",
           "--no-env-file",
           "test",
           "--preload",
           "./test/setup.ts",
-          mode === "placement-operator"
-            ? "src/lib/db/placement-index-operator.integration.test.ts"
-            : mode === "operator"
-              ? "src/lib/db/personal-index-operator.integration.test.ts"
-              : "src/lib/db/mixed-sync-index-provisioning.integration.test.ts",
+          mode === "recurring-operator"
+            ? "src/lib/db/recurring-index-operator.integration.test.ts"
+            : mode === "placement-operator"
+              ? "src/lib/db/placement-index-operator.integration.test.ts"
+              : mode === "operator"
+                ? "src/lib/db/personal-index-operator.integration.test.ts"
+                : "src/lib/db/mixed-sync-index-provisioning.integration.test.ts",
         ]
       : mode === "next" || mode === "next-recurring"
         ? [

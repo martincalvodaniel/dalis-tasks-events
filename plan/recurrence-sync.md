@@ -2,6 +2,10 @@
 
 Estado11oct: generación4 sólo sincroniza planes simples; series/apariciones/progreso/cambios de fecha siguen locales. Arrastre simple y checklist heredada entregados16c1–3. No activar parcialmente un nuevo alcance.
 
+## Operador y permiso — 17e1c1
+
+Procedimiento registrado5 validado con CLI/defaults reales/Mongo propio: tres casos100aserciones, targetguard/bootstrap9+5/noop/partialprefix4/duplicados preservados/retry único/closed. Ninguna provisiónPreview ni SourceURI usuario leída. Permiso específico solicitado por request_user_input_async12oct, pendiente; procedimiento y destino a revalidar en [recurring-index-provisioning.md](recurring-index-provisioning.md). No inferirlo de índices4 ya autorizados.
+
 ## Preferencias, conflicto e historia — 17e1b4
 
 Productores reales de categoría/asignación y placement de aparición confirman CAS separados sin cambiar padre1; ambos clientes convergen en cinco proyecciones. Escrituras divergentes sobre slot2 producen ganador3 y receiptconflicto sinjournal para perdedor; operación intentada/payload y dependiente pending0 quedan intactos. Cancelar4/borrarparent2 conserva historia/placement y cursor18; replayCreation devuelve resultado1 original sin resucitar datos. Outcomeconflicto3 queda byte lógico exacto pese a shadow4/tombstone2, sin outcome inventado para dependiente. Quince escenarios pasan con19recibos/18journal; peerconflictivo no es convergente aunque su pasada termina settled, uploaded sólo cuenta applied. Recursos propios cerrados; screenshot /private/tmp/dalis-next5-history-proof.png. Sigue operación de índice y guardias reales en vuelo antes activar.

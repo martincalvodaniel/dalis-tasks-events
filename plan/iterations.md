@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 17e1c1 — Operador de índice recurrente validado
+
+- Estado: completada12oct; tres escenarios CLI/Mongo propios100aserciones pasan, no provisiónPreview; permiso específico solicitado y pendiente.
+
+- Objetivo: procedimiento explícito separado para los cinco índices registrados, target validado antes de abrir y cierre saneado; probar defaults/CLI/partialretry/noop sólo con Mongo propio.
+- target_paths: src/schemas/recurring-sync-index-provisioning.ts, lib/db/{recurring-sync-index-provisioning,recurring-index-execution,recurring-index-operator,recurring-index-operator.integration.test}.ts, scripts/{provision-recurring-indexes,sync-db-test-runner}.ts, plan. Dependencias:core deíndices/selector5/readiness preparados; entrada25%5h/42%7d, reserva10%/1%, secuencial.
+- Aceptación: configuración/target/acuse bootstrap antes conexión; singleton/ensureIndexes centrales; sólo nombres registrados, incompatibles/duplicados sin repair/delete; bootstrap9+personal5, prefix4/retry únicamente aparición y no-op/closed/exit. FuentePreview/destino/autorización específica externos y pendientes, no actuar DBusuario.
+- Validación: tres escenarios CLI/Mongo propios yDoD, plan/log mismo commitpushint/HEAD/cuotas; no comenzar otra entrega amplia tras este corte.
+
 ## 17e1b4 — Categoría/orden recurrentes, conflicto y tombstone
 
 - Estado: completada12oct; quince escenarios reales pasan, journal18/receipts19; peer con conflicto intencional conserva dependiente y no se declara convergente.
