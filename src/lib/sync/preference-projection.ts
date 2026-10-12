@@ -31,7 +31,8 @@ function isPersonalIntention(entry: OutboxEntry): boolean {
 // A personal intention can compact secondary identities; preserve the whole local chain.
 // This plan neither acknowledges intentions nor invents a tombstone for unobserved absence.
 export function planRemotePreferenceProjection(
-  input: unknown
+  input: unknown,
+  options: { settingsIndependent?: boolean } = {}
 ): PreferenceProjection {
   const value = preferenceProjectionInputSchema.parse(input)
   const shadows = new Map<string, PersonalShadow>()
@@ -61,7 +62,13 @@ export function planRemotePreferenceProjection(
   if (shadows.size > 10000)
     throw new Error("Personal projection exceeds its shadow identity limit")
   const pending = value.entries.some(
-    (entry) => isPersonalIntention(entry) && isUnresolvedOutboxEntry(entry)
+    (entry) =>
+      isPersonalIntention(entry) &&
+      isUnresolvedOutboxEntry(entry) &&
+      !(
+        options.settingsIndependent &&
+        entry.operation.command.type === "settings.update"
+      )
   )
   const local = new Map(value.local.map((record) => [record.entityKey, record]))
   if (!pending)

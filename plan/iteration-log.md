@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 18c2 cerrado: proyección independiente y resultados
+
+El contrato futuro valida el contexto completo antes de separar ajustes de categorías, asignaciones y posiciones. Cada familia conserva sus intenciones pendientes sin congelar la otra. ACK/replay mantienen lease, payload y evidencia; una respuesta antigua no degrada un shadow posterior ni un CAS deliberadamente más reciente. Sólo dependientes directos pendientes sin intentos se rebajan al resultado correspondiente. Consumidores actuales siguen estrictos; este corte no activa UI ni escribe ACK durable.
+
+Nueve pruebas nuevas cubren independencia, conflicto, replay, lease, respuestas tardías, dependientes, ownership y corrupción. Suite 779 pass / 217 skip / 0 fail, 10430 aserciones; lint 803 archivos, tipos y build Webpack aprobados. Siguiente 18c3: escritura ACK y descarga atómicas con IndexedDB real. Sin cambios en Mongo del usuario ni generación activa.
+
+
 ## 18c1 — Guardado offline atómico de ajustes
 
 Entrada86%5h/22%7d, reservas10%/1%, secuencial. Añade clave settings:actor ligada al dueño en schema de intención y método preparatorio del outbox. CAS deriva del shadow validado; revisión positiva sin evidencia falla. Valor/intención/secuencia se confirman juntos; replay exacto conserva el valor posterior, snapshot esperado bloquea otro editor y dependencias se limitan a ajustes previos. No se reescriben UUID/payload/attempts ni se adelanta revisión/ACK; no usa tail global personal.

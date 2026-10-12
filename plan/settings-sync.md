@@ -4,7 +4,7 @@
 
 La preferencia editable es la zona horaria personal. Mantener lunes y UI española, como exige el schema vigente; no ampliar opciones de idioma o semana por iniciativa propia. La zona afecta la interpretación de hoy/atrasadas y la visualización; no reescribe fechas, zonas de eventos o anclas de series existentes. Una cadena de movimientos encolada conserva su as-of civil y su payload.
 
-`settings.update` existe en intención1, pero generación5 lo conserva como unsupported. No hay aún productor outbox válido, repositorio remoto, executor, ACK/pull ni UI. El registro local inicial revision0 es un valor provisional del dispositivo, no un ACK remoto.
+`settings.update` existe en intención1, pero generación5 lo conserva como unsupported. Productor, repositorio, executor y proyección están preparados; ACK/pull durables y UI siguen pendientes. El registro local inicial revision0 es un valor provisional del dispositivo, no un ACK remoto.
 
 ## 18a cerrado
 
@@ -27,6 +27,12 @@ Clave canónica `settings:actor` validada contra el dueño de la intención. `Lo
 Replay exige mismo UUID/payload y no restaura un valor posterior. Snapshot esperado detecta otro editor; otra partición o cuenta no puede escribir. Fallo tardío y overflow preservan datos/cola sin notificar éxito. Método preparatorio: generación5 sigue declarando settings unsupported; no hay UI/caller nuevo.
 
 Nueve escenarios IndexedDB reales y recarga correctos, con particiones propias ya retiradas. Se corrigió la sintaxis de un await del fixture, el narrowing en callback e imports. Suite770pass/217skip/0fail/10381aserciones, lint801/tipos/buildWebpack/worker46. Evidencia: `/private/tmp/dalis-settings-outbox-proof.png`. Siguiente18c2: projection/ACK/pull para settings, separado del bloqueo de otras preferencias y con consumidores activos estrictos.
+
+## 18c2 cerrado: proyección independiente y resultados
+
+El contrato futuro valida el contexto completo antes de separar ajustes de categorías, asignaciones y posiciones. Cada familia conserva sus intenciones pendientes sin congelar la otra. ACK/replay mantienen lease, payload y evidencia; una respuesta antigua no degrada un shadow posterior ni un CAS deliberadamente más reciente. Sólo dependientes directos pendientes sin intentos se rebajan al resultado correspondiente. Consumidores actuales siguen estrictos; este corte no activa UI ni escribe ACK durable.
+
+Nueve pruebas nuevas cubren independencia, conflicto, replay, lease, respuestas tardías, dependientes, ownership y corrupción. Suite 779 pass / 217 skip / 0 fail, 10430 aserciones; lint 803 archivos, tipos y build Webpack aprobados. Siguiente 18c3: escritura ACK y descarga atómicas con IndexedDB real. Sin cambios en Mongo del usuario ni generación activa.
 
 ## Dependencias para activación
 

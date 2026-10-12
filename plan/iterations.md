@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 18c2 — Proyección y plan ACK con ajustes independientes
+
+- Estado: en validación.
+- Objetivo: proyectar ajustes y otras preferencias por separado y planear resultados settings.update sin activar consumidor/ACK durable.
+- target_paths: `src/schemas/preference-projection.ts`, `src/lib/sync/{preference-projection,settings-preference-projection,preference-result-plan,settings-preference-result-plan.test}.ts`, `plan/**`.
+- Dependencias: 18c1 publicado2e0b18b; entrada74%5h/20%7d, reservas10%/1%, secuencial.
+- Aceptación: validación íntegra de contexto/cola/ownership antes de dividir dominios; ajustes no congelan categorías ni a la inversa. Shadow reciente se conserva; ACK requiere lease propio, replay idéntico no sobrescribe ediciones y dependiente sólo pending0/directo se rebasa. CAS posterior deliberado no se rebaja por ACK viejo. Settings effects exclusivos de su comando, consumidores actuales estrictos. Sin IO/caller nuevo.
+- Validación: independencia/lease/replay/CAS/resultados tardíos/tombstones/corrupción y DoD, plan/log/commitpushint/HEAD/cuotas. Atomicidad durable queda18c3.
+
 ## 18c1 — Productor offline de ajustes
 
 - Estado: completada; nueve checks IndexedDB y recarga, más tests puros y DoD aprobados. Sin UI/transporte activo.

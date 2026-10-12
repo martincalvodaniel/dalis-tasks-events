@@ -4,10 +4,12 @@ import {
 } from "@/lib/sync/local-operation-outcome-v2"
 import { validateLocalSyncResultInputV2 } from "@/lib/sync/local-sync-result-v2"
 import { planRemotePreferenceProjection } from "@/lib/sync/preference-projection"
+import { planSettingsPreferenceProjection } from "@/lib/sync/settings-preference-projection"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import { taskPlacementEntityKey } from "@/schemas/ordering"
 import { preferenceResultPlanInputSchema } from "@/schemas/preference-result-plan"
 import { personalShadowEntityKey } from "@/schemas/remote-shadow-v2"
+import { userSettingsEntityKey } from "@/schemas/user-settings-key"
 import type { LocalPreferenceOutcomeV2 } from "@/types/local-operation-outcome-v2"
 import type { OutboxEntry } from "@/types/local-sync"
 import type { PersonalSnapshot } from "@/types/personal-snapshot"
@@ -16,7 +18,11 @@ import type { SyncCommand } from "@/types/sync"
 
 type PersonalShadow = Extract<RemoteShadowV2, { kind: "preference" }>
 
-function primaryResultKey(command: SyncCommand): string {
+function primaryResultKey(
+  command: SyncCommand,
+  actor: string,
+  allowSettings: boolean
+): string {
   switch (command.type) {
     case "tag.save":
     case "tag.delete":
@@ -29,6 +35,11 @@ function primaryResultKey(command: SyncCommand): string {
         command.occurrenceId ?? command.itemId,
         command.scope,
         command.date
+      )
+    case "settings.update":
+      if (allowSettings) return userSettingsEntityKey(actor)
+      throw new Error(
+        "Personal result application does not support this command"
       )
     default:
       throw new Error(
@@ -48,6 +59,19 @@ export interface PreferenceResultPlan {
 export function planLocalPreferenceResult(
   input: unknown
 ): PreferenceResultPlan {
+  return planPreferenceResult(input, false)
+}
+
+export function planLocalSettingsPreferenceResult(
+  input: unknown
+): PreferenceResultPlan {
+  return planPreferenceResult(input, true)
+}
+
+function planPreferenceResult(
+  input: unknown,
+  allowSettings: boolean
+): PreferenceResultPlan {
   const value = preferenceResultPlanInputSchema.parse(input)
   const { userId } = value
   const submission = validateLocalSyncResultInputV2(value.submission, userId)
@@ -55,7 +79,27 @@ export function planLocalPreferenceResult(
   const command = operation.command
   if (result.kind !== "preference")
     throw new Error("Personal result application does not support this command")
-  const primary = primaryResultKey(command)
+  const primary = primaryResultKey(command, userId, allowSettings)
+  const suppliedEffects =
+    result.outcome.status === "applied"
+      ? result.outcome.effects.effects
+      : result.outcome.status === "conflict"
+        ? [result.outcome.current]
+        : []
+  if (
+    command.type === "settings.update" &&
+    (suppliedEffects.length > 1 ||
+      suppliedEffects.some((effect) => effect.store !== "settings"))
+  )
+    throw new Error("Settings result must contain only its own record")
+  if (
+    command.type !== "settings.update" &&
+    suppliedEffects.some((effect) => effect.store === "settings")
+  )
+    throw new Error("Settings effects require their own command")
+  const project = allowSettings
+    ? planSettingsPreferenceProjection
+    : planRemotePreferenceProjection
   const personal: PersonalShadow[] = []
   const allKeys = new Set<string>()
   let itemCount = 0
@@ -70,7 +114,7 @@ export function planLocalPreferenceResult(
     } else personal.push(shadow)
   }
   // Validate the entire queue and supported personal cache before choosing a branch.
-  const initial = planRemotePreferenceProjection({
+  const initial = project({
     userId,
     local: value.local,
     shadows: personal,
@@ -162,10 +206,14 @@ export function planLocalPreferenceResult(
       candidate.attempts === 0 &&
       candidate.dependencies.includes(operation.operationId)
     )
-      return outboxEntrySchema.parse({
-        ...candidate,
-        operation: { ...candidate.operation, baseRevision: revision },
-      })
+      return allowSettings &&
+        candidate.operation.command.type === "settings.update" &&
+        candidate.operation.baseRevision > revision
+        ? candidate
+        : outboxEntrySchema.parse({
+            ...candidate,
+            operation: { ...candidate.operation, baseRevision: revision },
+          })
     return candidate
   })
   const observed = new Map(
@@ -188,7 +236,7 @@ export function planLocalPreferenceResult(
         record: current.current,
       })
   }
-  const projection = planRemotePreferenceProjection({
+  const projection = project({
     userId,
     local: value.local,
     shadows: [...observed.values()],
