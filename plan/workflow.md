@@ -389,3 +389,8 @@ Peticiónhumana tras16c12: estimación global y reactivación01:27Europe/Madrid.
 ### Renovación12oct01:27
 
 Cuota real100%5h/53%7d y reset1791779244; repo principal limpio ahora enmain con mismoHEAD8cfd34b queorigin/int. Se conserva main y se crea worktree gestionado recurring-sync-next desdeint, luego se selecciona int sólo en ese checkout propio; dependencias instaladas reutilizadas sin instalación. Lote puntual secuencial con reservas10%/1%, primero17e1a1 acotado fronteraNext antes pruebaIndexedDB/convergencia y activación. Sin permisoDBnuevo ni cadena adicional.
+
+
+### Cierre de continuación12oct01:27
+
+Lote secuencial desde8cfd34b en worktreeint propio para preservar main humano. Ocho cortes completos, cadauno DoD/commitpushint/HEAD/cuotas:17e1a1–2,17e1b1–4,17e1c1 y17e1b5a. Últimaentrada20%5h/41%7d permitió sólo prueba pequeña de cuenta, no integración/activación ni gateen-vuelo. Reserva10%/1% mantenida; cuota final trascommit. ÍndicePreview requiere permiso específico solicitado por UI, pendiente, sin conexiónusuario ni nueva autorización asumida. FixtureNext16casos pasa yCLI3casos100assert; producto4 activo. Revisión puntual eliminada por automation_update, sincadena. Rootrepo limpio y worktree gestionado conservado para reusar; recursos Mongo/browser de pruebas todos propios y retirados, scripts temporales eliminados, logs/capturas propios conservados. No iniciar otro corte:17e1b5b + integración17e2 necesitan margen/prerrequisitos.

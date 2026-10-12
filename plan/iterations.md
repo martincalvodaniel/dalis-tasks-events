@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 17e1b5a — Cuenta remota distinta conserva cola propia
+
+- Estado: completada12oct; dieciséis escenarios propios pasan, actor distinto no claim/ACK y reauth confirma dos intenciones únicas. Lote puntual cerrado después.
+
+- Objetivo: prueba pequeña de sesión BetterAuth distinta con cliente5 anterior y recuperación del mismo actor, sinclaim/ACK bajo cuenta extranjera.
+- target_paths: test/next-recurring-sync/features/controller.tsx.template y plan. Dependencias:17e1b4; entrada20%5h/41%7d, reserva10%/1%, corte final acotado mientras permisoíndice pendiente.
+- Aceptación: plan/vista reales pending0, sesiónotra devuelve account_changed antesclaim; stores/ownerMongo intactos y otra cuenta sinrecibos; reauthowner obtiene dos ACK únicos originales y no cambia peerconflictivo.
+- Validación: Next5/IndexedDB/Mongo real yDoD, plan/log mismo commitpushint/HEAD/cuotas. No abrir después guardiaen-vuelo/integración amplia; cerrar ejecución puntual.
+
 ## 17e1c1 — Operador de índice recurrente validado
 
 - Estado: completada12oct; tres escenarios CLI/Mongo propios100aserciones pasan, no provisiónPreview; permiso específico solicitado y pendiente.

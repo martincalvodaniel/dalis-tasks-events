@@ -2,6 +2,10 @@
 
 Estado11oct: generación4 sólo sincroniza planes simples; series/apariciones/progreso/cambios de fecha siguen locales. Arrastre simple y checklist heredada entregados16c1–3. No activar parcialmente un nuevo alcance.
 
+## Cuenta distinta y cierre — 17e1b5a
+
+Dos intenciones de plan/vista pending0 se conservan exactas al iniciar otra sesión BetterAuth persistida autorizada: cliente5 devuelveaccount_changed antesclaim/ACK, ambos actoresMongo intactos. Reautenticar mismoowner obtiene dos ACK reales únicos originales, noops conservan historia. Dieciséis escenarios pasan, journal20/receipts21; peerconflictivo sigue expresamente sin resolver. Siguiente guardia real deépoca en vuelo17e1b5b e integración17e2 antes activar; índicePreview autorizado/readiness pendientes. Ejecución01:27 puntual eliminada, sin cadena; fuentes/checkouts en master. Screenshot /private/tmp/dalis-next5-final-proof.png.
+
 ## Operador y permiso — 17e1c1
 
 Procedimiento registrado5 validado con CLI/defaults reales/Mongo propio: tres casos100aserciones, targetguard/bootstrap9+5/noop/partialprefix4/duplicados preservados/retry único/closed. Ninguna provisiónPreview ni SourceURI usuario leída. Permiso específico solicitado por request_user_input_async12oct, pendiente; procedimiento y destino a revalidar en [recurring-index-provisioning.md](recurring-index-provisioning.md). No inferirlo de índices4 ya autorizados.

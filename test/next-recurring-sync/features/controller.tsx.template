@@ -1504,6 +1504,139 @@ export function FixtureController() {
         }
       )
       await check(
+        "Otra sesión remota conserva cola propia y reautenticar confirma una vez",
+        async () => {
+          const snapshot = async () => {
+            const value = (await call(0, { type: "local-snapshot" })) as {
+              backup: unknown
+            }
+            return validateLocalRecurringBackup(value.backup, owner)
+          }
+          const request = {
+            mode: "create" as const,
+            itemId: crypto.randomUUID(),
+            contentOperationId: crypto.randomUUID(),
+            viewOperationId: crypto.randomUUID(),
+            primaryTagId: null,
+            now: new Date().toISOString(),
+            input: {
+              kind: "plan" as const,
+              variant: "appointment" as const,
+              title: "Cambio de cuenta remoto",
+              description: "",
+              status: "not_started" as const,
+              checklist: [],
+              recurrence: null,
+              schedule: {
+                mode: "all_day" as const,
+                startDate: "2026-10-12",
+                endDateExclusive: "2026-10-13",
+              },
+            },
+          }
+          const before = await state(owner)
+          await call(0, { type: "save-plan", request })
+          const queued = await snapshot()
+          const original = queued.stores.outbox.filter((entry) =>
+            [request.contentOperationId, request.viewOperationId].includes(
+              entry.operation.operationId
+            )
+          )
+          assert(
+            original.length === 2 &&
+              original.every(
+                (entry) =>
+                  entry.state === "pending" &&
+                  entry.attempts === 0 &&
+                  entry.lease === null
+              ),
+            "Account switch requires unclaimed original intentions"
+          )
+          const other = (await call(0, {
+            type: "bootstrap",
+            identity: "other",
+          })) as Reply
+          assert(other.status === 200, "Owned alternate session failed")
+          const otherId = workspaceIdentitySchema.parse(other.value).userId
+          assert(otherId !== owner, "Alternate actor was not distinct")
+          const rejected = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+            downloaded: number
+          }
+          assert(
+            rejected.status === "account_changed" &&
+              rejected.uploaded === 0 &&
+              rejected.downloaded === 0,
+            "Foreign session reached an owned claim or ACK"
+          )
+          assert(
+            canonical((await snapshot()).stores) === canonical(queued.stores) &&
+              canonical(await state(owner)) === canonical(before),
+            "Account change mutated owned local or remote data"
+          )
+          const foreign = await state(otherId)
+          assert(
+            foreign.page.through === 0 &&
+              Object.values(foreign.counts).every((value) => value === 0),
+            "Wrong actor received owned writes"
+          )
+          const restored = (await call(0, {
+            type: "bootstrap",
+            identity: "owner",
+          })) as Reply
+          assert(
+            restored.status === 200 &&
+              workspaceIdentitySchema.parse(restored.value).userId === owner,
+            "Reauthentication changed original actor identity"
+          )
+          const recovered = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            recovered.status === "settled" && recovered.uploaded === 2,
+            "Same owner did not recover original pair"
+          )
+          const committed = await state(owner),
+            complete = await snapshot()
+          assert(
+            committed.counts.receipts === before.counts.receipts + 2 &&
+              committed.page.through === before.page.through + 2 &&
+              canonical(await state(otherId)) === canonical(foreign),
+            "Recovery duplicated history or changed foreign account"
+          )
+          for (const intent of original) {
+            const acknowledged = complete.stores.outbox.find(
+              (entry) =>
+                entry.operation.operationId === intent.operation.operationId
+            )
+            assert(
+              acknowledged?.state === "acknowledged" &&
+                acknowledged.attempts === 1 &&
+                acknowledged.lease === null &&
+                canonical(acknowledged.operation) ===
+                  canonical(intent.operation) &&
+                canonical(acknowledged.dependencies) ===
+                  canonical(intent.dependencies),
+              "Recovery rewrote original account-switch intention"
+            )
+          }
+          const stable = canonical(complete.stores)
+          const idle = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            idle.status === "settled" &&
+              idle.uploaded === 0 &&
+              canonical((await snapshot()).stores) === stable &&
+              canonical(await state(owner)) === canonical(committed),
+            "Recovered account created duplicate ACKs"
+          )
+        }
+      )
+      await check(
         "Revocar sesión bloquea RPC sin alterar datos confirmados",
         async () => {
           const before = await state(owner)
@@ -1563,7 +1696,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Quince escenarios de frontera Next5 correctos; sesiones propias cerradas"
+            "Dieciséis escenarios de frontera Next5 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",
