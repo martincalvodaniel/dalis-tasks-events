@@ -5,15 +5,20 @@ import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
 import { validateLocalSyncResultInputV2 } from "@/lib/sync/local-sync-result-v2"
 import { planLocalPreferenceResult } from "@/lib/sync/preference-result-plan"
-import { planLocalRecurringPreferenceResult } from "@/lib/sync/recurring-preference-result-plan"
+import {
+  planLocalRecurringPreferenceResult,
+  planLocalRecurringSettingsResult,
+} from "@/lib/sync/recurring-preference-result-plan"
 import { decodeRemoteShadow } from "@/lib/sync/remote-shadow-v2"
 import { taskPlacementEntityKey } from "@/schemas/ordering"
 import {
   itemViewSchema,
   tagSchema,
   taskPlacementSchema,
+  userSettingsSchema,
 } from "@/schemas/preferences"
 import { userIdSchema } from "@/schemas/primitives"
+import { userSettingsEntityKey } from "@/schemas/user-settings-key"
 
 // Account epoch checks belong to the caller; this transaction protects one account partition.
 export function applyLocalPreferenceResult(
@@ -33,11 +38,21 @@ export function applyLocalRecurringPreferenceResult(
   return applyPreferenceResult(database, userIdInput, input, true)
 }
 
+// Prepared settings port; every personal result uses the complete recurring snapshot.
+export function applyLocalSettingsPreferenceResult(
+  database: IDBDatabase,
+  userIdInput: unknown,
+  input: unknown
+): Promise<"applied" | "replayed"> {
+  return applyPreferenceResult(database, userIdInput, input, true, true)
+}
+
 function applyPreferenceResult(
   database: IDBDatabase,
   userIdInput: unknown,
   input: unknown,
-  allowRecurringEvidence: boolean
+  allowRecurringEvidence: boolean,
+  allowSettings = false
 ): Promise<"applied" | "replayed"> {
   const userId = userIdSchema.parse(userIdInput)
   if (database.name !== localDatabaseName(userId))
@@ -53,6 +68,7 @@ function applyPreferenceResult(
       "tag.move",
       "item-view.set",
       "task.move",
+      ...(allowSettings ? ["settings.update"] : []),
     ].includes(submission.operation.command.type)
   )
     return Promise.reject(
@@ -70,7 +86,8 @@ function applyPreferenceResult(
       (effect) =>
         effect.store !== "tags" &&
         effect.store !== "itemViews" &&
-        effect.store !== "taskPlacements"
+        effect.store !== "taskPlacements" &&
+        !(allowSettings && effect.store === "settings")
     )
   )
     return Promise.reject(
@@ -88,6 +105,7 @@ function applyPreferenceResult(
       "remoteShadows",
       "syncMetadata",
       ...(allowRecurringEvidence ? ["items"] : []),
+      ...(allowSettings ? ["settings"] : []),
     ],
     "readwrite",
     (context) => {
@@ -106,11 +124,14 @@ function applyPreferenceResult(
         outcome: metadata.get(
           `operation-outcome:${submission.operation.operationId}`
         ),
+        settings: allowSettings
+          ? context.transaction.objectStore("settings").getAll(undefined, 10001)
+          : null,
         items: allowRecurringEvidence
           ? context.transaction.objectStore("items").getAll(undefined, 10001)
           : null,
       }
-      let remaining = allowRecurringEvidence ? 7 : 6
+      let remaining = 6 + Number(allowRecurringEvidence) + Number(allowSettings)
       function finish() {
         if (--remaining) return
         try {
@@ -121,6 +142,7 @@ function applyPreferenceResult(
             requests.entries,
             requests.shadows,
             requests.items,
+            requests.settings,
           ])
             if (request && request.result.length > 10000)
               throw new Error(
@@ -130,6 +152,15 @@ function applyPreferenceResult(
             userId,
             submission,
             local: [
+              ...(requests.settings?.result ?? []).map((input: unknown) => {
+                const record = userSettingsSchema.parse(input)
+                if (record.userId !== userId)
+                  throw new Error("Personal settings belong to another actor")
+                return {
+                  entityKey: userSettingsEntityKey(userId),
+                  record: { store: "settings", record },
+                }
+              }),
               ...requests.tags.result.map((input: unknown) => {
                 const record = tagSchema.parse(input)
                 return {
@@ -164,8 +195,11 @@ function applyPreferenceResult(
             entries: requests.entries.result,
             existingOutcome: requests.outcome.result ?? null,
           }
+          const recurringProject = allowSettings
+            ? planLocalRecurringSettingsResult
+            : planLocalRecurringPreferenceResult
           const plan = allowRecurringEvidence
-            ? planLocalRecurringPreferenceResult({
+            ? recurringProject({
                 ...state,
                 items: requests.items?.result,
               })
@@ -180,6 +214,10 @@ function applyPreferenceResult(
               views.put(entry.record.record)
             else if (entry.record?.store === "taskPlacements")
               placements.put(entry.record.record)
+            else if (entry.record?.store === "settings")
+              context.transaction
+                .objectStore("settings")
+                .put(entry.record.record)
           }
           const oldShadows = new Map(
             requests.shadows.result.map((record) => [

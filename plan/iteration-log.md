@@ -1,8 +1,15 @@
 # Registro de iteraciones
 
+## 18c3a — Confirmación durable de ajustes
+
+Puerto futuro `applyLocalSettingsPreferenceResult` captura settings, preferencias, items, cola, shadows y outcome en una única TX. La composición valida todas las familias recurrentes antes de proyectar; cada familia conserva sus pendientes. Valor local, ACK, lease, dependientes directos, shadow y outcome se confirman juntos. Puertos activos siguen estrictos y no se modifica negociación/UI.
+
+Ocho checks IndexedDB reales y recarga pasan: consumidor anterior/lease/partición, rollback tardío, ACK/evidencia/hijo pendiente, replay, shadow posterior/CAS mayor, conflicto/dependiente intentado, independencia inversa con categoría y registro extranjero. Respuestas de fixture explícitas: no prueban servidor ni Google. Particiones/tab/servidor propios retirados. Suite 779 pass / 217 skip / 0 fail / 10430 aserciones, lint 805, tipos/build Webpack aprobados; worker 46 recursos. Captura `/private/tmp/dalis-settings-results-proof.png`. Siguiente 18c3b: descarga y cursor atómicos con settings.
+
+
 ## 18c2 cerrado: proyección independiente y resultados
 
-El contrato futuro valida el contexto completo antes de separar ajustes de categorías, asignaciones y posiciones. Cada familia conserva sus intenciones pendientes sin congelar la otra. ACK/replay mantienen lease, payload y evidencia; una respuesta antigua no degrada un shadow posterior ni un CAS deliberadamente más reciente. Sólo dependientes directos pendientes sin intentos se rebajan al resultado correspondiente. Consumidores actuales siguen estrictos; este corte no activa UI ni escribe ACK durable.
+El contrato futuro valida el contexto completo antes de separar ajustes de categorías, asignaciones y posiciones. Cada familia conserva sus intenciones pendientes sin congelar la otra. ACK/replay mantienen lease, payload y evidencia; una respuesta antigua no degrada un shadow posterior ni un CAS deliberadamente más reciente. Sólo dependientes directos pendientes sin intentos se rebasan al resultado correspondiente. Consumidores actuales siguen estrictos; este corte no activa UI ni escribe ACK durable.
 
 Nueve pruebas nuevas cubren independencia, conflicto, replay, lease, respuestas tardías, dependientes, ownership y corrupción. Suite 779 pass / 217 skip / 0 fail, 10430 aserciones; lint 803 archivos, tipos y build Webpack aprobados. Siguiente 18c3: escritura ACK y descarga atómicas con IndexedDB real. Sin cambios en Mongo del usuario ni generación activa.
 

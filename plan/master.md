@@ -2,6 +2,8 @@
 
 ## Estado operativo — 12 de octubre de 2026
 
+18c3a cerrado: ACK durable de ajustes probado en IndexedDB con rollback/replay/independencia y recarga. Generación 5 intacta; siguiente descarga/cursor 18c3b. Suite 779 pass / 217 skip / 0 fail; lint 805, tipos/build Webpack/worker 46. [settings-sync.md](settings-sync.md).
+
 18c2 cerrado: proyección futura independiente y ACK puro probados, preservando cola y evidencia ante respuestas tardías. Suite 779 pass / 217 skip / 0 fail; lint 803, tipos y build Webpack aprobados. Siguiente 18c3: ACK/pull durables; generación 5 sigue activa sin ajustes remotos. [settings-sync.md](settings-sync.md).
 
 18c1 cerrado: productor offline de zona personal con clave propia, CAS observado, cola/valor/secuencia atómicos y replay; independencia del tail de categorías. Nueve checks IndexedDB y recarga pasan, particiones/servidor propios limpios. Suite770pass/217skip/0fail, lint801/tipos/buildWebpack/worker46. Generación5 sigue sin envío/UI de ajustes. Siguiente18c2: consumidores/ACK/pull, preservando local pendiente de cada familia de forma independiente. [settings-sync.md](settings-sync.md).

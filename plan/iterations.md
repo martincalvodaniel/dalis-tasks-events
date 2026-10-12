@@ -1,5 +1,13 @@
 # Iteraciones de implementación
 
+## 18c3a — Confirmación durable de ajustes
+
+- Objetivo: ACK personal futuro con ajustes en una TX IndexedDB, conservando todas las familias recurrentes y la independencia de categorías.
+- target_paths: `src/lib/local-db/preference-sync-results.ts`, `src/lib/sync/recurring-preference-result-plan.ts`, `test/browser/user-settings-results.ts`, `scripts/user-settings-results-test-server.ts`, `plan/**`.
+- Dependencias: 18c2 publicado e4f25a3; entrada 61% 5h / 18% 7d, reservas 10% / 1%, secuencial.
+- Aceptación: valor/cola/shadow/outcome atómicos; fallo tardío revierte todo; replay no restaura local posterior; lease/actor/registro extranjero rechazados; dependiente pendiente sin intentos rebasa y los intentados conservan identidad; consumidores 5 siguen estrictos. No activar ni fabricar respuesta remota.
+- Validación: IndexedDB real con respuestas de fixture explícitas, recarga y limpieza propia; suite, lint, tipos, build/worker, plan/log/commit/push/HEAD/cuotas. Descarga/cursor será 18c3b.
+
 ## 18c2 — Proyección y plan ACK con ajustes independientes
 
 - Estado: en validación.
