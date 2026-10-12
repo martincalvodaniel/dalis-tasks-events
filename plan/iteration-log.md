@@ -1,5 +1,10 @@
 # Registro de iteraciones
 
+## 17e1b5b — Época después de commit remoto en vuelo
+
+12oct: runtime5 real despacha action5/defaults y rota cuenta-control durable después del commitMongo, antes de entregar respuesta. Pasada anterior devuelve account_changed uploaded0, rootpending1/dependentpending0 UUID/payload/deps exactos, leasespropios liberados y sinoutcome. Cliente5 fresco replaysroot yACKdependiente, dosrecibos/dossecuencias únicas, cinco proyecciones/cursor exactos; peerconflictivo no cambia. Diecisiete escenariosNext5/BetterAuth/IndexedDB/Mongo propios pasan; primerensayo omitió allowlistcomando de fixture, corregido yrepetido completo. Recursos propios limpios; screenshot /private/tmp/dalis-next5-epoch-proof.png. Suite751pass/206opt-in skip/0fail/10270aserciones, lint779/tipos/Next16.4Webpack/worker46/diff aprobados. Checkoutmain intacto, trabajo worktreeint. PermisoíndicePreview pendiente, sinDBusuario/activación; siguiente17e2 consumidores yconexión conjunta.
+
+
 ## 17e1b5a — Cambio de cuenta remota y cierre puntual
 
 Cerrado12oct: dieciséis escenarios Next5/React/IndexedDB/Mongo propios pasan. Plan/vista pending0 producidos realmente, sesiónBetterAuth otra identidad haceaccount_changed antesclaim/ACK con todosstores/ambosMongo intactos. Reauthmismoowner confirma dosUUID/payload/deps originales una vez; idle sinwrites. Journal20/receipts21 incluye conflicto intencional noresuelto delpeer, nunca afirmar convergencia por settled. Suite751pass/206skip/0fail/10270aserciones, lint779/tipos/buildWebpack/worker46/diff aprobados; screenshot /private/tmp/dalis-next5-final-proof.png. Ocho cortes del lote publicados, mainhumano intacto y worktreeint propio conservado/reusable. Mongo/browser/cookies/particiones/servicios propios limpios, scripts temporales retirados. Operador5 validado3casos100assert pero permiso específico Preview solicitado/pending; ninguna DBusuario conectada/provisionada ni activación. Ejecución puntual eliminada por automation_update sin cadena. Siguiente17e1b5b guardia deépoca en vuelo e integración17e2 con índice autorizado/readiness, requiere margen; mismo commitpushint/HEAD ycuotas de cierre.

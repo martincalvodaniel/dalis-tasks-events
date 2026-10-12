@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 17e1b5b — Cambio de época después de commit remoto en vuelo
+
+- Estado: completada12oct; diecisiete escenariosNext5 propios yDoD pasan, commitremoto en vuelo conserva cola sinACK y recupera dosrecibos únicos.
+- Objetivo: guardar un plan real en Mongo mediante action5 y cambiar la época durable antes de entregar la respuesta al runtime anterior; recuperar después con cliente nuevo.
+- target_paths: `src/schemas/next-sync-test.ts`, `test/next-recurring-sync/features/{local-client,device-client,controller}.ts*.template` y documentos de plan.
+- Dependencias:17e1b5a; usuario autoriza continuar plan completo, entrada99%5h/39%7d, reservas10%/1%, secuencial en worktreeint sin alterar checkoutmain.
+- Aceptación: primera intención conserva UUID/payload/deps pending1 sinACK/lease; dependiente pending0 intacto; cambioépoca devuelve account_changed después de commitreal; replay fresco confirma dos intenciones con sólo dos recibos/secuencias totales, cursor/proyección exactos y peerconflictivo sin cambios. ÍndicePreview requiere autorización específica pendiente; trabajo independiente sinDBusuario.
+- Validación: fronteraNext5 compilada/BetterAuth/IndexedDB/Mongo propios, suite/lint/tipos/buildWebpack/worker; plan/log mismo ConventionalCommit+pushorigin/int/HEAD exacto y cuotas.
+
 ## 17e1b5a — Cuenta remota distinta conserva cola propia
 
 - Estado: completada12oct; dieciséis escenarios propios pasan, actor distinto no claim/ACK y reauth confirma dos intenciones únicas. Lote puntual cerrado después.

@@ -142,6 +142,7 @@ async function execute(
       "delete-plan",
       "commit-occurrence",
       "lost-recurring-response-run",
+      "epoch-after-commit-run",
       "prepare-local",
       "save-plan",
       "commit-local",

@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## Continuación general12oct
+
+El usuario aclara «Mi continúa es general. Adelante con el plan completo»: continuar cortes coherentes con commitpushint/HEAD y consulta automática deambascuotas después de cadaentrega, reservas10%5h/1%7d. Entrada99%/39%, reset5h real1791799993. Reutilizar worktreeint gestionado, checkoutmain ajeno intacto. No autoriza nueva cadena deautomatizaciones ni nuevas actuacionesDB ajenas sin alcance específico; permisoíndiceapariciónPreview preguntado ypendiente. Si falta margen/lectura o intervenciónnecesaria, cerrar repo coherente.
+
 ## Reserva vigente por ventana
 
 El usuario reduce explícitamente la reserva semanal primero al5%, después al2% y finalmente al **1%** el 8 de octubre. Se mantiene **10% en 5h**. Esta política sustituye las reservas anteriores para futuras iteraciones; las entradas históricas conservan las condiciones de su ejecución. Consultar ambas cuotas tras cada commit/push y evaluar el margen de cada ventana por separado y el consumo observado, sin equiparar sus porcentajes. No empezar si 5h <=10% o 7d <=1%, ni si implementación, pruebas, reparación y cierre pueden cruzar sus reservas. Sin créditos/reinicios ni nuevas automatizaciones.

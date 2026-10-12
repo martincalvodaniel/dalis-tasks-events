@@ -154,6 +154,7 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
     operationId: entityIdSchema,
   }),
   z.strictObject({ type: z.literal("lost-recurring-response-run") }),
+  z.strictObject({ type: z.literal("epoch-after-commit-run") }),
   z.strictObject({ type: z.literal("mixed-summary") }),
   z.strictObject({ type: z.literal("mixed-run") }),
   z.strictObject({ type: z.literal("legacy-missing-action-run") }),

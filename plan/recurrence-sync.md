@@ -1,5 +1,10 @@
 # Sincronización de series y apariciones comunes
 
+## 17e1b5b — Época después de commit remoto en vuelo
+
+12oct: runtime5 real despacha action5/defaults y rota cuenta-control durable después del commitMongo, antes de entregar respuesta. Pasada anterior devuelve account_changed uploaded0, rootpending1/dependentpending0 UUID/payload/deps exactos, leasespropios liberados y sinoutcome. Cliente5 fresco replaysroot yACKdependiente, dosrecibos/dossecuencias únicas, cinco proyecciones/cursor exactos; peerconflictivo no cambia. Diecisiete escenariosNext5/BetterAuth/IndexedDB/Mongo propios pasan; primerensayo omitió allowlistcomando de fixture, corregido yrepetido completo. Recursos propios limpios; screenshot /private/tmp/dalis-next5-epoch-proof.png. Suite751pass/206opt-in skip/0fail/10270aserciones, lint779/tipos/Next16.4Webpack/worker46/diff aprobados. Checkoutmain intacto, trabajo worktreeint. PermisoíndicePreview pendiente, sinDBusuario/activación; siguiente17e2 consumidores yconexión conjunta.
+
+
 Estado11oct: generación4 sólo sincroniza planes simples; series/apariciones/progreso/cambios de fecha siguen locales. Arrastre simple y checklist heredada entregados16c1–3. No activar parcialmente un nuevo alcance.
 
 ## Cuenta distinta y cierre — 17e1b5a

@@ -1637,6 +1637,173 @@ export function FixtureController() {
         }
       )
       await check(
+        "Cambiar época tras commit en vuelo conserva intención y recupera sin duplicados",
+        async () => {
+          const snapshot = async (index = 0) => {
+            const value = (await call(index, { type: "local-snapshot" })) as {
+              backup: unknown
+            }
+            return validateLocalRecurringBackup(value.backup, owner)
+          }
+          const request = {
+            mode: "create" as const,
+            itemId: crypto.randomUUID(),
+            contentOperationId: crypto.randomUUID(),
+            viewOperationId: crypto.randomUUID(),
+            primaryTagId: null,
+            now: new Date().toISOString(),
+            input: {
+              kind: "plan" as const,
+              variant: "note" as const,
+              title: "Época durante respuesta",
+              description: "",
+              status: "not_started" as const,
+              checklist: [],
+              recurrence: null,
+              schedule: {
+                mode: "all_day" as const,
+                startDate: "2026-10-12",
+                endDateExclusive: "2026-10-13",
+              },
+            },
+          }
+          const before = await state(owner),
+            peerBefore = await snapshot(1)
+          await call(0, { type: "save-plan", request })
+          const queued = await snapshot()
+          const originals = queued.stores.outbox.filter((entry) =>
+            [request.contentOperationId, request.viewOperationId].includes(
+              entry.operation.operationId
+            )
+          )
+          assert(
+            originals.length === 2 &&
+              originals.every(
+                (entry) =>
+                  entry.state === "pending" &&
+                  entry.attempts === 0 &&
+                  entry.lease === null
+              ),
+            "Epoch probe requires two unclaimed intentions"
+          )
+          const interrupted = (await call(0, {
+            type: "epoch-after-commit-run",
+          })) as { status: string; uploaded: number; downloaded: number }
+          assert(
+            interrupted.status === "account_changed" &&
+              interrupted.uploaded === 0,
+            "Old epoch acknowledged a committed response"
+          )
+          const committed = await state(owner),
+            retained = await snapshot()
+          assert(
+            committed.counts.receipts === before.counts.receipts + 1 &&
+              committed.page.through === before.page.through + 1,
+            "Epoch rotation did not follow exactly one remote commit"
+          )
+          for (const original of originals) {
+            const entry = retained.stores.outbox.find(
+              (value) =>
+                value.operation.operationId === original.operation.operationId
+            )
+            assert(
+              entry?.state === "pending" &&
+                entry.attempts ===
+                  (original.operation.operationId === request.contentOperationId
+                    ? 1
+                    : 0) &&
+                entry.lease === null &&
+                canonical(entry.operation) === canonical(original.operation) &&
+                canonical(entry.dependencies) ===
+                  canonical(original.dependencies),
+              "Epoch rotation changed or acknowledged an original intention"
+            )
+            assert(
+              !retained.stores.syncMetadata.some(
+                (value) =>
+                  value.key ===
+                  `operation-outcome:${original.operation.operationId}`
+              ),
+              "Old epoch fabricated an outcome"
+            )
+          }
+          assert(
+            canonical((await snapshot(1)).stores) ===
+              canonical(peerBefore.stores),
+            "Epoch interruption changed the other partition"
+          )
+          const recovered = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            recovered.status === "settled" && recovered.uploaded === 2,
+            "Fresh epoch failed to recover original pair"
+          )
+          const final = await state(owner),
+            complete = await snapshot()
+          assert(
+            final.counts.receipts === before.counts.receipts + 2 &&
+              final.page.through === before.page.through + 2,
+            "Fresh epoch duplicated receipts or journal"
+          )
+          for (const original of originals) {
+            const entry = complete.stores.outbox.find(
+              (value) =>
+                value.operation.operationId === original.operation.operationId
+            )
+            assert(
+              entry?.state === "acknowledged" &&
+                entry.attempts ===
+                  (original.operation.operationId === request.contentOperationId
+                    ? 2
+                    : 1) &&
+                entry.lease === null &&
+                canonical(entry.operation) === canonical(original.operation) &&
+                canonical(entry.dependencies) ===
+                  canonical(original.dependencies),
+              "Fresh epoch rewrote an intention or failed to ACK"
+            )
+          }
+          const projection = foldRecurringChanges(final.page)
+          for (const key of [
+            "items",
+            "occurrences",
+            "tags",
+            "itemViews",
+            "taskPlacements",
+          ] as const) {
+            assert(
+              ordered(complete.stores[key]) ===
+                ordered([...projection[key].values()]),
+              "Fresh epoch projection differs from Mongo"
+            )
+          }
+          const current = (await call(0, { type: "local-snapshot" })) as {
+            cursor: unknown
+          }
+          const cursor = localPullCursorSchema.parse(current.cursor)
+          assert(
+            cursor.after === final.page.through && cursor.through === null,
+            "Fresh epoch cursor did not reach authoritative checkpoint"
+          )
+          const stable = canonical(complete.stores)
+          const idle = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            idle.status === "settled" &&
+              idle.uploaded === 0 &&
+              canonical((await snapshot()).stores) === stable &&
+              canonical(await state(owner)) === canonical(final) &&
+              canonical((await snapshot(1)).stores) ===
+                canonical(peerBefore.stores),
+            "Idle recovery changed history or peer partition"
+          )
+        }
+      )
+      await check(
         "Revocar sesión bloquea RPC sin alterar datos confirmados",
         async () => {
           const before = await state(owner)
@@ -1696,7 +1863,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Dieciséis escenarios de frontera Next5 correctos; sesiones propias cerradas"
+            "Diecisiete escenarios de frontera Next5 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

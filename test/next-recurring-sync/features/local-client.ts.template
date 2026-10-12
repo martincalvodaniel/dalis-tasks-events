@@ -517,6 +517,28 @@ export async function executeLocalFixtureCommand(
         await runtime.close()
       }
     }
+    case "epoch-after-commit-run": {
+      let rotated = false
+      const runtime = await openLocalRecurringSyncRuntime(
+        active,
+        createHttpRecurringSyncTransport(active.userId, async (input) => {
+          const result = await dispatchSyncOperationsV5(input)
+          if (!rotated) {
+            rotated = true
+            await executeLocalFixtureCommand(runId, { type: "rotate-local" })
+          }
+          return result
+        })
+      )
+      try {
+        const result = await runtime.run()
+        if (!rotated)
+          throw new Error("Fixture did not commit before rotating the epoch")
+        return result
+      } finally {
+        await runtime.close()
+      }
+    }
     case "save-plan":
       return saveLocalPlan(
         { ...active, itemCount: 0, offlineReady: false },
