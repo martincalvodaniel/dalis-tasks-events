@@ -1037,6 +1037,473 @@ export function FixtureController() {
         }
       )
       await check(
+        "Categoría de serie y orden de aparición convergen con CAS independientes",
+        async () => {
+          assert(
+            creation.command.type === "item.create",
+            "Series creation changed"
+          )
+          const seriesId = creation.command.itemId
+          const tagId = crypto.randomUUID(),
+            moveId = crypto.randomUUID()
+          const before = await state(owner)
+          const tag = (await call(0, {
+            type: "commit-local",
+            command: {
+              type: "tag.save",
+              tagId,
+              input: { name: "Serie azul", color: "#336699", position: 1024 },
+            },
+          })) as { operation: { operationId: string } }
+          const view = (await call(0, {
+            type: "commit-local",
+            command: {
+              type: "item-view.set",
+              itemId: seriesId,
+              primaryTagId: tagId,
+            },
+          })) as { operation: { operationId: string } }
+          const assigned = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            assigned.status === "settled" && assigned.uploaded === 2,
+            "Series tag or assignment did not ACK"
+          )
+          await call(1, { type: "mixed-run" })
+          await call(0, {
+            type: "commit-recurring-move",
+            operationId: moveId,
+            now: new Date().toISOString(),
+            command: {
+              type: "task.move",
+              itemId: seriesId,
+              occurrenceId: `${seriesId}:2026-10-13`,
+              scope: "day",
+              date: "2026-10-13",
+              tagId,
+              beforeId: null,
+              afterId: null,
+            },
+          })
+          const moved = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            moved.status === "settled" && moved.uploaded === 1,
+            "Real recurring move did not ACK its placement primary"
+          )
+          const committed = await state(owner),
+            projection = foldRecurringChanges(committed.page)
+          assert(
+            committed.counts.receipts === before.counts.receipts + 3 &&
+              committed.page.through === before.page.through + 3 &&
+              projection.tags.size === 1 &&
+              projection.taskPlacements.size === 1,
+            "Mixed recurring writes did not create three unique outcomes"
+          )
+          const parent = planSchema.parse(projection.items.get(seriesId))
+          const assignedView = projection.itemViews.get(seriesId) as {
+            primaryTagId: string
+          }
+          const placement = [...projection.taskPlacements.values()][0] as {
+            revision: number
+            occurrenceId: string
+            tagId: string
+          }
+          assert(
+            parent.revision === 1 &&
+              assignedView.primaryTagId === tagId &&
+              placement.revision === 1 &&
+              placement.occurrenceId === `${seriesId}:2026-10-13` &&
+              placement.tagId === tagId,
+            "Content/view/placement identities or CAS were conflated"
+          )
+          for (const id of [
+            tag.operation.operationId,
+            view.operation.operationId,
+            moveId,
+          ])
+            assert(
+              committed.page.changes.filter(
+                (change) => change.operationId === id
+              ).length === 1,
+              "Mixed UUID lacks one committed journal entry"
+            )
+          for (let index = 0; index < 2; index++) {
+            const pass = (await call(index, { type: "mixed-run" })) as {
+              status: string
+              uploaded: number
+            }
+            assert(
+              pass.status === "settled" && pass.uploaded === 0,
+              "Mixed download repeated a write"
+            )
+            const value = (await call(index, { type: "local-snapshot" })) as {
+              backup: unknown
+              cursor: unknown
+            }
+            const backup = validateLocalRecurringBackup(value.backup, owner),
+              cursor = localPullCursorSchema.parse(value.cursor)
+            assert(
+              cursor.after === committed.page.through &&
+                cursor.through === null,
+              "Mixed cursor does not converge"
+            )
+            for (const store of [
+              "items",
+              "occurrences",
+              "tags",
+              "itemViews",
+              "taskPlacements",
+            ] as const)
+              assert(
+                ordered(backup.stores[store]) ===
+                  ordered([...projection[store].values()]),
+                `Mixed ${store} differs from Mongo`
+              )
+          }
+        }
+      )
+      await check(
+        "Conflicto de aparición conserva intención y dependiente sin ACK falso",
+        async () => {
+          assert(
+            creation.command.type === "item.create",
+            "Series creation changed"
+          )
+          const seriesId = creation.command.itemId,
+            occurrenceId = `${seriesId}:2026-10-13`
+          const snapshot = async (index: number) => {
+            const value = (await call(index, { type: "local-snapshot" })) as {
+              backup: unknown
+            }
+            return validateLocalRecurringBackup(value.backup, owner)
+          }
+          const baseline = await state(owner),
+            a = await snapshot(0),
+            b = await snapshot(1)
+          const parent = planSchema.parse(
+            a.stores.items.find((item) => item.id === seriesId)
+          )
+          const current = b.stores.occurrences.find(
+            (record) => record.id === occurrenceId
+          )
+          assert(
+            current?.kind === "plan" && current.revision === 2,
+            "Conflict requires shared confirmed appearance revision two"
+          )
+          const staleId = crypto.randomUUID(),
+            childId = crypto.randomUUID(),
+            winnerId = crypto.randomUUID()
+          await call(1, {
+            type: "commit-occurrence",
+            operationId: staleId,
+            now: new Date().toISOString(),
+            command: {
+              type: "plan.set-occurrence-status",
+              itemId: seriesId,
+              occurrenceId,
+              status: "not_started",
+            },
+            expectedItem: parent,
+            expectedOccurrence: current,
+          })
+          const optimistic = (await snapshot(1)).stores.occurrences.find(
+            (record) => record.id === occurrenceId
+          )
+          assert(
+            optimistic?.kind === "plan",
+            "Stale local appearance is missing"
+          )
+          await call(1, {
+            type: "commit-occurrence",
+            operationId: childId,
+            now: new Date().toISOString(),
+            command: {
+              type: "plan.set-occurrence-status",
+              itemId: seriesId,
+              occurrenceId,
+              status: "completed",
+            },
+            expectedItem: parent,
+            expectedOccurrence: optimistic,
+          })
+          const queued = await snapshot(1)
+          const original = queued.stores.outbox.find(
+              (entry) => entry.operation.operationId === staleId
+            ),
+            dependent = queued.stores.outbox.find(
+              (entry) => entry.operation.operationId === childId
+            )
+          assert(
+            original && dependent && dependent.dependencies.includes(staleId),
+            "Conflict dependency was not produced locally"
+          )
+          const currentA = a.stores.occurrences.find(
+            (record) => record.id === occurrenceId
+          )
+          assert(
+            currentA?.kind === "plan",
+            "Winning local appearance is missing"
+          )
+          await call(0, {
+            type: "commit-occurrence",
+            operationId: winnerId,
+            now: new Date().toISOString(),
+            command: {
+              type: "plan.set-occurrence-status",
+              itemId: seriesId,
+              occurrenceId,
+              status: "completed",
+            },
+            expectedItem: parent,
+            expectedOccurrence: currentA,
+          })
+          const won = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            won.status === "settled" && won.uploaded === 1,
+            "Winning appearance did not commit"
+          )
+          const conflicted = (await call(1, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+            diagnostics: {
+              blocked: {
+                entry: { operation: { operationId: string } }
+                blockingOperationIds: string[]
+              }[]
+            } | null
+          }
+          assert(
+            conflicted.status === "settled" &&
+              conflicted.uploaded === 0 &&
+              conflicted.diagnostics?.blocked.some(
+                (row) =>
+                  row.entry.operation.operationId === childId &&
+                  row.blockingOperationIds.includes(staleId)
+              ),
+            "Stale appearance did not become an explicit conflict"
+          )
+          const retained = await snapshot(1),
+            entry = retained.stores.outbox.find(
+              (row) => row.operation.operationId === staleId
+            ),
+            child = retained.stores.outbox.find(
+              (row) => row.operation.operationId === childId
+            )
+          assert(
+            entry?.state === "conflict" &&
+              entry.attempts === 1 &&
+              entry.lease === null &&
+              canonical(entry.operation) === canonical(original.operation) &&
+              child?.state === "pending" &&
+              child.attempts === 0 &&
+              child.lease === null &&
+              canonical(child.operation) === canonical(dependent.operation) &&
+              canonical(child.dependencies) ===
+                canonical(dependent.dependencies),
+            "Conflict rewrote attempted payload or discarded/ACKed its dependent"
+          )
+          const evidence = retained.stores.syncMetadata.find(
+            (record) => record.key === `operation-outcome:${staleId}`
+          )
+          assert(
+            evidence &&
+              "result" in evidence &&
+              "kind" in evidence.result &&
+              evidence.result.kind === "plan-occurrence" &&
+              evidence.result.outcome.status === "conflict" &&
+              evidence.result.outcome.current?.revision === 3,
+            "Conflict lacks exact remote occurrence evidence"
+          )
+          const after = await state(owner)
+          assert(
+            after.counts.receipts === baseline.counts.receipts + 2 &&
+              after.page.through === baseline.page.through + 1 &&
+              after.page.changes.filter(
+                (change) => change.operationId === staleId
+              ).length === 0,
+            "Conflict fabricated a journal commit"
+          )
+        }
+      )
+      await check(
+        "Cancelación y tombstone conservan historia; replay viejo no resucita serie",
+        async () => {
+          assert(
+            creation.command.type === "item.create",
+            "Series creation changed"
+          )
+          const seriesId = creation.command.itemId,
+            occurrenceId = `${seriesId}:2026-10-13`
+          const snapshot = async (index: number) => {
+            const value = (await call(index, { type: "local-snapshot" })) as {
+              backup: unknown
+              cursor: unknown
+            }
+            return {
+              backup: validateLocalRecurringBackup(value.backup, owner),
+              cursor: localPullCursorSchema.parse(value.cursor),
+            }
+          }
+          const baseline = await state(owner),
+            before = await snapshot(0),
+            blockedBefore = await snapshot(1)
+          const parent = planSchema.parse(
+            before.backup.stores.items.find((item) => item.id === seriesId)
+          )
+          const current = before.backup.stores.occurrences.find(
+            (record) => record.id === occurrenceId
+          )
+          assert(
+            current?.kind === "plan" && current.revision === 3,
+            "Cancellation requires the winning occurrence"
+          )
+          await call(0, {
+            type: "commit-occurrence",
+            operationId: crypto.randomUUID(),
+            now: new Date().toISOString(),
+            command: {
+              type: "plan.cancel-occurrence",
+              itemId: seriesId,
+              occurrenceId,
+            },
+            expectedItem: parent,
+            expectedOccurrence: current,
+          })
+          const cancel = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            cancel.status === "settled" && cancel.uploaded === 1,
+            "Cancellation did not ACK"
+          )
+          await call(0, {
+            type: "delete-plan",
+            operationId: crypto.randomUUID(),
+            expectedItem: parent,
+          })
+          const deleted = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            deleted.status === "settled" && deleted.uploaded === 1,
+            "Series tombstone did not ACK"
+          )
+          const committed = await state(owner),
+            projection = foldRecurringChanges(committed.page)
+          assert(
+            committed.counts.receipts === baseline.counts.receipts + 2 &&
+              committed.page.through === baseline.page.through + 2,
+            "Cancellation or deletion duplicated history"
+          )
+          const tombstone = planSchema.parse(projection.items.get(seriesId)),
+            cancelled = projection.occurrences.get(occurrenceId) as {
+              revision: number
+              cancelled: boolean
+            }
+          assert(
+            tombstone.revision === 2 &&
+              tombstone.deletedAt !== null &&
+              cancelled.revision === 4 &&
+              cancelled.cancelled &&
+              projection.taskPlacements.size === 1,
+            "History lost its tombstone, occurrence or placement"
+          )
+          const old = await push(0, batch(), "complete")
+          assert(
+            old.status === "complete" &&
+              old.results[0].kind === "item" &&
+              old.results[0].outcome.status === "applied" &&
+              old.results[0].outcome.item.revision === 1 &&
+              old.results[0].outcome.item.deletedAt === null,
+            "Old UUID did not retain its original outcome"
+          )
+          assert(
+            canonical(await state(owner)) === canonical(committed),
+            "Old replay resurrected deleted data"
+          )
+          for (let index = 0; index < 2; index++) {
+            const pass = (await call(index, { type: "mixed-run" })) as {
+              status: string
+              uploaded: number
+            }
+            assert(
+              pass.uploaded === 0 && pass.status === "settled",
+              "History pull fabricated an ACK for the blocked peer"
+            )
+            const complete = await snapshot(index)
+            assert(
+              complete.cursor.after === committed.page.through &&
+                complete.cursor.through === null,
+              "History reader filtered data or skipped its cursor"
+            )
+            if (index === 0)
+              for (const store of [
+                "items",
+                "occurrences",
+                "tags",
+                "itemViews",
+                "taskPlacements",
+              ] as const)
+                assert(
+                  ordered(complete.backup.stores[store]) ===
+                    ordered([...projection[store].values()]),
+                  `Tombstone ${store} differs from Mongo`
+                )
+            else
+              for (const original of blockedBefore.backup.stores.outbox.filter(
+                (entry) =>
+                  entry.state === "conflict" || entry.state === "pending"
+              )) {
+                const retained = complete.backup.stores.outbox.find(
+                  (entry) =>
+                    entry.operation.operationId ===
+                    original.operation.operationId
+                )
+                assert(
+                  retained?.state === original.state &&
+                    retained.attempts === original.attempts &&
+                    retained.lease === null &&
+                    canonical(retained.operation) ===
+                      canonical(original.operation) &&
+                    canonical(retained.dependencies) ===
+                      canonical(original.dependencies),
+                  "Newer tombstone changed blocked intentions or dependents"
+                )
+                const key = `operation-outcome:${original.operation.operationId}`
+                const previousEvidence =
+                  blockedBefore.backup.stores.syncMetadata.find(
+                    (record) => record.key === key
+                  )
+                const currentEvidence =
+                  complete.backup.stores.syncMetadata.find(
+                    (record) => record.key === key
+                  )
+                assert(
+                  previousEvidence === undefined
+                    ? currentEvidence === undefined
+                    : canonical(currentEvidence) ===
+                        canonical(previousEvidence),
+                  "Newer remote shadow rewrote original conflict evidence or fabricated dependent outcome"
+                )
+              }
+          }
+          assert(
+            canonical(await state(owner)) === canonical(committed),
+            "Final history pull changed Mongo"
+          )
+        }
+      )
+      await check(
         "Revocar sesión bloquea RPC sin alterar datos confirmados",
         async () => {
           const before = await state(owner)
@@ -1096,7 +1563,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Doce escenarios de frontera Next5 correctos; sesiones propias cerradas"
+            "Quince escenarios de frontera Next5 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

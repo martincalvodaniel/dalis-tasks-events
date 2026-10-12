@@ -138,6 +138,8 @@ async function execute(
       "hook-unmount",
       "hook-quiet",
       "rotate-local",
+      "commit-recurring-move",
+      "delete-plan",
       "commit-occurrence",
       "lost-recurring-response-run",
       "prepare-local",

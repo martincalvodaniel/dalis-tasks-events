@@ -40,7 +40,8 @@ import {
   synchronizeHook,
   unmountHook,
 } from "@fixture/hook-host"
-import { saveLocalPlan } from "@/features/plans/local-plans"
+import { commitLocalRecurringPlanMoveCommand } from "@/lib/local-db/task-move-outbox"
+import { saveLocalPlan, deleteLocalPlan } from "@/features/plans/local-plans"
 
 const markerKey = "dalis:account-change"
 let owned: {
@@ -458,6 +459,28 @@ export async function executeLocalFixtureCommand(
         oldAttemptRejected,
       }
     }
+    case "commit-recurring-move": {
+      if (command.command.type !== "task.move")
+        throw new Error("Recurring move command changed")
+      const database = await openLocalDatabase(active.userId)
+      try {
+        await requireActiveAccount(active)
+        return await commitLocalRecurringPlanMoveCommand(
+          database,
+          active.userId,
+          command.command,
+          { operationId: command.operationId, now: new Date(command.now) }
+        )
+      } finally {
+        database.close()
+      }
+    }
+    case "delete-plan":
+      return deleteLocalPlan(
+        { ...active, itemCount: 0, offlineReady: false },
+        command.expectedItem,
+        command.operationId
+      )
     case "commit-occurrence": {
       const outbox = await LocalOutbox.open(active.userId)
       try {

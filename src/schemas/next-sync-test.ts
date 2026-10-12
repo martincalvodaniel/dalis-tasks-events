@@ -138,6 +138,21 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
         value.expectedOccurrence.seriesId === value.expectedItem.id,
       "Fixture appearance references must match their expected records"
     ),
+  z.strictObject({
+    type: z.literal("commit-recurring-move"),
+    command: syncCommandSchema.refine(
+      (command) =>
+        command.type === "task.move" && command.occurrenceId !== null,
+      "Fixture recurring move requires an appearance"
+    ),
+    operationId: entityIdSchema,
+    now: timestampSchema,
+  }),
+  z.strictObject({
+    type: z.literal("delete-plan"),
+    expectedItem: planSchema,
+    operationId: entityIdSchema,
+  }),
   z.strictObject({ type: z.literal("lost-recurring-response-run") }),
   z.strictObject({ type: z.literal("mixed-summary") }),
   z.strictObject({ type: z.literal("mixed-run") }),

@@ -169,3 +169,30 @@ test("appearance fixture binds expected records and cannot inject the captured C
   ])
     expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
 })
+
+test("recurring movement fixture excludes simple plans and injected execution options", () => {
+  const input = {
+    type: "commit-recurring-move",
+    operationId: request.contentOperationId,
+    now: request.now,
+    command: {
+      type: "task.move",
+      itemId: request.itemId,
+      occurrenceId: `${request.itemId}:2026-10-10`,
+      scope: "day",
+      date: "2026-10-10",
+      tagId: null,
+      beforeId: null,
+      afterId: null,
+    },
+  }
+  expect(nextSyncDeviceCommandSchema.parse(input).type).toBe(
+    "commit-recurring-move"
+  )
+  for (const invalid of [
+    { ...input, command: { ...input.command, occurrenceId: null } },
+    { ...input, userId: "foreign" },
+    { ...input, allowSeries: false },
+  ])
+    expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
+})

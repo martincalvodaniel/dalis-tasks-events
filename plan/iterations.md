@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 17e1b4 — Categoría/orden recurrentes, conflicto y tombstone
+
+- Estado: completada12oct; quince escenarios reales pasan, journal18/receipts19; peer con conflicto intencional conserva dependiente y no se declara convergente.
+
+- Objetivo: integrar productor real de asignación/posición de aparición y conflicto stale entre clientes, seguido de cancelación/borrado con historia descargable y replay anterior conservado.
+- target_paths: src/schemas/next-sync-test.ts y test, test/next-recurring-sync/features/{local-client,device-client,controller}.ts*.template y plan. Dependencias:17e1b3; entrada48%5h/45%7d, secuencial/reservas10%/1%.
+- Aceptación: categoría/vista/placement con CAS independiente y cinco proyecciones convergentes; conflicto conserva payload intentado y dependiente pending0 sinACK; cancelación/root-tombstone descargas completas/cursor sin perder placement/historia; replayCreation antiguo no resucita datos. No llamar convergente a partición con conflicto intencional.
+- Validación: Next5/IndexedDB/Mongo propios yDoD, plan/log mismo commitpushint/HEAD/cuotas. Sin DBusuario/activación/Google.
+
 ## 17e1b3 — Aparición local, respuesta perdida y dependencia real
 
 - Estado: completada12oct; doce escenarios Next5/IndexedDB/Mongo propios pasan, slot revision2 y journal12 convergentes.
