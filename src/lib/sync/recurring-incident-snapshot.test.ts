@@ -433,3 +433,48 @@ test("complete recurring overview retains appearance and root conflicts without 
   )
   expect(html).not.toContain("Confirmar elección")
 })
+
+test("appearance comparison blocks unresolved external dependents without rewriting either chain", () => {
+  const value = fixture()
+  const dependent = outboxEntrySchema.parse({
+    ...value.entry,
+    entityKey: `item-view:${value.series.id}`,
+    state: "pending",
+    attempts: 0,
+    sequence: 2,
+    dependencies: [value.entry.operation.operationId],
+    operation: {
+      operationId: crypto.randomUUID(),
+      protocolVersion: 1,
+      baseRevision: 0,
+      command: {
+        type: "item-view.set",
+        itemId: value.series.id,
+        primaryTagId: null,
+      },
+    },
+  })
+  const input = { ...value.input, entries: [value.entry, dependent] },
+    before = structuredClone(input)
+  const [incident] = projectPlanOccurrenceSyncIncidents(input)
+  expect(incident.blockedByRelatedIntentions).toBe(true)
+  expect(incident.intentions).toEqual([value.entry])
+  expect(input).toEqual(before)
+  expect(incident.outcome).toEqual(value.outcome)
+
+  const independent = {
+    ...input,
+    entries: [value.entry, { ...dependent, dependencies: [] }],
+  }
+  expect(
+    projectPlanOccurrenceSyncIncidents(independent)[0]
+      .blockedByRelatedIntentions
+  ).toBe(false)
+  const historical = {
+    ...input,
+    entries: [value.entry, { ...dependent, state: "superseded" }],
+  }
+  expect(
+    projectPlanOccurrenceSyncIncidents(historical)[0].blockedByRelatedIntentions
+  ).toBe(false)
+})

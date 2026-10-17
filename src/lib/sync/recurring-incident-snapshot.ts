@@ -167,21 +167,33 @@ export function projectPlanOccurrenceSyncIncidents(
             pending.entityKey === entry.entityKey
         )
         .sort((a, b) => a.sequence - b.sequence)
-      const blockedByRelatedIntentions = intentions.some(
-        (pending) =>
-          !isPlanOccurrenceCommand(pending.operation.command) ||
-          ("occurrenceId" in pending.operation.command &&
-            pending.operation.command.occurrenceId !== command.occurrenceId) ||
-          pending.dependencies.some((id) => {
-            const dependency = entries.get(id)
-            return (
-              dependency?.state === "superseded" ||
-              (dependency &&
-                isUnresolvedOutboxEntry(dependency) &&
-                dependency.entityKey !== entry.entityKey)
-            )
-          })
+      const intentionIds = new Set(
+        intentions.map((pending) => pending.operation.operationId)
       )
+      const hasExternalDependents = value.entries.some(
+        (pending) =>
+          isUnresolvedOutboxEntry(pending) &&
+          !intentionIds.has(pending.operation.operationId) &&
+          pending.dependencies.some((id) => intentionIds.has(id))
+      )
+      const blockedByRelatedIntentions =
+        hasExternalDependents ||
+        intentions.some(
+          (pending) =>
+            !isPlanOccurrenceCommand(pending.operation.command) ||
+            ("occurrenceId" in pending.operation.command &&
+              pending.operation.command.occurrenceId !==
+                command.occurrenceId) ||
+            pending.dependencies.some((id) => {
+              const dependency = entries.get(id)
+              return (
+                dependency?.state === "superseded" ||
+                (dependency &&
+                  isUnresolvedOutboxEntry(dependency) &&
+                  dependency.entityKey !== entry.entityKey)
+              )
+            })
+        )
       return {
         entry,
         reason: result.status,

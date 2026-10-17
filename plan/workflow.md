@@ -514,3 +514,7 @@ Entrada53%5h/79%7d trasb283633, reservas10%/1%.25Next6 reales conrollback/replay
 ### 19b3 — Elección de zona visible
 
 Entrada39%5h/76%7d tras5c10dd4; reservas10%/1%. Diálogo real, cancelación/confirmación y25Next6 aprobados; un plazo interactivo agotado se repitió con cleanup. DoD completo, guía/plan/log mismo commitpushint/HEAD/cuotas. Continuar sólo si cabe otro corte completo; no reabrir funciones activas ni declarar resuelto todo conflicto residual.
+
+### 19c0 — Último corte acotado y cierre puntual
+
+Entrada20%5h/73%7d trasa6e1aa4; reservas10%/1%. Guardia pura de dependientes externos de apariciones, sin nueva elección ni escritura. Suite/DoD completos; mismo commitpushint/HEAD yconsulta deambascuotas. El siguiente planner+reparación/pruebas/publicación no se abre al margen de cierre: conservar repo coherente ypausar heartbeat puntualcontinuar-el-plan-a-las-21-19, sin reprogramación adicional. Recursos propios limpios, mainhumano intacto.

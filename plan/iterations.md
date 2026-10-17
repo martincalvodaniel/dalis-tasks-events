@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19c0 — Guardia de dependientes externos de apariciones
+
+Estado: completado; comparación reforzada, sin nuevas elecciones recurrentes.
+
+- Objetivo: completar la comparación de apariciones para detectar también dependientes externos que apuntan a su cadena, antes de preparar elecciones.
+- target_paths: src/lib/sync/recurring-incident-snapshot{,.test}.ts y plan/**.
+- Dependencias: a6e1aa4 publicado; 20%5h/73%7d, reservas10%/1%. Corte puro secuencial acotado, sin executor ni nuevas elecciones.
+- Aceptación: un dependiente personal sin confirmar bloquea la futura resolución de aparición; una preferencia independiente o un registro ya superseded no la bloquean por esa razón. Cola, UUID, payload, dependencias, outcomes y otras colecciones permanecen intactos. La validación completa sigue rechazando referencias ausentes o desordenadas, sin convertirlas en permiso.
+- Validación: escenarios de comparación con dependencia saliente/independiente/histórica, regresiones de snapshots; suite/lint/tipos/Webpack/worker/diff/plan/log/commitpushint/HEAD/cuotas. Sin DBusuario, formato nuevo o activación de recuperación recurrente.
+
 ## 19b3 — Elección visible de zona en conflicto
 
 Estado: completado; opciones activas y 25 escenarios Next6 aprobados.

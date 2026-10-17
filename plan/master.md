@@ -8,6 +8,10 @@ La zona horaria personal ya es editable offline, sincroniza por cuenta y está v
 
 ### Continuación de las21:19
 
+Ocho cortes cerrados con recuperación visible de planes simples sin cadenas externas y zona personal, más guardia de dependientes externos de apariciones. La sincronización previa sigue activa en generación6. Última suite855pass/223skip/0fail/10967aserciones, lint861/tipos/Webpack/worker46. No se ha ejecutado otro piloto Google ni la checklist física. Se cierra este lote puntual con reserva; no se programa otra cadena.
+
+Siguiente corte coherente: contrato puro de recuperación de una aparición, con revisión de padre y slot, captura exacta y guardias completas de dependencias. Después transacción/evidencia portable/prueba remota real y UI; no ofrecer botones mientras falte esa aceptación. Cadenas de contenido+categoría y otras preferencias siguen en el bloque residual.
+
 19b3 conecta en Ajustes la adopción de zona remota conocida y el reenvío de la última zona local, con comparación congelada, confirmación explícita y guardias de cuenta/epoch. No modifica fechas de planes ni declara ACK por decisión local. Otras preferencias, apariciones y cadenas externas siguen pendientes.
 
 19b2 prueba decisiones atómicas de zona ybackup3,25Next6 conadopción/retry/replay/CASreal. Aún falta conectar suUI; generación6 conserva las funciones previas activas.
