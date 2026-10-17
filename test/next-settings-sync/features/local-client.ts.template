@@ -1,9 +1,21 @@
 "use client"
+import { callServer } from "next/dist/client/app-call-server"
+import { unstable_isUnrecognizedActionError } from "next/navigation"
+import { startTransition } from "react"
+import { syncProtocolHeader } from "@/config/sync-protocol"
+import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
+import { dispatchFixtureRetiredOperations } from "@fixture/retired-client"
+import { createHttpRecurringSyncTransport } from "@/features/sync/http-recurring-transport"
+import { openLocalRecurringSyncRuntime } from "@/features/sync/local-recurring-runtime"
+import { LocalSyncStore } from "@/lib/local-db/sync-store"
+import {
+  readSyncIncidents,
+  resolveSyncIncident,
+} from "@/features/sync/local-incidents"
 import type { z } from "zod"
 import { dispatchSyncOperationsV6 } from "@/features/sync/client-action-v6"
 import { createHttpSettingsSyncTransport } from "@/features/sync/http-recurring-transport"
 import { openLocalSettingsSyncRuntime } from "@/features/sync/local-recurring-runtime"
-import { readLocalSettingsSyncIncidentOverview } from "@/lib/local-db/sync-incidents"
 import {
   hookState,
   mountHook,
@@ -34,6 +46,7 @@ import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
 import { LocalOutbox } from "@/lib/local-db/outbox"
 import {
   nextSyncDeviceCommandSchema,
+  nextSyncMissingActionId,
   nextSyncLocalOwnershipSchema,
 } from "@/schemas/next-sync-test"
 import { workspaceIdentitySchema } from "@/schemas/workspace"
@@ -62,6 +75,20 @@ async function removeDatabase(name: string) {
       reject(new Error("Settings fixture cleanup is blocked"))
   })
 }
+async function readFixtureBackup(active: { userId: string; epoch: string }) {
+  await requireActiveAccount(active)
+  const database = await openLocalDatabase(active.userId)
+  try {
+    return await readLocalRecurringBackup(
+      database,
+      active.userId,
+      new Date().toISOString()
+    )
+  } finally {
+    database.close()
+  }
+}
+
 export async function executeLocalFixtureCommand(
   runId: string,
   input: z.infer<typeof nextSyncDeviceCommandSchema>
@@ -79,7 +106,10 @@ export async function executeLocalFixtureCommand(
   }
   if (owned && owned.runId !== runId)
     throw new Error("Settings fixture local run changed")
-  if (command.type === "prepare-local") {
+  if (
+    command.type === "prepare-local" ||
+    command.type === "prepare-legacy-local"
+  ) {
     const identity = await fetch("/fixture/identity", {
       headers: { "x-sync-test-run": runId },
       cache: "no-store",
@@ -134,6 +164,41 @@ export async function executeLocalFixtureCommand(
       userId: command.userId,
       epoch: active.epoch,
     })
+    if (command.type === "prepare-legacy-local") {
+      const historicalFetch: typeof fetch = (input, init) => {
+        const path = String(input)
+          .replace("/api/sync/identity", "/fixture/legacy-identity")
+          .replace("/api/sync/changes", "/fixture/legacy-changes")
+        const url = new URL(path, location.origin)
+        if (url.pathname === "/fixture/legacy-changes")
+          url.searchParams.set("through", "0")
+        return fetch(url, {
+          ...init,
+          headers: { ...init?.headers, "x-sync-test-run": runId },
+        })
+      }
+      const bootstrap = await openLocalRecurringSyncRuntime(
+        account(),
+        createHttpRecurringSyncTransport(
+          command.userId,
+          async () => {
+            throw new Error("Empty obsolete checkpoint cannot send")
+          },
+          historicalFetch
+        )
+      )
+      try {
+        const result = await bootstrap.run()
+        if (
+          result.status !== "settled" ||
+          result.uploaded !== 0 ||
+          result.downloaded !== 0
+        )
+          throw new Error("Historical generation-five checkpoint failed")
+      } finally {
+        await bootstrap.close()
+      }
+    }
     sessionStorage.setItem(ownershipKey, JSON.stringify(owned))
     return account()
   }
@@ -163,6 +228,179 @@ export async function executeLocalFixtureCommand(
   const active = account()
   await requireActiveAccount(active)
   switch (command.type) {
+    case "legacy-missing-action-run":
+    case "retired-mixed-action-run": {
+      const missing = command.type === "legacy-missing-action-run"
+      const identity = await fetch("/api/sync/identity", {
+        credentials: "same-origin",
+        cache: "no-store",
+      })
+      if (
+        !identity.ok ||
+        identity.headers.get(syncProtocolHeader) !==
+          encodeSyncProtocolRange(6) ||
+        workspaceIdentitySchema.parse(await identity.json()).userId !==
+          active.userId
+      )
+        throw new Error(
+          "Missing-action proof requires the owned current identity"
+        )
+      const actionId = nextSyncMissingActionId(runId)
+      const probe = missing
+        ? await fetch(location.pathname + location.search, {
+            method: "POST",
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: {
+              "Next-Action": actionId,
+              "Content-Type": "text/plain;charset=UTF-8",
+            },
+            body: "[]",
+            signal: AbortSignal.timeout(15000),
+          })
+        : new Response(null, { status: 200 })
+      const actionNotFound = probe.headers.get("x-nextjs-action-not-found")
+      await probe.body?.cancel()
+      if (missing && (probe.status !== 409 || actionNotFound !== "1"))
+        throw new Error(
+          "Missing-action candidate is not absent from this fixture"
+        )
+      let dispatches = 0,
+        unrecognized = 0,
+        identityReads = 0,
+        pageReads = 0
+      const sendMissing = (input: unknown) =>
+        new Promise<never>((_resolve, reject) => {
+          dispatches++
+          startTransition(async () => {
+            try {
+              await callServer(actionId, [input])
+              reject(new Error("Absent action unexpectedly returned a result"))
+            } catch (error) {
+              if (unstable_isUnrecognizedActionError(error)) unrecognized++
+              reject(error)
+            }
+          })
+        })
+      const store = await LocalMixedSyncStore.openSettings(active.userId)
+      try {
+        const cursor = await store.readPullCursor()
+        if (cursor.through !== null)
+          throw new Error("Prior handshake requires a completed cursor")
+        const capturedHeaders = { "x-sync-test-run": runId }
+        const identityReply = await fetch("/fixture/legacy-identity", {
+          credentials: "same-origin",
+          cache: "no-store",
+          headers: capturedHeaders,
+        })
+        const pageReply = await fetch(
+          `/fixture/legacy-changes?expectedUserId=${encodeURIComponent(active.userId)}&after=${cursor.after}&through=${cursor.after}&limit=50`,
+          {
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: capturedHeaders,
+          }
+        )
+        if (
+          !identityReply.ok ||
+          !pageReply.ok ||
+          identityReply.headers.get(syncProtocolHeader) !==
+            encodeSyncProtocolRange(5) ||
+          pageReply.headers.get(syncProtocolHeader) !==
+            encodeSyncProtocolRange(5)
+        )
+          throw new Error(
+            "Prior handshake capture is not authenticated generation five"
+          )
+        const capturedIdentity = Object.freeze(await identityReply.json())
+        const capturedPage = Object.freeze(await pageReply.json())
+        if (
+          workspaceIdentitySchema.parse(capturedIdentity).userId !==
+            active.userId ||
+          capturedPage.changes.length !== 0 ||
+          capturedPage.nextAfter !== cursor.after ||
+          capturedPage.through !== cursor.after ||
+          capturedPage.hasMore
+        )
+          throw new Error(
+            "Prior handshake does not match this empty owned cursor"
+          )
+        const priorHandshakeFetch: typeof fetch = async (input) => {
+          const url = new URL(String(input), location.origin)
+          if (url.origin !== location.origin)
+            throw new Error("Prior handshake origin changed")
+          if (
+            url.pathname === "/api/sync/identity" &&
+            !url.search &&
+            ++identityReads === 1
+          )
+            return Response.json(capturedIdentity, {
+              headers: { [syncProtocolHeader]: encodeSyncProtocolRange(5) },
+            })
+          if (
+            url.pathname === "/api/sync/changes" &&
+            ++pageReads === 1 &&
+            url.searchParams.get("expectedUserId") === active.userId &&
+            url.searchParams.get("after") === String(cursor.after) &&
+            url.searchParams.get("limit") === "50" &&
+            [...url.searchParams].length === 3
+          )
+            return Response.json(capturedPage, {
+              headers: { [syncProtocolHeader]: encodeSyncProtocolRange(5) },
+            })
+          throw new Error(
+            "Prior handshake exceeded its captured identity and page"
+          )
+        }
+        const runLegacy = async (fetchRequest: typeof fetch) => {
+          const runtime = await openLocalRecurringSyncRuntime(
+            active,
+            createHttpRecurringSyncTransport(
+              active.userId,
+              missing
+                ? sendMissing
+                : async (input) => {
+                    dispatches++
+                    return dispatchFixtureRetiredOperations(input)
+                  },
+              fetchRequest
+            )
+          )
+          try {
+            return await runtime.run()
+          } finally {
+            await runtime.close()
+          }
+        }
+        const first = await runLegacy(priorHandshakeFetch)
+        const afterFirst = {
+          backup: await readFixtureBackup(active),
+          cursor: await store.readPullCursor(),
+        }
+        const second = await runLegacy(fetch)
+        const afterSecond = {
+          backup: await readFixtureBackup(active),
+          cursor: await store.readPullCursor(),
+        }
+        await requireActiveAccount(active)
+        return {
+          probeStatus: probe.status,
+          actionNotFound,
+          handshake: "captured-prior-v5",
+          dispatches,
+          unrecognized,
+          identityReads,
+          pageReads,
+          first,
+          second,
+          afterFirst,
+          afterSecond,
+        }
+      } finally {
+        store.close()
+      }
+    }
+
     case "reload-local":
       setTimeout(() => location.reload(), 100)
       return { scheduled: true }
@@ -285,15 +523,146 @@ export async function executeLocalFixtureCommand(
         await runtime.close()
       }
     }
-    case "settings-incidents": {
-      const database = await openLocalDatabase(active.userId)
+    case "settings-incidents":
+      return readSyncIncidents(active)
+    case "legacy-root-resolution-proof": {
+      const before = (await readFixtureBackup(active)).stores
+      const outbox = await LocalOutbox.open(active.userId),
+        sync = await LocalSyncStore.open(active.userId)
+      const now = new Date().toISOString(),
+        itemId = crypto.randomUUID()
+      const draft = {
+        kind: "task" as const,
+        title: "Comparación antigua de prueba",
+        description: "Evidencia local",
+        scheduledDate: "2026-10-17",
+        status: "not_started" as const,
+        checklist: [],
+        recurrence: null,
+      }
       try {
-        return await readLocalSettingsSyncIncidentOverview(
-          database,
-          active.userId
+        const original = await outbox.commitItemCommand({
+          type: "item.create",
+          itemId,
+          input: draft,
+        })
+        const senderId = crypto.randomUUID(),
+          claimed = await outbox.claim(original.operation.operationId, senderId)
+        if (!claimed) throw new Error("Owned legacy comparison was not claimed")
+        const child = await outbox.commitItemCommand({
+          type: "task.set-status",
+          itemId,
+          occurrenceId: null,
+          status: "in_progress",
+        })
+        // This is an explicitly seeded legacy conflict, never a simulated remote ACK.
+        await sync.applyOperationResult({
+          operation: claimed.operation,
+          senderId,
+          result: {
+            operationId: claimed.operation.operationId,
+            status: "conflict",
+            current: {
+              ...draft,
+              title: "Versión remota de prueba",
+              id: itemId,
+              ownerId: active.userId,
+              revision: 1,
+              createdAt: now,
+              updatedAt: now,
+              deletedAt: null,
+              completedAt: null,
+            },
+          },
+        })
+        const incidents = await readSyncIncidents(active)
+        const root = incidents.find(
+          (value) =>
+            value.kind === "item" &&
+            value.incident.entry.operation.operationId ===
+              original.operation.operationId
         )
+        if (root?.kind !== "item")
+          throw new Error("Future comparison lost the owned legacy root")
+        const baseline = (await readFixtureBackup(active)).stores
+        const request = {
+          userId: active.userId,
+          resolutionId: crypto.randomUUID(),
+          operationId: null,
+          copyItemId: null,
+          choice: "adopt_remote" as const,
+          createdAt: now,
+          expected: root.incident,
+        }
+        const result = await resolveSyncIncident(active, request)
+        const after = (await readFixtureBackup(active)).stores
+        if (result.status !== "applied")
+          throw new Error("Existing root resolution did not complete")
+        const rootIds = [
+          original.operation.operationId,
+          child.operation.operationId,
+        ]
+        for (const entry of after.outbox.filter((value) =>
+          rootIds.includes(value.operation.operationId)
+        ))
+          if (entry.state !== "superseded")
+            throw new Error(
+              "Local adoption manufactured an ACK or discarded root evidence"
+            )
+        const same = (a: unknown, b: unknown) =>
+          JSON.stringify(a) === JSON.stringify(b)
+        if (!same(before.settings, after.settings))
+          throw new Error("Root resolution changed personal settings")
+        for (const store of [
+          "tags",
+          "itemViews",
+          "taskPlacements",
+          "occurrences",
+        ] as const)
+          if (!same(baseline[store], after[store]))
+            throw new Error("Root resolution changed an unrelated store")
+        if (
+          !same(
+            baseline.items.filter((value) => value.id !== itemId),
+            after.items.filter((value) => value.id !== itemId)
+          ) ||
+          !same(
+            baseline.outbox.filter(
+              (value) => !rootIds.includes(value.operation.operationId)
+            ),
+            after.outbox.filter(
+              (value) => !rootIds.includes(value.operation.operationId)
+            )
+          ) ||
+          !same(baseline.remoteShadows, after.remoteShadows) ||
+          !same(
+            baseline.syncMetadata,
+            after.syncMetadata.filter(
+              (value) =>
+                value.key !== `incident-resolution:${request.resolutionId}`
+            )
+          )
+        )
+          throw new Error(
+            "Root resolution rewrote unrelated intentions, shadows or frozen outcomes"
+          )
+        const replay = await resolveSyncIncident(active, request)
+        if (
+          replay.status !== "replayed" ||
+          !same(after, (await readFixtureBackup(active)).stores)
+        )
+          throw new Error("Root resolution replay changed durable evidence")
+        return {
+          preserved: true,
+          replayed: true,
+          superseded: true,
+          settingsIncidents: incidents.filter(
+            (value) => value.kind === "preference"
+          ).length,
+        }
       } finally {
-        database.close()
+        outbox.close()
+        sync.close()
       }
     }
     case "read-settings":

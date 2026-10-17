@@ -5,6 +5,7 @@ import { applyLocalChangesPage } from "@/lib/local-db/pull-changes"
 import { readLocalSyncQueueSummary } from "@/lib/local-db/queue-summary"
 import {
   readLocalRecurringSyncIncidentOverview,
+  readLocalSettingsSyncIncidentOverview,
   readLocalSyncIncidentOverview,
   readLocalSyncIncidents,
 } from "@/lib/local-db/sync-incidents"
@@ -83,12 +84,17 @@ export class LocalSyncStore {
     return readLocalRecurringSyncIncidentOverview(this.database, this.userId)
   }
 
-  resolveIncident(input: unknown, recurring = false) {
+  readSettingsIncidentOverview() {
+    return readLocalSettingsSyncIncidentOverview(this.database, this.userId)
+  }
+
+  resolveIncident(input: unknown, recurring = false, allowSettings = false) {
     return resolveLocalSyncIncident(
       this.database,
       this.userId,
       input,
-      recurring
+      recurring,
+      allowSettings
     ).then((result) => {
       if (result.status === "applied") notifyLocalOutboxChange(this.userId)
       return result

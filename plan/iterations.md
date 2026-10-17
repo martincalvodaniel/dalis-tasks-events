@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 18e1c1 — Consumidores6 y transición durable desde5
+
+Estado: completado; veintiún escenarios reales pasan, producto sigue5.
+
+- Objetivo: conectar lecturas de incidentes6 y capturaTX de resolución existente conservando settings, y probar cliente5 con handshake capturado/acciónretirada oausente sinACK/claimnuevo.
+- target_paths: `src/{features/sync/{local-incidents.ts,hooks/use-mixed-sync-engine-core.ts},lib/local-db/{sync-store,sync-incidents,sync-resolution}.ts,schemas/next-sync-test.ts}`, `test/next-settings-sync/features/**`, `plan/**`.
+- Dependencias:b6f21e5 publicado,54%5h/93%7d/reservas10%/1%,19Next6 correctos; permiso de índicePreview recibido: sólo user_settings_user_uidx enPreview/int, sinproducción/datosrepair. Secuencial, no selección6.
+- Aceptación: lectura porfeature real incluye settings; resoluciónlegacy existente adopta remoto/supersede sólo su cadena sinACK y conserva resto de stores/evidencia; no se amplían elecciones de recuperación deplanescomunes/series. Runtime5 con identidad/pull5 capturados libera sóloleasepropia,conservaUUID/deps/outcomes/cursor, IDausente409marcado y siguientehandshake6 bloquea antesclaim; cliente6 recupera originalunaúnicavez. Cachédeincidentesmuta mismakey conprotocolo.
+- Validación: Next6 real ampliado/IndexedDB/Mongo, regresiones y DoDcompleto, cleanupown/plan/log/mismo commitpushint/HEAD/cuotas. Seedconflictlegacy de prueba explícito, no atribuirlo a ejecuciónremota6 ni crear ACK local.
+
 ## 18e1b2 — Resiliencia y proveedor6 real guardado
 
 Estado: completado; diecinueve escenarios Next6 pasan, selección productiva sigue5.

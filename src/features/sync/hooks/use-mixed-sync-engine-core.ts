@@ -55,7 +55,7 @@ export function useMixedSyncEngineWithClient(
     let attempt: SyncAttemptV2 | null = null
     const account = { userId, epoch }
     const summaryKey = mixedSyncSummaryCacheKey(account, protocol)
-    const incidentKey = ["dalis:sync-incidents", userId, epoch]
+    const incidentKey = ["dalis:sync-incidents", userId, epoch, protocol]
     const owns = (state: OwnedPassState | null) =>
       state?.userId === userId &&
       state.epoch === epoch &&

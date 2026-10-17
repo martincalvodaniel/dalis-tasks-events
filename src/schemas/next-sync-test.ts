@@ -126,6 +126,10 @@ export function nextSyncMissingActionId(runIdInput: unknown): string {
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("prepare-local"), userId: userIdSchema }),
   z.strictObject({
+    type: z.literal("prepare-legacy-local"),
+    userId: userIdSchema,
+  }),
+  z.strictObject({
     type: z.literal("save-settings"),
     input: userSettingsInputSchema,
     expected: userSettingsSchema.nullable(),
@@ -134,6 +138,7 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("lost-settings-response-run") }),
   z.strictObject({ type: z.literal("epoch-after-settings-commit-run") }),
   z.strictObject({ type: z.literal("settings-incidents") }),
+  z.strictObject({ type: z.literal("legacy-root-resolution-proof") }),
   z.strictObject({ type: z.literal("reload-local") }),
   z.strictObject({
     type: z.literal("commit-local"),

@@ -1,5 +1,13 @@
 # Zona horaria personal y sincronización de ajustes
 
+## 18e1c1 — Transición durable y consumidores de incidentes6
+
+Veintiún escenarios Next6 compilado/BetterAuth propio/IndexedDB/Mongo pasan. Runtime5 usa identidad/pull5 autenticados capturados, referencia ausente409marcado o acción5 retirada: conserva todos los stores/cursor/UUID/payload/dependencias/outcomes, sólo aumenta el intento delroot y libera sulease. Handshake6 posterior bloquea antesclaim; cliente6 confirma losroot/vista originales una sola vez y los integra con settings/serie/aparición. La captura histórica es explícitamente vacía en sucheckpoint0, no lee historia6 como5.
+
+Feature de incidentes elige lector6 y resoluciónlegacy existente incluye settings en la mismaTX/captura; adopción explícita conserva ajustes, resto de intenciones/shadows/outcomes y replay delrecibo no escribe. Conflictolegacy se induce exclusivamente enpartición de prueba; no es ACK remoto6. No añade elecciones de recuperación de planescomunes/series/preferencias. Key de incidentes incluye protocolo, igual que suhook. Fixture propio limpio, captura `/private/tmp/dalis-settings-next6-transition.png`.
+
+DoD:829pass/221skip/0fail/10756aserciones; lint848, tipos, buildWebpack yworker46 aprobados. Producto continúa5; faltan UI/zona/selección6 conjunta. Usuario autoriza explícitamente user_settings_user_uidx víaensureIndexes sóloPreview/int; no producción/datosrepair/delete ni credencialesVercel. Registro central y bootstrap se completarán en corte separado; no se ha ejecutado nuevo índice enDBusuario.
+
 ## 18e1b2 — Resiliencia y proveedor6 productivo preparado
 
 ActiveSyncProvider selecciona SettingsSyncProvider únicamente por protocolo6; flags actuales siguen5. Fixture usa esa referencia productiva, no una simulación del hook. Cinco casos añadidos: respuestaRPC perdida trascommit real preserva intento/child/lease y replayconfirma2UUIDúnicos; época cambia despuéscommit y evita ACK/outcome antiguo, nuevo cliente recupera receipt sin duplicados; hook6 aísla caché5, observa notificaciones, reinicia estado al cambiar época sin key y desmonta listeners; otra cuenta remota bloquea antesclaim y volver recupera; conflicto de zona congela padre/hijo y evidencia actual mientras categoríaindependiente avanza.

@@ -439,10 +439,144 @@ export function FixtureController() {
         },
       }
       await check(
+        "Handshake5 capturado conserva cola ante referencia ausente y retiro",
+        async () => {
+          const remoteBefore = await state(owner)
+          for (let index = 0; index < 2; index++) {
+            await call(index, { type: "prepare-legacy-local", userId: owner })
+            const now = new Date().toISOString()
+            const request = {
+              mode: "create" as const,
+              itemId: crypto.randomUUID(),
+              contentOperationId: crypto.randomUUID(),
+              viewOperationId: crypto.randomUUID(),
+              primaryTagId: null,
+              now,
+              input: {
+                kind: "plan" as const,
+                variant: "note" as const,
+                title: "Cola conservada ante retiro",
+                description: "",
+                status: "not_started" as const,
+                checklist: [],
+                recurrence: null,
+                schedule: {
+                  mode: "all_day" as const,
+                  startDate: "2026-10-12",
+                  endDateExclusive: "2026-10-13",
+                },
+              },
+            }
+            await call(index, { type: "save-plan", request })
+            const snapshot = async () =>
+              (await call(index, { type: "local-snapshot" })) as {
+                backup: unknown
+                cursor: unknown
+              }
+            for (const type of [
+              "legacy-missing-action-run",
+              "retired-mixed-action-run",
+            ] as const) {
+              const before = await snapshot()
+              const baseline = validateLocalRecurringBackup(
+                before.backup,
+                owner
+              )
+              const root = baseline.stores.outbox.find(
+                (entry) =>
+                  entry.operation.operationId === request.contentOperationId
+              )
+              const dependent = baseline.stores.outbox.find(
+                (entry) =>
+                  entry.operation.operationId === request.viewOperationId
+              )
+              assert(
+                root &&
+                  dependent &&
+                  root.state === "pending" &&
+                  root.lease === null &&
+                  dependent.dependencies.includes(root.operation.operationId),
+                "Atomic producer lacks root and exact dependent"
+              )
+              const proof = (await call(index, { type })) as {
+                handshake: string
+                dispatches: number
+                unrecognized: number
+                identityReads: number
+                pageReads: number
+                probeStatus: number
+                actionNotFound: string | null
+                first: { status: string; uploaded: number; downloaded: number }
+                second: { status: string; uploaded: number; downloaded: number }
+                afterFirst: { backup: unknown; cursor: unknown }
+                afterSecond: { backup: unknown; cursor: unknown }
+              }
+              assert(
+                proof.handshake === "captured-prior-v5" &&
+                  proof.dispatches === 1 &&
+                  proof.identityReads === 1 &&
+                  proof.pageReads === 1,
+                "Captured old handshake was not bounded"
+              )
+              if (type === "legacy-missing-action-run")
+                assert(
+                  proof.probeStatus === 409 &&
+                    proof.actionNotFound === "1" &&
+                    proof.unrecognized === 1,
+                  "Missing action was not rejected by compiled Next"
+                )
+              assert(
+                proof.first.status ===
+                  (type === "legacy-missing-action-run"
+                    ? "retry_later"
+                    : "update_required") &&
+                  proof.first.uploaded === 0 &&
+                  proof.first.downloaded === 0,
+                "Old action acknowledged queued work"
+              )
+              assert(
+                proof.second.status === "update_required" &&
+                  proof.second.uploaded === 0 &&
+                  proof.second.downloaded === 0,
+                "New handshake did not block before another claim"
+              )
+              const expected = structuredClone(baseline.stores)
+              const attempted = expected.outbox.find(
+                (entry) =>
+                  entry.operation.operationId === root.operation.operationId
+              )
+              assert(attempted, "Snapshot lacks attempted root")
+              attempted.attempts++
+              for (const retained of [
+                proof.afterFirst,
+                proof.afterSecond,
+                await snapshot(),
+              ]) {
+                assert(
+                  JSON.stringify(
+                    validateLocalRecurringBackup(retained.backup, owner).stores
+                  ) === JSON.stringify(expected) &&
+                    JSON.stringify(
+                      localPullCursorSchema.parse(retained.cursor)
+                    ) ===
+                      JSON.stringify(
+                        localPullCursorSchema.parse(before.cursor)
+                      ),
+                  `Retirement changed stores ${JSON.stringify(Object.keys(expected).filter((key) => JSON.stringify(validateLocalRecurringBackup(retained.backup, owner).stores[key as keyof typeof expected]) !== JSON.stringify(expected[key as keyof typeof expected])))} or cursor`
+                )
+              }
+            }
+          }
+          assert(
+            JSON.stringify(await state(owner)) === JSON.stringify(remoteBefore),
+            "Rejected old clients changed Mongo"
+          )
+        }
+      )
+      await check(
         "Cliente6 prepara dos particiones y descarga la zona existente",
         async () => {
           for (let index = 0; index < 2; index++) {
-            await call(index, { type: "prepare-local", userId: owner })
             const result = (await call(index, { type: "mixed-run" })) as {
               status: string
               uploaded: number
@@ -450,8 +584,8 @@ export function FixtureController() {
             }
             assert(
               result.status === "settled" &&
-                result.uploaded === 0 &&
-                result.downloaded === 2,
+                result.uploaded === 2 &&
+                result.downloaded >= 4,
               "Settings client failed its initial exact pull"
             )
             const current = userSettingsSchema.parse(
@@ -463,6 +597,7 @@ export function FixtureController() {
               "Initial settings pull is not the latest revision"
             )
           }
+          await call(0, { type: "mixed-run" })
           await call(0, { type: "save-plan", request: planRequest })
           const result = (await call(0, { type: "mixed-run" })) as {
             status: string
@@ -1134,6 +1269,31 @@ export function FixtureController() {
         }
       )
       await check(
+        "Resolución antigua conserva ajustes y evidencia sin fabricar ACK",
+        async () => {
+          const before = await state(owner)
+          const proof = (await call(1, {
+            type: "legacy-root-resolution-proof",
+          })) as {
+            preserved: boolean
+            replayed: boolean
+            superseded: boolean
+            settingsIncidents: number
+          }
+          assert(
+            proof.preserved &&
+              proof.replayed &&
+              proof.superseded &&
+              proof.settingsIncidents >= 1,
+            "Legacy resolution lost unrelated settings evidence"
+          )
+          assert(
+            canonical(await state(owner)) === canonical(before),
+            "Local root adoption changed Mongo"
+          )
+        }
+      )
+      await check(
         "Sesión revocada no confirma ni modifica ajustes",
         async () => {
           assert(
@@ -1187,7 +1347,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Diecinueve escenarios Next6 correctos; sesiones propias cerradas"
+            "Veintiún escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

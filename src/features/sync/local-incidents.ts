@@ -1,6 +1,9 @@
 "use client"
 
-import { recurringSyncReleaseEnabled } from "@/config/common-plan-release"
+import {
+  activeProductSyncProtocol,
+  recurringSyncReleaseEnabled,
+} from "@/config/common-plan-release"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
 import { LocalSyncStore } from "@/lib/local-db/sync-store"
@@ -12,9 +15,12 @@ export async function readSyncIncidents(
   await requireActiveAccount(account)
   const store = await LocalSyncStore.open(account.userId)
   try {
-    const incidents = recurringSyncReleaseEnabled
-      ? await store.readRecurringIncidentOverview()
-      : await store.readIncidentOverview()
+    const incidents =
+      activeProductSyncProtocol === 6
+        ? await store.readSettingsIncidentOverview()
+        : recurringSyncReleaseEnabled
+          ? await store.readRecurringIncidentOverview()
+          : await store.readIncidentOverview()
     await requireActiveAccount(account)
     return incidents
   } finally {
@@ -35,7 +41,8 @@ export async function resolveSyncIncident(
     await requireActiveAccount(account)
     const result = await store.resolveIncident(
       request,
-      recurringSyncReleaseEnabled
+      recurringSyncReleaseEnabled,
+      activeProductSyncProtocol === 6
     )
     await requireActiveAccount(account)
     return result

@@ -2,7 +2,9 @@
 
 ## Estado operativo — 17 de octubre de 2026
 
-**18e1b2 entregado:** proveedor6 productivo guardado por selector completo, probado en Nextpropio con caché5 separada/cambioépoca/remontaje/unmount/listeners. Diecinueve escenarios6 pasan: respuesta perdida/replayúnico, epochtrascommit sinACK antiguo, otra cuenta antesclaim y conflicto de zona con hijo conservado/categoríaindependiente. Producto5; siguiente compatibilidad de resoluciónroot/cola5 capturada, UI/zona y activación coníndice autorizado. Pregunta de permiso sigue pendiente.
+**18e1c1 entregado:** veintiún escenarios Next6 pasan, incluida transición con cola5 capturada sinACK y recuperaciónoriginal6. Incidentes6/resoluciónlegacy conservan settings; no amplía recuperacióncomún. Permiso user_settings_user_uidx recibido, sóloPreview/int medianteensureIndexes; pendiente incorporarlo albootstrap, UI/zona y activación conjunta. Producto5.
+
+**18e1b2 entregado:** proveedor6 productivo guardado por selector completo, probado en Nextpropio con caché5 separada/cambioépoca/remontaje/unmount/listeners. Diecinueve escenarios6 pasan: respuesta perdida/replayúnico, epochtrascommit sinACK antiguo, otra cuenta antesclaim y conflicto de zona con hijo conservado/categoríaindependiente. Producto5; siguiente compatibilidad de resoluciónroot/cola5 capturada, UI/zona y activación coníndice autorizado. Permiso recibido posteriormente en18e1c1.
 
 **18e1b1 entregado:** catorce escenarios Next6 con IndexedDB/Mongo reales pasan. Zona personal, categoría, serie y aparición convergen exactamente en dos particiones; ACK directo rebasa sólo hijo pending0 y recarga conserva todos los stores/cursor. Producto aún5: faltan respuesta perdida/lifecycle6 y selección/UI/índice Preview autorizados. Petición de permiso específico para user_settings_user_uidx enviada; pendientes no impiden trabajo independiente.
 

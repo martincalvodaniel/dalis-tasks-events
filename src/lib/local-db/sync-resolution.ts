@@ -20,8 +20,11 @@ export function resolveLocalSyncIncident(
   database: IDBDatabase,
   userId: string,
   input: unknown,
-  recurring = false
+  recurring = false,
+  allowSettings = false
 ): Promise<LocalResolutionResult> {
+  if (allowSettings && !recurring)
+    throw new Error("Settings resolution requires the complete recurring scope")
   const request = syncResolutionRequestSchema.parse(input)
   if (request.userId !== userId)
     throw new Error("Resolution belongs to another account")
@@ -36,6 +39,7 @@ export function resolveLocalSyncIncident(
       ...(recurring
         ? (["occurrences", "tags", "itemViews", "taskPlacements"] as const)
         : []),
+      ...(allowSettings ? (["settings"] as const) : []),
     ],
     "readwrite",
     (context) => {
@@ -189,7 +193,8 @@ export function resolveLocalSyncIncident(
               snapshot = [incidents, entries]
               finish()
             },
-            recurring
+            recurring,
+            allowSettings
           )
         } catch (error) {
           context.fail(error)

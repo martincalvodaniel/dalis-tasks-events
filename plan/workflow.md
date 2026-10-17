@@ -457,3 +457,8 @@ Tras25c2a00 real82%5h/97%7d permite prueba de productor/ACK/pull6 con dos partic
 ### 18e1b2 — Proveedor6 guardado y resiliencia
 
 Entrada66%5h/95%7d tras2716a29, reservas10%/1%. Siguiente cortecompleto incluye referencia productiva del proveedor6 y prueba Nextpropia antes seleccionar6 en producto. Diecinueve escenarios con lostresponse/época/cuenta/lifecycle/conflicto pasan; cleanup yDoDcompletos, mismo commitpushint/HEAD ycuotas. Permiso índicePreview continúa pendiente; no se actúa enDBusuario ni se declara activación parcial.
+
+
+### 18e1c1 — Compatibilidad durable de consumidores6
+
+Entrada54%5h/93%7d, siguientelectura45%/91% durantepreparación; reserva10%/1% vigente. Veintiún escenarios propioscorrectos, cleanup yDoD completo. Permiso explícito user_settings_user_uidx recibido sóloPreview/int; no requiere otra confirmación al añadirlo albootstrapcentral. Noactivar6parcialmente; siguienteíndice/UI/zona en cortes propios ycuotas trascommitpushint/HEAD.

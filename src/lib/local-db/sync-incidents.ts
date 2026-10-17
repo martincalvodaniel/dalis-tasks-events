@@ -107,8 +107,11 @@ export function queueLocalSyncIncidents(
     incidents: SyncIncidentSnapshot[],
     entries: OutboxEntry[]
   ) => void,
-  recurring = false
+  recurring = false,
+  allowSettings = false
 ) {
+  if (allowSettings && !recurring)
+    throw new Error("Settings resolution requires the complete recurring scope")
   queueIncidentEvidence(
     context,
     userId,
@@ -122,7 +125,8 @@ export function queueLocalSyncIncidents(
           : (incidents as SyncIncidentSnapshot[]),
         entries
       ),
-    recurring
+    recurring,
+    allowSettings
   )
 }
 
