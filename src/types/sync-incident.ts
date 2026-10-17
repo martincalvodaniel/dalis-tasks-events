@@ -28,6 +28,7 @@ export interface PersonalSyncIncidentSnapshot {
   remote: PersonalSnapshot
   intentions: OutboxEntry[]
   tagNames: Record<string, string>
+  blockedByRelatedIntentions?: boolean
 }
 
 export type SyncIncidentOverview =

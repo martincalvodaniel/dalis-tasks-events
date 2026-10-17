@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 19b1 — Contrato de recuperación de zona personal
+
+Estado: completado; preparación pura, sin nueva elección visible.
+
+- Objetivo: diseñar y probar adopción/reintento explícitos de settings, sin ofrecer botones antes del executor.
+- target_paths: src/{schemas/settings-resolution.ts,types/settings-resolution.ts,types/sync-incident.ts,lib/sync/{incident-snapshot.ts,settings-resolution.ts,settings-resolution.test.ts}}, plan/**.
+- Dependencias:2da06ca publicado,60%5h/80%7d, reservas10%/1%; settings6 y evidencia/incidentes activos. Secuencial.
+- Aceptación: sólo conflicto propio de settings con remoto vivo conocido; adoptar sinACK o retryconUUIDnuevo/CASremoto; cadena settings completa sin incertidumbre/cadenasexternas, categoriasindependientes conservadas. Snapshotexacto y evidencia validada, nofusión/ancestro. Registro durable diseñado pero aún no integrado enbackup/executor/UI.
+- Validación: pruebas puras de cambios posteriores/replaytardío/identidad/cuenta/cola/tombstones, regresiones yDoDcompleto/plan/log/commitpushint/HEAD/cuotas. Sinwire/DB/indexnuevo.
+
+
 ## 19a4 — Elecciones comunes activas en Ajustes
 
 Estado: completado; opciones activas y24Next6 con feature/diálogo real correctos.

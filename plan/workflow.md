@@ -502,3 +502,7 @@ Entrada82%5h/83%7d trasa9f6bf3, reservas10%/1%.24escenarios y4conflictosMongo co
 ### 19a4 — Opciones comunes visibles
 
 Entrada72%5h/82%7d tras72e9f30, reservas10%/1%. Feature/UI coherentes, diálogo real y24Next6 aprobados con cancelación/confirmación yACK posterior; no ampliar cadenas externas sin contrato completo. DoD/cleanup/plan/log mismo commitpushint/HEAD/cuotas. Continúa trabajo residual si cabe una entrega completa.
+
+### 19b1 — Contrato de recuperación settings
+
+Entrada60%5h/80%7d tras2da06ca, reservas10%/1%. Preparación pura yguardia de cadenas externas, sin registros nuevos escritos niUIactivada. DoDcompleto/plan/log mismo commitpushint/HEAD/cuotas. Seguir conexecutor+backup en cortepropio sihay margen para cerrar pruebas/reparación/publicación.

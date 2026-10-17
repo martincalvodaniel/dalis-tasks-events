@@ -8,6 +8,9 @@ La zona horaria personal ya es editable offline, sincroniza por cuenta y está v
 
 ### Continuación de las21:19
 
+19b1 prepara contrato y guardias de recuperación de zona personal, aún sin executor/backup/UI. Siete pruebas nuevas y851tests aprobados; siguientes19b2–3 conectan transacción, evidencia portable yelección visible tras prueba real.
+
+
 19a4 activa en Ajustes la recuperación de planes simples sin cadenas externas, tras diálogo real y24Next6 correctos. Las ediciones con categoría dependiente, preferencias y apariciones siguen pendientes. Suite844pass/223skip, lint852/tipos/Webpack/worker46.
 
 

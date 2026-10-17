@@ -324,14 +324,35 @@ function projectIncidentOverview(
       throw new Error("Personal incident outcome is missing")
     incidents.push({
       kind: "preference",
-      incident: projectPersonalIncident(
-        entry,
-        outcome,
-        current,
-        shadows,
-        intentions,
-        Object.fromEntries(tags.map((tag) => [tag.id, tag.name]))
-      ),
+      incident: (() => {
+        const incident = projectPersonalIncident(
+          entry,
+          outcome,
+          current,
+          shadows,
+          intentions,
+          Object.fromEntries(tags.map((tag) => [tag.id, tag.name]))
+        )
+        if (entry.operation.command.type !== "settings.update") return incident
+        const ids = new Set(
+          intentions
+            .filter((value) => value.entityKey === entry.entityKey)
+            .map((value) => value.operation.operationId)
+        )
+        const byId = new Map(
+          value.entries.map((value) => [value.operation.operationId, value])
+        )
+        const blockedByRelatedIntentions = value.entries.some(
+          (value) =>
+            isUnresolvedOutboxEntry(value) &&
+            (ids.has(value.operation.operationId)
+              ? value.dependencies.some(
+                  (id) => !ids.has(id) && byId.get(id)?.state !== "acknowledged"
+                )
+              : value.dependencies.some((id) => ids.has(id)))
+        )
+        return { ...incident, blockedByRelatedIntentions }
+      })(),
     })
   }
   return incidents.sort(
