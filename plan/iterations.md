@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 18z2 — Continuación puntual a las21:19
+
+- Objetivo: programar la continuación pedida para el17oct2026 a las21:19 Europe/Madrid, comprobando renovación antes de reanudar recuperación residual.
+- target_paths: plan/{iterations,workflow,iteration-log}.md y automatización heartbeat gestionada por la app.
+- Dependencias:7000ecf publicado; estado completo6 y pilotoPreview ya cerrados; petición humana explícita de hora.
+- Aceptación: una única revisión puntual en este chat, activa, COUNT1, reservas10%5h/1%7d y sin otra cadena; cuota real antes de trabajar, commit/pushint/HEAD/cuotas por entrega. Sin reabrir sincronización ya entregada ni tocar producción.
+- Validación: automation_update confirma creación, archivo gestionado confirma estado/horario/chat/política; referencias/coherencia ydiff limpio, mismo commit/pushint/HEAD.
+- Estado: completado; id `continuar-el-plan-a-las-21-19`, notificaciones failed_runs_only. Reset5h observado21:18:29, no se presupone renovación por reloj.
+
+
 ## 15b1 — Guía de uso y checklist vigente
 
 Estado: completada la guía preparatoria;15a y cierre final15b siguen pendientes.

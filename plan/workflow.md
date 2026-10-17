@@ -482,3 +482,7 @@ Entrada26%5h/88%7d, lectura21%/88% trasabriractualización. Actualización5→6c
 ### Cierre del lote17oct — 15b1
 
 Entrada de este corte17%5h/87%7d; reservas10%/1%. Guía/checklist documental completadas después de activar y probar ajustes6 en Preview, sin abrir recuperación transaccional residual con margen insuficiente para implementación, pruebas, reparaciones y publicación. No se crea otra automatización: no ha sido solicitada. Conservar main humano y worktreeint; sólo recursos propios de prueba limpiados. El próximo lote continúa desde recuperación residual, sin reabrir sincronización de categorías/orden/repetición/zona ni aceptación de arrastre ya cerradas. Consulta real tras commit/push/HEAD y cierre coherente.
+
+### Petición humana17oct — Continuar21:19
+
+Después del cierre15b1 el usuario solicita nueva continuación puntual hoy a las21:19 Europe/Madrid. Heartbeat `continuar-el-plan-a-las-21-19` creado ACTIVE en este mismo chat mediante automation_update, COUNT1, política failed_runs_only. No había archivos de automatizaciones anteriores; no se crea cadena indefinida ni se modifica TOML manualmente. Comprobar cuotas reales al disparar: reset5h publicado1792264709 (21:18:29 Madrid), última lectura15%5h/87%7d, reservas10%/1%. Retomar recuperación explícita residual desde últimoHEAD completo, manteniendo generación6/piloto/índicesPreview ya cerrados y main humano intacto. Pausar/finalizar esta ejecución puntual al cerrar, sin reprogramación adicional no solicitada.

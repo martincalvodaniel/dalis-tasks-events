@@ -2396,3 +2396,7 @@ Guía de uso preparada en [user-guide.md](user-guide.md) y enlazada desde README
 Checklist física actualizada a generación6: pasos9–10 comprueban zona compartida con restauración y tema independiente por dispositivo; conserva los ocho pasos anteriores y resultados humanos pendientes. Cumpleaños aparcado y compartir excluido dejan de ser prerrequisitos de15a; matriz de aceptación habla de cuatro variantes. Esto prepara parte documental de15b, no declara completada la aceptación final ni autoriza producción.
 
 Validación: referencias locales resueltas, consistencia con componentes/contratos actuales ydiff limpio. Sin cambio de código ni repetición de pruebas ya aprobadas. Último DoD de código:830pass/223skip/0fail/10763aserciones, lint850/tipos/Webpack/worker46. Commit/pushint/HEAD y cuotas por entrega.
+
+## 18z2 — Reanudación puntual solicitada
+
+17oct2026: programada continuación del plan para hoy21:19 Europe/Madrid mediante heartbeat activo `continuar-el-plan-a-las-21-19`, COUNT1 y chat actual verificados en archivo gestionado. Revisión consulta cuotas, verifica renovación real y mantiene reservas10%5h/1%7d; sigue recuperación residual con pruebas y commit/pushint/HEAD/cuotas por iteración. No reabre zona/categorías/orden/repetición ya activos ni autoriza producción o una cadena adicional. Cambio documental únicamente; validación de estado/horario/referencias/coherencia/diff.
