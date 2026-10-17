@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 19a3 — Conflictos comunes reales y convergencia remota
+
+Estado: completado,24Next6 y4conflictosreales conconvergencia exacta aprobados.
+
+- Objetivo: demostrar recuperación privada con dosparticiones/Next/Mongo y productores reales antes deUI.
+- target_paths: src/schemas/next-sync-test.ts, test/next-settings-sync/features/{common-plan-recovery,local-client,device-client,controller}.*.template, plan/**.
+- Dependencias:a9f6bf3 publicado,82%5h/83%7d, reservas10%/1%; executorlocal probado. Dockerpinned revalidado, secuencial.
+- Aceptación:4variantes conconflictoCASreal ydependiente nointentado; adoptar sinACK/escritura remota, retryUUIDnuevo ycopyIDnuevo ante tombstone; respuesta perdida/replayúnico, superseded conserva evidencias ybackup3, proyecciones/cursor exactos en6stores entreparticiones/Mongo. NoUI/producción/DBusuario.
+- Validación: Next6real ampliado conproductores progreso/guardado/borrado, authpersistida/defaults, DoDcompleto/cleanup/plan/log/commitpushint/HEAD/cuotas. NoafirmarGoogle ni dispositivosfísicos; cadenas externas siguenprotegidas.
+
+
 ## 19a2 — Executor durable de recuperación común, aún privado
 
 Estado: completado,23Next6correctos; UI sigue sin elecciones comunes.

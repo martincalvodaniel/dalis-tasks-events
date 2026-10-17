@@ -494,3 +494,7 @@ Cuota confirmada100%5h/86%7d, nuevoreset1792282775; HEAD69149d2/originint exacto
 ### 19a2 — Atomicidad local común
 
 Entrada95%5h/85%7d tras9685fce, reservas10%/1%. Opt-inexecutor y24checks locales con23Next6completos aprobados, cleanup/DoD. Conflictossembrados sólo pruebandurabilidad, sinACKremoto atribuido; siguiente19a3 conflicto/replay/convergencia reales antesUI. Mismo commitpushint/HEAD/cuotas para elegir siguiente corte.
+
+### 19a3 — Recuperación remota real
+
+Entrada82%5h/83%7d trasa9f6bf3, reservas10%/1%.24escenarios y4conflictosMongo conconvergencia exacta/replay aprobados. Primerfixture detenidoantesdeejecución paraañadir adaptadordeborradoreal, cleanup yretrycorrectos. DoD/plan/log mismo commitpushint/HEAD/cuotas; siguienteUI19a4 sólo concallerscoherentes.

@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { planCommandSchema } from "@/schemas/plan-command"
 import { planSchema } from "@/schemas/plan-item"
 import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
 import { planOccurrenceCommandSchema } from "@/schemas/plan-occurrence-command"
@@ -16,6 +17,7 @@ import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
 import { remoteRecurringChangesPageSchema } from "@/schemas/remote-recurring-changes"
 import { syncCommandSchema } from "@/schemas/sync"
 import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
+import { syncResolutionRequestSchema } from "@/schemas/sync-resolution"
 
 const loopbackOriginSchema = z.string().refine((value) => {
   try {
@@ -141,6 +143,21 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("settings-editor-proof") }),
   z.strictObject({ type: z.literal("legacy-root-resolution-proof") }),
   z.strictObject({ type: z.literal("plan-resolution-proof") }),
+  z.strictObject({
+    type: z.literal("change-plan-progress"),
+    operationId: entityIdSchema,
+    command: planCommandSchema.refine(
+      (command) =>
+        command.type === "plan.set-status" ||
+        command.type === "plan.set-checklist-entry",
+      "Fixture progress requires a simple plan progress command"
+    ),
+  }),
+  z.strictObject({
+    type: z.literal("resolve-common-plan"),
+    request: syncResolutionRequestSchema,
+  }),
+  z.strictObject({ type: z.literal("lost-plan-response-run") }),
   z.strictObject({ type: z.literal("reload-local") }),
   z.strictObject({
     type: z.literal("commit-local"),

@@ -30,6 +30,8 @@ import { createMixedSyncClientV6 } from "@/features/sync/mixed-sync-client-v6"
 import { prepareLocalCommonPlanRelease } from "@/lib/local-db/common-plan-local-release"
 import {
   saveLocalPlan,
+  changeLocalPlanProgress,
+  deleteLocalPlan,
   changeLocalPlanOccurrence,
 } from "@/features/plans/local-plans"
 import {
@@ -501,6 +503,7 @@ export async function executeLocalFixtureCommand(
         oldAttemptRejected,
       }
     }
+    case "lost-plan-response-run":
     case "lost-settings-response-run":
     case "epoch-after-settings-commit-run": {
       let intercepted = false
@@ -510,7 +513,10 @@ export async function executeLocalFixtureCommand(
           const result = await dispatchSyncOperationsV6(input)
           if (!intercepted) {
             intercepted = true
-            if (command.type === "lost-settings-response-run")
+            if (
+              command.type === "lost-settings-response-run" ||
+              command.type === "lost-plan-response-run"
+            )
               throw new Error(
                 "Fixture lost a committed settings action response"
               )
@@ -529,6 +535,38 @@ export async function executeLocalFixtureCommand(
       return proveSettingsEditor(active)
     case "plan-resolution-proof":
       return provePlanRecovery(active)
+    case "delete-plan":
+      return deleteLocalPlan(
+        { ...active, itemCount: 0, offlineReady: false },
+        command.expectedItem,
+        command.operationId
+      )
+    case "change-plan-progress":
+      if (
+        command.command.type !== "plan.set-status" &&
+        command.command.type !== "plan.set-checklist-entry"
+      )
+        throw new Error("Fixture progress command changed kind")
+      return changeLocalPlanProgress(
+        { ...active, itemCount: 0, offlineReady: false },
+        command.command,
+        command.operationId
+      )
+    case "resolve-common-plan": {
+      const store = await LocalSyncStore.open(active.userId)
+      try {
+        const result = await store.resolveIncident(
+          command.request,
+          true,
+          true,
+          true
+        )
+        await requireActiveAccount(active)
+        return result
+      } finally {
+        store.close()
+      }
+    }
     case "settings-incidents":
       return readSyncIncidents(active)
     case "legacy-root-resolution-proof": {

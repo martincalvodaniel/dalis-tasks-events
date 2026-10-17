@@ -83,3 +83,11 @@ LocalSyncStore/resolveLocalSyncIncident aceptan opt-in allowPlans separado, fals
 Next6compilado con IndexedDB/Mongo propios:23escenarios correctos. Nuevo caso induce explícitamente conflictos locales de4variantes para comprobar24checks de stale-snapshot, rollback tardío sinnotificación, superseded sinACK, replacements pending0, payload/attempts/deps/outcomes intactos, preservación settings/occurrences/tags/views/placements/shadows yreplaytrasnuevaedición. Snapshotportable3 sevalida condecoderproductivo. Mongo permanece exactoantes/después de este caso: no se atribuye ACKremoto a conflictossembrados. Recursos propios limpiados ycaptura `/private/tmp/dalis-plan-recovery-local.png`.
 
 DoD840pass/223skip/0fail/10844aserciones, lint851/tipos/Webpack/worker46/diff. Siguiente19a3 generará conflictos reales mediante dosparticiones y ejecutorMongo/Next, conreplay/respuestaperdida/tombstones/convergencia antesUI.
+
+## 19a3 — Recuperación común con conflicto remoto real
+
+Next6/BetterAuth persistido/defaults/Mongo ydosorígenes IndexedDB propios:24escenarios pasan. Productores reales deguardado/progreso/borrado generan4conflictosCAS condependiente sinintento. Adoptar remoto noañaderecibo/history; retrycrea nuevoUUID sobre revisiónremota; copiar ante tombstone creaotroID sinresucitar original y conserva variant/estado/checklist/fecha. Originalesconflict+child quedan superseded conoperaciones/deps/outcomes intactos, nuncaACK local.
+
+Se pierdeunarespuesta trascommit real de replacement; permanecen pending/attempt1/lease liberado, replay delmismoUUID obtieneunACK sinotrorecibo/journal. Alcerrar cada variante secomparan seisstores ycursor exactos contra proyección completaMongo enambasparticiones, yreplay de decisión noescribe sobreestado confirmado. Backup3 validado en cadasnapshot. NoGoogle interactivo ni dispositivosfísicos. Primerfixture se detuvo antes de ejecutar aldetectar adaptador delete-plan ausente; se añadió productorreal yse limpiótodoantes delretry aprobado.
+
+Suite840pass/223skip/0fail/10844aserciones, lint851/tipos/Webpack/worker46/diff. Recursos propios retirados; captura `/private/tmp/dalis-plan-recovery-remote.png`. Callers/UI todavía privados: siguiente19a4 selección coherente yprueba deldiálogo real, conguardias de cadenasexternas/series intactas. NoDBusuario/protocolo/índices nuevos.
