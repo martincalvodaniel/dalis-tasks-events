@@ -1,5 +1,13 @@
 # Zona horaria personal y sincronización de ajustes
 
+## 18e1b1 — ACK/pull y convergencia exacta local6
+
+Dos orígenes propios usan createMixedSyncClientV6 con actions/defaults reales. Productor saveLocalPersonalSettings bloquea fetch durante guardado, compara expectedSettings y conserva UUID/command/deps; dos intenciones pendientes dependen directamente y ACK rebasa sólo hijo sin intento2→3. Categoría peer y aparición progresan junto a zona, root/vista de serie se guardan mediante productor atómico real. Última zonaAsia/Tokyorev4 no altera fechas/anchor/zonaEuropeMadrid de serie ni progreso de aparición.
+
+Comparación completa de items/occurrences/tags/itemViews/taskPlacements/settings contra journalMongo, shadows exactos entreparticiones y cursorencheckpoint; nunca inferido de statussettled. Reload delpeer restaura ownershipschema sólofixture, conserva stores/cola/cursor exactos y siguiente run noenvía/nodescarga. Catorce escenarios Next6 pasan; nueve recibos/ocho cambios/una zona/una aparición esperados. Esto no demuestra Google o dispositivos físicos y aún faltan lost-response/lifecycle6 antes de activar.
+
+Suite829pass/221skip/0fail/10756aserciones, lint847/tipos/Webpack/worker46/diff aprobados. Captura `/private/tmp/dalis-settings-next6-two-partitions.png`. Errores de import de helpers y narrow de records/literales de tests reparados antes del cierre. Recursos de todos los intentos propios retirados. Índice settingsPreview aún requiere permiso específico solicitado alusuario; no DBusuario ni generación6 activada.
+
 ## 18e1a1 — Next6 real y regresión5 cerrados
 
 Modo `next-settings` del runner aislado compila overlay6 propio: manifiesto exige action6 y retiro5 reales; APIs productivas/defaults con sesión BetterAuth persistida y seis índices centrales en DBdescriptor. Dos orígenes/cookies propios, mismos usuarios sintéticos. Nueve escenarios pasan: sin sesión, identidad6 exclusiva, matriz5↔6 antesbody/IDausente409marcado, actor/sobre, missingíndices/retiro5 sinACK, settingsapplied/replayúnico, CASconflict, revisión2/late-replay sinregresión/pullhistórico exacto yrevocación. Tres recibos/dos cambios/registrosettingsúnico esperados, no ACK local ni convergencia IndexedDB en este corte. Regresión next-recurring completa19escenarios también pasa; recursos de ambos runs retirados.

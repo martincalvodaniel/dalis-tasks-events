@@ -447,3 +447,8 @@ Entrada78%5h/6%7d, int8952da0 limpio. Reproducción propia confirma raya gris po
 ### Petición humana16c16 — Tema del dispositivo
 
 Entrada72%5h/5%7d, int5048ef5 limpio, reservas10%/1%. SelectorSistema/Claro/Oscuro persistido localmente, sin ampliar alcance remoto de settings6. Corte secuencial con guíasNextlayout/script y Reacthydration-no-flicker; inicialización enhead, CSSmedia paraSistema y overrides explícitos. Schema/bootstrap/Reactbrowser propio y DoD completos, plan/log mismo commitpushint/HEAD/cuotas; sin dependencia/DB/producción/automatización nueva.
+
+
+### 18e1b1 — Continuación17oct
+
+Tras25c2a00 real82%5h/97%7d permite prueba de productor/ACK/pull6 con dos particiones. Corte secuencial propio sinDBusuario; catorce escenarios Next6 correctos, DoD completo y cleanup. Permiso específico de índice settingsPreview solicitado deforma asíncrona: DBAGENT sólo autorizaaparición; trabajo independiente continúa mientras falta respuesta. Commitpushint/HEAD y ambas cuotas antes de elegir próximo corte, reservas10%/1% conservadas.

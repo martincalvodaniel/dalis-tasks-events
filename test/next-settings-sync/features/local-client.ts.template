@@ -1,0 +1,235 @@
+"use client"
+import type { z } from "zod"
+import { createMixedSyncClientV6 } from "@/features/sync/mixed-sync-client-v6"
+import { prepareLocalCommonPlanRelease } from "@/lib/local-db/common-plan-local-release"
+import {
+  saveLocalPlan,
+  changeLocalPlanOccurrence,
+} from "@/features/plans/local-plans"
+import {
+  readLocalPersonalSettings,
+  saveLocalPersonalSettings,
+} from "@/features/workspace/local-personal-settings"
+import { requireActiveAccount } from "@/features/workspace/require-active-account"
+import {
+  ACCOUNT_CONTROL_DATABASE,
+  activatePreparedAccount,
+  readAccountControl,
+} from "@/lib/local-db/account-control"
+import { readLocalRecurringBackup } from "@/lib/local-db/backup"
+import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
+import { LocalMixedSyncStore } from "@/lib/local-db/mixed-sync-store"
+import { LocalOutbox } from "@/lib/local-db/outbox"
+import {
+  nextSyncDeviceCommandSchema,
+  nextSyncLocalOwnershipSchema,
+} from "@/schemas/next-sync-test"
+import { workspaceIdentitySchema } from "@/schemas/workspace"
+
+const markerKey = "dalis:account-change"
+const ownershipKey = "dalis:next-settings-owned"
+let owned: {
+  runId: string
+  userId: string
+  epoch: string | null
+  markerBefore: string | null
+  markerAfter: string | null
+} | null = null
+let client: ReturnType<typeof createMixedSyncClientV6> | null = null
+function account() {
+  if (!owned?.epoch || !client)
+    throw new Error("Settings fixture local account is not prepared")
+  return { userId: owned.userId, epoch: owned.epoch }
+}
+async function removeDatabase(name: string) {
+  await new Promise<void>((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(name)
+    request.onsuccess = () => resolve()
+    request.onerror = () => reject(request.error)
+    request.onblocked = () =>
+      reject(new Error("Settings fixture cleanup is blocked"))
+  })
+}
+export async function executeLocalFixtureCommand(
+  runId: string,
+  input: z.infer<typeof nextSyncDeviceCommandSchema>
+) {
+  const command = nextSyncDeviceCommandSchema.parse(input)
+  if (!owned && sessionStorage.getItem(ownershipKey)) {
+    owned = nextSyncLocalOwnershipSchema.parse(
+      JSON.parse(sessionStorage.getItem(ownershipKey)!)
+    )
+    if (owned.epoch)
+      client = createMixedSyncClientV6({
+        userId: owned.userId,
+        epoch: owned.epoch,
+      })
+  }
+  if (owned && owned.runId !== runId)
+    throw new Error("Settings fixture local run changed")
+  if (command.type === "prepare-local") {
+    const identity = await fetch("/fixture/identity", {
+      headers: { "x-sync-test-run": runId },
+      cache: "no-store",
+    })
+    if (
+      !identity.ok ||
+      workspaceIdentitySchema.parse(await identity.json()).userId !==
+        command.userId
+    )
+      throw new Error("Settings fixture local identity mismatch")
+    const databases = await indexedDB.databases()
+    if (
+      databases.some(
+        (value) =>
+          value.name === ACCOUNT_CONTROL_DATABASE ||
+          value.name === localDatabaseName(command.userId)
+      )
+    )
+      throw new Error("Foreign partition blocks settings fixture")
+    owned = {
+      runId,
+      userId: command.userId,
+      epoch: null,
+      markerBefore: localStorage.getItem(markerKey),
+      markerAfter: null,
+    }
+    const initial = await readAccountControl()
+    if (initial.userId !== null || initial.logoutPending)
+      throw new Error("Foreign account control blocks settings fixture")
+    const active = await activatePreparedAccount(
+      command.userId,
+      new Date().toISOString(),
+      initial.epoch
+    )
+    owned.epoch = active.epoch
+    owned.markerAfter = localStorage.getItem(markerKey)
+    const database = await openLocalDatabase(command.userId)
+    try {
+      const release = await prepareLocalCommonPlanRelease(
+        database,
+        command.userId,
+        new Date().toISOString()
+      )
+      if (release.status !== "ready")
+        throw new Error(
+          "Empty settings partition could not prepare plan release"
+        )
+    } finally {
+      database.close()
+    }
+    client = createMixedSyncClientV6({
+      userId: command.userId,
+      epoch: active.epoch,
+    })
+    sessionStorage.setItem(ownershipKey, JSON.stringify(owned))
+    return account()
+  }
+  if (command.type === "cleanup-local") {
+    if (!owned) return true
+    const control = await readAccountControl()
+    if (
+      owned.epoch
+        ? control.userId !== owned.userId ||
+          control.epoch !== owned.epoch ||
+          control.logoutPending
+        : control.userId !== null || control.logoutPending
+    )
+      throw new Error("Settings cleanup account changed")
+    await removeDatabase(localDatabaseName(owned.userId))
+    await removeDatabase(ACCOUNT_CONTROL_DATABASE)
+    if (localStorage.getItem(markerKey) === owned.markerAfter) {
+      if (owned.markerBefore === null) localStorage.removeItem(markerKey)
+      else localStorage.setItem(markerKey, owned.markerBefore)
+    }
+    sessionStorage.removeItem(ownershipKey)
+    owned = null
+    client = null
+    return true
+  }
+  const active = account()
+  await requireActiveAccount(active)
+  switch (command.type) {
+    case "reload-local":
+      setTimeout(() => location.reload(), 100)
+      return { scheduled: true }
+    case "commit-occurrence":
+      return changeLocalPlanOccurrence(
+        { ...active, itemCount: 0, offlineReady: false },
+        command.command,
+        {
+          operationId: command.operationId,
+          now: new Date(command.now),
+          expectedItem: command.expectedItem,
+          expectedOccurrence: command.expectedOccurrence,
+        }
+      )
+    case "read-settings":
+      return readLocalPersonalSettings(active)
+    case "save-settings": {
+      const request = globalThis.fetch
+      globalThis.fetch = async () => {
+        throw new Error("Offline settings producer attempted a network request")
+      }
+      try {
+        return await saveLocalPersonalSettings(
+          active,
+          command.input,
+          command.expected
+        )
+      } finally {
+        globalThis.fetch = request
+      }
+    }
+    case "save-plan":
+      return saveLocalPlan(
+        { ...active, itemCount: 0, offlineReady: false },
+        command.request
+      )
+    case "commit-local": {
+      const outbox = await LocalOutbox.open(active.userId)
+      try {
+        if (
+          command.command.type === "tag.save" ||
+          command.command.type === "item-view.set" ||
+          command.command.type === "task.move"
+        )
+          return await outbox.commitPreferenceCommand(command.command)
+        if (command.command.type === "item.create")
+          return await outbox.commitItemCommand(command.command)
+        throw new Error("Unsupported settings fixture local command")
+      } finally {
+        outbox.close()
+      }
+    }
+    case "mixed-summary":
+      return client!.readSummary()
+    case "mixed-run": {
+      const attempt = client!.createAttempt(async () => client!.readSummary())
+      try {
+        return await attempt.run()
+      } finally {
+        attempt.stop()
+      }
+    }
+    case "local-snapshot": {
+      const database = await openLocalDatabase(active.userId)
+      const store = await LocalMixedSyncStore.openSettings(active.userId)
+      try {
+        const backup = await readLocalRecurringBackup(
+          database,
+          active.userId,
+          new Date().toISOString()
+        )
+        const cursor = await store.readPullCursor()
+        await requireActiveAccount(active)
+        return { backup, cursor, summary: await client!.readSummary() }
+      } finally {
+        database.close()
+        store.close()
+      }
+    }
+    default:
+      throw new Error("Unsupported settings fixture command")
+  }
+}

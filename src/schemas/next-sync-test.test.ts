@@ -5,6 +5,7 @@ import {
   nextSettingsSyncStateSchema,
   nextSyncDeviceCommandSchema,
   nextSyncIndexControlSchema,
+  nextSyncLocalOwnershipSchema,
   nextSyncStateSchema,
 } from "@/schemas/next-sync-test"
 import { planSchema } from "@/schemas/plan-item"
@@ -234,4 +235,38 @@ test("settings fixture state requires its separate count without weakening previ
       counts: { ...state.counts, production: 1 },
     })
   ).toThrow()
+})
+
+test("settings fixture commands preserve expected records and reject unvalidated device inputs", () => {
+  const valid = {
+    type: "save-settings",
+    input: { timeZone: "Asia/Tokyo", weekStartsOn: 1, locale: "es-ES" },
+    expected: null,
+  } as const
+  expect(nextSyncDeviceCommandSchema.parse(valid)).toEqual(valid)
+  for (const invalid of [
+    { ...valid, input: { ...valid.input, timeZone: "invalid-zone" } },
+    { ...valid, input: { ...valid.input, weekStartsOn: 0 } },
+    { ...valid, expected: {} },
+    { ...valid, database: "production" },
+  ])
+    expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
+  const ownership = {
+    runId: request.itemId,
+    userId: "fixture-settings-owner",
+    epoch: request.contentOperationId,
+    markerBefore: null,
+    markerAfter: null,
+  }
+  expect(nextSyncLocalOwnershipSchema.parse(ownership)).toEqual(ownership)
+  expect(
+    nextSyncLocalOwnershipSchema.safeParse({ ...ownership, epoch: "invalid" })
+      .success
+  ).toBe(false)
+  expect(
+    nextSyncLocalOwnershipSchema.safeParse({
+      ...ownership,
+      database: "production",
+    }).success
+  ).toBe(false)
 })

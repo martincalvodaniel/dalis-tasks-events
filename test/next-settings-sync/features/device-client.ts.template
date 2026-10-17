@@ -10,6 +10,7 @@ import {
   nextSyncMissingActionId,
 } from "@/schemas/next-sync-test"
 import { workspaceIdentitySchema } from "@/schemas/workspace"
+import { executeLocalFixtureCommand } from "@fixture/local-client"
 import { dispatchFixtureRetiredOperations } from "@fixture/retired-client"
 
 export async function fixtureFetch(
@@ -117,6 +118,8 @@ async function execute(
   input: z.infer<typeof nextSyncDeviceCommandSchema>
 ): Promise<unknown> {
   const command = nextSyncDeviceCommandSchema.parse(input)
+  if (command.type === "cleanup-local")
+    return executeLocalFixtureCommand(runId, command)
   if (command.type === "session" && command.command === "cleanup")
     return fixtureFetch(runId, "/fixture/session", {
       runId,
@@ -125,6 +128,21 @@ async function execute(
   const guard = await fixtureFetch(runId, "/fixture/guard")
   if (guard.status !== 200)
     throw new Error("Fixture blocked before touching foreign auth cookies")
+  if (
+    [
+      "prepare-local",
+      "reload-local",
+      "commit-occurrence",
+      "read-settings",
+      "save-settings",
+      "save-plan",
+      "commit-local",
+      "mixed-summary",
+      "mixed-run",
+      "local-snapshot",
+    ].includes(command.type)
+  )
+    return executeLocalFixtureCommand(runId, command)
   switch (command.type) {
     case "identity":
       return fixtureFetch(runId, "/fixture/identity")

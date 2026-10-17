@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 18e1b1 — ACK y descarga6 en dos particiones reales
+
+Estado: completado; catorce escenarios Next6 pasan, incluida convergencia exacta/recarga.
+
+- Objetivo: productores offline de zona/categoría/serie común y ACK/pull por cliente6/Next/Mongo reales con proyecciones exactas entre dos orígenes.
+- target_paths: `test/next-settings-sync/features/{local-client.ts,device-client.ts,controller.tsx,projection.ts}.template`, `src/schemas/next-sync-test{,.test}.ts`, `plan/**`.
+- Dependencias:18e1a1 publicado25c2a00,82%5h/97%7d/reservas10%/1%; callbacks/contratos6 cerrados, Mongoown/pinnedrevalidado. Secuencial, sin callerproducto6/DBusuario.
+- Aceptación: dos particiones propias+cuentas persistidas, productor de zona con expectedSettings exacto, cola durable sin fetch/ACK offline; children sólo pending0 rebasedirecto trasACK, UUID/command/deps intactos. Categoría yserie/aparición no se reprograman al cambiar zona; snapshots/proyecciones ycursor exactos frenteMongo, recarga conserva. Pérdidarespuesta y lifecycle serán cortes separados si exceden alcance.
+- Validación: fixtureNext6 ampliado y schemas límites, DoD/lint/tipos/suite/build/worker, cleanupown/plan/log/commitpushint/HEAD/cuotas. No afirmar Google ni dos dispositivos físicos; scopeactivo5 intacto.
+
 ## 18e1a1 — Frontera Next6 compilada de ajustes
 
 Estado: completado; nueve escenarios6 y diecinueve de regresión5 pasan, producto sigue5.

@@ -313,3 +313,8 @@ Modo recurring-operator selecciona exclusivamente recurring-index-operator.integ
 ### 18e1a1 — RPC de ajustes en Next6
 
 `bun --no-env-file scripts/sync-db-test-runner.ts next-settings` crea descriptor/Mongo pinned propios y dos orígenes Nextcompiled. Overlay `test/next-settings-sync` selecciona6 sólo enfixture; inventario requiere acciones6/5 reales. Reader/prepare/faultinjection settings sólo permiten DBexacta deldescriptor/actor de sesionespropias eíndice registrado. Nueve escenarios6 pasan; next-recurring19escenariosregresión también. No IDdeployment/Google/dispositivos físicos ni ACKIndexedDB6. Ambos contenedores/tmpfs/bridges/proyectos/orígenes/cookies propios retirados. Sin DBusuario/secretos/producción; límites/config de aislamiento existentes conservados.
+
+
+### 18e1b1 — Cliente6/IndexedDB/recarga
+
+next-settings añade cinco escenarios a los nueve de frontera. Dos particiones reales, productores de zona/categoría/serie/aparición, cliente6 contra RPC/Mongo y exactitud de todos los stores/shadows/cursor. Comando reloadlocal usa sólo sessionStorage de ownership validado para recuperar cliente propio; no altera aplicación productiva. Guardias contra partición/control/cookie ajenos y limpieza exclusivamentepropia conservadas. Catorce checks pasan, incluidos guardado sinfetch y ACK nofingido; lostresponse/lifecycle6 quedan siguientes.

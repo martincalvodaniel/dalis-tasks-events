@@ -1,10 +1,21 @@
 "use client"
 import { useEffect, useState } from "react"
 import type { z } from "zod"
-import { nextSyncPublicConfigSchema, nextSyncDeviceCommandSchema, nextSettingsSyncStateSchema } from "@/schemas/next-sync-test"
-import { canonical } from "@fixture/projection"
+import {
+  nextSyncPublicConfigSchema,
+  nextSyncDeviceCommandSchema,
+  nextSettingsSyncStateSchema,
+} from "@/schemas/next-sync-test"
+import { canonical, ordered, foldRecurringChanges } from "@fixture/projection"
 import { remoteRecurringPushResultSchema } from "@/schemas/remote-recurring-push"
 import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
+import { validateLocalRecurringBackup } from "@/lib/backup/local-backup"
+import { localPullCursorSchema } from "@/schemas/local-sync"
+import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
+import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
+import { planSchema } from "@/schemas/plan-item"
+import { userSettingsSchema } from "@/schemas/preferences"
+import { outboxEntrySchema } from "@/schemas/local-sync"
 import { syncOperationSchema } from "@/schemas/sync"
 import { workspaceIdentitySchema } from "@/schemas/workspace"
 import { executeFixtureCommand, fixtureFetch } from "@fixture/device-client"
@@ -117,118 +128,687 @@ export function FixtureController() {
       return nextSettingsSyncStateSchema.parse(response.value)
     }
     const creation = syncOperationSchema.parse({
-      operationId: crypto.randomUUID(), protocolVersion: 1, baseRevision: 0,
-      command: {type: "settings.update", input: {timeZone: "Europe/Madrid", weekStartsOn: 1, locale: "es-ES"}},
+      operationId: crypto.randomUUID(),
+      protocolVersion: 1,
+      baseRevision: 0,
+      command: {
+        type: "settings.update",
+        input: { timeZone: "Europe/Madrid", weekStartsOn: 1, locale: "es-ES" },
+      },
     })
-    let owner = "", passed = false
-    const batch = (operation = creation) => ({transportVersion: 2, expectedUserId: owner, operations: [operation]})
-    const push = async (index: number, input: unknown, status: string, retired = false) => {
-      const result = remoteRecurringPushResultSchema.parse(await call(index, {type: retired ? "retired-push" : "push", input}))
-      assert(result.status === status, `Unexpected settings RPC status ${result.status}`)
+    let owner = "",
+      passed = false
+    const batch = (operation = creation) => ({
+      transportVersion: 2,
+      expectedUserId: owner,
+      operations: [operation],
+    })
+    const push = async (
+      index: number,
+      input: unknown,
+      status: string,
+      retired = false
+    ) => {
+      const result = remoteRecurringPushResultSchema.parse(
+        await call(index, { type: retired ? "retired-push" : "push", input })
+      )
+      assert(
+        result.status === status,
+        `Unexpected settings RPC status ${result.status}`
+      )
       return result
+    }
+    const snapshot = async (index: number) => {
+      const value = (await call(index, { type: "local-snapshot" })) as {
+        backup: unknown
+        cursor: unknown
+      }
+      return {
+        backup: validateLocalRecurringBackup(value.backup, owner),
+        cursor: localPullCursorSchema.parse(value.cursor),
+      }
     }
     void (async () => {
       assert(secondary, "Fixture popup was blocked")
       await ready
-      await check("Acción6 rechaza sesiones ausentes sin escribir", async () => {
-        for (let index=0; index<2; index++) {
-          assert(((await call(index, {type:"identity"})) as Reply).status===401, "Unauthenticated identity was exposed")
-          await push(index, {...batch(), expectedUserId: "owned-unauthenticated"}, "unauthorized")
+      await check(
+        "Acción6 rechaza sesiones ausentes sin escribir",
+        async () => {
+          for (let index = 0; index < 2; index++) {
+            assert(
+              ((await call(index, { type: "identity" })) as Reply).status ===
+                401,
+              "Unauthenticated identity was exposed"
+            )
+            await push(
+              index,
+              { ...batch(), expectedUserId: "owned-unauthenticated" },
+              "unauthorized"
+            )
+          }
         }
-      })
-      await check("Dos sesiones persistidas anuncian exclusivamente6", async () => {
-        for (let index=0; index<2; index++) {
-          const boot = await call(index, {type:"bootstrap",identity:"owner"}) as Reply
-          assert(boot.status===200, "Settings session bootstrap failed")
-          const identity = await call(index,{type:"identity"}) as Reply
-          assert(identity.status===200 && identity.protocol===encodeSyncProtocolRange(6), "Settings identity did not announce exclusive six")
-          const actor = workspaceIdentitySchema.parse(identity.value).userId
-          if (index===0) owner=actor
-          else assert(owner===actor, "Persisted settings sessions have different actors")
+      )
+      await check(
+        "Dos sesiones persistidas anuncian exclusivamente6",
+        async () => {
+          for (let index = 0; index < 2; index++) {
+            const boot = (await call(index, {
+              type: "bootstrap",
+              identity: "owner",
+            })) as Reply
+            assert(boot.status === 200, "Settings session bootstrap failed")
+            const identity = (await call(index, { type: "identity" })) as Reply
+            assert(
+              identity.status === 200 &&
+                identity.protocol === encodeSyncProtocolRange(6),
+              "Settings identity did not announce exclusive six"
+            )
+            const actor = workspaceIdentitySchema.parse(identity.value).userId
+            if (index === 0) owner = actor
+            else
+              assert(
+                owner === actor,
+                "Persisted settings sessions have different actors"
+              )
+          }
+          const initial = await state(owner)
+          assert(
+            initial.page.through === 0 &&
+              Object.values(initial.counts).every((n) => n === 0),
+            "Unauthenticated settings action wrote data"
+          )
         }
-        const initial=await state(owner)
-        assert(initial.page.through===0 && Object.values(initial.counts).every(n=>n===0), "Unauthenticated settings action wrote data")
-      })
-      await check("Matriz5↔6 bloquea antes del body e IDausente está verificado", async () => {
-        for (let index=0; index<2; index++) {
-          const proof=await call(index,{type:"protocol-matrix"}) as {cases:number;bodies:number;missing:boolean;missingStatus:number;missingHeader:string|null}
-          assert(proof.cases===4 && proof.bodies===0 && proof.missing && proof.missingStatus===409 && proof.missingHeader==="1", "Settings matrix consumed a body or did not prove its absent action")
+      )
+      await check(
+        "Matriz5↔6 bloquea antes del body e IDausente está verificado",
+        async () => {
+          for (let index = 0; index < 2; index++) {
+            const proof = (await call(index, { type: "protocol-matrix" })) as {
+              cases: number
+              bodies: number
+              missing: boolean
+              missingStatus: number
+              missingHeader: string | null
+            }
+            assert(
+              proof.cases === 4 &&
+                proof.bodies === 0 &&
+                proof.missing &&
+                proof.missingStatus === 409 &&
+                proof.missingHeader === "1",
+              "Settings matrix consumed a body or did not prove its absent action"
+            )
+          }
+          assert(
+            (await state(owner)).counts.receipts === 0,
+            "Protocol mismatch wrote a receipt"
+          )
         }
-        assert((await state(owner)).counts.receipts===0, "Protocol mismatch wrote a receipt")
-      })
-      await check("Actor esperado y sobre inválido no llegan al ejecutor", async () => {
-        for (let index=0; index<2; index++) {
-          await push(index,{...batch(),expectedUserId:"owned-other"},"account_changed")
-          await push(index,{...batch(),transportVersion:1},"update_required")
-          const pull=await call(index,{type:"pull",userId:"owned-other"}) as Reply
-          assert(pull.status===409, "Foreign expected actor pull was accepted")
+      )
+      await check(
+        "Actor esperado y sobre inválido no llegan al ejecutor",
+        async () => {
+          for (let index = 0; index < 2; index++) {
+            await push(
+              index,
+              { ...batch(), expectedUserId: "owned-other" },
+              "account_changed"
+            )
+            await push(
+              index,
+              { ...batch(), transportVersion: 1 },
+              "update_required"
+            )
+            const pull = (await call(index, {
+              type: "pull",
+              userId: "owned-other",
+            })) as Reply
+            assert(
+              pull.status === 409,
+              "Foreign expected actor pull was accepted"
+            )
+          }
+          assert(
+            (await state(owner)).counts.receipts === 0,
+            "Rejected settings actor wrote a receipt"
+          )
         }
-        assert((await state(owner)).counts.receipts===0, "Rejected settings actor wrote a receipt")
-      })
-      await check("Readiness6 bloquea; acción5 capturada se retira sin ejecutar", async () => {
-        const blocked=await fixtureFetch(fixture.runId,"/fixture/readiness",{runId:fixture.runId,command:"block"})
-        assert(blocked.status===200,"Owned settings readiness injection failed")
-        try {
-          await push(0,batch(),"retry_later")
-          await push(1,batch(),"update_required",true)
-          const pull=await call(0,{type:"pull",userId:owner}) as Reply
-          assert(pull.status===503 && pull.protocol===encodeSyncProtocolRange(6), "Missing settings index did not block pull")
-          assert((await state(owner)).counts.receipts===0,"Readiness or captured action5 acknowledged a settings operation")
-        } finally {
-          assert((await fixtureFetch(fixture.runId,"/fixture/readiness",{runId:fixture.runId,command:"restore"})).status===200,"Owned settings index restoration failed")
+      )
+      await check(
+        "Readiness6 bloquea; acción5 capturada se retira sin ejecutar",
+        async () => {
+          const blocked = await fixtureFetch(
+            fixture.runId,
+            "/fixture/readiness",
+            { runId: fixture.runId, command: "block" }
+          )
+          assert(
+            blocked.status === 200,
+            "Owned settings readiness injection failed"
+          )
+          try {
+            await push(0, batch(), "retry_later")
+            await push(1, batch(), "update_required", true)
+            const pull = (await call(0, {
+              type: "pull",
+              userId: owner,
+            })) as Reply
+            assert(
+              pull.status === 503 &&
+                pull.protocol === encodeSyncProtocolRange(6),
+              "Missing settings index did not block pull"
+            )
+            assert(
+              (await state(owner)).counts.receipts === 0,
+              "Readiness or captured action5 acknowledged a settings operation"
+            )
+          } finally {
+            assert(
+              (
+                await fixtureFetch(fixture.runId, "/fixture/readiness", {
+                  runId: fixture.runId,
+                  command: "restore",
+                })
+              ).status === 200,
+              "Owned settings index restoration failed"
+            )
+          }
         }
-      })
-      await check("Defaults reales6 confirman una vez y replay no duplica historia", async () => {
-        const result=await push(0,batch(),"complete")
-        assert(result.status==="complete" && result.results.length===1 && result.results[0].outcome.status==="applied", "Settings action did not apply")
-        const committed=await state(owner)
-        assert(committed.counts.settings===1 && committed.counts.receipts===1 && committed.page.through===1,"Settings commit lacks its exact record, receipt or journal")
-        await push(1,batch(),"complete")
-        assert(canonical(await state(owner))===canonical(committed),"Settings replay changed committed state")
-      })
-      await check("CAS obsoleto conserva conflicto explícito sin cambiar la zona", async () => {
-        const stale=syncOperationSchema.parse({...creation,operationId:crypto.randomUUID()})
-        const result=await push(1,batch(stale),"complete")
-        assert(result.status==="complete" && result.results[0].outcome.status==="conflict","Stale settings CAS was acknowledged as applied")
-        const current=await state(owner)
-        assert(current.counts.settings===1 && current.counts.receipts===2 && current.page.through===1,"Stale CAS mutated settings or appended applied history")
-      })
-      await check("Nueva revisión y descarga conservan replay antiguo sin regresión", async () => {
-        const next=syncOperationSchema.parse({...creation,operationId:crypto.randomUUID(),baseRevision:1,command:{type:"settings.update",input:{timeZone:"Pacific/Kiritimati",weekStartsOn:1,locale:"es-ES"}}})
-        const result=await push(0,batch(next),"complete")
-        assert(result.status==="complete" && result.results[0].outcome.status==="applied","Next settings revision was not applied")
-        const committed=await state(owner)
-        assert(committed.counts.settings===1 && committed.counts.receipts===3 && committed.page.through===2,"Next settings revision has inconsistent history")
-        await push(1,batch(),"complete")
-        assert(canonical(await state(owner))===canonical(committed),"Late original replay replaced newer settings")
-        for(let index=0;index<2;index++) {
-          const reply=await call(index,{type:"pull",userId:owner}) as Reply
-          assert(reply.status===200 && reply.protocol===encodeSyncProtocolRange(6) && canonical(reply.value)===canonical(committed.page),"Settings pull did not return the exact authenticated journal")
+      )
+      await check(
+        "Defaults reales6 confirman una vez y replay no duplica historia",
+        async () => {
+          const result = await push(0, batch(), "complete")
+          assert(
+            result.status === "complete" &&
+              result.results.length === 1 &&
+              result.results[0].outcome.status === "applied",
+            "Settings action did not apply"
+          )
+          const committed = await state(owner)
+          assert(
+            committed.counts.settings === 1 &&
+              committed.counts.receipts === 1 &&
+              committed.page.through === 1,
+            "Settings commit lacks its exact record, receipt or journal"
+          )
+          await push(1, batch(), "complete")
+          assert(
+            canonical(await state(owner)) === canonical(committed),
+            "Settings replay changed committed state"
+          )
         }
-      })
-      await check("Sesión revocada no confirma ni modifica ajustes", async () => {
-        assert((await call(1,{type:"session",command:"revoke"}) as Reply).status===200,"Owned session revoke failed")
-        const before=await state(owner)
-        await push(1,batch(),"unauthorized")
-        assert(canonical(await state(owner))===canonical(before),"Revoked session mutated settings state")
-      })
-      passed=true
-    })().catch(failure => {
-      console.error("Settings Next scenario failed", failure instanceof Error ? failure.message : "Unknown failure")
-      setStatus("Ha fallado un escenario de la prueba aislada")
-    }).finally(async () => {
-      removeReady();clearTimeout(readyTimer)
-      for(let index=0;index<2;index++) {
-        try { assert((await call(index,{type:"session",command:"cleanup"}) as Reply).status===200,"Owned session cleanup failed") }
-        catch {passed=false}
+      )
+      await check(
+        "CAS obsoleto conserva conflicto explícito sin cambiar la zona",
+        async () => {
+          const stale = syncOperationSchema.parse({
+            ...creation,
+            operationId: crypto.randomUUID(),
+          })
+          const result = await push(1, batch(stale), "complete")
+          assert(
+            result.status === "complete" &&
+              result.results[0].outcome.status === "conflict",
+            "Stale settings CAS was acknowledged as applied"
+          )
+          const current = await state(owner)
+          assert(
+            current.counts.settings === 1 &&
+              current.counts.receipts === 2 &&
+              current.page.through === 1,
+            "Stale CAS mutated settings or appended applied history"
+          )
+        }
+      )
+      await check(
+        "Nueva revisión y descarga conservan replay antiguo sin regresión",
+        async () => {
+          const next = syncOperationSchema.parse({
+            ...creation,
+            operationId: crypto.randomUUID(),
+            baseRevision: 1,
+            command: {
+              type: "settings.update",
+              input: {
+                timeZone: "Pacific/Kiritimati",
+                weekStartsOn: 1,
+                locale: "es-ES",
+              },
+            },
+          })
+          const result = await push(0, batch(next), "complete")
+          assert(
+            result.status === "complete" &&
+              result.results[0].outcome.status === "applied",
+            "Next settings revision was not applied"
+          )
+          const committed = await state(owner)
+          assert(
+            committed.counts.settings === 1 &&
+              committed.counts.receipts === 3 &&
+              committed.page.through === 2,
+            "Next settings revision has inconsistent history"
+          )
+          await push(1, batch(), "complete")
+          assert(
+            canonical(await state(owner)) === canonical(committed),
+            "Late original replay replaced newer settings"
+          )
+          for (let index = 0; index < 2; index++) {
+            const reply = (await call(index, {
+              type: "pull",
+              userId: owner,
+            })) as Reply
+            assert(
+              reply.status === 200 &&
+                reply.protocol === encodeSyncProtocolRange(6) &&
+                canonical(reply.value) === canonical(committed.page),
+              "Settings pull did not return the exact authenticated journal"
+            )
+          }
+        }
+      )
+      const planRequest = {
+        mode: "create" as const,
+        itemId: crypto.randomUUID(),
+        contentOperationId: crypto.randomUUID(),
+        viewOperationId: crypto.randomUUID(),
+        primaryTagId: null,
+        now: new Date().toISOString(),
+        input: {
+          kind: "plan" as const,
+          variant: "note" as const,
+          title: "Serie para comprobar zona personal",
+          description: "",
+          status: "not_started" as const,
+          checklist: [],
+          recurrence: {
+            frequency: "daily" as const,
+            interval: 1,
+            anchorDate: "2026-10-17",
+            timeZone: "Europe/Madrid",
+            end: { type: "count" as const, count: 3 },
+          },
+          schedule: {
+            mode: "all_day" as const,
+            startDate: "2026-10-17",
+            endDateExclusive: "2026-10-18",
+          },
+        },
       }
-      secondary?.close()
-      if(passed) setStatus("Nueve escenarios Next6 correctos; sesiones propias cerradas")
-      await fetch("/fixture/finish",{method:"POST",credentials:"same-origin",cache:"no-store",headers:{"Content-Type":"application/json","x-sync-test-run":fixture.runId},body:JSON.stringify({runId:fixture.runId,passed})})
-    })
+      await check(
+        "Cliente6 prepara dos particiones y descarga la zona existente",
+        async () => {
+          for (let index = 0; index < 2; index++) {
+            await call(index, { type: "prepare-local", userId: owner })
+            const result = (await call(index, { type: "mixed-run" })) as {
+              status: string
+              uploaded: number
+              downloaded: number
+            }
+            assert(
+              result.status === "settled" &&
+                result.uploaded === 0 &&
+                result.downloaded === 2,
+              "Settings client failed its initial exact pull"
+            )
+            const current = userSettingsSchema.parse(
+              await call(index, { type: "read-settings" })
+            )
+            assert(
+              current.timeZone === "Pacific/Kiritimati" &&
+                current.revision === 2,
+              "Initial settings pull is not the latest revision"
+            )
+          }
+          await call(0, { type: "save-plan", request: planRequest })
+          const result = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            result.status === "settled" && result.uploaded === 2,
+            "Real series producer failed its atomic root and view ACK"
+          )
+          await call(1, { type: "mixed-run" })
+        }
+      )
+      const offlineBefore = await state(owner)
+      let firstSettingsId = "",
+        secondSettingsId = "",
+        occurrenceId = ""
+      const originalEntries = new Map<
+        string,
+        { command: unknown; dependencies: string[] }
+      >()
+      await check(
+        "Productores offline conservan UUID y dependencias de zona y aparición",
+        async () => {
+          const parent = planSchema.parse(
+            (await snapshot(0)).backup.stores.items.find(
+              (item) => item.id === planRequest.itemId
+            )
+          )
+          const occurrenceCommand = {
+            type: "plan.set-occurrence-status" as const,
+            itemId: parent.id,
+            occurrenceId: `${parent.id}:2026-10-18`,
+            status: "completed" as const,
+          }
+          occurrenceId = occurrenceCommand.occurrenceId
+          await call(0, {
+            type: "commit-occurrence",
+            command: occurrenceCommand,
+            operationId: crypto.randomUUID(),
+            now: new Date().toISOString(),
+            expectedItem: parent,
+            expectedOccurrence: editablePlanOccurrence(
+              parent,
+              null,
+              occurrenceCommand,
+              owner
+            ).current,
+          })
+          const input = (timeZone: string) => ({
+            timeZone,
+            weekStartsOn: 1 as const,
+            locale: "es-ES" as const,
+          })
+          const expected = userSettingsSchema.parse(
+            await call(0, { type: "read-settings" })
+          )
+          const first = outboxEntrySchema.parse(
+            await call(0, {
+              type: "save-settings",
+              input: input("America/New_York"),
+              expected,
+            })
+          )
+          firstSettingsId = first.operation.operationId
+          const second = outboxEntrySchema.parse(
+            await call(0, {
+              type: "save-settings",
+              input: input("Asia/Tokyo"),
+              expected: userSettingsSchema.parse(
+                await call(0, { type: "read-settings" })
+              ),
+            })
+          )
+          secondSettingsId = second.operation.operationId
+          assert(
+            first.state === "pending" &&
+              second.state === "pending" &&
+              first.attempts === 0 &&
+              second.attempts === 0 &&
+              second.dependencies.includes(firstSettingsId),
+            "Offline settings producer lost its exact parent dependency"
+          )
+          const queued = (await snapshot(0)).backup.stores.outbox.filter(
+            (entry) => entry.state === "pending"
+          )
+          assert(
+            queued.length === 3,
+            "Offline producer fabricated an ACK or lost an occurrence"
+          )
+          for (const entry of queued)
+            originalEntries.set(entry.operation.operationId, {
+              command: entry.operation.command,
+              dependencies: entry.dependencies,
+            })
+          assert(
+            canonical(await state(owner)) === canonical(offlineBefore),
+            "Offline producers performed a remote write"
+          )
+          await call(1, {
+            type: "commit-local",
+            command: {
+              type: "tag.save",
+              tagId: crypto.randomUUID(),
+              input: {
+                name: "Categoría junto a ajustes",
+                color: "#2563eb",
+                position: 0,
+              },
+            },
+          })
+        }
+      )
+      await check(
+        "ACK real6 rebasa sólo hijo no intentado y progreso independiente",
+        async () => {
+          const peer = (await call(1, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            peer.status === "settled" && peer.uploaded === 1,
+            "Independent category failed while settings were pending elsewhere"
+          )
+          const result = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            result.status === "settled" && result.uploaded === 3,
+            "Settings client did not ACK the original occurrence and two zone intentions"
+          )
+          const complete = (await snapshot(0)).backup.stores.outbox
+          for (const [id, original] of originalEntries) {
+            const entry = complete.find(
+              (value) => value.operation.operationId === id
+            )
+            assert(
+              entry?.state === "acknowledged" &&
+                entry.attempts === 1 &&
+                canonical(entry.operation.command) ===
+                  canonical(original.command) &&
+                canonical(entry.dependencies) ===
+                  canonical(original.dependencies),
+              "ACK rewrote an intention, dependency or attempt count"
+            )
+          }
+          assert(
+            complete.find(
+              (entry) => entry.operation.operationId === firstSettingsId
+            )?.operation.baseRevision === 2 &&
+              complete.find(
+                (entry) => entry.operation.operationId === secondSettingsId
+              )?.operation.baseRevision === 3,
+            "Direct pending child was not rebased to its real parent ACK"
+          )
+          const remote = await state(owner)
+          assert(
+            remote.counts.receipts === offlineBefore.counts.receipts + 4 &&
+              remote.page.through === offlineBefore.page.through + 4,
+            "Settings ACK fabricated or duplicated remote history"
+          )
+        }
+      )
+      await check(
+        "Dos particiones convergen exactamente sin reprogramar la serie",
+        async () => {
+          for (let index = 0; index < 2; index++)
+            await call(index, { type: "mixed-run" })
+          const authoritative = await state(owner),
+            projection = foldRecurringChanges(authoritative.page)
+          const copies = await Promise.all([snapshot(0), snapshot(1)])
+          for (const copy of copies) {
+            assert(
+              copy.cursor.after === authoritative.page.through &&
+                copy.cursor.through === null,
+              "Settings cursor missed the authoritative checkpoint"
+            )
+            for (const store of [
+              "items",
+              "occurrences",
+              "tags",
+              "itemViews",
+              "taskPlacements",
+              "settings",
+            ] as const)
+              assert(
+                ordered(copy.backup.stores[store]) ===
+                  ordered([...projection[store].values()]),
+                `Settings client ${store} projection differs from Mongo`
+              )
+            const current = copy.backup.stores.settings[0]
+            assert(
+              current.timeZone === "Asia/Tokyo" && current.revision === 4,
+              "Final personal zone differs between clients"
+            )
+            const parent = planSchema.parse(
+              copy.backup.stores.items.find(
+                (item) => item.id === planRequest.itemId
+              )
+            )
+            assert(
+              canonical(parent.recurrence) ===
+                canonical(planRequest.input.recurrence) &&
+                canonical(parent.schedule) ===
+                  canonical(planRequest.input.schedule),
+              "Personal zone changed a stored series anchor, zone or date"
+            )
+            assert(
+              planOccurrenceSchema.parse(
+                copy.backup.stores.occurrences.find(
+                  (value) => value.id === occurrenceId
+                )
+              ).status === "completed",
+              "Personal zone lost appearance progress"
+            )
+          }
+          assert(
+            ordered(copies[0].backup.stores.remoteShadows) ===
+              ordered(copies[1].backup.stores.remoteShadows),
+            "Clients do not share exact latest remote shadows"
+          )
+        }
+      )
+      await check(
+        "Recarga del segundo origen conserva zona, cola y checkpoint",
+        async () => {
+          const before = await snapshot(1)
+          const reloaded = new Promise<void>((resolve, reject) => {
+            const timer = setTimeout(() => {
+              window.removeEventListener("message", listener)
+              reject(new Error("Owned settings reload timed out"))
+            }, 45000)
+            const listener = (event: MessageEvent) => {
+              if (
+                event.source !== secondary ||
+                event.origin !== fixture.origins[1] ||
+                event.data?.runId !== fixture.runId ||
+                event.data?.ready !== true
+              )
+                return
+              clearTimeout(timer)
+              window.removeEventListener("message", listener)
+              resolve()
+            }
+            window.addEventListener("message", listener)
+          })
+          await call(1, { type: "reload-local" })
+          await reloaded
+          const after = await snapshot(1)
+          assert(
+            canonical(after.backup.stores) ===
+              canonical(before.backup.stores) &&
+              canonical(after.cursor) === canonical(before.cursor),
+            "Owned reload changed durable settings, queue or cursor"
+          )
+          const idle = (await call(1, { type: "mixed-run" })) as {
+            uploaded: number
+            downloaded: number
+          }
+          assert(
+            idle.uploaded === 0 && idle.downloaded === 0,
+            "Reload re-sent or re-downloaded acknowledged work"
+          )
+        }
+      )
+      await check(
+        "Sesión revocada no confirma ni modifica ajustes",
+        async () => {
+          assert(
+            ((await call(1, { type: "session", command: "revoke" })) as Reply)
+              .status === 200,
+            "Owned session revoke failed"
+          )
+          const before = await state(owner)
+          await push(1, batch(), "unauthorized")
+          assert(
+            canonical(await state(owner)) === canonical(before),
+            "Revoked session mutated settings state"
+          )
+        }
+      )
+      passed = true
+    })()
+      .catch((failure) => {
+        console.error(
+          "Settings Next scenario failed",
+          failure instanceof Error ? failure.message : "Unknown failure"
+        )
+        setStatus("Ha fallado un escenario de la prueba aislada")
+      })
+      .finally(async () => {
+        removeReady()
+        clearTimeout(readyTimer)
+        for (let index = 0; index < 2; index++) {
+          try {
+            assert(
+              (await call(index, { type: "cleanup-local" })) === true,
+              "Owned settings partition cleanup failed"
+            )
+          } catch {
+            passed = false
+          }
+          try {
+            assert(
+              (
+                (await call(index, {
+                  type: "session",
+                  command: "cleanup",
+                })) as Reply
+              ).status === 200,
+              "Owned session cleanup failed"
+            )
+          } catch {
+            passed = false
+          }
+        }
+        secondary?.close()
+        if (passed)
+          setStatus(
+            "Catorce escenarios Next6 correctos; sesiones propias cerradas"
+          )
+        await fetch("/fixture/finish", {
+          method: "POST",
+          credentials: "same-origin",
+          cache: "no-store",
+          headers: {
+            "Content-Type": "application/json",
+            "x-sync-test-run": fixture.runId,
+          },
+          body: JSON.stringify({ runId: fixture.runId, passed }),
+        })
+      })
   }
-  return <main><h1>Frontera de ajustes Next6</h1><p id="status" role="status">{status}</p>
-    <button disabled={!config||running} onClick={run}>Ejecutar prueba RPC de ajustes</button>
-    <ol id="results">{rows.map(row=><li key={row}>{row}</li>)}</ol>
-  </main>
+  return (
+    <main>
+      <h1>Frontera de ajustes Next6</h1>
+      <p id="status" role="status">
+        {status}
+      </p>
+      <button disabled={!config || running} onClick={run}>
+        Ejecutar prueba RPC de ajustes
+      </button>
+      <ol id="results">
+        {rows.map((row) => (
+          <li key={row}>{row}</li>
+        ))}
+      </ol>
+    </main>
+  )
 }

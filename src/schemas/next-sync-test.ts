@@ -4,6 +4,10 @@ import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
 import { planOccurrenceCommandSchema } from "@/schemas/plan-occurrence-command"
 import { planSaveRequestSchema } from "@/schemas/plan-save"
 import {
+  userSettingsInputSchema,
+  userSettingsSchema,
+} from "@/schemas/preferences"
+import {
   entityIdSchema,
   timestampSchema,
   userIdSchema,
@@ -28,6 +32,13 @@ const loopbackOriginSchema = z.string().refine((value) => {
   }
 }, "Next sync fixture requires an exact loopback origin")
 
+export const nextSyncLocalOwnershipSchema = z.strictObject({
+  runId: entityIdSchema,
+  userId: userIdSchema,
+  epoch: entityIdSchema.nullable(),
+  markerBefore: z.string().nullable(),
+  markerAfter: z.string().nullable(),
+})
 export const nextSyncPublicConfigSchema = z
   .strictObject({
     runId: entityIdSchema,
@@ -114,6 +125,13 @@ export function nextSyncMissingActionId(runIdInput: unknown): string {
 }
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("prepare-local"), userId: userIdSchema }),
+  z.strictObject({
+    type: z.literal("save-settings"),
+    input: userSettingsInputSchema,
+    expected: userSettingsSchema.nullable(),
+  }),
+  z.strictObject({ type: z.literal("read-settings") }),
+  z.strictObject({ type: z.literal("reload-local") }),
   z.strictObject({
     type: z.literal("commit-local"),
     command: syncCommandSchema.refine(

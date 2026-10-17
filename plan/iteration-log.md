@@ -1,5 +1,11 @@
 # Registro de iteraciones
 
+## 18e1b1 — Convergencia local6 con Next/Mongo reales
+
+17oct tras25c2a00 entrada82%5h/97%7d/reservas10%/1%. Cliente6 y productores reales en dos particiones: lectura rev2; serie root+vista ACK2; aparición offline y dos settingsparent/child con fetch bloqueado; peer categoría; ACK3 conserva UUID/command/deps y attempt1, rebasa sólo childpending0 base2→3. Comparación exacta contraMongo en seisstores, shadows iguales ycursorcheckpoint; zona finalAsia/Tokyo rev4 mantiene serieEuropeMadrid/anchor/fechas/progreso. Recarga peer conserva todosstores/cola/cursor, no reenvío/descargaextra. Catorce escenarios Next6 correctos en runa15ff36b;9recibos/8cambios. No fixtures puros disfrazados de convergencia/Google/físicos.
+
+Ownership de reload sólofixture conschema/run/actor/epoch, cleanupguardado eIDs propios; contenedores de dosbuildsfallidos yrunfinal retirados, tabs/cookies/particiones/servidores/proyectos propios limpios. Imports de helpers y narrow de recordstatus/expected/literal reparados; templates formateadas. Suite829pass/221skip/0fail/10756aserciones, lint847/tipos/Webpack/worker46/diff aprobados. Captura `/private/tmp/dalis-settings-next6-two-partitions.png`. Permiso específico índicePreview solicitado asíncrono conformeDBAGENT; no cambio de DBusuario ni flagactivo6. Sigue lostresponse/lifecycle6/consumidores antes activación. Plan/log mismo commitpushint/HEAD y cuotas.
+
 ## 18e1a1 — Next6 compilado con defaults reales
 
 17oct reanudación general: int202c24f/origin exacto y limpio,99%5h/100%7d/reset1792264709/reservas10%/1%. Docker28.4linuxamd64 e imagen pinned revalidados; modo next-settings añade scope explícito sin cambiar activo5. HelperDBpropio cuenta settings, selecciona reader futuro, seis índices del registro y faultinjection sólo settingsguardado por descriptor/DBactor. Perfil6 sólooverlay; inventario de Next exige referencia productiva action6 y retiro5. Schema contador6 no debilita scopesanteriores. Nueva matriz5↔6 antesbody, IDausenteNext409marcado y auth/actor/readiness antesexecutor/ACK.
