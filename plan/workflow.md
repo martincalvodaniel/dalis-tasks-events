@@ -462,3 +462,7 @@ Entrada66%5h/95%7d tras2716a29, reservas10%/1%. Siguiente cortecompleto incluye 
 ### 18e1c1 — Compatibilidad durable de consumidores6
 
 Entrada54%5h/93%7d, siguientelectura45%/91% durantepreparación; reserva10%/1% vigente. Veintiún escenarios propioscorrectos, cleanup yDoD completo. Permiso explícito user_settings_user_uidx recibido sóloPreview/int; no requiere otra confirmación al añadirlo albootstrapcentral. Noactivar6parcialmente; siguienteíndice/UI/zona en cortes propios ycuotas trascommitpushint/HEAD.
+
+### 18e1c2 — Bootstrap autorizado
+
+Entrada40%5h/91%7d, reserva10%/1%. Actuación implementada segúnpermisoexplícito sinVercel/secretos/producción; bootstrapintcreaíndicecentral, fallosconservandatos. Validación8Mongo/DoDcompleto ycommitpushint/HEAD/cuotas antespróximocorte.

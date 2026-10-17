@@ -2359,3 +2359,8 @@ Feature de incidentes elige lector6 y resoluciónlegacy existente incluye settin
 
 DoD:829pass/221skip/0fail/10756aserciones; lint848, tipos, buildWebpack yworker46 aprobados. Producto continúa5; faltan UI/zona/selección6 conjunta. Usuario autoriza explícitamente user_settings_user_uidx víaensureIndexes sóloPreview/int; no producción/datosrepair/delete ni credencialesVercel. Registro central y bootstrap se completarán en corte separado; no se ha ejecutado nuevo índice enDBusuario.
 
+## 18e1c2 — Índice settings autorizado desdeensureIndexes
+
+Autorización humana recibida para user_settings_user_uidx sobreuserId sóloenpreproducciónint. Singleton yCLI automático usan catálogo central: Preview/int añade aparición+settings; producción/local/otrasramas mantienen nueve automáticos. Otrosíndices explícitos permanecenstaged. DBAGENTactualizado coneste alcance. No capturaVercel ni procedimientooperador sobreDBusuario; despliegueint ejecutará bootstrap antesreadiness sinotropermiso.
+
+Mongo propio/pinned:8casos133aserciones; crea/retry/noop/close yrestriccióndeentorno, duplicadossettings eíndiceincompatible preservados sinrepair/delete, regresiónoperadorrecurrente correcta. Cleanupown completado. Suite829pass/223skip/0fail/10758aserciones, lint848/tipos/Webpack/worker46/diff. Producto5todavía; siguienteUI compactadezona yactivación6conjunta. Producción excluida.

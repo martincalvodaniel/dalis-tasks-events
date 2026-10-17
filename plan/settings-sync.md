@@ -166,3 +166,9 @@ Nueve pruebas nuevas cubren independencia, conflicto, replay, lease, respuestas 
 4. 18e: UI compacta de Ajustes con guardado offline y sincronización; probar dos particiones/Next/Mongo reales, cuenta/epoch/pérdida de respuesta/replay/conflicto/recarga antes de activar todos los puertos. Sin cumpleaños/sharing/producción/wipe.
 
 Los cortes se delimitan antes de editar; pueden agruparse cuando la aceptación completa quepa. No gastar una ventana en auditar los históricos. El checkbox de estado y reordenación ya entregados no necesitan reabrirse.
+
+## 18e1c2 — Índice settings autorizado desdeensureIndexes
+
+Autorización humana recibida para user_settings_user_uidx sobreuserId sóloenpreproducciónint. Singleton yCLI automático usan catálogo central: Preview/int añade aparición+settings; producción/local/otrasramas mantienen nueve automáticos. Otrosíndices explícitos permanecenstaged. DBAGENTactualizado coneste alcance. No capturaVercel ni procedimientooperador sobreDBusuario; despliegueint ejecutará bootstrap antesreadiness sinotropermiso.
+
+Mongo propio/pinned:8casos133aserciones; crea/retry/noop/close yrestriccióndeentorno, duplicadossettings eíndiceincompatible preservados sinrepair/delete, regresiónoperadorrecurrente correcta. Cleanupown completado. Suite829pass/223skip/0fail/10758aserciones, lint848/tipos/Webpack/worker46/diff. Producto5todavía; siguienteUI compactadezona yactivación6conjunta. Producción excluida.

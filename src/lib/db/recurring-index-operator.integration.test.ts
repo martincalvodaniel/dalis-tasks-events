@@ -22,6 +22,7 @@ import {
 } from "@/lib/db/collections"
 import {
   automaticIndexSpecs,
+  databaseBootstrapIndexSpecs,
   ensureIndexes,
   INDEX_SPECS,
   type IndexSpec,
@@ -174,6 +175,11 @@ async function cleanOwnedRecords() {
     _id: { $in: [...ownedRecords] },
     userId: actor,
   })
+  await (
+    await getCollection<{ _id: string; userId: string }>(
+      COLLECTION_NAMES.userSettings
+    )
+  ).deleteMany({ _id: { $in: [...ownedRecords] }, userId: actor })
   ownedRecords.clear()
 }
 
@@ -330,7 +336,7 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     if (!freshDatabaseVerified)
       throw new Error("Operator test requires fresh ownership proof")
     await cleanOwnedRecords()
-    await dropTracked(selectRecurringSyncIndexSpecs())
+    await dropTracked([...selectRecurringSyncIndexSpecs(), INDEX_SPECS[1]])
   }, 30000)
 
   afterAll(async () => {
@@ -345,7 +351,7 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     }
   }, 30000)
 
-  test("web startup creates appearance uniqueness only for integration Preview and retries idempotently", async () => {
+  test("web startup creates appearance and settings uniqueness only for integration Preview and retries idempotently", async () => {
     for (const [environment, branch] of [
       ["production", "int"],
       ["preview", "main"],
@@ -365,7 +371,7 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
       closed: true,
       code: null,
     })
-    const expected = expectedIndexes([...automaticIndexSpecs(), INDEX_SPECS[0]])
+    const expected = expectedIndexes(databaseBootstrapIndexSpecs(true))
     expect(await inspectIndexes()).toEqual(expected)
     expect(await runWebBootstrap("preview", "int")).toEqual({
       ready: true,
@@ -385,6 +391,53 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     })
     expect(await collection.find({ userId: actor }).toArray()).toEqual([first])
   }, 45000)
+
+  test("settings duplicates stop Preview bootstrap without deleting or correcting records", async () => {
+    const collection = await getCollection<{
+      _id: string
+      userId: string
+      timeZone: string
+    }>(COLLECTION_NAMES.userSettings)
+    const records = [
+      { _id: crypto.randomUUID(), userId: actor, timeZone: "Europe/Madrid" },
+      { _id: crypto.randomUUID(), userId: actor, timeZone: "Asia/Tokyo" },
+    ]
+    for (const record of records) ownedRecords.add(record._id)
+    await collection.insertMany(records)
+    const before = await collection
+      .find({ userId: actor })
+      .sort({ _id: 1 })
+      .toArray()
+    expect(await runWebBootstrap("preview", "int")).toEqual({
+      ready: false,
+      closed: true,
+      code: 11000,
+    })
+    expect(
+      await collection.find({ userId: actor }).sort({ _id: 1 }).toArray()
+    ).toEqual(before)
+    expect(await inspectIndexes()).toEqual(
+      expectedIndexes([...automaticIndexSpecs(), INDEX_SPECS[0]])
+    )
+  }, 30000)
+
+  test("settings incompatible definition is preserved after earlier bootstrap indexes", async () => {
+    const database = await ownedDatabase(),
+      spec = INDEX_SPECS[1]
+    await ensureIndexes(database, [{ ...spec, keys: { timeZone: 1 } }])
+    await trackObservedIndexes()
+    const result = await runWebBootstrap("preview", "int")
+    expect(result.ready).toBe(false)
+    expect(result.closed).toBe(true)
+    expect(result.code !== null && [85, 86].includes(result.code)).toBe(true)
+    expect(await inspectIndexes()).toEqual(
+      expectedIndexes([
+        ...automaticIndexSpecs(),
+        INDEX_SPECS[0],
+        { ...spec, keys: { timeZone: 1 } },
+      ])
+    )
+  }, 30000)
 
   test("web startup preserves duplicate records and stops without repairing data", async () => {
     const collection = await getCollection<RecurringDocument>(

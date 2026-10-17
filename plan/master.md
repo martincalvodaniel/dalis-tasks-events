@@ -2,6 +2,8 @@
 
 ## Estado operativo — 17 de octubre de 2026
 
+**18e1c2 entregado:** índiceuser_settings_user_uidx autorizado incorporado albootstrapcentral sóloPreview/int;8casosMongo prueban restricción/reintento y fallos sinrepair. Producción intacta. SigueUI compacta yactivación6conjunta; producto5.
+
 **18e1c1 entregado:** veintiún escenarios Next6 pasan, incluida transición con cola5 capturada sinACK y recuperaciónoriginal6. Incidentes6/resoluciónlegacy conservan settings; no amplía recuperacióncomún. Permiso user_settings_user_uidx recibido, sóloPreview/int medianteensureIndexes; pendiente incorporarlo albootstrap, UI/zona y activación conjunta. Producto5.
 
 **18e1b2 entregado:** proveedor6 productivo guardado por selector completo, probado en Nextpropio con caché5 separada/cambioépoca/remontaje/unmount/listeners. Diecinueve escenarios6 pasan: respuesta perdida/replayúnico, epochtrascommit sinACK antiguo, otra cuenta antesclaim y conflicto de zona con hijo conservado/categoríaindependiente. Producto5; siguiente compatibilidad de resoluciónroot/cola5 capturada, UI/zona y activación coníndice autorizado. Permiso recibido posteriormente en18e1c1.

@@ -148,13 +148,15 @@ export function databaseBootstrapIndexSpecs(
   catalog: readonly IndexSpec[] = INDEX_SPECS
 ): readonly IndexSpec[] {
   validateIndexSpecs(catalog)
-  // The user authorized appearance uniqueness only in the integration Preview.
+  // The user authorized appearance and personal-settings uniqueness only in the integration Preview.
   return catalog.filter(
     (spec) =>
       spec.provisioning !== "explicit" ||
       (isIntegrationPreview &&
-        spec.collection === "plan_occurrences" &&
-        spec.options.name === "plan_occurrences_user_series_slot_uidx")
+        ((spec.collection === "plan_occurrences" &&
+          spec.options.name === "plan_occurrences_user_series_slot_uidx") ||
+          (spec.collection === "user_settings" &&
+            spec.options.name === "user_settings_user_uidx")))
   )
 }
 

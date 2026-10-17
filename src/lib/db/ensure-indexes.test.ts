@@ -15,7 +15,7 @@ import {
 } from "./ensure-indexes"
 
 describe("MongoDB index specifications", () => {
-  test("stages one private settings record per actor without adding it to active bootstrap", () => {
+  test("stages one private settings record per actor with authorized integration Preview bootstrap only", () => {
     const settings = INDEX_SPECS.filter(
       (spec) => spec.collection === COLLECTION_NAMES.userSettings
     )
@@ -27,15 +27,17 @@ describe("MongoDB index specifications", () => {
         provisioning: "explicit",
       },
     ])
-    expect(databaseBootstrapIndexSpecs(true)).not.toContain(settings[0])
+    expect(databaseBootstrapIndexSpecs(true)).toContain(settings[0])
+    expect(databaseBootstrapIndexSpecs(false)).not.toContain(settings[0])
     expect(automaticIndexSpecs()).not.toContain(settings[0])
   })
-  test("only integration Preview adds the authorized appearance index to database bootstrap", async () => {
+  test("only integration Preview adds the authorized appearance and settings indexes to database bootstrap", async () => {
     expect(databaseBootstrapIndexSpecs(false)).toEqual(automaticIndexSpecs())
     const preview = databaseBootstrapIndexSpecs(true)
-    expect(preview).toHaveLength(10)
+    expect(preview).toHaveLength(11)
     expect(preview.filter((spec) => spec.provisioning === "explicit")).toEqual([
       INDEX_SPECS[0],
+      INDEX_SPECS[1],
     ])
     const calls: string[] = []
     await ensureIndexes(
@@ -50,6 +52,7 @@ describe("MongoDB index specifications", () => {
       preview
     )
     expect(calls).toContain("plan_occurrences_user_series_slot_uidx")
+    expect(calls).toContain("user_settings_user_uidx")
     expect(calls).not.toContain("tags_user_id_uidx")
     expect(calls).not.toContain(
       "task_placements_user_scope_date_occurrence_uidx"

@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 18e1c2 — Bootstrap de índice settings autorizado
+
+Estado: completado; bootstrap validado8casosMongo, sóloPreview/int.
+
+- Objetivo: ensureIndexes desde singleton crea índice único settings sóloPreview/int, según permiso humano, sinactivar6.
+- target_paths: src/lib/db/{AGENTS.md,ensure-indexes.ts,ensure-indexes.test.ts,recurring-index-operator.integration.test.ts}, plan/**.
+- Dependencias: f8183b3 publicado,40%5h/91%7d, reserva10%/1%; autorización explícita sólouser_settings_user_uidx preproducción. Secuencial.
+- Aceptación: producción/local/otrasramas sinnuevoíndice; Preview/int crea ambos índices autorizados yreintento idempotente; duplicados/incompatibilidad se conservan sinrepair, conexióncerrada yerror saneado. Índicesrestantes explícitos siguenstaged.
+- Validación: bootstrapreal enMongo propio/pinned, testsfull/lint/tipos/build/worker, plan/logmismo commitpushint/HEAD/cuotas. No credenciales/Vercel ni conexiónoperadora aDBusuario.
+
+
 ## 18e1c1 — Consumidores6 y transición durable desde5
 
 Estado: completado; veintiún escenarios reales pasan, producto sigue5.
