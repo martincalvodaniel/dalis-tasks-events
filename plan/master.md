@@ -2,6 +2,8 @@
 
 ## Estado operativo — 17 de octubre de 2026
 
+**18e1b2 entregado:** proveedor6 productivo guardado por selector completo, probado en Nextpropio con caché5 separada/cambioépoca/remontaje/unmount/listeners. Diecinueve escenarios6 pasan: respuesta perdida/replayúnico, epochtrascommit sinACK antiguo, otra cuenta antesclaim y conflicto de zona con hijo conservado/categoríaindependiente. Producto5; siguiente compatibilidad de resoluciónroot/cola5 capturada, UI/zona y activación coníndice autorizado. Pregunta de permiso sigue pendiente.
+
 **18e1b1 entregado:** catorce escenarios Next6 con IndexedDB/Mongo reales pasan. Zona personal, categoría, serie y aparición convergen exactamente en dos particiones; ACK directo rebasa sólo hijo pending0 y recarga conserva todos los stores/cursor. Producto aún5: faltan respuesta perdida/lifecycle6 y selección/UI/índice Preview autorizados. Petición de permiso específico para user_settings_user_uidx enviada; pendientes no impiden trabajo independiente.
 
 **18e1a1 entregado:** Next6 compilado con acciones reales/defaults y dos sesiones BetterAuth persistidas/Mongo propios: nueve escenarios de identidad/readiness/retiro/matriz/CAS/replay/historia pasan. Diecinueve escenarios5 anteriores también pasan. Producto continúa5; sigue ACK/pullIndexedDB+lifecycle6 antes de activar zona personal. No Google nuevo ni dos dispositivos físicos; no DBusuario.

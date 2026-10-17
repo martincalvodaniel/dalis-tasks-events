@@ -318,3 +318,8 @@ Modo recurring-operator selecciona exclusivamente recurring-index-operator.integ
 ### 18e1b1 — Cliente6/IndexedDB/recarga
 
 next-settings añade cinco escenarios a los nueve de frontera. Dos particiones reales, productores de zona/categoría/serie/aparición, cliente6 contra RPC/Mongo y exactitud de todos los stores/shadows/cursor. Comando reloadlocal usa sólo sessionStorage de ownership validado para recuperar cliente propio; no altera aplicación productiva. Guardias contra partición/control/cookie ajenos y limpieza exclusivamentepropia conservadas. Catorce checks pasan, incluidos guardado sinfetch y ACK nofingido; lostresponse/lifecycle6 quedan siguientes.
+
+
+### 18e1b2 — Fallos y proveedor real6
+
+next-settings usaSettingsSyncProvider seleccionado porActiveSyncProvider con releaseprofile6 sólo propio. Hookhost verifica caché6 separada de5, mutación propia, época y listeners. Diecinueve escenarios cubren respuesta perdida/commit en vuelo/cambio cuenta/CASconflict y progreso independiente; entradas intentadas/pending/outcomes se conservan. Incidente es lectura futura readonly y no resolución. Recursos propios y sesiones limpiados. No Google/físicos/DBusuario/activación6.

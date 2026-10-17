@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 18e1b2 — Resiliencia y proveedor6 real guardado
+
+Estado: completado; diecinueve escenarios Next6 pasan, selección productiva sigue5.
+
+- Objetivo: probar lostresponse/época/cuenta/conflicto de settings con dependientes y lifecycle del proveedor6 productivo, aún inactivo enflag5.
+- target_paths: `src/features/sync/components/{active-sync-provider,settings-sync-provider}.tsx`, `src/schemas/next-sync-test{,.test}.ts`, `test/next-settings-sync/features/**`, `plan/**`.
+- Dependencias:2716a29 publicado,66%5h/95%7d yreservas10%/1%; aceptación14Next6 de ACK/pull ya cerrada. Secuencial y mismos recursosownpinned, sin índicePreview o activación.
+- Aceptación: respuesta perdida deja intento/child/lease sin ACK falso, replay único permitechildpending0; epoch trascommit conservaUUID/outcomes y freshclient recupera; hook6/cache5 separados/cambioépoca/remontaje/listeners/unmount sinwrites; sesiónotra cuenta bloquea antesclaim; conflicto local congela intención ychild pero categoría independiente avanza. Provider6 sólo se selecciona por protocolo6 completo.
+- Validación: fixtureNext6 con dos particiones/Mongo reales y nuevos escenarios; pruebas pertinentes/DoD/lint/tipos/build/worker, cleanupown, plan/log mismo commitpushint/HEAD/cuotas. Retiro5concoladuradera y resoluciónrootconsettings serán siguiente corte si margen requiere.
+
 ## 18e1b1 — ACK y descarga6 en dos particiones reales
 
 Estado: completado; catorce escenarios Next6 pasan, incluida convergencia exacta/recarga.

@@ -1,5 +1,11 @@
 # Zona horaria personal y sincronización de ajustes
 
+## 18e1b2 — Resiliencia y proveedor6 productivo preparado
+
+ActiveSyncProvider selecciona SettingsSyncProvider únicamente por protocolo6; flags actuales siguen5. Fixture usa esa referencia productiva, no una simulación del hook. Cinco casos añadidos: respuestaRPC perdida trascommit real preserva intento/child/lease y replayconfirma2UUIDúnicos; época cambia despuéscommit y evita ACK/outcome antiguo, nuevo cliente recupera receipt sin duplicados; hook6 aísla caché5, observa notificaciones, reinicia estado al cambiar época sin key y desmonta listeners; otra cuenta remota bloquea antesclaim y volver recupera; conflicto de zona congela padre/hijo y evidencia actual mientras categoríaindependiente avanza.
+
+Diecinueve escenarios Next6 correctos,829pass/221skip/0fail/10756aserciones, lint848/tipos/Webpack/worker46/diff. Captura `/private/tmp/dalis-settings-next6-resilience.png`; todos recursos propios limpiados. Convergencia exacta se comprueba en escenarios sin conflicto; la divergencia local del último caso es intencional y permanece como incidente, no se presenta statussettled como convergencia. Comparación de incidente6 es puerto privado; aún conectar consumersUI y resoluciónroot preservando settings antesactivar. Retiro5 con coladuradera posterior; autorización de índicePreview pendiente, sinDBusuario/activación.
+
 ## 18e1b1 — ACK/pull y convergencia exacta local6
 
 Dos orígenes propios usan createMixedSyncClientV6 con actions/defaults reales. Productor saveLocalPersonalSettings bloquea fetch durante guardado, compara expectedSettings y conserva UUID/command/deps; dos intenciones pendientes dependen directamente y ACK rebasa sólo hijo sin intento2→3. Categoría peer y aparición progresan junto a zona, root/vista de serie se guardan mediante productor atómico real. Última zonaAsia/Tokyorev4 no altera fechas/anchor/zonaEuropeMadrid de serie ni progreso de aparición.

@@ -1,4 +1,5 @@
 "use client"
+import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
 import { useEffect, useState } from "react"
 import type { z } from "zod"
 import {
@@ -727,6 +728,411 @@ export function FixtureController() {
           )
         }
       )
+      const queueZone = async (index: number, timeZone: string) =>
+        outboxEntrySchema.parse(
+          await call(index, {
+            type: "save-settings",
+            input: { timeZone, weekStartsOn: 1, locale: "es-ES" },
+            expected: userSettingsSchema.parse(
+              await call(index, { type: "read-settings" })
+            ),
+          })
+        )
+      const converge = async () => {
+        for (let index = 0; index < 2; index++)
+          await call(index, { type: "mixed-run" })
+        const remote = await state(owner),
+          projected = foldRecurringChanges(remote.page)
+        for (let index = 0; index < 2; index++) {
+          const current = await snapshot(index)
+          assert(
+            current.cursor.after === remote.page.through &&
+              current.cursor.through === null,
+            "Resilient settings cursor did not converge"
+          )
+          for (const store of [
+            "items",
+            "occurrences",
+            "tags",
+            "itemViews",
+            "taskPlacements",
+            "settings",
+          ] as const)
+            assert(
+              ordered(current.backup.stores[store]) ===
+                ordered([...projected[store].values()]),
+              `Resilient ${store} projection differs from Mongo`
+            )
+        }
+      }
+      await check(
+        "Respuesta perdida conserva intento e hijo; replay confirma exactamente una vez",
+        async () => {
+          const before = await state(owner)
+          const first = await queueZone(0, "America/New_York"),
+            child = await queueZone(0, "Europe/Amsterdam")
+          assert(
+            child.dependencies.includes(first.operation.operationId),
+            "Lost settings response requires its direct dependent"
+          )
+          const lost = (await call(0, {
+            type: "lost-settings-response-run",
+          })) as { status: string; uploaded: number }
+          assert(
+            lost.status === "retry_later" && lost.uploaded === 0,
+            "Lost settings response fabricated a local ACK"
+          )
+          const remote = await state(owner),
+            retained = (await snapshot(0)).backup.stores.outbox
+          assert(
+            remote.counts.receipts === before.counts.receipts + 1 &&
+              remote.page.through === before.page.through + 1,
+            "Lost settings response did not follow one real remote commit"
+          )
+          for (const original of [first, child]) {
+            const entry = retained.find(
+              (value) =>
+                value.operation.operationId === original.operation.operationId
+            )
+            assert(
+              entry?.state === "pending" &&
+                entry.lease === null &&
+                entry.attempts === (original === first ? 1 : 0) &&
+                canonical(entry.operation) === canonical(original.operation) &&
+                canonical(entry.dependencies) ===
+                  canonical(original.dependencies),
+              "Lost response rewrote an attempted settings intention or ACKed its dependent"
+            )
+          }
+          const replay = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            replay.status === "settled" && replay.uploaded === 2,
+            "Replay did not ACK the original settings UUID and its child"
+          )
+          const complete = await state(owner)
+          assert(
+            complete.counts.receipts === before.counts.receipts + 2 &&
+              complete.page.through === before.page.through + 2,
+            "Lost settings response duplicated receipt or history"
+          )
+          for (const entry of [first, child])
+            assert(
+              complete.page.changes.filter(
+                (change) => change.operationId === entry.operation.operationId
+              ).length === 1,
+              "Settings UUID committed twice"
+            )
+          await converge()
+        }
+      )
+      await check(
+        "Época cambiada trascommit conserva intención sin ACK; cliente nuevo recupera",
+        async () => {
+          const original = await queueZone(0, "UTC"),
+            before = await state(owner)
+          const interrupted = (await call(0, {
+            type: "epoch-after-settings-commit-run",
+          })) as { status: string; uploaded: number }
+          assert(
+            interrupted.status === "account_changed" &&
+              interrupted.uploaded === 0,
+            "Old settings epoch acknowledged an in-flight response"
+          )
+          const retained = (await snapshot(0)).backup.stores
+          const entry = retained.outbox.find(
+            (value) =>
+              value.operation.operationId === original.operation.operationId
+          )
+          assert(
+            entry?.state === "pending" &&
+              entry.attempts === 1 &&
+              entry.lease === null &&
+              canonical(entry.operation) === canonical(original.operation),
+            "Epoch change rewrote or acknowledged the settings intention"
+          )
+          assert(
+            !retained.syncMetadata.some(
+              (value) =>
+                value.key ===
+                `operation-outcome:${original.operation.operationId}`
+            ),
+            "Old settings epoch fabricated an outcome"
+          )
+          const committed = await state(owner)
+          assert(
+            committed.counts.receipts === before.counts.receipts + 1 &&
+              committed.page.through === before.page.through + 1,
+            "Epoch probe did not commit exactly once remotely"
+          )
+          const recovered = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            recovered.status === "settled" &&
+              recovered.uploaded === 1 &&
+              canonical(await state(owner)) === canonical(committed),
+            "Fresh settings epoch did not replay the original receipt without duplicating it"
+          )
+          await converge()
+        }
+      )
+      await check(
+        "Proveedor6 real aísla caché5, reinicia época y retira listeners",
+        async () => {
+          const mounted = (await call(1, { type: "hook-mount" })) as {
+            mounted: boolean
+            epoch: string
+            mixedCachePresent: boolean
+            legacyCacheIntact: boolean
+          }
+          assert(
+            mounted.mounted &&
+              mounted.mixedCachePresent &&
+              mounted.legacyCacheIntact,
+            "Settings provider did not mount its generation-six cache independently"
+          )
+          const before = await state(owner),
+            first = await queueZone(1, "Europe/Madrid")
+          const notified = (await call(1, {
+            type: "hook-observe",
+            state: "pending",
+          })) as { pendingSeen: boolean }
+          assert(
+            notified.pendingSeen,
+            "Settings outbox notification did not update the real provider"
+          )
+          await call(1, { type: "hook-sync" })
+          const settled = (await call(1, {
+            type: "hook-observe",
+            state: "settled",
+          })) as {
+            epoch: string
+            result: unknown
+            mixedCachePresent: boolean
+            legacyCacheIntact: boolean
+          }
+          assert(
+            settled.epoch === mounted.epoch &&
+              settled.result !== null &&
+              settled.mixedCachePresent &&
+              settled.legacyCacheIntact,
+            "Settings provider lost its result or prior-generation cache"
+          )
+          const committed = await state(owner),
+            storesBefore = (await snapshot(1)).backup.stores
+          assert(
+            committed.counts.receipts === before.counts.receipts + 1 &&
+              storesBefore.outbox.find(
+                (entry) =>
+                  entry.operation.operationId === first.operation.operationId
+              )?.state === "acknowledged",
+            "Real settings provider lacks durable ACK"
+          )
+          const rotated = (await call(1, { type: "rotate-local" })) as {
+            oldAccountRejected: boolean
+            oldSummaryRejected: boolean
+            oldAttemptRejected: boolean
+            currentEpoch: string
+          }
+          assert(
+            rotated.oldAccountRejected &&
+              rotated.oldSummaryRejected &&
+              rotated.oldAttemptRejected,
+            "Old settings client remained usable after account epoch change"
+          )
+          const rerender = (await call(1, { type: "hook-rerender" })) as {
+            epoch: string
+            epochResetObserved: boolean
+            mixedCachePresent: boolean
+            legacyCacheIntact: boolean
+            staleReports: number
+          }
+          assert(
+            rerender.epoch === rotated.currentEpoch &&
+              rerender.epoch !== settled.epoch &&
+              rerender.epochResetObserved &&
+              rerender.mixedCachePresent &&
+              rerender.legacyCacheIntact &&
+              rerender.staleReports === 0,
+            "Unkeyed settings provider retained stale pass state"
+          )
+          assert(
+            canonical((await snapshot(1)).backup.stores) ===
+              canonical(storesBefore) &&
+              canonical(await state(owner)) === canonical(committed),
+            "Settings provider epoch rerender mutated durable history"
+          )
+          const unmounted = (await call(1, { type: "hook-unmount" })) as {
+            mounted: boolean
+            reports: number
+          }
+          assert(!unmounted.mounted, "Settings provider stayed mounted")
+          const second = await queueZone(1, "Asia/Tokyo"),
+            pending = (await snapshot(1)).backup.stores
+          assert(
+            pending.outbox.find(
+              (entry) =>
+                entry.operation.operationId === second.operation.operationId
+            )?.attempts === 0,
+            "Unmounted settings provider claimed fresh work"
+          )
+          const quiet = (await call(1, { type: "hook-quiet" })) as {
+            mounted: boolean
+            reports: number
+          }
+          assert(
+            !quiet.mounted &&
+              quiet.reports === unmounted.reports &&
+              canonical((await snapshot(1)).backup.stores) ===
+                canonical(pending) &&
+              canonical(await state(owner)) === canonical(committed),
+            "Unmounted settings provider reacted to wake events or wrote history"
+          )
+          const recovered = (await call(1, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            recovered.status === "settled" && recovered.uploaded === 1,
+            "Fresh client did not recover post-unmount settings"
+          )
+          await converge()
+        }
+      )
+      await check(
+        "Otra cuenta remota bloquea antesclaim y volver a la propia recupera",
+        async () => {
+          const original = await queueZone(1, "Europe/Paris"),
+            before = (await snapshot(1)).backup.stores,
+            remoteBefore = await state(owner)
+          const other = (await call(1, {
+            type: "bootstrap",
+            identity: "other",
+          })) as Reply
+          assert(
+            other.status === 200 &&
+              workspaceIdentitySchema.parse(other.value).userId !== owner,
+            "Owned account-switch fixture did not switch actor"
+          )
+          const blocked = (await call(1, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            blocked.status === "account_changed" &&
+              blocked.uploaded === 0 &&
+              canonical((await snapshot(1)).backup.stores) ===
+                canonical(before) &&
+              canonical(await state(owner)) === canonical(remoteBefore),
+            "Other remote account claimed, ACKed or rewrote local settings"
+          )
+          assert(
+            ((await call(1, { type: "bootstrap", identity: "owner" })) as Reply)
+              .status === 200,
+            "Owned settings reauthentication failed"
+          )
+          const recovered = (await call(1, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            recovered.status === "settled" &&
+              recovered.uploaded === 1 &&
+              (await snapshot(1)).backup.stores.outbox.find(
+                (entry) =>
+                  entry.operation.operationId === original.operation.operationId
+              )?.state === "acknowledged",
+            "Reauthentication did not ACK the original settings intention"
+          )
+          await converge()
+        }
+      )
+      await check(
+        "Conflicto de zona conserva hijo y comparación; categoría independiente avanza",
+        async () => {
+          const winner = await queueZone(0, "America/New_York"),
+            conflicting = await queueZone(1, "Europe/Madrid"),
+            child = await queueZone(1, "Asia/Tokyo")
+          await call(0, { type: "mixed-run" })
+          const before = await state(owner)
+          await call(1, {
+            type: "commit-local",
+            command: {
+              type: "tag.save",
+              tagId: crypto.randomUUID(),
+              input: {
+                name: "Categoría independiente de conflicto",
+                color: "#e85d04",
+                position: 1,
+              },
+            },
+          })
+          const result = (await call(1, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            result.status === "settled" && result.uploaded === 1,
+            "Settings conflict blocked independent category progress"
+          )
+          const retained = (await snapshot(1)).backup.stores.outbox
+          const failed = retained.find(
+              (entry) =>
+                entry.operation.operationId ===
+                conflicting.operation.operationId
+            ),
+            dependent = retained.find(
+              (entry) =>
+                entry.operation.operationId === child.operation.operationId
+            )
+          assert(
+            failed?.state === "conflict" &&
+              failed.attempts === 1 &&
+              failed.lease === null &&
+              canonical(failed.operation) ===
+                canonical(conflicting.operation) &&
+              dependent?.state === "pending" &&
+              dependent.attempts === 0 &&
+              dependent.dependencies.includes(
+                conflicting.operation.operationId
+              ) &&
+              canonical(dependent.operation) === canonical(child.operation),
+            "Settings conflict discarded or rewrote its original and dependent intentions"
+          )
+          const incidents = (await call(1, {
+            type: "settings-incidents",
+          })) as RecurringSyncIncidentOverview[]
+          const preserved = incidents.find(
+            (value) =>
+              value.kind === "preference" &&
+              value.incident.entry.operation.operationId ===
+                conflicting.operation.operationId
+          )
+          assert(
+            preserved?.kind === "preference" &&
+              preserved.incident.reason === "conflict" &&
+              preserved.incident.entry.state === "conflict" &&
+              preserved.incident.intentions.some(
+                (entry) =>
+                  entry.operation.operationId === child.operation.operationId
+              ),
+            "Settings conflict lacks its frozen evidence and dependent comparison"
+          )
+          const remote = await state(owner)
+          assert(
+            remote.counts.receipts === before.counts.receipts + 2 &&
+              remote.page.through === before.page.through + 1 &&
+              remote.page.changes.some(
+                (change) => change.operationId === winner.operation.operationId
+              ),
+            "Settings conflict appended applied history or lost independent receipt"
+          )
+        }
+      )
       await check(
         "Sesión revocada no confirma ni modifica ajustes",
         async () => {
@@ -781,7 +1187,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Catorce escenarios Next6 correctos; sesiones propias cerradas"
+            "Diecinueve escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

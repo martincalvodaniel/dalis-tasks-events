@@ -1,5 +1,11 @@
 # Registro de iteraciones
 
+## 18e1b2 — Resiliencia y lifecycle real6
+
+17oct tras2716a29 entrada66%5h/95%7d/reservas10%/1%. SettingsSyncProvider conecta useSettingsSyncEngine al contexto; ActiveSyncProvider sólo lo elige con protocolo6 y producto sigue5. Nextfixture usa referencia real guardada. Run30d4e57f pasa19casos:14anteriores+lostresponse de settingsparent/child, epochdespuéscommit sinACK/outcome local antiguo, hook6/caché5/notificaciones/rerender/unmount/wake, otra cuenta remota antesclaim+reauth y conflicto settings conchildpending intacto/categoríaindependiente. Replay conservaUUID/command/deps e historia única; cambioepoch sólo impide consumo local, no se anuncia cancelación de red en vuelo.
+
+Convergencia exacta antes del conflicto; último caso conserva divergencia/intenciones ycomparación readonly privada, sin nuevaresolución. Producto6/índicePreview no activados, pregunta humana sigue pendiente. Captura `/private/tmp/dalis-settings-next6-resilience.png`. Sesiones/cookies/tab/IndexedDB/marcadores/servidores/proyecto/Mongoown retirados. DoD829pass/221skip/0fail/10756aserciones, lint848/tipos/Webpack/worker46/diff aprobados. Plan/log mismo commitpushint/HEAD/cuotas. Próximo retiro5concola duradera y rootresolution que preserve settings antesUI/activación.
+
 ## 18e1b1 — Convergencia local6 con Next/Mongo reales
 
 17oct tras25c2a00 entrada82%5h/97%7d/reservas10%/1%. Cliente6 y productores reales en dos particiones: lectura rev2; serie root+vista ACK2; aparición offline y dos settingsparent/child con fetch bloqueado; peer categoría; ACK3 conserva UUID/command/deps y attempt1, rebasa sólo childpending0 base2→3. Comparación exacta contraMongo en seisstores, shadows iguales ycursorcheckpoint; zona finalAsia/Tokyo rev4 mantiene serieEuropeMadrid/anchor/fechas/progreso. Recarga peer conserva todosstores/cola/cursor, no reenvío/descargaextra. Catorce escenarios Next6 correctos en runa15ff36b;9recibos/8cambios. No fixtures puros disfrazados de convergencia/Google/físicos.

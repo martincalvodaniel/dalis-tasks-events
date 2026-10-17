@@ -130,6 +130,17 @@ async function execute(
     throw new Error("Fixture blocked before touching foreign auth cookies")
   if (
     [
+      "lost-settings-response-run",
+      "epoch-after-settings-commit-run",
+      "settings-incidents",
+      "hook-mount",
+      "hook-rerender",
+      "hook-state",
+      "hook-observe",
+      "hook-sync",
+      "hook-unmount",
+      "hook-quiet",
+      "rotate-local",
       "prepare-local",
       "reload-local",
       "commit-occurrence",

@@ -452,3 +452,8 @@ Entrada72%5h/5%7d, int5048ef5 limpio, reservas10%/1%. SelectorSistema/Claro/Oscu
 ### 18e1b1 — Continuación17oct
 
 Tras25c2a00 real82%5h/97%7d permite prueba de productor/ACK/pull6 con dos particiones. Corte secuencial propio sinDBusuario; catorce escenarios Next6 correctos, DoD completo y cleanup. Permiso específico de índice settingsPreview solicitado deforma asíncrona: DBAGENT sólo autorizaaparición; trabajo independiente continúa mientras falta respuesta. Commitpushint/HEAD y ambas cuotas antes de elegir próximo corte, reservas10%/1% conservadas.
+
+
+### 18e1b2 — Proveedor6 guardado y resiliencia
+
+Entrada66%5h/95%7d tras2716a29, reservas10%/1%. Siguiente cortecompleto incluye referencia productiva del proveedor6 y prueba Nextpropia antes seleccionar6 en producto. Diecinueve escenarios con lostresponse/época/cuenta/lifecycle/conflicto pasan; cleanup yDoDcompletos, mismo commitpushint/HEAD ycuotas. Permiso índicePreview continúa pendiente; no se actúa enDBusuario ni se declara activación parcial.
