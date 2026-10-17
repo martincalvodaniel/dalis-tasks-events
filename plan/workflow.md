@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## Regla vigente de consulta de cuotas — 17 de octubre
+
+Por corrección expresa del usuario, consultar directamente get_usage_limits para ambas ventanas después de cada entrega, también en trabajo interactivo. Restante =100-usedPercent; preguntar al usuario únicamente si la herramienta no permite obtener una lectura necesaria. Esta regla sustituye las preguntas sistemáticas descritas en históricos. Mantener reservas10%5h/1%7d y detenerse en una entrega cerrada si no cabe el siguiente corte completo. Consultar cuotas no autoriza nuevos lotes desatendidos, programación, créditos ni reinicios.
+
 ## Reanudación general — 17 de octubre
 
 Usuario: «Nuevas ventanas! Continua con el plan». Renovación real99%5h/100%7d; nuevo reset1792264709,17oct21:18:29Europe/Madrid. Continuación general secuencial autorizada, reservas10%5h/1%7d y lectura tras cada commitpushint/HEAD; sin créditos/reinicios ni nueva automatización. Main humano y worktreeint limpios en202c24f; se reutiliza worktree gestionadoint, sin editar main. Primero18e1a1 RPCNext6 propio; luego clientesIndexedDB/lifecycle y activación sólo con aceptación/readiness/permisos concretos. Cumpleaños aparcado/sharing fuera; checklist física pendiente del usuario, arrastre aceptado no se reabre.
@@ -57,9 +61,9 @@ Revisión posterior autorizada ejecutada el 8 de octubre a las 05:18 Madrid: cuo
 
 ## Presupuesto: ventanas de 5 horas y 7 días
 
-Se trabaja con las dos ventanas comunicadas por el usuario. Una lectura es un porcentaje **restante**, con fecha; no es una previsión garantizada ni una cuota independiente por agente. No estimar tokens o mensajes a partir de porcentajes. Otras conversaciones pueden consumir las mismas ventanas.
+Se trabaja con las dos ventanas consultadas mediante la herramienta de uso; las cifras del usuario son respaldo si la consulta no está disponible. Una lectura es un porcentaje **restante**, con fecha; no es una previsión garantizada ni una cuota independiente por agente. No estimar tokens o mensajes a partir de porcentajes. Otras conversaciones pueden consumir las mismas ventanas.
 
-Inicial: 6 de octubre de 2026, `5h = 99%`, `7d = 44%`. Usar el menor valor como señal conservadora, teniendo en cuenta que las ventanas se renuevan de forma diferente. Cuando sea útil, preguntar también la hora de reinicio; no deducirla de la fecha de trabajo.
+Inicial: 6 de octubre de 2026, `5h = 99%`, `7d = 44%`. Usar el menor valor como señal conservadora, teniendo en cuenta que las ventanas se renuevan de forma diferente. Obtener también resetsAt de la herramienta cuando haga falta; no deducirlo de la fecha ni preguntar valores disponibles.
 
 Política inicial del proyecto, **no un límite oficial de OpenAI**:
 
@@ -81,10 +85,10 @@ Registrar consumos observados solo si hay lecturas comparables antes/después y 
 3. Para documentación exclusivamente: comprobar enlaces locales, consistencia del plan y `git diff --check`. No añadir pruebas que solo repliquen Markdown ni exigir ejecución de la aplicación para editar texto.
 4. Revisar el diff y los archivos a incluir, sin secretos, `.env*` ni cambios ajenos. Actualizar `iterations.md` e `iteration-log.md` con resultado y evidencias.
 5. Hacer un Conventional Commit en la rama actual. Ejemplo de estilo: `docs(plan): define offline task and event roadmap`. Comprobar que se creó y revisar el estado final. No referenciar un hash futuro dentro del mismo commit; registrar su hash en el cierre al usuario o en una iteración posterior.
-6. Comunicar entrega, validaciones y commit. **Preguntar: “¿Cuánto queda ahora en las ventanas de 5h y 7d, en porcentaje restante?”**, salvo un lote desatendido autorizado expresamente, que sigue el protocolo de abajo.
+6. Comunicar entrega, validaciones y commit. Consultar automáticamente las dos cuotas y evaluar el margen; preguntar sólo si la lectura no está disponible.
 7. En trabajo interactivo, esperar esos valores antes de iniciar la siguiente entrega. Con la respuesta, elegir tarea concreta y ejecución secuencial o paralela. Si falta uno de los valores, pedirlo; no sustituirlo por el anterior. Una recomendación provisional no autoriza encadenar trabajo sin el control de presupuesto.
 
-La consulta automática complementa la lectura en trabajo interactivo y sustituye la pregunta únicamente durante un lote desatendido autorizado. No modificar el registro después de un commit solo para incorporar una lectura: hacerlo al abrir la siguiente iteración o en una entrega documental explícita.
+La consulta automática es el protocolo normal tanto interactivo como desatendido, sin exigir que el usuario repita los porcentajes. No modificar el registro después de un commit solo para incorporar una lectura: hacerlo al abrir la siguiente iteración o en una entrega documental explícita.
 
 ## Lote desatendido autorizado el 6 de octubre de 2026
 

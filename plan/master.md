@@ -2,6 +2,8 @@
 
 ## Estado operativo — 17 de octubre de 2026
 
+Protocolo de cuotas actualizado por indicación humana: consulta directa de ambas ventanas tras cada entrega; sólo preguntar si la herramienta no puede leerlas. Reservas10%5h/1%7d y alcance de autorizaciones intactos.
+
 La zona horaria personal ya es editable offline, sincroniza por cuenta y está validada en el piloto Google de preproducción. El índice autorizado se crea mediante `ensureIndexes()` sólo en Preview de `int`; su disponibilidad está comprobada por readiness y dos ACK reales. Se ha restaurado Europe/Madrid, sin modificar los seis elementos ni sus preferencias de contenido.
 
 [Guía de uso](user-guide.md) preparada y [checklist física de diez pasos](manual-device-checklist.md) **aprobada por el usuario el17oct2026**: recorrido secuencial de dos dispositivos, reapertura offline y reconexión cerrados. Siguen pendientes las cadenas de recuperación de contenido+categoría, las apariciones y las preferencias distintas de la zona personal, la revisión completa de accesibilidad y la publicación productiva autorizada. La checklist no valida conflictos concurrentes ni autoriza producción. Cumpleaños aparcado; compartir fuera de alcance.

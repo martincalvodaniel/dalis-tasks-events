@@ -2470,3 +2470,9 @@ Cierre del lote puntual: ocho cortes completos19a1–19c0 publicados con commit/
 17oct2026: «Confirmo que "Tu checklist de diez pasos con dos dispositivos físicos" ha ido todo bien». Se cierra el recorrido secuencial descrito de generación6: contenido/categoría/orden/checklist, repetición por aparición, creación offline, cierre/reapertura sin red, reconexión sin duplicados, borrado persistente, zona compartida restaurada y tema local por dispositivo. Resultado atribuido a confirmación humana; no nueva ejecución del agente ni modelos/navegadores inventados. No hace falta repetirlo ni pedir información adicional para aceptar lo confirmado.
 
 Se actualizan checklist, guía, estado operativo y15a. No se cierra toda la aceptación15a/15b: quedan conflictos concurrentes y recuperación residual, revisión de accesibilidad y publicación productiva autorizada. Sin cambio de código/datos/índices/automatización. Referencias locales ycoherencia/diff validados; mismo ConventionalCommit/pushint/HEAD. Main humano preservado.
+
+## 19z1 — Eliminar preguntas redundantes de cuotas
+
+El usuario comunica13%5h/72%7d y señala que las cuotas se pueden consultar directamente. La herramienta confirma esos valores. Se actualizan AGENTS raíz/plan y workflow para que ambas ventanas se lean automáticamente también en trabajo interactivo; sólo preguntar cuando falte una lectura que no pueda obtenerse. Mantener reservas10%/1%, sin nueva autorización desatendida/automatización/créditos/reinicios. No abrir recuperación transaccional con el margen de cierre disponible.
+
+Sólo documentación: reglas vigentes coherentes, referencias ydiff validados; commit/pushint/HEAD yconsulta deambascuotas. Main humano intacto; sin código o datos modificados.

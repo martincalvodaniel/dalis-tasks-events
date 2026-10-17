@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19z1 — Cuotas consultadas directamente
+
+- Objetivo: eliminar la pregunta redundante de cuotas cuando get_usage_limits ya puede leer ambas ventanas.
+- target_paths: AGENTS.md, plan/{AGENTS,master,workflow,iterations,iteration-log}.md.
+- Dependencias:98307c0/originint exactos y limpios; corrección humana explícita. Lectura real13%5h/72%7d, reservas10%/1%; corte sólo documental, sin abrir implementación de conflictos.
+- Aceptación: protocolo interactivo y desatendido consultan ambas cuotas directamente; preguntar sólo si no se pueden leer. Mantener reservas y límites de autorización/automatización/créditos. No editar main humano.
+- Validación: coherencia de reglas vigentes, referencias y diff; mismo ConventionalCommit/pushint/HEAD y consulta de uso posterior.
+- Estado: completado; no autoriza una nueva ejecución desatendida.
+
 ## 15a3 — Aceptación humana del recorrido físico
 
 - Objetivo: registrar la confirmación del usuario de que los diez pasos de la checklist física han pasado.
