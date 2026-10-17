@@ -518,3 +518,7 @@ Entrada39%5h/76%7d tras5c10dd4; reservas10%/1%. Diálogo real, cancelación/conf
 ### 19c0 — Último corte acotado y cierre puntual
 
 Entrada20%5h/73%7d trasa6e1aa4; reservas10%/1%. Guardia pura de dependientes externos de apariciones, sin nueva elección ni escritura. Suite/DoD completos; mismo commitpushint/HEAD yconsulta deambascuotas. El siguiente planner+reparación/pruebas/publicación no se abre al margen de cierre: conservar repo coherente ypausar heartbeat puntualcontinuar-el-plan-a-las-21-19, sin reprogramación adicional. Recursos propios limpios, mainhumano intacto.
+
+### 15a3 — Confirmación humana de los diez pasos
+
+17oct2026: el usuario confirma que toda la checklist física ha pasado. Registrar aceptación sin pedir repetición, capturas o datos de dispositivos que no hacen falta para cerrar el recorrido. Corte documental independiente, sin reanudar implementación ni automatización y sin autorizar producción. Preservar main humano y publicar registro enint tras validar referencias/coherencia/diff; protocolo normal de ventanas tras entrega.

@@ -1,6 +1,6 @@
 # Guía de uso de Dalis
 
-Versión de referencia: generación6 en `int`, 17 de octubre de 2026. La aplicación sigue en preproducción. Esta guía describe las funciones disponibles; la aceptación final en dos dispositivos físicos continúa [pendiente](manual-device-checklist.md).
+Versión de referencia: generación6 en `int`, 17 de octubre de 2026. La aplicación sigue en preproducción. Esta guía describe las funciones disponibles; el usuario ha [aprobado los diez pasos del recorrido en dos dispositivos físicos](manual-device-checklist.md), incluidos reapertura offline y reconexión. Quedan recuperación residual de conflictos, revisión de accesibilidad y publicación autorizada.
 
 ## Preparar un dispositivo
 

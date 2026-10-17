@@ -2464,3 +2464,9 @@ La comparación de una aparición identifica ahora intenciones sin confirmar de 
 Regresión focalizada8tests/54aserciones; suite855pass/223skip/0fail/10967aserciones, lint861 sinavisos/tipos/buildWebpack/worker46/diff. No hacen falta nuevos escenarios Mongo para esta guardia pura sin escrituras; las25pruebasNext6 del corte anterior siguen como evidencia de las elecciones ya activadas. Sin recursos nuevos, datos de usuario, formato, índices o dependencias.
 
 Cierre del lote puntual: ocho cortes completos19a1–19c0 publicados con commit/pushint/HEAD/cuotas por entrega. Main humano preservado, recursos propios de Next/Mongo/browser limpiados. Se pausa la programación puntual al finalizar; no nueva cadena. Siguiente: contrato puro de recuperación de apariciones y después executor/backup/prueba remota/UI, antes de activar elecciones. Contenido+categoría, otras preferencias, aceptación física y producción autorizada siguen pendientes; cumpleaños aparcado/sharing fuera.
+
+## 15a3 — Checklist física aprobada por el usuario
+
+17oct2026: «Confirmo que "Tu checklist de diez pasos con dos dispositivos físicos" ha ido todo bien». Se cierra el recorrido secuencial descrito de generación6: contenido/categoría/orden/checklist, repetición por aparición, creación offline, cierre/reapertura sin red, reconexión sin duplicados, borrado persistente, zona compartida restaurada y tema local por dispositivo. Resultado atribuido a confirmación humana; no nueva ejecución del agente ni modelos/navegadores inventados. No hace falta repetirlo ni pedir información adicional para aceptar lo confirmado.
+
+Se actualizan checklist, guía, estado operativo y15a. No se cierra toda la aceptación15a/15b: quedan conflictos concurrentes y recuperación residual, revisión de accesibilidad y publicación productiva autorizada. Sin cambio de código/datos/índices/automatización. Referencias locales ycoherencia/diff validados; mismo ConventionalCommit/pushint/HEAD. Main humano preservado.

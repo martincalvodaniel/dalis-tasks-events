@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 15a3 — Aceptación humana del recorrido físico
+
+- Objetivo: registrar la confirmación del usuario de que los diez pasos de la checklist física han pasado.
+- target_paths: plan/{manual-device-checklist,user-guide,master,iterations,workflow,iteration-log}.md.
+- Dependencias: generación6 activa, checklist de diez pasos entregada y confirmación humana explícita del17oct2026; HEAD e29a794/originint exactos y worktree limpio.
+- Aceptación: cerrar exclusivamente el recorrido secuencial descrito, incluidos reapertura offline/reconexión, sincronización de contenido/categoría/orden/repetición/zona y tema local; atribuir el resultado al usuario, sin inventar navegadores/dispositivos ni pruebas propias. No cerrar conflictos concurrentes, accesibilidad completa o publicación productiva.
+- Validación: referencias locales, coherencia de estados vigentes y git diff --check. Sólo documentación; mismo commit/pushint/HEAD. No nuevas pruebas de código ni cambios de datos.
+- Estado: completado por confirmación humana; no equivale al cierre completo de15a/15b.
+
 ## 19c0 — Guardia de dependientes externos de apariciones
 
 Estado: completado; comparación reforzada, sin nuevas elecciones recurrentes.
@@ -1026,6 +1035,8 @@ Compartir por Gmail (14a–14c) no se implementará por decisión humana del11oc
 ## 15 — Piloto y aceptación completa
 
 ### 15a — Recorrido real y accesibilidad
+
+Estado parcial vigente17oct: recorrido físico de diez pasos aprobado por el usuario en15a3. Accesibilidad completa y casos de recuperación concurrente siguen pendientes; no exigir repetir los diez pasos sin cambios o fallos que lo justifiquen.
 
 - `target_paths`: solo los componentes/módulos que fallen en el recorrido, evidencia de aceptación, documentación de operación.
 - Dependencias: sincronización común, repetición remota y recuperación/backup (`13c`); cumpleaños aparcado y compartir fuera del alcance no son prerrequisitos.
