@@ -4,9 +4,11 @@
 
 La zona horaria personal ya es editable offline, sincroniza por cuenta y está validada en el piloto Google de preproducción. El índice autorizado se crea mediante `ensureIndexes()` sólo en Preview de `int`; su disponibilidad está comprobada por readiness y dos ACK reales. Se ha restaurado Europe/Madrid, sin modificar los seis elementos ni sus preferencias de contenido.
 
-[Guía de uso](user-guide.md) preparada y [checklist física](manual-device-checklist.md) actualizada a generación6. Siguen pendientes las cadenas de recuperación de contenido+categoría, las apariciones y las preferencias, la aceptación final física/offline/accesibilidad y la publicación productiva autorizada. La guía no cierra por sí sola esos hitos. Cumpleaños aparcado; compartir fuera de alcance.
+[Guía de uso](user-guide.md) preparada y [checklist física](manual-device-checklist.md) actualizada a generación6. Siguen pendientes las cadenas de recuperación de contenido+categoría, las apariciones y las preferencias distintas de la zona personal, la aceptación final física/offline/accesibilidad y la publicación productiva autorizada. La guía no cierra por sí sola esos hitos. Cumpleaños aparcado; compartir fuera de alcance.
 
 ### Continuación de las21:19
+
+19b3 conecta en Ajustes la adopción de zona remota conocida y el reenvío de la última zona local, con comparación congelada, confirmación explícita y guardias de cuenta/epoch. No modifica fechas de planes ni declara ACK por decisión local. Otras preferencias, apariciones y cadenas externas siguen pendientes.
 
 19b2 prueba decisiones atómicas de zona ybackup3,25Next6 conadopción/retry/replay/CASreal. Aún falta conectar suUI; generación6 conserva las funciones previas activas.
 

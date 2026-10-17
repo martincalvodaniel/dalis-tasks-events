@@ -49,8 +49,8 @@ export async function proveRemoteSettingsRecovery({
   state,
   owner,
 }: Ports) {
-  async function incident() {
-    const overview = (await call(1, {
+  async function incident(index = 1) {
+    const overview = (await call(index, {
       type: "settings-incidents",
     })) as RecurringSyncIncidentOverview[]
     const value = overview.find(
@@ -139,12 +139,12 @@ export async function proveRemoteSettingsRecovery({
     )
   }
   await equalSettings()
-  await save(0, "Europe/London")
-  await call(0, { type: "mixed-run" })
-  await save(1, "Pacific/Honolulu")
-  await save(1, "Asia/Tokyo")
+  await save(1, "Europe/London")
   await call(1, { type: "mixed-run" })
-  const expected = await incident(),
+  await save(0, "Pacific/Honolulu")
+  await save(0, "Asia/Tokyo")
+  await call(0, { type: "mixed-run" })
+  const expected = await incident(0),
     retry: SettingsResolutionRequest = {
       userId: owner,
       resolutionId: crypto.randomUUID(),
@@ -161,9 +161,9 @@ export async function proveRemoteSettingsRecovery({
     "Real settings retry lacks its blocked later intention"
   )
   const retryBefore = await state(),
-    localBefore = await snapshot(1)
-  const decision = (await call(1, {
-    type: "resolve-settings",
+    localBefore = await snapshot(0)
+  const decision = (await call(0, {
+    type: "resolve-settings-ui",
     request: retry,
   })) as { status: string; record: unknown }
   const record = settingsResolutionRecordSchema.parse(decision.record)
@@ -173,7 +173,7 @@ export async function proveRemoteSettingsRecovery({
       canonical(await state()) === canonical(retryBefore),
     "Settings retry overwrote the latest draft or wrote remotely before sending"
   )
-  const decided = await snapshot(1)
+  const decided = await snapshot(0)
   for (const store of [
     "items",
     "occurrences",
@@ -186,11 +186,11 @@ export async function proveRemoteSettingsRecovery({
         ordered(decided.backup.stores[store]),
       "Settings retry reprogrammed content or preferences"
     )
-  const lost = (await call(1, { type: "lost-settings-response-run" })) as {
+  const lost = (await call(0, { type: "lost-settings-response-run" })) as {
     status: string
     uploaded: number
   }
-  const pending = (await snapshot(1)).backup.stores.outbox.find(
+  const pending = (await snapshot(0)).backup.stores.outbox.find(
       (entry) => entry.operation.operationId === record.operationId
     ),
     committed = await state()
@@ -207,12 +207,12 @@ export async function proveRemoteSettingsRecovery({
       committed.page.through === retryBefore.page.through + 1,
     "Settings retry did not commit once"
   )
-  await call(1, { type: "mixed-run" })
+  await call(0, { type: "mixed-run" })
   assert(
     canonical(await state()) === canonical(committed),
     "Settings retry replay duplicated remote history"
   )
-  const ack = (await snapshot(1)).backup.stores.outbox.find(
+  const ack = (await snapshot(0)).backup.stores.outbox.find(
     (entry) => entry.operation.operationId === record.operationId
   )
   assert(
@@ -222,17 +222,17 @@ export async function proveRemoteSettingsRecovery({
     "Settings recovery did not ACK its exact new UUID"
   )
   await equalSettings()
-  await save(0, "America/New_York")
-  await call(0, { type: "mixed-run" })
+  await save(1, "America/New_York")
   await call(1, { type: "mixed-run" })
-  const later = await snapshot(1)
-  const replay = (await call(1, {
+  await call(0, { type: "mixed-run" })
+  const later = await snapshot(0)
+  const replay = (await call(0, {
     type: "resolve-settings",
     request: requestFrom(record),
   })) as { status: string }
   assert(
     replay.status === "replayed" &&
-      canonical((await snapshot(1)).backup.stores) ===
+      canonical((await snapshot(0)).backup.stores) ===
         canonical(later.backup.stores) &&
       later.backup.stores.settings[0].timeZone === "America/New_York",
     "Settings replay overwrote newer confirmed values"

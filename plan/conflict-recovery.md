@@ -1,6 +1,6 @@
 # Recuperación explícita de conflictos
 
-**Estado vigente19a4:** elecciones activas para raíces legacy y planes comunes sin repetición ni cadenas externas. Adopción/reintento/copia probados en Next/IndexedDB/Mongo con diálogo real. Quedan cadenas de contenido+categoría, preferencias y apariciones. Los apartados siguientes conservan la secuencia histórica.
+**Estado vigente19b3:** elecciones activas para raíces legacy y planes comunes sin repetición ni cadenas externas. Adopción/reintento/copia probados en Next/IndexedDB/Mongo con diálogo real. Ajustes también ofrece adoptar/reintentar la zona personal con transacción/evidencia y guardias propias; no cambia planes ni simula ACK. Quedan cadenas de contenido+categoría, otras preferencias y apariciones. Los apartados siguientes conservan la secuencia histórica.
 
 
 ## 19a1 — Planner de conflictos de planes simples

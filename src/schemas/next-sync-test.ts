@@ -146,6 +146,10 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
     request: settingsResolutionRequestSchema,
   }),
   z.strictObject({
+    type: z.literal("resolve-settings-ui"),
+    request: settingsResolutionRequestSchema,
+  }),
+  z.strictObject({
     type: z.literal("settings-resolution-local-proof"),
     request: settingsResolutionRequestSchema,
   }),

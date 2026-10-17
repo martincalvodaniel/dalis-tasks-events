@@ -1,10 +1,14 @@
 import { PersonalIncidentVersion } from "@/features/sync/components/personal-incident-version"
+import { SettingsIncidentActions } from "@/features/sync/components/settings-incident-actions"
+import type { LocalAccount } from "@/features/workspace/local-account"
 import type { PersonalSyncIncidentSnapshot } from "@/types/sync-incident"
 
 export function PersonalIncidentCard({
   incident,
+  account,
 }: {
   incident: PersonalSyncIncidentSnapshot
+  account?: Pick<LocalAccount, "userId" | "epoch">
 }) {
   const command = incident.entry.operation.command
   const submitted =
@@ -87,9 +91,13 @@ export function PersonalIncidentCard({
             />
           </div>
         </details>
-        <p className="text-xs text-zinc-500">
-          La resolución de preferencias todavía no está disponible.
-        </p>
+        {command.type === "settings.update" && account ? (
+          <SettingsIncidentActions account={account} incident={incident} />
+        ) : (
+          <p className="text-xs text-zinc-500">
+            La resolución de preferencias todavía no está disponible.
+          </p>
+        )}
       </div>
     </details>
   )

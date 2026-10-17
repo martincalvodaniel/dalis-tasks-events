@@ -510,3 +510,7 @@ Entrada60%5h/80%7d tras2da06ca, reservas10%/1%. Preparación pura yguardia de ca
 ### 19b2 — Decisión durable de zona
 
 Entrada53%5h/79%7d trasb283633, reservas10%/1%.25Next6 reales conrollback/replay/backup/adopción/retry pasan; DoDcompleto/cleanup/plan/log mismo commitpushint/HEAD/cuotas. Nuevo registro eslocal yportable3, sin cambiarwire6; lectores anteriores rechazan metadata desconocida sin borrar. UI19b3 siguiente si cabe corte completo.
+
+### 19b3 — Elección de zona visible
+
+Entrada39%5h/76%7d tras5c10dd4; reservas10%/1%. Diálogo real, cancelación/confirmación y25Next6 aprobados; un plazo interactivo agotado se repitió con cleanup. DoD completo, guía/plan/log mismo commitpushint/HEAD/cuotas. Continuar sólo si cabe otro corte completo; no reabrir funciones activas ni declarar resuelto todo conflicto residual.

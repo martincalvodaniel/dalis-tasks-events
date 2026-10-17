@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 19b3 — Elección visible de zona en conflicto
+
+Estado: completado; opciones activas y 25 escenarios Next6 aprobados.
+
+- Objetivo: conectar acciones compactas de adoptar/reintentar settings con preview congelado yconfirmación real.
+- target_paths: src/features/sync/components/{personal-incident-card,sync-incident-panel,settings-incident-actions,settings-incident-resolution-dialog,settings-incident-ui.test}.tsx, src/schemas/next-sync-test.ts, test/next-settings-sync/features/**, plan/**.
+- Dependencias:5c10dd4 publicado,39%5h/76%7d, reservas10%/1%;25Next6 conexecutor/backup reales aprobados. GuíasNext/React leídas, secuencial.
+- Aceptación: sólo conflicto settings propio completo ofrece opciones; otraspreferencias/guardias siguen protegidas. Diálogo compara zona local/remota, cuenta sólointenciones settings, cancelar noescribe y confirmar crea decisión/replacementpending; UI yfeature reales recibenACK posterior único yconvergen sinreprogramarplanes. Refrescar cachés sólocuenta/epoch.
+- Validación: SSR guardias/preview yNext/Mongo/IndexedDB condiálogo real, regresiones25casos/DoDcompleto/cleanup/plan/log/commitpushint/HEAD/cuotas. Sin nuevo destino de navegación niDBusuario.
+
+
 ## 19b2 — Transacción y evidencia de recuperación de zona
 
 Estado: completado,25Next6 correctos; registro yfeature disponibles, UI pendiente.

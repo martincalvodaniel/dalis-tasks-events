@@ -1,4 +1,5 @@
 "use client"
+import { proveSettingsResolutionUi } from "@fixture/settings-resolution-ui"
 import { resolveSettingsIncident } from "@/features/sync/local-settings-resolution"
 import { proveLocalSettingsResolution } from "@fixture/settings-resolution-local-proof"
 import { proveCommonPlanResolutionUi } from "@fixture/common-plan-resolution-ui"
@@ -559,6 +560,8 @@ export async function executeLocalFixtureCommand(
       return resolveSyncIncident(active, command.request)
     case "resolve-common-plan-ui":
       return proveCommonPlanResolutionUi(active, command.request)
+    case "resolve-settings-ui":
+      return proveSettingsResolutionUi(active, command.request)
     case "resolve-settings":
       return resolveSettingsIncident(active, command.request)
     case "settings-resolution-local-proof":

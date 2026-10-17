@@ -134,6 +134,7 @@ async function execute(
       "epoch-after-settings-commit-run",
       "settings-incidents",
       "resolve-settings",
+      "resolve-settings-ui",
       "settings-resolution-local-proof",
       "settings-editor-proof",
       "hook-mount",

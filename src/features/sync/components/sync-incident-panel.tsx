@@ -46,6 +46,7 @@ export function SyncIncidentPanel({
             <PersonalIncidentCard
               key={value.incident.entry.operation.operationId}
               incident={value.incident}
+              account={account}
             />
           )
         const incident = "kind" in value ? value.incident : value
