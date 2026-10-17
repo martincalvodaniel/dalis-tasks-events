@@ -478,3 +478,7 @@ Entrada31%5h/89%7d tras8c3e26f, reserva10%/1%.22escenariosNext6sinperfilpreparat
 ### 18e2c — Piloto Preview6
 
 Entrada26%5h/88%7d, lectura21%/88% trasabriractualización. Actualización5→6conservadora, dosACKsettings/restore/recargaprobados; noproducción/secretos/DBrepair. Cierreconplan/log/diff/commitpushint/HEAD/cuotas; reserva10%/1% antesseleccionarnuevocorte.
+
+### Cierre del lote17oct — 15b1
+
+Entrada de este corte17%5h/87%7d; reservas10%/1%. Guía/checklist documental completadas después de activar y probar ajustes6 en Preview, sin abrir recuperación transaccional residual con margen insuficiente para implementación, pruebas, reparaciones y publicación. No se crea otra automatización: no ha sido solicitada. Conservar main humano y worktreeint; sólo recursos propios de prueba limpiados. El próximo lote continúa desde recuperación residual, sin reabrir sincronización de categorías/orden/repetición/zona ni aceptación de arrastre ya cerradas. Consulta real tras commit/push/HEAD y cierre coherente.

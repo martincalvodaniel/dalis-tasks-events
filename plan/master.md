@@ -2,6 +2,13 @@
 
 ## Estado operativo — 17 de octubre de 2026
 
+La zona horaria personal ya es editable offline, sincroniza por cuenta y está validada en el piloto Google de preproducción. El índice autorizado se crea mediante `ensureIndexes()` sólo en Preview de `int`; su disponibilidad está comprobada por readiness y dos ACK reales. Se ha restaurado Europe/Madrid, sin modificar los seis elementos ni sus preferencias de contenido.
+
+[Guía de uso](user-guide.md) preparada y [checklist física](manual-device-checklist.md) actualizada a generación6. Siguen pendientes la recuperación explícita de conflictos de planes comunes/apariciones/preferencias, la aceptación final física/offline/accesibilidad y la publicación productiva autorizada. La guía no cierra por sí sola esos hitos. Cumpleaños aparcado; compartir fuera de alcance.
+
+### Entregas del lote
+
+
 **18e2c entregado: pilotoGooglePreview6 aprobado.** Zona personal sincronizada yrestauradaEurope/Madridrevision2 con2ACKremotosreales, shadows/outcomesconservados y0pendientes;6items/restocoleccionesintactos, recargapersistente. Índicesettingsoperativovíabootstrap/readiness6; producciónintacta. Preferenciasresiduales: recuperaciónexplícitadeconflictos, noediciónde zona.
 
 **18e2b entregado: generación6 activada conjuntamente enint.** Zona horaria editableoffline ysincronizada porcuenta, sinreprogramarplanes.22escenariosNextpropiossinaliaspasan;830pass/223skip/0fail, lint850/tipos/Webpack/worker46. ÍndicesettingscentralautorizadosóloPreview/int; confirmaroperativoenpilotoGoogletrasdespliegue. No producción/nuevapruebafísicadedosdispositivos. Siguenrecuperaciónresidualyaceptaciónfinal.

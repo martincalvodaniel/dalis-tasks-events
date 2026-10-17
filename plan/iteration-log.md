@@ -2388,3 +2388,11 @@ Dos backupsJSON locales validados condecoderproductivo: seisitems, occurrences/t
 Captura sinidentidad `/private/tmp/dalis-settings-preview-pilot.png`. Pestañaexistente conservada enAjustes; descargasdelusuario permanecenlocales, no secommiten ni se transmiten. Noesnuevapruebafísica dedosdispositivos ni reaperturaensistemasinred: siguechecklistmanual. La convergencia dedosorígenes/IndexedDB/Mongo yguardadoUIoffline estánprobadosenfixtureaislado, diferenciadosdelpilotoGoogle. Siguiente: recuperaciónexplícitaresidual yaceptaciónfinalsegúnplan, cumpleañosaparcado/sharingfuera.
 
 Validación documental: referencias/coherencia/diff; mismo commitpushint/HEAD/cuotas. ÚltimoDoDcódigo830pass/223skip/0fail/10763aserciones, lint850/tipos/Webpack/worker46.
+
+## 15b1 — Guía y checklist de generación6
+
+Guía de uso preparada en [user-guide.md](user-guide.md) y enlazada desde README: preparación offline, cuatro variantes y acciones directas, fechas, repeticiones, arrastre, cuentas, sincronización, actualización, zona personal, tema local, backup y límites de recuperación/importación. README reemplaza la plantilla inicial por comandos reales y referencias a operación/pruebas/índices centrales.
+
+Checklist física actualizada a generación6: pasos9–10 comprueban zona compartida con restauración y tema independiente por dispositivo; conserva los ocho pasos anteriores y resultados humanos pendientes. Cumpleaños aparcado y compartir excluido dejan de ser prerrequisitos de15a; matriz de aceptación habla de cuatro variantes. Esto prepara parte documental de15b, no declara completada la aceptación final ni autoriza producción.
+
+Validación: referencias locales resueltas, consistencia con componentes/contratos actuales ydiff limpio. Sin cambio de código ni repetición de pruebas ya aprobadas. Último DoD de código:830pass/223skip/0fail/10763aserciones, lint850/tipos/Webpack/worker46. Commit/pushint/HEAD y cuotas por entrega.

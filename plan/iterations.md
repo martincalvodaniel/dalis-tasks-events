@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 15b1 — Guía de uso y checklist vigente
+
+Estado: completada la guía preparatoria;15a y cierre final15b siguen pendientes.
+
+- Objetivo: preparar la guía del producto activo6 y actualizar el recorrido físico, sin declarar cerrado15a/15b.
+- target_paths: README.md, plan/{user-guide,manual-device-checklist,master,iterations,iteration-log,workflow}.md.
+- Dependencias:3e2fb0b publicado,17%5h/87%7d, reservas10%/1%; pilotoPreview6 aprobado. Corte documental secuencial.
+- Aceptación: guía offline/sync/cuentas/backup/actualización/zona/tema y límites reales; checklist añade zona compartida y tema por dispositivo, resultados físicos siguen pendientes; cumpleaños/sharing excluidos de aceptación vigente.
+- Validación: contraste con componentes/contratos, enlaces locales ydiff, mismo commitpushint/HEAD/cuotas. Sin pruebas repetidas ni cambio de código/datos.
+
+
 ## 18e2c — Piloto Preview de zona personal6
 
 Estado: completado;2ACKsettingsreales yrestauraciónconservadora, sinpendientes.
@@ -920,7 +931,7 @@ Compartir por Gmail (14a–14c) no se implementará por decisión humana del11oc
 ### 15a — Recorrido real y accesibilidad
 
 - `target_paths`: solo los componentes/módulos que fallen en el recorrido, evidencia de aceptación, documentación de operación.
-- Dependencias: sincronización común, repetición remota, cumpleaños y recuperación/backup (`13c`); compartir no es prerrequisito.
+- Dependencias: sincronización común, repetición remota y recuperación/backup (`13c`); cumpleaños aparcado y compartir fuera del alcance no son prerrequisitos.
 - Aceptación: ejecutar matriz siguiente en navegador/DB reales y build de producción; comprobar UI móvil, teclado, foco, nombres accesibles, formularios y contraste. Corregir fallos por entregas acotadas sin ampliar producto.
 - Incluir login Google interactivo en dos navegadores y tras cerrar sesión, complementando la evidencia automatizada de `01a`. Los cinco avisos iniciales de accesibilidad de SVG de plantilla se corrigieron en `00c`; revisar los assets usados en la UI durante el recorrido.
 
@@ -935,7 +946,7 @@ Compartir por Gmail (14a–14c) no se implementará por decisión humana del11oc
 | Escenario | Evidencia requerida | Entrega principal |
 | --- | --- | --- |
 | Modo avión y reapertura completa | Shell, recursos y datos disponibles; navegar y recargar otro mes. | `04b`, `06`, `15a` |
-| Crear/editar los tres tipos sin red | Guardado local y cola sobreviven cierre. | `05`, `08`, `10` |
+| Crear/editar las cuatro variantes de plan sin red | Guardado local y cola sobreviven cierre. | `16`, `17` |
 | Cambio de día y atrasadas | Estado conservado; completadas excluidas; historial intacto. | `07a`, `09b` |
 | Recurrencia y excepciones | DST, bisiestos, día 31, corte futuro y ocurrencias pendientes. | `09`, `10` |
 | Orden personal | Grupos/tareas/atrasadas; teclado; persiste y se sincroniza. | `07b`, `12b` |

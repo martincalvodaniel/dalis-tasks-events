@@ -1,6 +1,6 @@
 # Checklist de dos dispositivos físicos
 
-Estado: entregada al usuario el 12 de octubre de 2026; resultados pendientes. El usuario acepta el arrastre y lo da por terminado. Este recorrido valida sincronización y offline de la generación5 activa; no prueba la zona horaria editable/sincronizada6 aún privada ni recuperación de conflictos todavía incompleta.
+Estado: entregada al usuario el 12 de octubre de 2026; resultados pendientes. El usuario acepta el arrastre y lo da por terminado. Actualizada el 17 de octubre para la generación6 activa: incluye zona horaria sincronizada y tema por dispositivo. La recuperación de conflictos todavía incompleta queda fuera de este recorrido secuencial; no se ha aprobado la aceptación física.
 
 ## Preparación
 
@@ -19,8 +19,11 @@ Después de cada cambio online, sincronizar primero el dispositivo que lo hizo y
 7. En A eliminar únicamente Offline B y sincronizar A/B. En B: desaparece. Recargar ambos y sincronizar otra vez: no reaparece ni se duplica.
 8. Revisar en ambos Prueba A editada, Prueba B y las tres apariciones: mismo título/categoría/orden/progreso/checklist. Anotar pendientes/incidencias restantes y si ya existían antes del test. No confundir ausencia de pendientes con prueba por sí sola: comparar los datos visibles.
 
+9. Anotar la zona original de Ajustes. En A, Editar zona → UTC → Guardar; sincronizar A/B. En B: UTC. Restaurar desde B la zona original y sincronizar B/A; ambos muestran la original tras recarga. Fechas, horas y repetición de los planes del recorrido permanecen iguales; sólo cambia el cálculo civil de Hoy/Atrasadas. Si la original ya es UTC, usar temporalmente Europe/Madrid.
+10. En A elegir tema Claro y en B Oscuro. Recargar y sincronizar: cada dispositivo conserva su elección. Volver cada uno a su tema anterior o Sistema. El tema es local, no una preferencia compartida de cuenta.
+
 ## Respuesta solicitada
 
-Dispositivo y navegador A/B; pasos 1–8 correctos o número que falla y qué se ve. Para offline, distinguir si falló reabrir la app o sólo la sincronización posterior. No solicitar correo completo, cookies, tokens ni secretos. Un screenshot de un fallo es opcional, evitando información privada ajena a la prueba.
+Dispositivo y navegador A/B; pasos 1–10 correctos o número que falla y qué se ve. Para offline, distinguir si falló reabrir la app o sólo la sincronización posterior. No solicitar correo completo, cookies, tokens ni secretos. Un screenshot de un fallo es opcional, evitando información privada ajena a la prueba.
 
 Resultado pendiente: no marcar aceptación multidispositivo/offline como cerrada hasta recibir y revisar la respuesta humana. Pruebas automáticas anteriores no sustituyen este resultado físico.
