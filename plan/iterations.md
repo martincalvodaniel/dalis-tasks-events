@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 19a4 — Elecciones comunes activas en Ajustes
+
+Estado: completado; opciones activas y24Next6 con feature/diálogo real correctos.
+
+- Objetivo: conectar coherentemente feature/executor/choices de planes simples tras prueba remota, con diálogo real validado.
+- target_paths: src/features/sync/{local-incidents.ts,components/{sync-incident-actions,sync-incident-card,sync-incident-version,common-plan-incident-ui.test}.tsx}, src/schemas/next-sync-test.ts, test/next-settings-sync/features/**, plan/**.
+- Dependencias:72e9f30 publicado,72%5h/82%7d yreservas10%/1%;19a1–3 aprobados, guíasNextuseclient/serveractions yReactbestpractices leídas. Secuencial.
+- Aceptación:4variantes simples ofrecen adoptar/retry/copy cuando corresponda, feature/accountguard real; series/cadenasexternas/rechazos siguen sin elecciones. Diálogo muestra borrador completo, cancelar noescribe, confirmar crea decisión durable ynuevoUUID sólo pending; ACK/pull real posterior yconvergencia exacta. Sin nuevos formatos/protocolo niDBusuario.
+- Validación: SSR de opciones/preview/guardias, componenteReact real dentroNext/Mongo yrecuperación4variantes, DoDcompleto/cleanup/plan/log/commitpushint/HEAD/cuotas. Noafirmar recuperación de ediciónconviewdependiente ni series.
+
+
 ## 19a3 — Conflictos comunes reales y convergencia remota
 
 Estado: completado,24Next6 y4conflictosreales conconvergencia exacta aprobados.

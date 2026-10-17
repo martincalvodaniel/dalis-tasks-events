@@ -1,5 +1,8 @@
 # Recuperación explícita de conflictos
 
+**Estado vigente19a4:** elecciones activas para raíces legacy y planes comunes sin repetición ni cadenas externas. Adopción/reintento/copia probados en Next/IndexedDB/Mongo con diálogo real. Quedan cadenas de contenido+categoría, preferencias y apariciones. Los apartados siguientes conservan la secuencia histórica.
+
+
 ## 19a1 — Planner de conflictos de planes simples
 
 Opt-in `allowPlans` en planner/choices, false por defecto: callers actuales permanecen intactos. Las cuatro variantes sin repetición permiten adoptar remoto sin operación/ACK, reenviar todo el borrador con nuevoUUID/CAS de revisión remota conocida, o crear copia conIDnuevo ante tombstone sin resucitar original. Se conservan variant, estado, checklist y schedule. Valida comandos mediante planCommandSchema y política común existente; bloquea identidades ajenas, series, snapshots cambiados, chains externas e intentos inciertos. No usa shadow como ancestro ni fusiona campos.
@@ -91,3 +94,11 @@ Next6/BetterAuth persistido/defaults/Mongo ydosorígenes IndexedDB propios:24esc
 Se pierdeunarespuesta trascommit real de replacement; permanecen pending/attempt1/lease liberado, replay delmismoUUID obtieneunACK sinotrorecibo/journal. Alcerrar cada variante secomparan seisstores ycursor exactos contra proyección completaMongo enambasparticiones, yreplay de decisión noescribe sobreestado confirmado. Backup3 validado en cadasnapshot. NoGoogle interactivo ni dispositivosfísicos. Primerfixture se detuvo antes de ejecutar aldetectar adaptador delete-plan ausente; se añadió productorreal yse limpiótodoantes delretry aprobado.
 
 Suite840pass/223skip/0fail/10844aserciones, lint851/tipos/Webpack/worker46/diff. Recursos propios retirados; captura `/private/tmp/dalis-plan-recovery-remote.png`. Callers/UI todavía privados: siguiente19a4 selección coherente yprueba deldiálogo real, conguardias de cadenasexternas/series intactas. NoDBusuario/protocolo/índices nuevos.
+
+## 19a4 — Recuperación común disponible en Ajustes
+
+La feature y las opciones visibles seleccionan el mismo soporte de planes comunes, usando el executor ya probado. Ajustes ofrece adoptar remoto, reenviar borrador o crear copia ante tombstone para planes simples sin cadenas externas. El diálogo muestra contenido completo y explica la sustitución explícita de las intenciones revisadas; cancelar no decide nada y confirmar deja un nuevo envío pendiente, sin ACK local. Las series y las cadenas de edición con categoría dependiente siguen protegidas para su ampliación posterior.
+
+Prueba con el componente React real dentro de Next: cancelar, reabrir y confirmar un conflicto remoto real; registro generado por la feature productiva, ACK posterior y convergencia exacta en los seis stores. Los cuatro casos remotos ahora usan la feature guardada, no el puerto privado. Veinticuatro escenarios Next6 pasan; cuatro tests SSR/60aserciones comprueban opciones, campos y guardias de las cuatro variantes. Se corrige además el texto antiguo que presentaba toda repetición como sólo local.
+
+DoD844pass/223skip/0fail/10904aserciones, lint852 sin avisos/tipos/Webpack/worker46/diff. Capturas `/private/tmp/dalis-plan-recovery-dialog.png` y `/private/tmp/dalis-plan-recovery-ui.png`; recursos propios retirados. Sin nuevos índices, formatos, protocolo, dependencias o datos del usuario. Siguientes: cadenas comunes con categoría, recuperación de preferencias y de apariciones; no declarar cerrado todo el bloque residual.

@@ -30,9 +30,11 @@ export function SyncIncidentCard({
         ? "Editar elemento"
         : command.type === "item.delete"
           ? "Eliminar elemento"
-          : command.type === "task.set-status"
+          : command.type === "task.set-status" ||
+              command.type === "plan.set-status"
             ? `Cambiar estado: ${incidentTaskStatuses[command.status]}`
-            : command.type === "task.set-checklist-entry"
+            : command.type === "task.set-checklist-entry" ||
+                command.type === "plan.set-checklist-entry"
               ? `Marcar punto de checklist: ${command.completed ? "completado" : "pendiente"}`
               : "Cambio guardado"
   return (

@@ -151,6 +151,7 @@ async function execute(
       "change-plan-progress",
       "delete-plan",
       "resolve-common-plan",
+      "resolve-common-plan-ui",
       "lost-plan-response-run",
       "reload-local",
       "commit-occurrence",

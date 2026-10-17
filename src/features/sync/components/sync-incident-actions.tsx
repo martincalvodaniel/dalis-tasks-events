@@ -2,6 +2,10 @@
 
 import { useRef, useState } from "react"
 import { useSWRConfig } from "swr"
+import {
+  commonPlanReleaseEnabled,
+  recurringSyncReleaseEnabled,
+} from "@/config/common-plan-release"
 import { SyncIncidentResolutionDialog } from "@/features/sync/components/sync-incident-resolution-dialog"
 import { resolveSyncIncident } from "@/features/sync/local-incidents"
 import { isAccountSyncCacheKey } from "@/features/sync/manual-sync"
@@ -28,7 +32,10 @@ export function SyncIncidentActions({
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState("")
   const intent = useRef<SyncResolutionRequest | null>(null)
-  const choices = availableSyncIncidentResolutionChoices(incident)
+  const choices = availableSyncIncidentResolutionChoices(
+    incident,
+    commonPlanReleaseEnabled && recurringSyncReleaseEnabled
+  )
   function choose(choice: SyncResolutionRequest["choice"]) {
     intent.current = null
     setNotice("")

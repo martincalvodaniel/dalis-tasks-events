@@ -157,6 +157,10 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
     type: z.literal("resolve-common-plan"),
     request: syncResolutionRequestSchema,
   }),
+  z.strictObject({
+    type: z.literal("resolve-common-plan-ui"),
+    request: syncResolutionRequestSchema,
+  }),
   z.strictObject({ type: z.literal("lost-plan-response-run") }),
   z.strictObject({ type: z.literal("reload-local") }),
   z.strictObject({

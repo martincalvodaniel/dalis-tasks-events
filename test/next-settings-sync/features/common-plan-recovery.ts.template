@@ -8,7 +8,10 @@ import {
 } from "@/schemas/next-sync-test"
 import { planSchema } from "@/schemas/plan-item"
 import { syncIncidentSnapshotSchema } from "@/schemas/sync-incident"
-import { syncResolutionRecordSchema } from "@/schemas/sync-resolution"
+import {
+  syncResolutionRequestSchema,
+  syncResolutionRecordSchema,
+} from "@/schemas/sync-resolution"
 import type { LocalRecurringBackup } from "@/types/local-backup"
 import type { LocalPullCursor } from "@/types/local-sync"
 import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
@@ -34,6 +37,8 @@ export async function proveRemoteCommonPlanRecovery({
 }: Ports) {
   let replayed = 0
   for (const variant of ["task", "event", "appointment", "note"] as const) {
+    const loser = variant === "event" ? 0 : 1,
+      winner = 1 - loser
     const itemId = crypto.randomUUID(),
       stepId = crypto.randomUUID(),
       now = new Date().toISOString()
@@ -53,7 +58,7 @@ export async function proveRemoteCommonPlanRecovery({
       ],
       recurrence: null,
     }
-    await call(0, {
+    await call(winner, {
       type: "save-plan",
       request: {
         mode: "create",
@@ -65,32 +70,34 @@ export async function proveRemoteCommonPlanRecovery({
         now,
       },
     })
-    await call(0, { type: "mixed-run" })
-    await call(1, { type: "mixed-run" })
+    await call(winner, { type: "mixed-run" })
+    await call(loser, { type: "mixed-run" })
     const initial = planSchema.parse(
-      (await snapshot(0)).backup.stores.items.find((item) => item.id === itemId)
+      (await snapshot(winner)).backup.stores.items.find(
+        (item) => item.id === itemId
+      )
     )
     if (variant === "note")
-      await call(0, {
+      await call(winner, {
         type: "delete-plan",
         expectedItem: initial,
         operationId: crypto.randomUUID(),
       })
     else
-      await call(0, {
+      await call(winner, {
         type: "change-plan-progress",
         operationId: crypto.randomUUID(),
         command: { type: "plan.set-status", itemId, status: "in_progress" },
       })
-    await call(0, { type: "mixed-run" })
+    await call(winner, { type: "mixed-run" })
     const originalId = crypto.randomUUID(),
       childId = crypto.randomUUID()
-    await call(1, {
+    await call(loser, {
       type: "change-plan-progress",
       operationId: originalId,
       command: { type: "plan.set-status", itemId, status: "completed" },
     })
-    await call(1, {
+    await call(loser, {
       type: "change-plan-progress",
       operationId: childId,
       command: {
@@ -100,18 +107,18 @@ export async function proveRemoteCommonPlanRecovery({
         completed: true,
       },
     })
-    const original = (await snapshot(1)).backup.stores.outbox.find(
+    const original = (await snapshot(loser)).backup.stores.outbox.find(
       (entry) => entry.operation.operationId === originalId
     )
-    const child = (await snapshot(1)).backup.stores.outbox.find(
+    const child = (await snapshot(loser)).backup.stores.outbox.find(
       (entry) => entry.operation.operationId === childId
     )
     assert(
       original && child && child.dependencies.includes(originalId),
       "Real common producer lost the root dependency"
     )
-    await call(1, { type: "mixed-run" })
-    const incidents = (await call(1, {
+    await call(loser, { type: "mixed-run" })
+    const incidents = (await call(loser, {
       type: "settings-incidents",
     })) as RecurringSyncIncidentOverview[]
     const overview = incidents.find(
@@ -134,14 +141,14 @@ export async function proveRemoteCommonPlanRecovery({
       "Conflict changed original evidence or attempted its blocked dependent"
     )
     const before = await state(),
-      localBefore = await snapshot(1)
+      localBefore = await snapshot(loser)
     const choice =
       variant === "task"
         ? "adopt_remote"
         : variant === "note"
           ? "copy_local"
           : "retry_local"
-    const request = {
+    let request: z.infer<typeof syncResolutionRequestSchema> = {
       userId: owner,
       resolutionId: crypto.randomUUID(),
       operationId: choice === "adopt_remote" ? null : crypto.randomUUID(),
@@ -149,18 +156,28 @@ export async function proveRemoteCommonPlanRecovery({
       choice,
       createdAt: new Date().toISOString(),
       expected: incident,
-    } as const
-    const result = (await call(1, {
-      type: "resolve-common-plan",
+    }
+    const result = (await call(loser, {
+      type:
+        variant === "event" ? "resolve-common-plan-ui" : "resolve-common-plan",
       request,
     })) as { status: string; record: unknown }
     const record = syncResolutionRecordSchema.parse(result.record)
+    request = {
+      userId: record.userId,
+      resolutionId: record.resolutionId,
+      operationId: record.operationId,
+      copyItemId: record.copyItemId,
+      choice: record.choice,
+      createdAt: record.createdAt,
+      expected: record.expected,
+    }
     assert(
       result.status === "applied" &&
         canonical(await state()) === canonical(before),
       "Local choice wrote a remote receipt or history"
     )
-    const decided = await snapshot(1)
+    const decided = await snapshot(loser)
     for (const old of [original, child]) {
       const current = decided.backup.stores.outbox.find(
         (entry) => entry.operation.operationId === old.operation.operationId
@@ -206,7 +223,9 @@ export async function proveRemoteCommonPlanRecovery({
         "New replacement was ACKed locally"
       )
       if (variant === "appointment") {
-        const lost = (await call(1, { type: "lost-plan-response-run" })) as {
+        const lost = (await call(loser, {
+          type: "lost-plan-response-run",
+        })) as {
           status: string
           uploaded: number
         }
@@ -214,7 +233,7 @@ export async function proveRemoteCommonPlanRecovery({
           lost.status === "retry_later" && lost.uploaded === 0,
           "Lost common response was reported as ACK"
         )
-        const uncertain = await snapshot(1),
+        const uncertain = await snapshot(loser),
           pending = uncertain.backup.stores.outbox.find(
             (entry) =>
               entry.operation.operationId === record.replacement?.operationId
@@ -228,14 +247,14 @@ export async function proveRemoteCommonPlanRecovery({
             committed.page.through === before.page.through + 1,
           "Lost response discarded intention or duplicated remote commit"
         )
-        await call(1, { type: "mixed-run" })
+        await call(loser, { type: "mixed-run" })
         assert(
           canonical(await state()) === canonical(committed),
           "Replacement replay duplicated Mongo history"
         )
         replayed++
-      } else await call(1, { type: "mixed-run" })
-      const ack = (await snapshot(1)).backup.stores.outbox.find(
+      } else await call(loser, { type: "mixed-run" })
+      const ack = (await snapshot(loser)).backup.stores.outbox.find(
         (entry) =>
           entry.operation.operationId === record.replacement?.operationId
       )
@@ -245,8 +264,8 @@ export async function proveRemoteCommonPlanRecovery({
         "Original replacement UUID did not receive a real ACK"
       )
     }
-    await call(0, { type: "mixed-run" })
-    await call(1, { type: "mixed-run" })
+    await call(winner, { type: "mixed-run" })
+    await call(loser, { type: "mixed-run" })
     const authoritative = await state(),
       projection = foldRecurringChanges(authoritative.page)
     for (const index of [0, 1]) {
@@ -279,7 +298,7 @@ export async function proveRemoteCommonPlanRecovery({
       "Recovery manufactured or duplicated remote ACK/history"
     )
     if (choice === "copy_local") {
-      const final = (await snapshot(1)).backup.stores.items,
+      const final = (await snapshot(loser)).backup.stores.items,
         originalRecord = final.find((item) => item.id === itemId),
         copy = planSchema.parse(
           final.find((item) => item.id === request.copyItemId)
@@ -293,14 +312,14 @@ export async function proveRemoteCommonPlanRecovery({
         "Copy resurrected original or lost common plan content"
       )
     }
-    const beforeReplay = await snapshot(1)
-    const replay = (await call(1, {
+    const beforeReplay = await snapshot(loser)
+    const replay = (await call(loser, {
       type: "resolve-common-plan",
       request,
     })) as { status: string }
     assert(
       replay.status === "replayed" &&
-        canonical((await snapshot(1)).backup.stores) ===
+        canonical((await snapshot(loser)).backup.stores) ===
           canonical(beforeReplay.backup.stores),
       "Decision replay rewrote confirmed or newer data"
     )

@@ -88,7 +88,10 @@ export function SyncIncidentVersion({
             </>
           ) : null}
           {"recurrence" in item && item.recurrence ? (
-            <p>Con repetición (solo local por ahora).</p>
+            <p>
+              Con repetición. La recuperación debe revisar también sus
+              apariciones.
+            </p>
           ) : null}
           {"revision" in item ? (
             <p className="text-xs text-zinc-500">Revisión {item.revision}</p>

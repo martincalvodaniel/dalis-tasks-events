@@ -4,9 +4,12 @@
 
 La zona horaria personal ya es editable offline, sincroniza por cuenta y está validada en el piloto Google de preproducción. El índice autorizado se crea mediante `ensureIndexes()` sólo en Preview de `int`; su disponibilidad está comprobada por readiness y dos ACK reales. Se ha restaurado Europe/Madrid, sin modificar los seis elementos ni sus preferencias de contenido.
 
-[Guía de uso](user-guide.md) preparada y [checklist física](manual-device-checklist.md) actualizada a generación6. Siguen pendientes la recuperación explícita de conflictos de planes comunes/apariciones/preferencias, la aceptación final física/offline/accesibilidad y la publicación productiva autorizada. La guía no cierra por sí sola esos hitos. Cumpleaños aparcado; compartir fuera de alcance.
+[Guía de uso](user-guide.md) preparada y [checklist física](manual-device-checklist.md) actualizada a generación6. Siguen pendientes las cadenas de recuperación de contenido+categoría, las apariciones y las preferencias, la aceptación final física/offline/accesibilidad y la publicación productiva autorizada. La guía no cierra por sí sola esos hitos. Cumpleaños aparcado; compartir fuera de alcance.
 
 ### Continuación de las21:19
+
+19a4 activa en Ajustes la recuperación de planes simples sin cadenas externas, tras diálogo real y24Next6 correctos. Las ediciones con categoría dependiente, preferencias y apariciones siguen pendientes. Suite844pass/223skip, lint852/tipos/Webpack/worker46.
+
 
 19a3 prueba4conflictos reales con24Next6, reintento conrespuestaperdida/ACKúnico yconvergencia exacta de6stores en dosparticiones/Mongo. SigueUI coherente antesofrecerelecciones.
 

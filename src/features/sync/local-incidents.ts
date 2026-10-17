@@ -2,6 +2,7 @@
 
 import {
   activeProductSyncProtocol,
+  commonPlanReleaseEnabled,
   recurringSyncReleaseEnabled,
 } from "@/config/common-plan-release"
 import type { LocalAccount } from "@/features/workspace/local-account"
@@ -42,7 +43,8 @@ export async function resolveSyncIncident(
     const result = await store.resolveIncident(
       request,
       recurringSyncReleaseEnabled,
-      activeProductSyncProtocol === 6
+      activeProductSyncProtocol === 6,
+      commonPlanReleaseEnabled && recurringSyncReleaseEnabled
     )
     await requireActiveAccount(account)
     return result

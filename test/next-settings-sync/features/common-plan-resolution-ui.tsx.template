@@ -1,0 +1,101 @@
+"use client"
+
+import { createRoot } from "react-dom/client"
+import { SWRConfig } from "swr"
+import { SyncIncidentCard } from "@/features/sync/components/sync-incident-card"
+import { requireActiveAccount } from "@/features/workspace/require-active-account"
+import { readLocalRecurringBackup } from "@/lib/local-db/backup"
+import { openLocalDatabase } from "@/lib/local-db/client"
+import { subscribeLocalOutboxChanges } from "@/lib/local-db/sync-notifications"
+import { syncResolutionRecordSchema } from "@/schemas/sync-resolution"
+import type {
+  SyncResolutionRequest,
+  SyncResolutionRecord,
+} from "@/types/sync-resolution"
+
+export async function proveCommonPlanResolutionUi(
+  account: { userId: string; epoch: string },
+  request: SyncResolutionRequest
+) {
+  await requireActiveAccount(account)
+  const container = document.createElement("aside")
+  container.setAttribute("aria-label", "Recuperación común de prueba")
+  document.body.append(container)
+  const root = createRoot(container)
+  let chosen: SyncResolutionRecord | null = null
+  let unsubscribe = () => {},
+    disconnect = () => {}
+  const database = await openLocalDatabase(account.userId)
+  try {
+    const completed = new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        unsubscribe()
+        disconnect()
+        reject(new Error("Common recovery UI interaction timed out"))
+      }, 90000)
+      const finish = () => {
+        const details = container.querySelector("details")
+        if (details && !details.open) details.open = true
+        if (chosen && !container.querySelector("dialog")) {
+          clearTimeout(timer)
+          unsubscribe()
+          disconnect()
+          resolve()
+        }
+      }
+      const observer = new MutationObserver(finish)
+      observer.observe(container, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        characterData: true,
+      })
+      disconnect = () => observer.disconnect()
+      unsubscribe = subscribeLocalOutboxChanges(account.userId, () => {
+        void readLocalRecurringBackup(
+          database,
+          account.userId,
+          new Date().toISOString()
+        )
+          .then((backup) => {
+            const value = backup.stores.syncMetadata.find(
+              (value) =>
+                "resolutionId" in value &&
+                value.expected.entry.operation.operationId ===
+                  request.expected.entry.operation.operationId
+            )
+            if (value) {
+              chosen = syncResolutionRecordSchema.parse(value)
+              finish()
+            }
+          })
+          .catch((error) => {
+            clearTimeout(timer)
+            unsubscribe()
+            disconnect()
+            reject(error)
+          })
+      })
+    })
+    root.render(
+      <SWRConfig value={{ provider: () => new Map() }}>
+        <SyncIncidentCard account={account} incident={request.expected} />
+      </SWRConfig>
+    )
+    await completed
+    await requireActiveAccount(account)
+    const record = syncResolutionRecordSchema.parse(chosen)
+    if (
+      record.choice !== request.choice ||
+      JSON.stringify(record.expected) !== JSON.stringify(request.expected)
+    )
+      throw new Error("Recovery UI did not confirm its reviewed choice")
+    return { status: "applied", record }
+  } finally {
+    unsubscribe()
+    disconnect()
+    root.unmount()
+    container.remove()
+    database.close()
+  }
+}

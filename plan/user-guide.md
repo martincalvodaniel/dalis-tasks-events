@@ -40,7 +40,7 @@ Desde Copia de seguridad puedes descargar un JSON de este dispositivo, incluida 
 
 La importación muestra una vista previa y crea copias nuevas de planes sin repetición compatibles. No es un reemplazo completo de la cuenta ni una restauración de la cola, de las preferencias o de las series. Revisa la vista previa antes de confirmar.
 
-Si aparece un conflicto, Ajustes permite comparar el estado local, la versión remota conocida y la evidencia del envío. Esa versión remota puede haber cambiado después. La recuperación explícita está disponible sólo en los casos que ofrecen una elección; aún falta ampliarla a planes comunes, apariciones y preferencias. Conserva el JSON y el número de incidencia si el caso no tiene resolución disponible. No borres datos para desbloquearlo ni interpretes un cambio local como confirmación del servidor.
+Si aparece un conflicto, Ajustes permite comparar el estado local, la versión remota conocida y la evidencia del envío. Esa versión remota puede haber cambiado después. Para planes sin repetición y sin cambios relacionados externos, puedes adoptar la versión remota conocida, reenviar todo tu borrador o crear una copia si el original remoto fue eliminado. El diálogo explica qué intenciones sustituye y permite cancelar. Quedan casos de contenido con categoría dependiente, apariciones y preferencias sin resolución disponible. Conserva el JSON y el número de incidencia si el caso no tiene resolución disponible. No borres datos para desbloquearlo ni interpretes un cambio local como confirmación del servidor.
 
 ## Alcance actual
 

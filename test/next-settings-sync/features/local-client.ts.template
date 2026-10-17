@@ -1,4 +1,5 @@
 "use client"
+import { proveCommonPlanResolutionUi } from "@fixture/common-plan-resolution-ui"
 import { provePlanRecovery } from "@fixture/plan-recovery-proof"
 import { proveSettingsEditor } from "@fixture/settings-editor-host"
 import { callServer } from "next/dist/client/app-call-server"
@@ -552,21 +553,10 @@ export async function executeLocalFixtureCommand(
         command.command,
         command.operationId
       )
-    case "resolve-common-plan": {
-      const store = await LocalSyncStore.open(active.userId)
-      try {
-        const result = await store.resolveIncident(
-          command.request,
-          true,
-          true,
-          true
-        )
-        await requireActiveAccount(active)
-        return result
-      } finally {
-        store.close()
-      }
-    }
+    case "resolve-common-plan":
+      return resolveSyncIncident(active, command.request)
+    case "resolve-common-plan-ui":
+      return proveCommonPlanResolutionUi(active, command.request)
     case "settings-incidents":
       return readSyncIncidents(active)
     case "legacy-root-resolution-proof": {
