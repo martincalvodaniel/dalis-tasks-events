@@ -2,6 +2,8 @@
 
 ## Estado operativo — 17 de octubre de 2026
 
+**18e2c entregado: pilotoGooglePreview6 aprobado.** Zona personal sincronizada yrestauradaEurope/Madridrevision2 con2ACKremotosreales, shadows/outcomesconservados y0pendientes;6items/restocoleccionesintactos, recargapersistente. Índicesettingsoperativovíabootstrap/readiness6; producciónintacta. Preferenciasresiduales: recuperaciónexplícitadeconflictos, noediciónde zona.
+
 **18e2b entregado: generación6 activada conjuntamente enint.** Zona horaria editableoffline ysincronizada porcuenta, sinreprogramarplanes.22escenariosNextpropiossinaliaspasan;830pass/223skip/0fail, lint850/tipos/Webpack/worker46. ÍndicesettingscentralautorizadosóloPreview/int; confirmaroperativoenpilotoGoogletrasdespliegue. No producción/nuevapruebafísicadedosdispositivos. Siguenrecuperaciónresidualyaceptaciónfinal.
 
 **18e2a entregado:** editorzona compacto yguardadooffline preparado,22Next6 pasanincluyendoUIreal/validación/cancelación/ACKúnico. Hoy/Atrasadas ya leen zonapersonal de snapshot. Producto5hastaactivaciónconjuntasiguiente; índicePreviewautorizadocentralpublicado.

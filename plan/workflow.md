@@ -474,3 +474,7 @@ Entrada37%5h/90%7d tras1571669, reserva10%/1%. PreparaciónUIguardada y22Next6pr
 ### 18e2b — Selección conjunta6
 
 Entrada31%5h/89%7d tras8c3e26f, reserva10%/1%.22escenariosNext6sinperfilpreparatorio, DoDcompleto/cleanup ycommitpushint/HEAD/cuotas. PermisoíndicePreviewaplicadoalbootstrapcentral; noVercel/secretos/producción. ComprobarpilotoPreview sihayaccesoymargen; faltas deacceso sólo requiereninformaciónrealmentefaltante, sinrepreguntarpermisoíndice.
+
+### 18e2c — Piloto Preview6
+
+Entrada26%5h/88%7d, lectura21%/88% trasabriractualización. Actualización5→6conservadora, dosACKsettings/restore/recargaprobados; noproducción/secretos/DBrepair. Cierreconplan/log/diff/commitpushint/HEAD/cuotas; reserva10%/1% antesseleccionarnuevocorte.

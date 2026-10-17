@@ -2378,3 +2378,13 @@ Selección productiva6 conecta identidad/pull/action6/retiro5/cliente/hook/provi
 Ajustes incluyezonahorariaenalcancesync ycomparaciónpersonal muestra valoresconcretos local/remoto/revisión, comprobados porSSR. BootstrapcentralPreview/int autorizado parauser_settings_user_uidx, juntoaparición; producción/local/otrasramasnoañadeníndice. Readiness6siguegatingantesescritura. No se anunciaíndiceoperativoenDBusuarioporpruebalocal: verificar enpilotoPreviewtrasdespliegue. Captura `/private/tmp/dalis-settings-next6-active.png`; recursosownretirados.
 
 DoD830pass/223skip/0fail/10763aserciones, lint850/tipos/Webpack/worker46/diff. Publicaciónint noesdespliegueproductivo. Pendientes: pilotoGooglePreview6, recuperaciónexplícitaresidual deplanescomunes/apariciones/preferencias, aceptaciónfísicadosdispositivos/offline/accesibilidad/guía ypublicaciónproducciónautorizada. Cumpleañosaparcado, compartirfuera.
+
+## 18e2c — Piloto Google Preview6 aprobado
+
+Cliente anterior5 se actualiza mediante comprobación segura/cierre y reapertura de documentos, conservando partición y sesiónGoogle existente. Despliegueint6 muestra editorzona y alcancecompleto. Cambio explícito Europe/Madrid→UTC yrestauraciónEurope/Madrid; sincronizaciónreal completada, sin pendientes ypersistente trasrecarga.
+
+Dos backupsJSON locales validados condecoderproductivo: seisitems, occurrences/tags/itemViews/taskPlacements/memberships/invitations exactamenteconservados; dosUUIDsettingsnuevos acknowledged, unintentocadauno, leas enull, outcomes presentes. Settingsfinalrevision2 coincide exactamente conshadowremotoconfirmado.18ACKanteriores→20totales, ceropendientes. Readiness6obligatoria/action6ejecutor real aceptanamboscambios: índiceuser_settings_user_uidx operativoenPreviewvíabootstrapcentralautorizado, sincapturaVercel/URI niCLIoperadorsobreDBusuario. No producción/borrado/correccióndedatos.
+
+Captura sinidentidad `/private/tmp/dalis-settings-preview-pilot.png`. Pestañaexistente conservada enAjustes; descargasdelusuario permanecenlocales, no secommiten ni se transmiten. Noesnuevapruebafísica dedosdispositivos ni reaperturaensistemasinred: siguechecklistmanual. La convergencia dedosorígenes/IndexedDB/Mongo yguardadoUIoffline estánprobadosenfixtureaislado, diferenciadosdelpilotoGoogle. Siguiente: recuperaciónexplícitaresidual yaceptaciónfinalsegúnplan, cumpleañosaparcado/sharingfuera.
+
+Validación documental: referencias/coherencia/diff; mismo commitpushint/HEAD/cuotas. ÚltimoDoDcódigo830pass/223skip/0fail/10763aserciones, lint850/tipos/Webpack/worker46.

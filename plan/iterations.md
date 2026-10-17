@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 18e2c — Piloto Preview de zona personal6
+
+Estado: completado;2ACKsettingsreales yrestauraciónconservadora, sinpendientes.
+
+- Objetivo: verificar despliegueint/actualizaciónconservadora, cuentaGoogleexistente eíndicesettingsoperativovíabootstrap/readiness/ACKreal.
+- target_paths: plan/**; interacciónúnicamentePreviewautorizado, sinproducción/credenciales/delete.
+- Dependencias:57ebb5b publicado,26%5h/88%7d reserva10%/1%. Sesiónexistente disponible; clienteanterior muestraactualizacióndisponible.
+- Aceptación: conservar6elementosycola, actualizarcerrando/reabriendo, cambiarzonapersonalexplícita yrestauraroriginal conACKremotoúnico/recarga; evidenciaUI sinPIIenplan. Noafirmardosdispositivosfísicos.
+- Validación: navegadorreal/cuentaGooglePreview, evidenciahonesta/plan/log/diff/commitpushint/HEAD/cuotas; siaccesoointervenciónfaltan pedirsoloeso.
+
+
 ## 18e2b — Activación conjunta de ajustes6
 
 Estado: completado;6seleccionado y22casosconconfiguraciónreal correctos.
