@@ -1,4 +1,5 @@
 "use client"
+import { provePlanRecovery } from "@fixture/plan-recovery-proof"
 import { proveSettingsEditor } from "@fixture/settings-editor-host"
 import { callServer } from "next/dist/client/app-call-server"
 import { unstable_isUnrecognizedActionError } from "next/navigation"
@@ -526,6 +527,8 @@ export async function executeLocalFixtureCommand(
     }
     case "settings-editor-proof":
       return proveSettingsEditor(active)
+    case "plan-resolution-proof":
+      return provePlanRecovery(active)
     case "settings-incidents":
       return readSyncIncidents(active)
     case "legacy-root-resolution-proof": {

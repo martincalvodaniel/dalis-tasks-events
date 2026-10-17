@@ -88,13 +88,19 @@ export class LocalSyncStore {
     return readLocalSettingsSyncIncidentOverview(this.database, this.userId)
   }
 
-  resolveIncident(input: unknown, recurring = false, allowSettings = false) {
+  resolveIncident(
+    input: unknown,
+    recurring = false,
+    allowSettings = false,
+    allowPlans = false
+  ) {
     return resolveLocalSyncIncident(
       this.database,
       this.userId,
       input,
       recurring,
-      allowSettings
+      allowSettings,
+      allowPlans
     ).then((result) => {
       if (result.status === "applied") notifyLocalOutboxChange(this.userId)
       return result

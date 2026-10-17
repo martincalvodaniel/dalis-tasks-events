@@ -490,3 +490,7 @@ Después del cierre15b1 el usuario solicita nueva continuación puntual hoy a la
 ### Renovación real17oct21:19 — 19a1
 
 Cuota confirmada100%5h/86%7d, nuevoreset1792282775; HEAD69149d2/originint exactos y limpios, main humano preservado. Continuación puntual autorizada con reservas10%/1%, secuencial y sin nueva cadena. Planner19a1 es primer corte preparatorio; DoD/plan/log mismo commitpushint/HEAD y ambas cuotas antes de executor posterior.
+
+### 19a2 — Atomicidad local común
+
+Entrada95%5h/85%7d tras9685fce, reservas10%/1%. Opt-inexecutor y24checks locales con23Next6completos aprobados, cleanup/DoD. Conflictossembrados sólo pruebandurabilidad, sinACKremoto atribuido; siguiente19a3 conflicto/replay/convergencia reales antesUI. Mismo commitpushint/HEAD/cuotas para elegir siguiente corte.

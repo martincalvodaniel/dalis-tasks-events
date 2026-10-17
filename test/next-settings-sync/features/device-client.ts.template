@@ -147,6 +147,7 @@ async function execute(
       "legacy-missing-action-run",
       "retired-mixed-action-run",
       "legacy-root-resolution-proof",
+      "plan-resolution-proof",
       "reload-local",
       "commit-occurrence",
       "read-settings",

@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 19a2 — Executor durable de recuperación común, aún privado
+
+Estado: completado,23Next6correctos; UI sigue sin elecciones comunes.
+
+- Objetivo: pasar opt-in de planes al executor existente y comprobar transacción/replay/rollback/evidencia completa con settings presentes, sinhabilitarUI.
+- target_paths: src/lib/local-db/{sync-resolution,sync-store}.ts, src/schemas/next-sync-test.ts, test/next-settings-sync/features/{plan-recovery-proof,local-client,device-client,controller}.*.template, plan/**.
+- Dependencias:9685fce publicado,95%5h/85%7d, reservas10%/1%; planner19a1 puroprobado. Secuencial.
+- Aceptación:4variantes conadopción/retry/copy conservanUUID/outcomes ymarcansuperseded nuncaACK; pendingreplacement correcto; rollbacktardío revierte todosstores/contador/noaviso; replaydespuésedición noescribe ysnapshotobsoleto rechaza. Backup3validado ysettings/categorías/vistas/placements/apariciones preservados. Opt-in exige snapshotcompleto.
+- Validación: Nextcompilado/IndexedDB reales conconflictoslocales explícitamentesembrados, sinatribuirACKremotoparaellos; regresiones22escenarios/Mongo yDoDcompleto, cleanupown/plan/log/commitpushint/HEAD/cuotas. Después19a3pruebaremota real antesUI.
+
+
 ## 19a1 — Planner de recuperación de planes comunes simples
 
 Estado: completado, opt-in privado sin elecciones nuevas enUI.

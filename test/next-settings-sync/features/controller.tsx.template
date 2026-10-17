@@ -1337,6 +1337,24 @@ export function FixtureController() {
         }
       )
       await check(
+        "Executor común privado conserva backup y revierte decisiones fallidas sin ACK",
+        async () => {
+          const before = await state(owner)
+          const proof = (await call(1, { type: "plan-resolution-proof" })) as {
+            checks: number
+            variants: number
+          }
+          assert(
+            proof.checks >= 16 && proof.variants === 4,
+            "Common plan resolution checks are incomplete"
+          )
+          assert(
+            canonical(await state(owner)) === canonical(before),
+            "Seeded local proof changed Mongo or manufactured a remote ACK"
+          )
+        }
+      )
+      await check(
         "Sesión revocada no confirma ni modifica ajustes",
         async () => {
           assert(
@@ -1390,7 +1408,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Veintidós escenarios Next6 correctos; sesiones propias cerradas"
+            "Veintitrés escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

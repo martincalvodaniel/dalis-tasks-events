@@ -21,10 +21,13 @@ export function resolveLocalSyncIncident(
   userId: string,
   input: unknown,
   recurring = false,
-  allowSettings = false
+  allowSettings = false,
+  allowPlans = false
 ): Promise<LocalResolutionResult> {
   if (allowSettings && !recurring)
     throw new Error("Settings resolution requires the complete recurring scope")
+  if (allowPlans && !recurring)
+    throw new Error("Plan resolution requires the complete recurring scope")
   const request = syncResolutionRequestSchema.parse(input)
   if (request.userId !== userId)
     throw new Error("Resolution belongs to another account")
@@ -49,7 +52,11 @@ export function resolveLocalSyncIncident(
         try {
           if (replay.result !== undefined) {
             const record = syncResolutionRecordSchema.parse(replay.result)
-            const planned = planSyncIncidentResolution(request, record.expected)
+            const planned = planSyncIncidentResolution(
+              request,
+              record.expected,
+              allowPlans
+            )
             if (JSON.stringify(planned) !== JSON.stringify(record))
               throw new Error(
                 "Resolution identity was reused with different evidence"
@@ -81,7 +88,11 @@ export function resolveLocalSyncIncident(
                   request.expected.entry.operation.operationId
               )
               if (!incident) throw new Error("Incident is no longer unresolved")
-              const record = planSyncIncidentResolution(request, incident)
+              const record = planSyncIncidentResolution(
+                request,
+                incident,
+                allowPlans
+              )
               const ids = new Set(record.supersededOperationIds)
               const byId = new Map(
                 entries.map((entry) => [entry.operation.operationId, entry])

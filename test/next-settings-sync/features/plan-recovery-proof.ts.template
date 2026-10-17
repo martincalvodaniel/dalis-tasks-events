@@ -1,0 +1,241 @@
+"use client"
+
+import { requireActiveAccount } from "@/features/workspace/require-active-account"
+import { readLocalRecurringBackup } from "@/lib/local-db/backup"
+import { openLocalDatabase, localDatabaseName } from "@/lib/local-db/client"
+import { LocalOutbox } from "@/lib/local-db/outbox"
+import { LocalSyncStore } from "@/lib/local-db/sync-store"
+import { subscribeLocalOutboxChanges } from "@/lib/local-db/sync-notifications"
+import type { SyncIncidentSnapshot } from "@/types/sync-incident"
+
+function assert(value: unknown, message: string): asserts value {
+  if (!value) throw new Error(message)
+}
+export async function provePlanRecovery(account: {
+  userId: string
+  epoch: string
+}) {
+  await requireActiveAccount(account)
+  const database = await openLocalDatabase(account.userId),
+    outbox = await LocalOutbox.open(account.userId),
+    sync = await LocalSyncStore.open(account.userId)
+  const now = new Date().toISOString()
+  let notices = 0,
+    checks = 0
+  const unsubscribe = subscribeLocalOutboxChanges(
+    account.userId,
+    () => notices++
+  )
+  const snapshot = () =>
+    readLocalRecurringBackup(database, account.userId, new Date().toISOString())
+  const same = (a: unknown, b: unknown) =>
+    JSON.stringify(a) === JSON.stringify(b)
+  async function rejects(work: () => Promise<unknown>) {
+    let failed = false
+    try {
+      await work()
+    } catch {
+      failed = true
+    }
+    assert(failed, "Expected guarded resolution failure")
+    checks++
+  }
+  async function incident(operationId: string) {
+    const value = (await sync.readSettingsIncidentOverview()).find(
+      (value) =>
+        value.kind === "item" &&
+        value.incident.entry.operation.operationId === operationId
+    )
+    assert(value?.kind === "item", "Common plan incident is missing")
+    return value.incident
+  }
+  function request(
+    expected: SyncIncidentSnapshot,
+    choice: "adopt_remote" | "retry_local" | "copy_local"
+  ) {
+    return {
+      userId: account.userId,
+      resolutionId: crypto.randomUUID(),
+      operationId: choice === "adopt_remote" ? null : crypto.randomUUID(),
+      copyItemId: choice === "copy_local" ? crypto.randomUUID() : null,
+      createdAt: now,
+      choice,
+      expected,
+    }
+  }
+  try {
+    for (const variant of ["task", "event", "appointment", "note"] as const) {
+      const itemId = crypto.randomUUID(),
+        stepId = crypto.randomUUID()
+      const input = {
+        kind: "plan" as const,
+        variant,
+        title: "Borrador común de prueba",
+        description: "Datos propios de prueba",
+        schedule: {
+          mode: "all_day" as const,
+          startDate: "2026-10-17",
+          endDateExclusive: "2026-10-18",
+        },
+        status: "not_started" as const,
+        checklist: [{ id: stepId, text: "Paso conservado", completed: false }],
+        recurrence: null,
+      }
+      const root = await outbox.commitItemCommand({
+        type: "item.create",
+        itemId,
+        input,
+      })
+      const senderId = crypto.randomUUID(),
+        claimed = await outbox.claim(root.operation.operationId, senderId)
+      assert(claimed, "Common fixture root was not claimed")
+      await outbox.commitItemCommand({
+        type: "plan.set-status",
+        itemId,
+        status: "in_progress",
+      })
+      // Explicitly seeded conflict tests only local durability, never a remote ACK or remote executor.
+      await sync.applyOperationResult({
+        operation: claimed.operation,
+        senderId,
+        result: {
+          operationId: root.operation.operationId,
+          status: "conflict",
+          current: {
+            ...input,
+            id: itemId,
+            ownerId: account.userId,
+            title: "Remoto conocido de prueba",
+            revision: 1,
+            createdAt: now,
+            updatedAt: now,
+            completedAt: null,
+            deletedAt: variant === "note" ? now : null,
+          },
+        },
+      })
+      const stale = request(
+        await incident(root.operation.operationId),
+        "adopt_remote"
+      )
+      await outbox.commitItemCommand({
+        type: "plan.set-checklist-entry",
+        itemId,
+        entryId: stepId,
+        completed: true,
+      })
+      const baseline = (await snapshot()).stores
+      await rejects(() => sync.resolveIncident(stale, true, true, true))
+      assert(
+        same(baseline, (await snapshot()).stores),
+        "Stale resolution modified durable state"
+      )
+      const current = await incident(root.operation.operationId)
+      const selected = request(
+        current,
+        variant === "task"
+          ? "adopt_remote"
+          : variant === "note"
+            ? "copy_local"
+            : "retry_local"
+      )
+      const count = notices,
+        original = IDBObjectStore.prototype.add
+      IDBObjectStore.prototype.add = function (
+        value: unknown,
+        key?: IDBValidKey
+      ) {
+        if (
+          this.transaction.db.name === localDatabaseName(account.userId) &&
+          this.name === "syncMetadata" &&
+          value &&
+          typeof value === "object" &&
+          "resolutionId" in value
+        )
+          throw new Error("Owned late resolution failure")
+        return original.call(this, value, key)
+      }
+      try {
+        await rejects(() => sync.resolveIncident(selected, true, true, true))
+      } finally {
+        IDBObjectStore.prototype.add = original
+      }
+      assert(
+        same(baseline, (await snapshot()).stores) && notices === count,
+        "Late failure left writes or notification"
+      )
+      const result = await sync.resolveIncident(selected, true, true, true)
+      assert(result.status === "applied", "Common decision did not commit")
+      const after = (await snapshot()).stores,
+        ids = new Set(current.intentions.map((e) => e.operation.operationId))
+      assert(
+        after.outbox
+          .filter((e) => ids.has(e.operation.operationId))
+          .every((e) => e.state === "superseded" && e.lease === null),
+        "Decision manufactured an ACK or removed evidence"
+      )
+      for (const store of [
+        "settings",
+        "occurrences",
+        "tags",
+        "itemViews",
+        "taskPlacements",
+        "remoteShadows",
+      ] as const)
+        assert(
+          same(baseline[store], after[store]),
+          "Common decision changed unrelated records or observed shadows"
+        )
+      for (const originalEntry of current.intentions) {
+        const saved = after.outbox.find(
+          (e) => e.operation.operationId === originalEntry.operation.operationId
+        )
+        assert(
+          saved &&
+            same({ ...saved, state: originalEntry.state }, originalEntry),
+          "Decision rewrote original payload, attempts or dependencies"
+        )
+      }
+      assert(
+        baseline.syncMetadata
+          .filter((value) => value.key.startsWith("operation-outcome:"))
+          .every((value) =>
+            after.syncMetadata.some((candidate) => same(candidate, value))
+          ),
+        "Decision discarded a frozen outcome"
+      )
+      if (result.record.replacement) {
+        const replacement = after.outbox.find(
+          (e) => e.operation.operationId === result.record.operationId
+        )
+        assert(
+          replacement?.state === "pending" &&
+            replacement.attempts === 0 &&
+            replacement.dependencies.length === 0,
+          "Replacement was confirmed locally or retained superseded dependencies"
+        )
+      }
+      // Later user changes survive a replay of the earlier decision.
+      if (variant === "task")
+        await outbox.commitItemCommand({
+          type: "plan.set-status",
+          itemId,
+          status: "in_progress",
+        })
+      const later = (await snapshot()).stores
+      const replay = await sync.resolveIncident(selected, true, true, true)
+      assert(
+        replay.status === "replayed" && same(later, (await snapshot()).stores),
+        "Replayed decision overwrote newer work"
+      )
+      checks += 4
+    }
+    await requireActiveAccount(account)
+    return { checks, variants: 4 }
+  } finally {
+    unsubscribe()
+    outbox.close()
+    sync.close()
+    database.close()
+  }
+}

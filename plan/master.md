@@ -8,6 +8,8 @@ La zona horaria personal ya es editable offline, sincroniza por cuenta y está v
 
 ### Continuación de las21:19
 
+19a2 prueba el executor durable con24checks de4variantes/rollback/replay/backup y23escenariosNext6. Sigue prueba de conflictosremotos reales antes de activarUI.
+
 19a1 prepara recuperación de conflictos de planes sin repetición: planner opt-in de cuatro variantes, adoptar/reintentar/copiar con invariantes y diez pruebas nuevas. Aún no ofrece elecciones nuevas enUI; sigue executor/integración antes de activarlas. Generación6 y piloto de zona anteriores siguen cerrados.
 
 ### Entregas del lote
