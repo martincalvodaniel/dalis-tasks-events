@@ -11,6 +11,7 @@ interface SyncStatusPanelProps {
     | "own_content_preferences_and_task_order"
     | "own_plans_preferences_and_order"
     | "own_recurring_plans_preferences_and_order"
+    | "own_recurring_plans_preferences_order_and_settings"
   error: boolean
   busy: boolean
   result: SyncPassResult | null
@@ -76,15 +77,17 @@ export function SyncStatusPanel({
         </button>
       </div>
       <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-        {scope === "own_recurring_plans_preferences_and_order"
-          ? "Sincroniza tus tareas, eventos, citas y notas, sus repeticiones, categorías, asignaciones y orden mientras la aplicación está abierta."
-          : scope === "own_plans_preferences_and_order"
-            ? "Sincroniza tareas, eventos, citas y notas sin repetición, sus categorías, asignaciones y orden mientras la aplicación está abierta. Las repeticiones siguen en este dispositivo."
-            : scope === "own_content_preferences_and_task_order"
-              ? "Sincroniza tareas y eventos sin repetición, categorías, asignaciones y orden de tareas sin repetición mientras la aplicación está abierta. Las repeticiones siguen en este dispositivo."
-              : scope === "own_content_and_preferences"
-                ? "Automática con conexión mientras la aplicación está abierta. Tareas y eventos sin repetición, categorías y asignaciones. Orden de tareas y repeticiones siguen en este dispositivo."
-                : "Automática con conexión mientras la aplicación está abierta. Tareas y eventos sin repetición. Categorías, orden y repeticiones se guardan solo en este dispositivo por ahora."}
+        {scope === "own_recurring_plans_preferences_order_and_settings"
+          ? "Sincroniza tus planes, repeticiones, categorías, asignaciones, orden y zona horaria mientras la aplicación está abierta."
+          : scope === "own_recurring_plans_preferences_and_order"
+            ? "Sincroniza tus tareas, eventos, citas y notas, sus repeticiones, categorías, asignaciones y orden mientras la aplicación está abierta."
+            : scope === "own_plans_preferences_and_order"
+              ? "Sincroniza tareas, eventos, citas y notas sin repetición, sus categorías, asignaciones y orden mientras la aplicación está abierta. Las repeticiones siguen en este dispositivo."
+              : scope === "own_content_preferences_and_task_order"
+                ? "Sincroniza tareas y eventos sin repetición, categorías, asignaciones y orden de tareas sin repetición mientras la aplicación está abierta. Las repeticiones siguen en este dispositivo."
+                : scope === "own_content_and_preferences"
+                  ? "Automática con conexión mientras la aplicación está abierta. Tareas y eventos sin repetición, categorías y asignaciones. Orden de tareas y repeticiones siguen en este dispositivo."
+                  : "Automática con conexión mientras la aplicación está abierta. Tareas y eventos sin repetición. Categorías, orden y repeticiones se guardan solo en este dispositivo por ahora."}
       </p>
       <div role="status" aria-live="polite" className="mt-2">
         {error ? (

@@ -251,7 +251,8 @@ try {
         paths: {
           "@/*": ["../../src/*"],
           "@fixture/*": ["./features/*"],
-          ...(settings || (recurring && activeProductSyncProtocol !== 5)
+          ...((settings && activeProductSyncProtocol !== 6) ||
+          (!settings && recurring && activeProductSyncProtocol !== 5)
             ? {
                 "@/config/common-plan-release": [
                   "./features/release-profile.ts",

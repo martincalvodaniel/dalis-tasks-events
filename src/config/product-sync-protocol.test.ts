@@ -39,7 +39,7 @@ test("settings selection requires the complete common and recurring release prer
   ).toBe(6)
 })
 
-test("the published product keeps settings inactive pending compiled acceptance", () => {
-  expect(settingsSyncReleaseEnabled).toBe(false)
-  expect(activeProductSyncProtocol).toBe(5)
+test("the published product selects the complete settings release after compiled acceptance", () => {
+  expect(settingsSyncReleaseEnabled).toBe(true)
+  expect(activeProductSyncProtocol).toBe(6)
 })

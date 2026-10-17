@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 18e2b — Activación conjunta de ajustes6
+
+Estado: completado;6seleccionado y22casosconconfiguraciónreal correctos.
+
+- Objetivo: seleccionar6 enproducto paraidentidad/pull/acciones/retiro5/cliente/hook/provider/caché/incidentes/UI de forma conjunta.
+- target_paths: src/config/{common-plan-release.ts,product-sync-protocol.test.ts}, scripts/next-sync-test-runner.ts, src/features/sync/components/{device-sync-settings,sync-status-panel,personal-incident-version}.tsx y su pruebaSSR, plan/**.
+- Dependencias:8c3e26f publicado,31%5h/89%7d reserva10%/1%;22Next6incluyendoUIreal, bootstrapPreview/intautorizadoyvalidado, resto de puertos6preparados. Secuencial.
+- Aceptación: fixture6 usa configuraciónproductiva real sin alias;22casos pasan enNext/IndexedDB/Mongo conUIoffline y nofalsoACK; índicecentral/readiness6/retirement5 coherentes; ningún cambio dedatos/formatos/producción.
+- Validación: Next6completo sinperfilpreparatorio, DoD/lint/tipos/build/worker, cleanupown/plan/log/mismo commitpushint/HEAD/cuotas. PilotoGooglePreview aparte siaccesible; nunca dosdispositivosfísicos porfixture.
+
+
 ## 18e2a — Editor compacto de zona personal
 
 Estado: completado;22Next6incluyendoUIrealguardadooffline pasan, productoaún5.

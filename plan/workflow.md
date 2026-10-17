@@ -470,3 +470,7 @@ Entrada40%5h/91%7d, reserva10%/1%. Actuación implementada segúnpermisoexplíci
 ### 18e2a — Editor de zona guardado
 
 Entrada37%5h/90%7d tras1571669, reserva10%/1%. PreparaciónUIguardada y22Next6propioscorrectos, DoDcompleto/cleanup/commitpushint/HEAD/cuotas. Activación6 será cortesiguiente completo, sinVercel/secretos/producción.
+
+### 18e2b — Selección conjunta6
+
+Entrada31%5h/89%7d tras8c3e26f, reserva10%/1%.22escenariosNext6sinperfilpreparatorio, DoDcompleto/cleanup ycommitpushint/HEAD/cuotas. PermisoíndicePreviewaplicadoalbootstrapcentral; noVercel/secretos/producción. ComprobarpilotoPreview sihayaccesoymargen; faltas deacceso sólo requiereninformaciónrealmentefaltante, sinrepreguntarpermisoíndice.

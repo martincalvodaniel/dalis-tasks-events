@@ -6,8 +6,8 @@ export const commonPlanReleaseEnabled: boolean = true
 // Select recurring ports together; server readiness still gates every write.
 export const recurringSyncReleaseEnabled: boolean =
   commonPlanReleaseEnabled && true
-// Staged settings bundle stays inactive until compiled and two-partition acceptance.
-export const settingsSyncReleaseEnabled: boolean = false
+// Compiled action, durable transition, two-partition and offline editor acceptance are complete.
+export const settingsSyncReleaseEnabled: boolean = true
 
 export const activeProductSyncProtocol = selectProductSyncProtocol({
   commonPlans: commonPlanReleaseEnabled,

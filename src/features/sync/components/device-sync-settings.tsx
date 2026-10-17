@@ -2,6 +2,7 @@
 
 import { useContext } from "react"
 import {
+  activeProductSyncProtocol,
   commonPlanReleaseEnabled,
   recurringSyncReleaseEnabled,
 } from "@/config/common-plan-release"
@@ -23,11 +24,13 @@ export function DeviceSyncSettings({ account }: { account: LocalAccount }) {
       <SyncStatusPanel
         {...state}
         scope={
-          recurringSyncReleaseEnabled
-            ? "own_recurring_plans_preferences_and_order"
-            : commonPlanReleaseEnabled
-              ? "own_plans_preferences_and_order"
-              : "own_content_preferences_and_task_order"
+          activeProductSyncProtocol === 6
+            ? "own_recurring_plans_preferences_order_and_settings"
+            : recurringSyncReleaseEnabled
+              ? "own_recurring_plans_preferences_and_order"
+              : commonPlanReleaseEnabled
+                ? "own_plans_preferences_and_order"
+                : "own_content_preferences_and_task_order"
         }
         onSync={() => {
           void state.synchronize()
