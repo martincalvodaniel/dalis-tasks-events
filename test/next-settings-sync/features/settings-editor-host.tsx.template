@@ -1,0 +1,54 @@
+"use client"
+
+import { createRoot } from "react-dom/client"
+import { SWRConfig } from "swr"
+import { PersonalTimeZoneSettings } from "@/features/workspace/components/personal-time-zone-settings"
+import { readLocalPersonalSettings } from "@/features/workspace/local-personal-settings"
+
+export async function proveSettingsEditor(account: {
+  userId: string
+  epoch: string
+}) {
+  const container = document.createElement("aside")
+  container.setAttribute("aria-label", "Ajustes de prueba")
+  document.body.append(container)
+  const root = createRoot(container)
+  const originalFetch = globalThis.fetch
+  let networkCalls = 0
+  globalThis.fetch = async () => {
+    networkCalls++
+    throw new Error("Offline settings editor attempted a network request")
+  }
+  try {
+    root.render(
+      <SWRConfig value={{ provider: () => new Map() }}>
+        <PersonalTimeZoneSettings account={account} />
+      </SWRConfig>
+    )
+    await new Promise<void>((resolve, reject) => {
+      const observer = new MutationObserver(() => {
+        if (container.textContent?.includes("Guardado en este dispositivo")) {
+          clearTimeout(timer)
+          observer.disconnect()
+          resolve()
+        }
+      })
+      const timer = setTimeout(() => {
+        observer.disconnect()
+        reject(new Error("Settings editor interaction timed out"))
+      }, 90000)
+      observer.observe(container, {
+        subtree: true,
+        childList: true,
+        characterData: true,
+      })
+    })
+    if (networkCalls !== 0)
+      throw new Error("Offline editor made a network request")
+    return { settings: await readLocalPersonalSettings(account), networkCalls }
+  } finally {
+    globalThis.fetch = originalFetch
+    root.unmount()
+    container.remove()
+  }
+}

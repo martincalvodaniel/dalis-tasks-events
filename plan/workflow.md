@@ -466,3 +466,7 @@ Entrada54%5h/93%7d, siguientelectura45%/91% durantepreparación; reserva10%/1% v
 ### 18e1c2 — Bootstrap autorizado
 
 Entrada40%5h/91%7d, reserva10%/1%. Actuación implementada segúnpermisoexplícito sinVercel/secretos/producción; bootstrapintcreaíndicecentral, fallosconservandatos. Validación8Mongo/DoDcompleto ycommitpushint/HEAD/cuotas antespróximocorte.
+
+### 18e2a — Editor de zona guardado
+
+Entrada37%5h/90%7d tras1571669, reserva10%/1%. PreparaciónUIguardada y22Next6propioscorrectos, DoDcompleto/cleanup/commitpushint/HEAD/cuotas. Activación6 será cortesiguiente completo, sinVercel/secretos/producción.

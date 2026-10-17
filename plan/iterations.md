@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 18e2a — Editor compacto de zona personal
+
+Estado: completado;22Next6incluyendoUIrealguardadooffline pasan, productoaún5.
+
+- Objetivo: edición explícita de zona offline desdeAjustes, aún guardada porprotocolo6 inactivo; refrescar caches propias paraHoy/Atrasadas.
+- target_paths: src/features/workspace/components/personal-time-zone-*.tsx, src/schemas/next-sync-test.ts, test/next-settings-sync/features/**, plan/**.
+- Dependencias:1571669 publicado,37%5h/90%7d, reserva10%/1%; bootstrapaprobado y21Next6, guíasNext/Reactleídas. Secuencial.
+- Aceptación: formulario compacto accesible conzonaIANA validada, cancelar/guardar/errores españoles; expectedrecord ycuentaepoch capturados, nored para guardar, recargaconserva; sólozone conlocaleesES/week1; cachéscuentaaisladas, todayusaajuste sinreprogramarplanes. Scope5 conserva fila readonly.
+- Validación: componente real enNextpropio dosparticiones/Mongo, guardadoUIoffline+ACK único+pullpeer+convergencia de store6, DoDcompleto/cleanup/commitpushint/HEAD/cuotas.
+
+
 ## 18e1c2 — Bootstrap de índice settings autorizado
 
 Estado: completado; bootstrap validado8casosMongo, sóloPreview/int.

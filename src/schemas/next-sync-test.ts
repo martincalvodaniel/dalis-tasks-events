@@ -138,6 +138,7 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("lost-settings-response-run") }),
   z.strictObject({ type: z.literal("epoch-after-settings-commit-run") }),
   z.strictObject({ type: z.literal("settings-incidents") }),
+  z.strictObject({ type: z.literal("settings-editor-proof") }),
   z.strictObject({ type: z.literal("legacy-root-resolution-proof") }),
   z.strictObject({ type: z.literal("reload-local") }),
   z.strictObject({

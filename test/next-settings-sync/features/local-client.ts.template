@@ -1,4 +1,5 @@
 "use client"
+import { proveSettingsEditor } from "@fixture/settings-editor-host"
 import { callServer } from "next/dist/client/app-call-server"
 import { unstable_isUnrecognizedActionError } from "next/navigation"
 import { startTransition } from "react"
@@ -523,6 +524,8 @@ export async function executeLocalFixtureCommand(
         await runtime.close()
       }
     }
+    case "settings-editor-proof":
+      return proveSettingsEditor(active)
     case "settings-incidents":
       return readSyncIncidents(active)
     case "legacy-root-resolution-proof": {

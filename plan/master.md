@@ -2,6 +2,8 @@
 
 ## Estado operativo — 17 de octubre de 2026
 
+**18e2a entregado:** editorzona compacto yguardadooffline preparado,22Next6 pasanincluyendoUIreal/validación/cancelación/ACKúnico. Hoy/Atrasadas ya leen zonapersonal de snapshot. Producto5hastaactivaciónconjuntasiguiente; índicePreviewautorizadocentralpublicado.
+
 **18e1c2 entregado:** índiceuser_settings_user_uidx autorizado incorporado albootstrapcentral sóloPreview/int;8casosMongo prueban restricción/reintento y fallos sinrepair. Producción intacta. SigueUI compacta yactivación6conjunta; producto5.
 
 **18e1c1 entregado:** veintiún escenarios Next6 pasan, incluida transición con cola5 capturada sinACK y recuperaciónoriginal6. Incidentes6/resoluciónlegacy conservan settings; no amplía recuperacióncomún. Permiso user_settings_user_uidx recibido, sóloPreview/int medianteensureIndexes; pendiente incorporarlo albootstrap, UI/zona y activación conjunta. Producto5.

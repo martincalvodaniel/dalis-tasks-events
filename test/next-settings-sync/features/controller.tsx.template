@@ -1294,6 +1294,49 @@ export function FixtureController() {
         }
       )
       await check(
+        "Editor real guarda zona offline y confirma una vez sin reprogramar planes",
+        async () => {
+          const before = await state(owner)
+          const proof = (await call(0, { type: "settings-editor-proof" })) as {
+            settings: unknown
+            networkCalls: number
+          }
+          assert(
+            proof.networkCalls === 0 &&
+              userSettingsSchema.parse(proof.settings).timeZone ===
+                "America/Los_Angeles",
+            "Offline editor did not save the chosen personal zone"
+          )
+          assert(
+            canonical(await state(owner)) === canonical(before),
+            "Offline editor changed remote data"
+          )
+          const result = (await call(0, { type: "mixed-run" })) as {
+            status: string
+            uploaded: number
+          }
+          assert(
+            result.status === "settled" && result.uploaded === 1,
+            "UI settings intention did not receive one real ACK"
+          )
+          const remote = await state(owner)
+          assert(
+            remote.counts.receipts === before.counts.receipts + 1 &&
+              remote.page.through === before.page.through + 1,
+            "Editor save duplicated remote history"
+          )
+          assert(
+            canonical(
+              remote.page.changes.filter(
+                (change) =>
+                  change.operationId !== remote.page.changes.at(-1)?.operationId
+              )
+            ) === canonical(before.page.changes),
+            "Personal zone edit rewrote earlier plan history"
+          )
+        }
+      )
+      await check(
         "Sesión revocada no confirma ni modifica ajustes",
         async () => {
           assert(
@@ -1347,7 +1390,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Veintiún escenarios Next6 correctos; sesiones propias cerradas"
+            "Veintidós escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",
