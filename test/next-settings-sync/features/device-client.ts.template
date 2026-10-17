@@ -1,0 +1,165 @@
+"use client"
+
+import type { z } from "zod"
+import { dispatchSyncOperationsV6 } from "@/features/sync/client-action-v6"
+import { createHttpRecurringSyncTransport } from "@/features/sync/http-recurring-transport"
+import { createHttpSettingsSyncTransport } from "@/features/sync/http-recurring-transport"
+import { SyncTransportError } from "@/features/sync/transport-error"
+import {
+  nextSyncDeviceCommandSchema,
+  nextSyncMissingActionId,
+} from "@/schemas/next-sync-test"
+import { workspaceIdentitySchema } from "@/schemas/workspace"
+import { dispatchFixtureRetiredOperations } from "@fixture/retired-client"
+
+export async function fixtureFetch(
+  runId: string,
+  path: string,
+  input?: unknown
+) {
+  const response = await fetch(path, {
+    method: input === undefined ? "GET" : "POST",
+    headers: {
+      "x-sync-test-run": runId,
+      ...(input === undefined ? {} : { "Content-Type": "application/json" }),
+    },
+    body: input === undefined ? undefined : JSON.stringify(input),
+    credentials: "same-origin",
+    cache: "no-store",
+  })
+  return {
+    status: response.status,
+    value: await response.json(),
+    protocol: response.headers.get("x-dalis-sync-protocol"),
+  }
+}
+
+async function protocolMatrix(runId: string) {
+  const identity = await fixtureFetch(runId, "/fixture/identity")
+  if (identity.status !== 200)
+    throw new Error("Matrix requires an owned authenticated session")
+  const userId = workspaceIdentitySchema.parse(identity.value).userId
+  let bodies = 0,
+    cases = 0
+  const guardedFetch =
+    (legacy: boolean): typeof fetch =>
+    async (input, init) => {
+      const path = String(input)
+      const selected = legacy
+        ? path
+            .replace("/api/sync/identity", "/fixture/legacy-identity")
+            .replace("/api/sync/changes", "/fixture/legacy-changes")
+        : path
+      const response = await fetch(selected, {
+        ...init,
+        headers: { ...init?.headers, "x-sync-test-run": runId },
+      })
+      const json = response.json.bind(response)
+      response.json = () => {
+        bodies++
+        return json()
+      }
+      return response
+    }
+  const oldClient = createHttpRecurringSyncTransport(
+    userId,
+    dispatchFixtureRetiredOperations,
+    guardedFetch(false)
+  )
+  const newClient = createHttpSettingsSyncTransport(
+    userId,
+    dispatchSyncOperationsV6,
+    guardedFetch(true)
+  )
+  for (const client of [oldClient, newClient]) {
+    for (const work of [
+      () => client.readIdentity(),
+      () => client.pull({ after: 0, through: null, limit: 100 }),
+    ]) {
+      try {
+        await work()
+        throw new Error("Incompatible protocol unexpectedly succeeded")
+      } catch (error) {
+        if (
+          !(error instanceof SyncTransportError) ||
+          error.reason !== "update_required"
+        )
+          throw error
+        cases++
+      }
+    }
+  }
+  const probe = await fetch(location.pathname + location.search, {
+    method: "POST",
+    credentials: "same-origin",
+    cache: "no-store",
+    headers: {
+      "Next-Action": nextSyncMissingActionId(runId),
+      "Content-Type": "text/plain;charset=UTF-8",
+    },
+    body: "[]",
+  })
+  const missing =
+    probe.status === 409 &&
+    probe.headers.get("x-nextjs-action-not-found") === "1"
+  await probe.body?.cancel()
+  return {
+    cases,
+    bodies,
+    missing,
+    missingStatus: probe.status,
+    missingHeader: probe.headers.get("x-nextjs-action-not-found"),
+  }
+}
+
+async function execute(
+  runId: string,
+  input: z.infer<typeof nextSyncDeviceCommandSchema>
+): Promise<unknown> {
+  const command = nextSyncDeviceCommandSchema.parse(input)
+  if (command.type === "session" && command.command === "cleanup")
+    return fixtureFetch(runId, "/fixture/session", {
+      runId,
+      command: command.command,
+    })
+  const guard = await fixtureFetch(runId, "/fixture/guard")
+  if (guard.status !== 200)
+    throw new Error("Fixture blocked before touching foreign auth cookies")
+  switch (command.type) {
+    case "identity":
+      return fixtureFetch(runId, "/fixture/identity")
+    case "pull":
+      return fixtureFetch(
+        runId,
+        `/fixture/changes?expectedUserId=${encodeURIComponent(command.userId)}&after=0&limit=100`
+      )
+    case "bootstrap":
+      return fixtureFetch(runId, "/fixture/bootstrap", {
+        runId,
+        identity: command.identity,
+      })
+    case "session":
+      return fixtureFetch(runId, "/fixture/session", {
+        runId,
+        command: command.command,
+      })
+    case "push":
+      return dispatchSyncOperationsV6(command.input)
+    case "retired-push":
+      return dispatchFixtureRetiredOperations(command.input)
+    case "protocol-matrix":
+      return protocolMatrix(runId)
+    default:
+      throw new Error("Settings boundary command is unsupported")
+  }
+}
+let previous: Promise<unknown> = Promise.resolve()
+export function executeFixtureCommand(
+  runId: string,
+  input: z.infer<typeof nextSyncDeviceCommandSchema>
+): Promise<unknown> {
+  const command = nextSyncDeviceCommandSchema.parse(input)
+  const result = previous.then(() => execute(runId, command))
+  previous = result.catch(() => undefined)
+  return result
+}

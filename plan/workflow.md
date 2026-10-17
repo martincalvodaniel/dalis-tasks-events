@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## Reanudación general — 17 de octubre
+
+Usuario: «Nuevas ventanas! Continua con el plan». Renovación real99%5h/100%7d; nuevo reset1792264709,17oct21:18:29Europe/Madrid. Continuación general secuencial autorizada, reservas10%5h/1%7d y lectura tras cada commitpushint/HEAD; sin créditos/reinicios ni nueva automatización. Main humano y worktreeint limpios en202c24f; se reutiliza worktree gestionadoint, sin editar main. Primero18e1a1 RPCNext6 propio; luego clientesIndexedDB/lifecycle y activación sólo con aceptación/readiness/permisos concretos. Cumpleaños aparcado/sharing fuera; checklist física pendiente del usuario, arrastre aceptado no se reabre.
+
 ## Intercalada humana — aceptación y checklist
 
 El usuario acepta el arrastre como terminado y solicita la checklist física. Registrar únicamente ese cierre y recorrido actual, sin abrir código con9%5h/10%7d. Resultados pendientes del usuario, no equivalen a aceptación de settings6 ni conflicto. Publicar documentación y cerrar; continuación técnica18e1a requiere margen renovado.

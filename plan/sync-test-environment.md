@@ -308,3 +308,8 @@ El usuario pide cerrar categorías/asignaciones y después recibir porcentaje es
 ## 17e1c1 — Operador recurrente propio
 
 Modo recurring-operator selecciona exclusivamente recurring-index-operator.integration.test.ts en descriptor/pinnedimage propios. CLI con flags no-env-file/react-server, env sólo propio y target guard; tres casos100aserciones pasan con9automáticos+5personales, target inválido sin recrear índices, prefix4 ante duplicados y retry sólo aparición/noop/cierre. Limpieza exclusivamente filas/índices tracked de fixture y container/tmpfs/bridge propios. Nunca ejecutarlo con DB del usuario para probar destructivamente.
+
+
+### 18e1a1 — RPC de ajustes en Next6
+
+`bun --no-env-file scripts/sync-db-test-runner.ts next-settings` crea descriptor/Mongo pinned propios y dos orígenes Nextcompiled. Overlay `test/next-settings-sync` selecciona6 sólo enfixture; inventario requiere acciones6/5 reales. Reader/prepare/faultinjection settings sólo permiten DBexacta deldescriptor/actor de sesionespropias eíndice registrado. Nueve escenarios6 pasan; next-recurring19escenariosregresión también. No IDdeployment/Google/dispositivos físicos ni ACKIndexedDB6. Ambos contenedores/tmpfs/bridges/proyectos/orígenes/cookies propios retirados. Sin DBusuario/secretos/producción; límites/config de aislamiento existentes conservados.

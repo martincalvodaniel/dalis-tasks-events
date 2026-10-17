@@ -103,6 +103,12 @@ export const nextRecurringSyncStateSchema = z.strictObject({
   }),
   page: remoteRecurringChangesPageSchema,
 })
+export const nextSettingsSyncStateSchema = z.strictObject({
+  counts: nextRecurringSyncStateSchema.shape.counts.extend({
+    settings: z.number().int().min(0),
+  }),
+  page: remoteRecurringChangesPageSchema,
+})
 export function nextSyncMissingActionId(runIdInput: unknown): string {
   return `40${entityIdSchema.parse(runIdInput).replaceAll("-", "")}00000000`
 }

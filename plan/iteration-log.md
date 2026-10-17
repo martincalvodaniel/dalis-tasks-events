@@ -1,5 +1,11 @@
 # Registro de iteraciones
 
+## 18e1a1 — Next6 compilado con defaults reales
+
+17oct reanudación general: int202c24f/origin exacto y limpio,99%5h/100%7d/reset1792264709/reservas10%/1%. Docker28.4linuxamd64 e imagen pinned revalidados; modo next-settings añade scope explícito sin cambiar activo5. HelperDBpropio cuenta settings, selecciona reader futuro, seis índices del registro y faultinjection sólo settingsguardado por descriptor/DBactor. Perfil6 sólooverlay; inventario de Next exige referencia productiva action6 y retiro5. Schema contador6 no debilita scopesanteriores. Nueva matriz5↔6 antesbody, IDausenteNext409marcado y auth/actor/readiness antesexecutor/ACK.
+
+Run propio2654b7ff nueve escenarios correctos: dos sesionespersistidas, applied/replayexacto, CASconflict, revisión2/oldreplay sinregresión, pullidéntico yrevocación. Tresrecibos/doscambios/unsettings. Regresión5 run4b1d487d pasa19escenariosanteriores, incluyendo IndexedDB/hook5/leases/backup; no extrapolar eso a6. Recursos/cookies/servidores/proyectos propios y contenedores limpiados, tabs cerradas. Capturas `/private/tmp/dalis-settings-next6-boundary.png` y `/private/tmp/dalis-settings-regression-next5.png`. Suite828pass/221skip/0fail/10748aserciones, lint847/tipos/Webpack/worker46/diff aprobados; literal2 deltest añadido reparadoasconst. Main preservado; ningún cambioDBusuario ni activación. Sigue18e1b clientes y lifecycle6 antes editor/selección conjunta. Plan/log mismo commitpushint/HEAD y cuotas finales.
+
 ## 16c16 — Sistema/Claro/Oscuro en Ajustes
 
 Petición humana de selector tras verificar temas automáticos. ThemeSettings compacto se monta incluso sin cuenta preparada; preferencia visual del navegador/dispositivo enlocalStorage, sin lectura/escritura aMongo/outbox/settings remoto ni cambio de negociación5. SchemaZod valida valores; bootstrapestático compartido usa opciones del schema yse renderiza enhead antesbody/hidratación. Rootsuprime únicamente discrepancia esperada de atributos; useSyncExternalStore mantiene select/otraspestañas con cleanup. CSScustomdark contempla atributo explícito ymedia nativa paraSistema, variables ycolor-scheme de controlesnativos. Almacenamiento inválido/no disponible=>Sistema; si setItemfalla, tema se aplica enmemoria yUIavisa de falta depersistencia.

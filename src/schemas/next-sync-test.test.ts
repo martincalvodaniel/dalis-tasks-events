@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
 import {
   nextRecurringSyncStateSchema,
+  nextSettingsSyncStateSchema,
   nextSyncDeviceCommandSchema,
   nextSyncIndexControlSchema,
   nextSyncStateSchema,
@@ -195,4 +196,42 @@ test("recurring movement fixture excludes simple plans and injected execution op
     { ...input, allowSeries: false },
   ])
     expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
+})
+
+test("settings fixture state requires its separate count without weakening previous scopes", () => {
+  const state = {
+    counts: {
+      items: 0,
+      tags: 0,
+      views: 0,
+      receipts: 0,
+      occurrences: 0,
+      settings: 0,
+    },
+    page: {
+      version: 2 as const,
+      changes: [],
+      nextAfter: 0,
+      through: 0,
+      hasMore: false,
+    },
+  }
+  expect(nextSettingsSyncStateSchema.parse(state)).toEqual(state)
+  expect(() => nextRecurringSyncStateSchema.parse(state)).toThrow()
+  const { settings: _settings, ...oldCounts } = state.counts
+  expect(() =>
+    nextSettingsSyncStateSchema.parse({ ...state, counts: oldCounts })
+  ).toThrow()
+  expect(() =>
+    nextSettingsSyncStateSchema.parse({
+      ...state,
+      counts: { ...state.counts, settings: -1 },
+    })
+  ).toThrow()
+  expect(() =>
+    nextSettingsSyncStateSchema.parse({
+      ...state,
+      counts: { ...state.counts, production: 1 },
+    })
+  ).toThrow()
 })

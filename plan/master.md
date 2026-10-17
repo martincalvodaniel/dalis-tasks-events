@@ -1,6 +1,8 @@
 # Dalis Tasks & Events — plan maestro
 
-## Estado operativo — 12 de octubre de 2026
+## Estado operativo — 17 de octubre de 2026
+
+**18e1a1 entregado:** Next6 compilado con acciones reales/defaults y dos sesiones BetterAuth persistidas/Mongo propios: nueve escenarios de identidad/readiness/retiro/matriz/CAS/replay/historia pasan. Diecinueve escenarios5 anteriores también pasan. Producto continúa5; sigue ACK/pullIndexedDB+lifecycle6 antes de activar zona personal. No Google nuevo ni dos dispositivos físicos; no DBusuario.
 
 **16c16 entregado:** Ajustes ofrece Sistema/Claro/Oscuro. Elección local por navegador/dispositivo, aplicada inmediatamente y desde HTML inicial; Sistema sigue preferenciasOS, explícitos las sobrescriben. Recarga y pestañas mantienen elección. No añade tema a userSettings remoto ni activa generación6.
 

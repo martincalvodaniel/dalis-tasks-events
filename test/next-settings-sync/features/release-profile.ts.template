@@ -1,0 +1,5 @@
+// Only the owned compiled fixture selects settings; product selection remains unchanged.
+export const commonPlanReleaseEnabled: boolean = true
+export const recurringSyncReleaseEnabled: boolean = true
+export const settingsSyncReleaseEnabled: boolean = true
+export const activeProductSyncProtocol = 6

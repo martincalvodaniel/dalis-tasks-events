@@ -1,0 +1,234 @@
+"use client"
+import { useEffect, useState } from "react"
+import type { z } from "zod"
+import { nextSyncPublicConfigSchema, nextSyncDeviceCommandSchema, nextSettingsSyncStateSchema } from "@/schemas/next-sync-test"
+import { canonical } from "@fixture/projection"
+import { remoteRecurringPushResultSchema } from "@/schemas/remote-recurring-push"
+import { encodeSyncProtocolRange } from "@/lib/sync/sync-protocol"
+import { syncOperationSchema } from "@/schemas/sync"
+import { workspaceIdentitySchema } from "@/schemas/workspace"
+import { executeFixtureCommand, fixtureFetch } from "@fixture/device-client"
+
+function assert(value: unknown, message: string): asserts value {
+  if (!value) throw new Error(message)
+}
+type Reply = { status: number; value: unknown; protocol: string | null }
+
+export function FixtureController() {
+  const [config, setConfig] = useState<z.infer<
+    typeof nextSyncPublicConfigSchema
+  > | null>(null)
+  const [status, setStatus] = useState("Preparando la prueba aislada de Next")
+  const [rows, setRows] = useState<string[]>([])
+  const [running, setRunning] = useState(false)
+  useEffect(() => {
+    void (async () => {
+      const run = new URLSearchParams(location.search).get("run")
+      const parsed = nextSyncPublicConfigSchema.parse(
+        await (
+          await fetch(`/fixture/config?runId=${run}`, { cache: "no-store" })
+        ).json()
+      )
+      assert(
+        location.origin === parsed.origins[0],
+        "Fixture controller host is invalid"
+      )
+      setConfig(parsed)
+      setStatus("Listo. La prueba abre un segundo dispositivo en otra pestaña")
+    })().catch(() => setStatus("No se ha podido preparar la prueba aislada"))
+  }, [])
+
+  const run = () => {
+    if (!config || running) return
+    const fixture = config
+    setRunning(true)
+    let secondary: Window | null = null
+    let removeReady = () => {}
+    let readyTimer: ReturnType<typeof setTimeout> | undefined
+    const ready = new Promise<void>((resolveReady, reject) => {
+      readyTimer = setTimeout(() => {
+        removeReady()
+        reject(new Error("Fixture second device did not become ready"))
+      }, 45000)
+      const listener = (event: MessageEvent) => {
+        if (
+          event.source !== secondary ||
+          event.origin !== fixture.origins[1] ||
+          event.data?.runId !== fixture.runId ||
+          event.data?.ready !== true
+        )
+          return
+        clearTimeout(readyTimer)
+        removeReady()
+        resolveReady()
+      }
+      window.addEventListener("message", listener)
+      removeReady = () => window.removeEventListener("message", listener)
+    })
+    void ready.catch(() => {})
+    // Open synchronously from the user gesture; both devices must be top-level first-party sites.
+    secondary = window.open(
+      `${fixture.origins[1]}/device?run=${fixture.runId}`,
+      `dalis-next-sync-${fixture.runId}`
+    )
+    const call = async (
+      index: number,
+      command: z.infer<typeof nextSyncDeviceCommandSchema>
+    ): Promise<unknown> => {
+      const parsed = nextSyncDeviceCommandSchema.parse(command)
+      if (index === 0) return executeFixtureCommand(fixture.runId, parsed)
+      assert(
+        secondary && !secondary.closed,
+        "Fixture second device is unavailable"
+      )
+      const channel = new MessageChannel()
+      try {
+        return await new Promise((resolveReply, reject) => {
+          const timer = setTimeout(
+            () => reject(new Error("Fixture command timed out")),
+            45000
+          )
+          channel.port1.onmessage = (event) => {
+            clearTimeout(timer)
+            if (event.data?.ok === true) resolveReply(event.data.value)
+            else reject(new Error("Fixture second device command failed"))
+          }
+          secondary!.postMessage(
+            { runId: fixture.runId, command: parsed },
+            fixture.origins[1],
+            [channel.port2]
+          )
+        })
+      } finally {
+        channel.port1.close()
+      }
+    }
+    const check = async (label: string, work: () => Promise<void>) => {
+      setStatus(label)
+      await work()
+      setRows((values) => [...values, `Correcto: ${label}`])
+    }
+    const state = async (userId: string) => {
+      const response = await fixtureFetch(
+        fixture.runId,
+        `/fixture/state?runId=${fixture.runId}&userId=${encodeURIComponent(userId)}`
+      )
+      assert(response.status === 200, "Fixture state reader failed")
+      return nextSettingsSyncStateSchema.parse(response.value)
+    }
+    const creation = syncOperationSchema.parse({
+      operationId: crypto.randomUUID(), protocolVersion: 1, baseRevision: 0,
+      command: {type: "settings.update", input: {timeZone: "Europe/Madrid", weekStartsOn: 1, locale: "es-ES"}},
+    })
+    let owner = "", passed = false
+    const batch = (operation = creation) => ({transportVersion: 2, expectedUserId: owner, operations: [operation]})
+    const push = async (index: number, input: unknown, status: string, retired = false) => {
+      const result = remoteRecurringPushResultSchema.parse(await call(index, {type: retired ? "retired-push" : "push", input}))
+      assert(result.status === status, `Unexpected settings RPC status ${result.status}`)
+      return result
+    }
+    void (async () => {
+      assert(secondary, "Fixture popup was blocked")
+      await ready
+      await check("Acción6 rechaza sesiones ausentes sin escribir", async () => {
+        for (let index=0; index<2; index++) {
+          assert(((await call(index, {type:"identity"})) as Reply).status===401, "Unauthenticated identity was exposed")
+          await push(index, {...batch(), expectedUserId: "owned-unauthenticated"}, "unauthorized")
+        }
+      })
+      await check("Dos sesiones persistidas anuncian exclusivamente6", async () => {
+        for (let index=0; index<2; index++) {
+          const boot = await call(index, {type:"bootstrap",identity:"owner"}) as Reply
+          assert(boot.status===200, "Settings session bootstrap failed")
+          const identity = await call(index,{type:"identity"}) as Reply
+          assert(identity.status===200 && identity.protocol===encodeSyncProtocolRange(6), "Settings identity did not announce exclusive six")
+          const actor = workspaceIdentitySchema.parse(identity.value).userId
+          if (index===0) owner=actor
+          else assert(owner===actor, "Persisted settings sessions have different actors")
+        }
+        const initial=await state(owner)
+        assert(initial.page.through===0 && Object.values(initial.counts).every(n=>n===0), "Unauthenticated settings action wrote data")
+      })
+      await check("Matriz5↔6 bloquea antes del body e IDausente está verificado", async () => {
+        for (let index=0; index<2; index++) {
+          const proof=await call(index,{type:"protocol-matrix"}) as {cases:number;bodies:number;missing:boolean;missingStatus:number;missingHeader:string|null}
+          assert(proof.cases===4 && proof.bodies===0 && proof.missing && proof.missingStatus===409 && proof.missingHeader==="1", "Settings matrix consumed a body or did not prove its absent action")
+        }
+        assert((await state(owner)).counts.receipts===0, "Protocol mismatch wrote a receipt")
+      })
+      await check("Actor esperado y sobre inválido no llegan al ejecutor", async () => {
+        for (let index=0; index<2; index++) {
+          await push(index,{...batch(),expectedUserId:"owned-other"},"account_changed")
+          await push(index,{...batch(),transportVersion:1},"update_required")
+          const pull=await call(index,{type:"pull",userId:"owned-other"}) as Reply
+          assert(pull.status===409, "Foreign expected actor pull was accepted")
+        }
+        assert((await state(owner)).counts.receipts===0, "Rejected settings actor wrote a receipt")
+      })
+      await check("Readiness6 bloquea; acción5 capturada se retira sin ejecutar", async () => {
+        const blocked=await fixtureFetch(fixture.runId,"/fixture/readiness",{runId:fixture.runId,command:"block"})
+        assert(blocked.status===200,"Owned settings readiness injection failed")
+        try {
+          await push(0,batch(),"retry_later")
+          await push(1,batch(),"update_required",true)
+          const pull=await call(0,{type:"pull",userId:owner}) as Reply
+          assert(pull.status===503 && pull.protocol===encodeSyncProtocolRange(6), "Missing settings index did not block pull")
+          assert((await state(owner)).counts.receipts===0,"Readiness or captured action5 acknowledged a settings operation")
+        } finally {
+          assert((await fixtureFetch(fixture.runId,"/fixture/readiness",{runId:fixture.runId,command:"restore"})).status===200,"Owned settings index restoration failed")
+        }
+      })
+      await check("Defaults reales6 confirman una vez y replay no duplica historia", async () => {
+        const result=await push(0,batch(),"complete")
+        assert(result.status==="complete" && result.results.length===1 && result.results[0].outcome.status==="applied", "Settings action did not apply")
+        const committed=await state(owner)
+        assert(committed.counts.settings===1 && committed.counts.receipts===1 && committed.page.through===1,"Settings commit lacks its exact record, receipt or journal")
+        await push(1,batch(),"complete")
+        assert(canonical(await state(owner))===canonical(committed),"Settings replay changed committed state")
+      })
+      await check("CAS obsoleto conserva conflicto explícito sin cambiar la zona", async () => {
+        const stale=syncOperationSchema.parse({...creation,operationId:crypto.randomUUID()})
+        const result=await push(1,batch(stale),"complete")
+        assert(result.status==="complete" && result.results[0].outcome.status==="conflict","Stale settings CAS was acknowledged as applied")
+        const current=await state(owner)
+        assert(current.counts.settings===1 && current.counts.receipts===2 && current.page.through===1,"Stale CAS mutated settings or appended applied history")
+      })
+      await check("Nueva revisión y descarga conservan replay antiguo sin regresión", async () => {
+        const next=syncOperationSchema.parse({...creation,operationId:crypto.randomUUID(),baseRevision:1,command:{type:"settings.update",input:{timeZone:"Pacific/Kiritimati",weekStartsOn:1,locale:"es-ES"}}})
+        const result=await push(0,batch(next),"complete")
+        assert(result.status==="complete" && result.results[0].outcome.status==="applied","Next settings revision was not applied")
+        const committed=await state(owner)
+        assert(committed.counts.settings===1 && committed.counts.receipts===3 && committed.page.through===2,"Next settings revision has inconsistent history")
+        await push(1,batch(),"complete")
+        assert(canonical(await state(owner))===canonical(committed),"Late original replay replaced newer settings")
+        for(let index=0;index<2;index++) {
+          const reply=await call(index,{type:"pull",userId:owner}) as Reply
+          assert(reply.status===200 && reply.protocol===encodeSyncProtocolRange(6) && canonical(reply.value)===canonical(committed.page),"Settings pull did not return the exact authenticated journal")
+        }
+      })
+      await check("Sesión revocada no confirma ni modifica ajustes", async () => {
+        assert((await call(1,{type:"session",command:"revoke"}) as Reply).status===200,"Owned session revoke failed")
+        const before=await state(owner)
+        await push(1,batch(),"unauthorized")
+        assert(canonical(await state(owner))===canonical(before),"Revoked session mutated settings state")
+      })
+      passed=true
+    })().catch(failure => {
+      console.error("Settings Next scenario failed", failure instanceof Error ? failure.message : "Unknown failure")
+      setStatus("Ha fallado un escenario de la prueba aislada")
+    }).finally(async () => {
+      removeReady();clearTimeout(readyTimer)
+      for(let index=0;index<2;index++) {
+        try { assert((await call(index,{type:"session",command:"cleanup"}) as Reply).status===200,"Owned session cleanup failed") }
+        catch {passed=false}
+      }
+      secondary?.close()
+      if(passed) setStatus("Nueve escenarios Next6 correctos; sesiones propias cerradas")
+      await fetch("/fixture/finish",{method:"POST",credentials:"same-origin",cache:"no-store",headers:{"Content-Type":"application/json","x-sync-test-run":fixture.runId},body:JSON.stringify({runId:fixture.runId,passed})})
+    })
+  }
+  return <main><h1>Frontera de ajustes Next6</h1><p id="status" role="status">{status}</p>
+    <button disabled={!config||running} onClick={run}>Ejecutar prueba RPC de ajustes</button>
+    <ol id="results">{rows.map(row=><li key={row}>{row}</li>)}</ol>
+  </main>
+}

@@ -238,10 +238,17 @@ export async function readNextRecurringSyncFixtureState(
   return readNextFixtureStateForScope(request, input, "recurring")
 }
 
+export async function readNextSettingsSyncFixtureState(
+  request: Request,
+  input: unknown
+) {
+  return readNextFixtureStateForScope(request, input, "settings")
+}
+
 async function readNextFixtureStateForScope(
   request: Request,
   input: unknown,
-  scope: "plans" | "recurring"
+  scope: "plans" | "recurring" | "settings"
 ) {
   const parsed = nextSyncStateQuerySchema.parse(input)
   const { config } = validateNextSyncFixtureRequest(request, {
@@ -258,7 +265,11 @@ async function readNextFixtureStateForScope(
     throw new Error("Next fixture actor is not owned by this run")
   const [
     { COLLECTION_NAMES, getCollection },
-    { readRemotePlanChangesV2, readRemoteRecurringChangesV2 },
+    {
+      readRemotePlanChangesV2,
+      readRemoteRecurringChangesV2,
+      readRemoteSettingsChangesV2,
+    },
   ] = await Promise.all([
     import("@/lib/db/collections"),
     import("@/lib/db/remote-changes-v2"),
@@ -273,17 +284,26 @@ async function readNextFixtureStateForScope(
       tags: await tags.countDocuments({ userId: parsed.userId }),
       views: await views.countDocuments({ userId: parsed.userId }),
       receipts: await receipts.countDocuments({ actorUserId: parsed.userId }),
-      ...(scope === "recurring"
+      ...(scope !== "plans"
         ? {
             occurrences: await (
               await getCollection(COLLECTION_NAMES.planOccurrences)
             ).countDocuments({ userId: parsed.userId }),
           }
         : {}),
+      ...(scope === "settings"
+        ? {
+            settings: await (
+              await getCollection(COLLECTION_NAMES.userSettings)
+            ).countDocuments({ userId: parsed.userId }),
+          }
+        : {}),
     },
-    page: await (scope === "recurring"
-      ? readRemoteRecurringChangesV2
-      : readRemotePlanChangesV2)(parsed.userId, {
+    page: await (scope === "settings"
+      ? readRemoteSettingsChangesV2
+      : scope === "recurring"
+        ? readRemoteRecurringChangesV2
+        : readRemotePlanChangesV2)(parsed.userId, {
       after: 0,
       limit: 100,
     }),
@@ -305,10 +325,17 @@ export async function controlNextRecurringSyncFixtureReadiness(
   return controlNextFixtureReadinessForScope(request, input, "recurring")
 }
 
+export async function controlNextSettingsSyncFixtureReadiness(
+  request: Request,
+  input: unknown
+) {
+  return controlNextFixtureReadinessForScope(request, input, "settings")
+}
+
 async function controlNextFixtureReadinessForScope(
   request: Request,
   input: unknown,
-  scope: "plans" | "recurring"
+  scope: "plans" | "recurring" | "settings"
 ) {
   const parsed = nextSyncIndexControlSchema.parse(input)
   const { config } = validateNextSyncFixtureRequest(request, {
@@ -318,7 +345,11 @@ async function controlNextFixtureReadinessForScope(
   const [
     { getDatabase },
     { ensureIndexes },
-    { selectPlacementSyncIndexSpecs, selectRecurringSyncIndexSpecs },
+    {
+      selectPlacementSyncIndexSpecs,
+      selectRecurringSyncIndexSpecs,
+      selectSettingsSyncIndexSpecs,
+    },
   ] = await Promise.all([
     import("@/lib/db/client"),
     import("@/lib/db/ensure-indexes"),
@@ -331,15 +362,19 @@ async function controlNextFixtureReadinessForScope(
   )
     throw new Error("Readiness fault injection ownership changed")
   const selected =
-    scope === "recurring"
-      ? selectRecurringSyncIndexSpecs()
-      : selectPlacementSyncIndexSpecs()
+    scope === "settings"
+      ? selectSettingsSyncIndexSpecs()
+      : scope === "recurring"
+        ? selectRecurringSyncIndexSpecs()
+        : selectPlacementSyncIndexSpecs()
   const placement = selected.find(
     (spec) =>
       spec.options.name ===
-      (scope === "recurring"
-        ? "plan_occurrences_user_series_slot_uidx"
-        : "task_placements_user_scope_date_occurrence_uidx")
+      (scope === "settings"
+        ? "user_settings_user_uidx"
+        : scope === "recurring"
+          ? "plan_occurrences_user_series_slot_uidx"
+          : "task_placements_user_scope_date_occurrence_uidx")
   )
   if (!placement || typeof placement.options.name !== "string")
     throw new Error("Owned readiness index is missing")
@@ -352,13 +387,22 @@ async function controlNextFixtureReadinessForScope(
 }
 
 export async function prepareNextRecurringSyncFixture(request: Request) {
+  return prepareNextFixtureForScope(request, "recurring")
+}
+export async function prepareNextSettingsSyncFixture(request: Request) {
+  return prepareNextFixtureForScope(request, "settings")
+}
+async function prepareNextFixtureForScope(
+  request: Request,
+  scope: "recurring" | "settings"
+) {
   const { config } = validateNextSyncFixtureRequest(request, {
     runId: request.headers.get("x-sync-test-run"),
   })
   const [
     { getDatabase },
     { ensureIndexes },
-    { selectRecurringSyncIndexSpecs },
+    { selectRecurringSyncIndexSpecs, selectSettingsSyncIndexSpecs },
   ] = await Promise.all([
     import("@/lib/db/client"),
     import("@/lib/db/ensure-indexes"),
@@ -370,5 +414,10 @@ export async function prepareNextRecurringSyncFixture(request: Request) {
     database.databaseName !== `dalis-sync-test-${config.runId}`
   )
     throw new Error("Recurring fixture database ownership changed")
-  await ensureIndexes(database, selectRecurringSyncIndexSpecs())
+  await ensureIndexes(
+    database,
+    scope === "settings"
+      ? selectSettingsSyncIndexSpecs()
+      : selectRecurringSyncIndexSpecs()
+  )
 }

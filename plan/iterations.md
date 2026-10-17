@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 18e1a1 — Frontera Next6 compilada de ajustes
+
+Estado: completado; nueve escenarios6 y diecinueve de regresión5 pasan, producto sigue5.
+
+- Objetivo: ejecutar action6/defaults/readiness/sesiones BetterAuth persistidas y matriz5↔6 con dos orígenes propios, manteniendo producto5.
+- target_paths: `scripts/{sync-db-test-runner,next-sync-test-runner}.ts`, `test/next-settings-sync/**`, `src/schemas/next-sync-test{,.test}.ts`, `src/lib/db/next-sync-fixture.ts`, `test/next-recurring-sync/features/release-profile.ts.template`, `plan/**`.
+- Dependencias: int202c24f/origin exactos y limpios, flags5 activos; cuota17oct99%5h/100%7d, reset1792264709, reservas10%/1%. Docker28.4linuxamd64 e imagen pinned Mongo revalidados. Secuencial; guíasNextServerActions/React vigentes leídas.
+- Aceptación: fixture6 explícito con referencias reales action6/retire5 inventariadas, seis índices del registro sólo DBdescriptor; sin sesión/actor distinto/readiness bloquean; header incompatible se rechaza antesbody; IDausente comprobado Next sinACK; settingsCAS/recibo/journal reales yreplay exacto. Ninguna selección6 o provisión enDBusuario.
+- Validación: ejecución Next/Mongo propia y saneada, DoD/lint/tipos/suite/build/worker, limpieza own, plan/log mismo commitpushint/HEAD/cuotas. Este corte no afirma ACK/pullIndexedDB ni lifecycle/convergencia; siguiente18e1b de clientes locales6.
+
 ## 16c16 — Selector de tema por dispositivo
 
 Estado: completado; tres modos activos y persistidos por navegador/dispositivo, sin sincronización remota.

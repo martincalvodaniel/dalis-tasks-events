@@ -17,13 +17,15 @@ import {
   nextSyncPublicConfigSchema,
 } from "@/schemas/next-sync-test"
 
-const recurring = process.argv[2] === "recurring"
+const settings = process.argv[2] === "settings"
+const recurring = process.argv[2] === "recurring" || settings
+const selectedProtocol = settings ? 6 : recurring ? 5 : 4
 if (process.argv[2] !== undefined && !recurring)
   throw new Error("Unknown isolated Next fixture scope")
 if (
   !commonPlanReleaseEnabled ||
   (recurring
-    ? ![4, 5].includes(activeProductSyncProtocol)
+    ? ![4, 5, 6].includes(activeProductSyncProtocol)
     : activeProductSyncProtocol !== 4)
 )
   throw new Error(
@@ -216,6 +218,8 @@ try {
   await copyTemplates(join(root, "test/next-sync"), directory)
   if (recurring)
     await copyTemplates(join(root, "test/next-recurring-sync"), directory)
+  if (settings)
+    await copyTemplates(join(root, "test/next-settings-sync"), directory)
   await writeFile(
     join(directory, "package.json"),
     JSON.stringify({
@@ -247,7 +251,7 @@ try {
         paths: {
           "@/*": ["../../src/*"],
           "@fixture/*": ["./features/*"],
-          ...(recurring && activeProductSyncProtocol === 4
+          ...(settings || (recurring && activeProductSyncProtocol !== 5)
             ? {
                 "@/config/common-plan-release": [
                   "./features/release-profile.ts",
@@ -293,17 +297,16 @@ try {
       (reference) =>
         referencesSource(
           reference.filename,
-          `src/features/sync/actions-v${recurring ? 5 : 4}.ts`
-        ) &&
-        reference.exportedName === `pushSyncOperationsV${recurring ? 5 : 4}`
+          `src/features/sync/actions-v${selectedProtocol}.ts`
+        ) && reference.exportedName === `pushSyncOperationsV${selectedProtocol}`
     ) ||
     !actionReferences.some(
       (reference) =>
         referencesSource(
           reference.filename,
-          `src/features/sync/actions-v${recurring ? 4 : 3}.ts`
+          `src/features/sync/actions-v${selectedProtocol - 1}.ts`
         ) &&
-        reference.exportedName === `pushSyncOperationsV${recurring ? 4 : 3}`
+        reference.exportedName === `pushSyncOperationsV${selectedProtocol - 1}`
     )
   )
     throw new Error(

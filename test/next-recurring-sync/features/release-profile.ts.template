@@ -1,4 +1,5 @@
 // Owned compiled fixture selects all product ports together; deployed selection remains unchanged.
 export const commonPlanReleaseEnabled: boolean = true
 export const recurringSyncReleaseEnabled: boolean = true
+export const settingsSyncReleaseEnabled: boolean = false
 export const activeProductSyncProtocol = 5

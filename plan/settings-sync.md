@@ -1,5 +1,11 @@
 # Zona horaria personal y sincronización de ajustes
 
+## 18e1a1 — Next6 real y regresión5 cerrados
+
+Modo `next-settings` del runner aislado compila overlay6 propio: manifiesto exige action6 y retiro5 reales; APIs productivas/defaults con sesión BetterAuth persistida y seis índices centrales en DBdescriptor. Dos orígenes/cookies propios, mismos usuarios sintéticos. Nueve escenarios pasan: sin sesión, identidad6 exclusiva, matriz5↔6 antesbody/IDausente409marcado, actor/sobre, missingíndices/retiro5 sinACK, settingsapplied/replayúnico, CASconflict, revisión2/late-replay sinregresión/pullhistórico exacto yrevocación. Tres recibos/dos cambios/registrosettingsúnico esperados, no ACK local ni convergencia IndexedDB en este corte. Regresión next-recurring completa19escenarios también pasa; recursos de ambos runs retirados.
+
+Suite828pass/221opt-in skip/0fail/10748aserciones, lint847/tipos/Webpack/worker46/diff aprobados. Literal del testcontador corregidoasconst. Capturas `/private/tmp/dalis-settings-next6-boundary.png` y `/private/tmp/dalis-settings-regression-next5.png`. Producto5 y settings6 inactivos; siguiente18e1b pruebas de productor/ACK/pull y lifecycle6 con dos particiones reales antes de UI/activación. Índiceuser_settings_user_uidx sigue staged en DBusuario; no creación ni permiso nuevo asumidos.
+
 ## Tema local del dispositivo — 16c16
 
 Selector Sistema/Claro/Oscuro entregado en Ajustes con clave localStorage `dalis:theme:v1`, separada del settings remoto de cuenta/epoch. No modifica schema userSettings, outbox, backup ni negociación5/6. PredeterminadoSystem resuelve media query; explícitos sobrescriben variables/variantesdark/nativecolor-scheme. Preferencia antes de hidratación enhead y conservación trasrecarga/entre pestañas. Valor corrupto/almacenamiento no disponible caeSistema; error al persistir aplica sesión actual con aviso honesto. Este ajuste es visual de este navegador/dispositivo y no se anuncia sincronización multidispositivo.
