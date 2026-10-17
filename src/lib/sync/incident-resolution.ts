@@ -1,6 +1,8 @@
 import { applyItemCommand } from "@/lib/calendar/item-command"
 import { supportsRemoteItemCommand } from "@/lib/sync/item-command-support"
+import { readPlanSyncCommandCapability } from "@/lib/sync/sync-capabilities"
 import { calendarItemDraftSchema } from "@/schemas/calendar-item"
+import { planCommandSchema } from "@/schemas/plan-command"
 import { syncOperationSchema } from "@/schemas/sync"
 import { syncIncidentSnapshotSchema } from "@/schemas/sync-incident"
 import {
@@ -14,7 +16,22 @@ import type {
   SyncResolutionRequest,
 } from "@/types/sync-resolution"
 
-function validateResolutionSnapshot(input: unknown, userId: string) {
+function supportsResolutionCommand(
+  command: SyncOperation["command"],
+  current: CalendarItem,
+  allowPlans: boolean
+) {
+  if (current.kind !== "plan")
+    return supportsRemoteItemCommand(command, current)
+  if (!allowPlans || !planCommandSchema.safeParse(command).success) return false
+  return readPlanSyncCommandCapability(command, current).supported
+}
+
+function validateResolutionSnapshot(
+  input: unknown,
+  userId: string,
+  allowPlans = false
+) {
   const current = syncIncidentSnapshotSchema.parse(input)
   const { entry, local, remote, intentions } = current
   if (
@@ -44,6 +61,8 @@ function validateResolutionSnapshot(input: unknown, userId: string) {
       (record.ownerId !== userId ||
         record.id !== command.itemId ||
         record.kind === "birthday" ||
+        (record.kind === "plan" && !allowPlans) ||
+        (remote.kind === "plan" && record.kind !== "plan") ||
         record.recurrence)
     )
       throw new Error("Resolution record is foreign or unsupported")
@@ -64,7 +83,11 @@ function validateResolutionSnapshot(input: unknown, userId: string) {
       (intention.state === "pending" && intention.attempts > 0) ||
       ids.has(intention.operation.operationId) ||
       sequences.has(intention.sequence) ||
-      !supportsRemoteItemCommand(intention.operation.command, local ?? remote)
+      !supportsResolutionCommand(
+        intention.operation.command,
+        local ?? remote,
+        allowPlans
+      )
     )
       throw new Error(
         "Resolution must preserve a complete supported chain without active sends"
@@ -82,13 +105,15 @@ function validateResolutionSnapshot(input: unknown, userId: string) {
 }
 
 export function availableSyncIncidentResolutionChoices(
-  input: unknown
+  input: unknown,
+  allowPlans = false
 ): SyncResolutionRequest["choice"][] {
   try {
     const parsed = syncIncidentSnapshotSchema.parse(input)
     const { local, remote } = validateResolutionSnapshot(
       parsed,
-      parsed.entry.userId
+      parsed.entry.userId,
+      allowPlans
     )
     if (local && !remote.deletedAt) return ["adopt_remote", "retry_local"]
     if (local && !local.deletedAt && remote.deletedAt)
@@ -101,7 +126,8 @@ export function availableSyncIncidentResolutionChoices(
 
 export function planSyncIncidentResolution(
   input: unknown,
-  currentInput: unknown
+  currentInput: unknown,
+  allowPlans = false
 ): SyncResolutionRecord {
   const request = syncResolutionRequestSchema.parse(input)
   const current = syncIncidentSnapshotSchema.parse(currentInput)
@@ -109,7 +135,8 @@ export function planSyncIncidentResolution(
     throw new Error("Incident changed since the comparison was opened")
   const { local, remote, intentions, ids } = validateResolutionSnapshot(
     current,
-    request.userId
+    request.userId,
+    allowPlans
   )
   const identities = [
     request.resolutionId,
@@ -149,23 +176,34 @@ export function planSyncIncidentResolution(
               : ("item.update" as const),
           itemId: request.copyItemId ?? local.id,
           input: calendarItemDraftSchema.parse(
-            local.kind === "task"
+            local.kind === "plan"
               ? {
                   kind: local.kind,
+                  variant: local.variant,
                   title: local.title,
                   description: local.description,
-                  scheduledDate: local.scheduledDate,
+                  schedule: local.schedule,
                   status: local.status,
                   checklist: local.checklist,
                   recurrence: local.recurrence,
                 }
-              : {
-                  kind: local.kind,
-                  title: local.title,
-                  description: local.description,
-                  schedule: local.schedule,
-                  recurrence: local.recurrence,
-                }
+              : local.kind === "task"
+                ? {
+                    kind: local.kind,
+                    title: local.title,
+                    description: local.description,
+                    scheduledDate: local.scheduledDate,
+                    status: local.status,
+                    checklist: local.checklist,
+                    recurrence: local.recurrence,
+                  }
+                : {
+                    kind: local.kind,
+                    title: local.title,
+                    description: local.description,
+                    schedule: local.schedule,
+                    recurrence: local.recurrence,
+                  }
           ),
         }
     replacement = syncOperationSchema.parse({

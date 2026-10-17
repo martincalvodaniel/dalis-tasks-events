@@ -2400,3 +2400,9 @@ Validación: referencias locales resueltas, consistencia con componentes/contrat
 ## 18z2 — Reanudación puntual solicitada
 
 17oct2026: programada continuación del plan para hoy21:19 Europe/Madrid mediante heartbeat activo `continuar-el-plan-a-las-21-19`, COUNT1 y chat actual verificados en archivo gestionado. Revisión consulta cuotas, verifica renovación real y mantiene reservas10%5h/1%7d; sigue recuperación residual con pruebas y commit/pushint/HEAD/cuotas por iteración. No reabre zona/categorías/orden/repetición ya activos ni autoriza producción o una cadena adicional. Cambio documental únicamente; validación de estado/horario/referencias/coherencia/diff.
+
+## 19a1 — Planner de conflictos de planes simples
+
+Opt-in `allowPlans` en planner/choices, false por defecto: callers actuales permanecen intactos. Las cuatro variantes sin repetición permiten adoptar remoto sin operación/ACK, reenviar todo el borrador con nuevoUUID/CAS de revisión remota conocida, o crear copia conIDnuevo ante tombstone sin resucitar original. Se conservan variant, estado, checklist y schedule. Valida comandos mediante planCommandSchema y política común existente; bloquea identidades ajenas, series, snapshots cambiados, chains externas e intentos inciertos. No usa shadow como ancestro ni fusiona campos.
+
+Diez tests nuevos de cuatro variantes/elecciones/invariantes;21tests/144aserciones con regresiónlegacy al primer corte, suitefinal840pass/223skip/0fail/10844aserciones, lint851 sin avisos/tipos/buildWebpack/worker46. Se corrigió testlease para usar ownerId y se eliminaron aserciones no nulas. No nuevos índices, DBusuario, UI activada o cambios de protocolo/formatos. Siguiente19a2: extender executor local guardado y probar rollback/replay/backup/cuenta con planes y settings presentes; luego integración remota real yUI coherente.

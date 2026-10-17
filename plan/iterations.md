@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 19a1 — Planner de recuperación de planes comunes simples
+
+Estado: completado, opt-in privado sin elecciones nuevas enUI.
+
+- Objetivo: extender el contrato existente a las cuatro variantes sin repetición, conservando elecciones explícitas y una activación separada de callers/UI.
+- target_paths: src/lib/sync/{incident-resolution.ts,plan-incident-resolution.test.ts}, plan/{iterations,master,workflow,conflict-recovery,iteration-log}.md.
+- Dependencias:69149d2/originint exactos ylimpios; renovación real100%5h/86%7d, reset1792282775, reservas10%/1%. Secuencial; sin otros agentes o DBusuario.
+- Aceptación: opt-in preparatorio deplan sin cambiar llamadas actuales; adoptar sinACK, retry del borrador completo sobre revisión remota, copiar tombstone conIDnuevo; conservarvariant/status/checklist/schedule, bloquearseries/comandosajenos/cadenasexternas/intentadas inciertas/snapshotobsoleto. No fusionar ni considerar shadowancestro.
+- Validación: pruebas puras de4variantes/elecciones/invariantes y regresiónlegacy, lint/tipos/suite/buildWebpack/worker/diff; plan/logmismo commitpushint/HEAD/cuotas. UI sólo tras executor y prueba integrada posterior.
+
+
 ## 18z2 — Continuación puntual a las21:19
 
 - Objetivo: programar la continuación pedida para el17oct2026 a las21:19 Europe/Madrid, comprobando renovación antes de reanudar recuperación residual.

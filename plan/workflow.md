@@ -486,3 +486,7 @@ Entrada de este corte17%5h/87%7d; reservas10%/1%. Guía/checklist documental com
 ### Petición humana17oct — Continuar21:19
 
 Después del cierre15b1 el usuario solicita nueva continuación puntual hoy a las21:19 Europe/Madrid. Heartbeat `continuar-el-plan-a-las-21-19` creado ACTIVE en este mismo chat mediante automation_update, COUNT1, política failed_runs_only. No había archivos de automatizaciones anteriores; no se crea cadena indefinida ni se modifica TOML manualmente. Comprobar cuotas reales al disparar: reset5h publicado1792264709 (21:18:29 Madrid), última lectura15%5h/87%7d, reservas10%/1%. Retomar recuperación explícita residual desde últimoHEAD completo, manteniendo generación6/piloto/índicesPreview ya cerrados y main humano intacto. Pausar/finalizar esta ejecución puntual al cerrar, sin reprogramación adicional no solicitada.
+
+### Renovación real17oct21:19 — 19a1
+
+Cuota confirmada100%5h/86%7d, nuevoreset1792282775; HEAD69149d2/originint exactos y limpios, main humano preservado. Continuación puntual autorizada con reservas10%/1%, secuencial y sin nueva cadena. Planner19a1 es primer corte preparatorio; DoD/plan/log mismo commitpushint/HEAD y ambas cuotas antes de executor posterior.

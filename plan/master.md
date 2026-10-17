@@ -6,6 +6,10 @@ La zona horaria personal ya es editable offline, sincroniza por cuenta y está v
 
 [Guía de uso](user-guide.md) preparada y [checklist física](manual-device-checklist.md) actualizada a generación6. Siguen pendientes la recuperación explícita de conflictos de planes comunes/apariciones/preferencias, la aceptación final física/offline/accesibilidad y la publicación productiva autorizada. La guía no cierra por sí sola esos hitos. Cumpleaños aparcado; compartir fuera de alcance.
 
+### Continuación de las21:19
+
+19a1 prepara recuperación de conflictos de planes sin repetición: planner opt-in de cuatro variantes, adoptar/reintentar/copiar con invariantes y diez pruebas nuevas. Aún no ofrece elecciones nuevas enUI; sigue executor/integración antes de activarlas. Generación6 y piloto de zona anteriores siguen cerrados.
+
 ### Entregas del lote
 
 
