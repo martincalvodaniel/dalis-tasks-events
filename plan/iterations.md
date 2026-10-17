@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19z2 — Continuación puntual a las02:20
+
+- Objetivo: programar la continuación solicitada para el18oct2026 a las02:20 Europe/Madrid, verificando cuotas antes de empezar.
+- target_paths: plan/{iterations,workflow,iteration-log}.md y heartbeat gestionado existente.
+- Dependencias: e120b6e publicado; generación6 activa, recuperación residual pendiente y checklist física aprobada. Petición humana explícita de hora; 10%5h/72%7d y reset real1792282775,18oct02:19:35Madrid.
+- Aceptación: reutilizar la única programación existente, mismo chat y política; revisión puntual COUNT1 activa, sin cadena adicional, reservas10%/1%, consulta directa de cuotas, commit/pushint/HEAD por entrega y main humano preservado. No asumir renovación por reloj ni autorizar producción.
+- Validación: automation_update confirma ACTIVE y archivo gestionado confirma hora/COUNT/chat/política; referencias/coherencia/diff y commit/pushint/HEAD. Sólo programación y registro, sin abrir implementación con el margen actual.
+- Estado: completado; automatización continuar-el-plan-a-las-21-19 renombrada «Continuar el plan a las02:20».
+
 ## 19z1 — Cuotas consultadas directamente
 
 - Objetivo: eliminar la pregunta redundante de cuotas cuando get_usage_limits ya puede leer ambas ventanas.
