@@ -130,6 +130,25 @@ export function queueLocalSyncIncidents(
   )
 }
 
+export function queueLocalSettingsIncidentOverview(
+  context: Pick<LocalTransactionContext<unknown>, "transaction" | "fail">,
+  userId: string,
+  onSnapshot: (
+    incidents: RecurringSyncIncidentOverview[],
+    entries: OutboxEntry[]
+  ) => void
+) {
+  queueIncidentEvidence(
+    context,
+    userId,
+    true,
+    (incidents, entries) =>
+      onSnapshot(incidents as RecurringSyncIncidentOverview[], entries),
+    true,
+    true
+  )
+}
+
 function queueIncidentEvidence(
   context: Pick<LocalTransactionContext<unknown>, "transaction" | "fail">,
   userId: string,

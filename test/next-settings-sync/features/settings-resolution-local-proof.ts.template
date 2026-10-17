@@ -1,0 +1,145 @@
+"use client"
+
+import { resolveSettingsIncident } from "@/features/sync/local-settings-resolution"
+import { readSyncIncidents } from "@/features/sync/local-incidents"
+import {
+  readLocalPersonalSettings,
+  saveLocalPersonalSettings,
+} from "@/features/workspace/local-personal-settings"
+import { readLocalRecurringBackup } from "@/lib/local-db/backup"
+import { openLocalDatabase, localDatabaseName } from "@/lib/local-db/client"
+import { subscribeLocalOutboxChanges } from "@/lib/local-db/sync-notifications"
+import type { SettingsResolutionRequest } from "@/types/settings-resolution"
+
+function assert(value: unknown, message: string): asserts value {
+  if (!value) throw new Error(message)
+}
+export async function proveLocalSettingsResolution(
+  account: { userId: string; epoch: string },
+  request: SettingsResolutionRequest
+) {
+  const database = await openLocalDatabase(account.userId)
+  let notices = 0,
+    checks = 0
+  const unsubscribe = subscribeLocalOutboxChanges(
+    account.userId,
+    () => notices++
+  )
+  const snapshot = async () =>
+    (
+      await readLocalRecurringBackup(
+        database,
+        account.userId,
+        new Date().toISOString()
+      )
+    ).stores
+  const same = (a: unknown, b: unknown) =>
+    JSON.stringify(a) === JSON.stringify(b)
+  async function rejected(work: () => Promise<unknown>) {
+    let failed = false
+    try {
+      await work()
+    } catch {
+      failed = true
+    }
+    assert(failed, "Expected settings decision guard failure")
+    checks++
+  }
+  try {
+    const original = await snapshot()
+    await rejected(() =>
+      resolveSettingsIncident(
+        { ...account, epoch: crypto.randomUUID() },
+        request
+      )
+    )
+    await rejected(() =>
+      resolveSettingsIncident(account, {
+        ...request,
+        userId: "owned-foreign-settings",
+      })
+    )
+    assert(
+      same(original, await snapshot()),
+      "Account guard changed durable settings evidence"
+    )
+    await saveLocalPersonalSettings(
+      account,
+      { timeZone: "Europe/Paris", weekStartsOn: 1, locale: "es-ES" },
+      await readLocalPersonalSettings(account)
+    )
+    const before = await snapshot()
+    await rejected(() => resolveSettingsIncident(account, request))
+    assert(
+      same(before, await snapshot()),
+      "Stale settings choice modified the partition"
+    )
+    const overview = (await readSyncIncidents(account)).find(
+      (value) =>
+        value.kind === "preference" &&
+        value.incident.entry.operation.operationId ===
+          request.expected.entry.operation.operationId
+    )
+    assert(
+      overview?.kind === "preference",
+      "Settings conflict is missing after the later edit"
+    )
+    const fresh = { ...request, expected: overview.incident }
+    const count = notices,
+      add = IDBObjectStore.prototype.add
+    IDBObjectStore.prototype.add = function (
+      value: unknown,
+      key?: IDBValidKey
+    ) {
+      if (
+        this.transaction.db.name === localDatabaseName(account.userId) &&
+        this.name === "syncMetadata" &&
+        value &&
+        typeof value === "object" &&
+        "key" in value &&
+        String(value.key).startsWith("settings-resolution:")
+      )
+        throw new Error("Owned late settings receipt failure")
+      return add.call(this, value, key)
+    }
+    try {
+      await rejected(() => resolveSettingsIncident(account, fresh))
+    } finally {
+      IDBObjectStore.prototype.add = add
+    }
+    assert(
+      same(before, await snapshot()) && notices === count,
+      "Settings rollback left projection, sequence, intentions or notification"
+    )
+    const result = await resolveSettingsIncident(account, fresh)
+    assert(
+      result.status === "applied" && notices > count,
+      "Settings decision did not notify after its complete transaction"
+    )
+    const after = await snapshot()
+    for (const store of [
+      "items",
+      "occurrences",
+      "tags",
+      "itemViews",
+      "taskPlacements",
+      "remoteShadows",
+      "memberships",
+      "invitations",
+    ] as const)
+      assert(
+        same(before[store], after[store]),
+        "Settings adoption changed an unrelated store"
+      )
+    const replay = await resolveSettingsIncident(account, fresh)
+    assert(
+      replay.status === "replayed" && same(after, await snapshot()),
+      "Settings decision replay wrote or notified again"
+    )
+    checks++
+    return { ...result, checks }
+  } finally {
+    unsubscribe()
+    database.close()
+  }
+}

@@ -5,6 +5,7 @@ import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sy
 import { decodeLocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
 import { projectPlanOccurrenceSyncIncidents } from "@/lib/sync/recurring-incident-snapshot"
 import { decodeRemoteShadow } from "@/lib/sync/remote-shadow-v2"
+import { validateSettingsResolutionRecord } from "@/lib/sync/settings-resolution"
 import { localBackupSchema } from "@/schemas/local-backup"
 import { planOccurrenceEntityKey } from "@/schemas/local-plan-occurrence-sync"
 import { localRecurringBackupSchema } from "@/schemas/local-recurring-backup"
@@ -201,6 +202,8 @@ function validateBackup(
   )
   const superseded = new Set<string>()
   for (const record of s.syncMetadata) {
+    if (record.key.startsWith("settings-resolution:"))
+      validateSettingsResolutionRecord(record, actor)
     if ("importId" in record)
       validateBackupImportEvidence(record, entries, actor, recurring)
     if ("result" in record) {

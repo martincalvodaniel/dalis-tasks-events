@@ -1,0 +1,241 @@
+"use client"
+
+import type { z } from "zod"
+import { canonical, ordered } from "@fixture/projection"
+import {
+  nextSyncDeviceCommandSchema,
+  nextSettingsSyncStateSchema,
+} from "@/schemas/next-sync-test"
+import {
+  settingsIncidentSnapshotSchema,
+  settingsResolutionRecordSchema,
+} from "@/schemas/settings-resolution"
+import type { LocalRecurringBackup } from "@/types/local-backup"
+import type { LocalPullCursor } from "@/types/local-sync"
+import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
+import type {
+  SettingsResolutionRequest,
+  SettingsResolutionRecord,
+} from "@/types/settings-resolution"
+
+type Snapshot = { backup: LocalRecurringBackup; cursor: LocalPullCursor }
+type Ports = {
+  owner: string
+  call(
+    index: number,
+    input: z.infer<typeof nextSyncDeviceCommandSchema>
+  ): Promise<unknown>
+  snapshot(index: number): Promise<Snapshot>
+  state(): Promise<z.infer<typeof nextSettingsSyncStateSchema>>
+}
+function assert(value: unknown, message: string): asserts value {
+  if (!value) throw new Error(message)
+}
+function requestFrom(
+  record: SettingsResolutionRecord
+): SettingsResolutionRequest {
+  return {
+    userId: record.userId,
+    resolutionId: record.resolutionId,
+    operationId: record.operationId,
+    choice: record.choice,
+    createdAt: record.createdAt,
+    expected: record.expected,
+  }
+}
+export async function proveRemoteSettingsRecovery({
+  call,
+  snapshot,
+  state,
+  owner,
+}: Ports) {
+  async function incident() {
+    const overview = (await call(1, {
+      type: "settings-incidents",
+    })) as RecurringSyncIncidentOverview[]
+    const value = overview.find(
+      (value) =>
+        value.kind === "preference" &&
+        value.incident.entry.operation.command.type === "settings.update"
+    )
+    assert(
+      value?.kind === "preference",
+      "Settings recovery requires the real owned conflict"
+    )
+    return settingsIncidentSnapshotSchema.parse(value.incident)
+  }
+  async function save(index: number, timeZone: string) {
+    const expected = await call(index, { type: "read-settings" })
+    return call(index, {
+      type: "save-settings",
+      input: { timeZone, weekStartsOn: 1, locale: "es-ES" },
+      expected: expected as Snapshot["backup"]["stores"]["settings"][number],
+    })
+  }
+  async function equalSettings() {
+    await call(0, { type: "mixed-run" })
+    await call(1, { type: "mixed-run" })
+    const authoritative = await state(),
+      a = await snapshot(0),
+      b = await snapshot(1)
+    assert(
+      ordered(a.backup.stores.settings) === ordered(b.backup.stores.settings),
+      "Settings partitions did not converge"
+    )
+    for (const copy of [a, b]) {
+      assert(
+        copy.cursor.after === authoritative.page.through &&
+          copy.cursor.through === null,
+        "Settings recovery missed remote checkpoint"
+      )
+      const shadow = copy.backup.stores.remoteShadows.find(
+        (value) => value.entityKey === `settings:${owner}`
+      )
+      assert(
+        shadow &&
+          "kind" in shadow &&
+          shadow.kind === "preference" &&
+          shadow.record.store === "settings" &&
+          canonical(shadow.record.record) ===
+            canonical(copy.backup.stores.settings[0]),
+        "Settings confirmed shadow differs from its projection"
+      )
+    }
+    return { a, b, authoritative }
+  }
+  const before = await state(),
+    request: SettingsResolutionRequest = {
+      userId: owner,
+      resolutionId: crypto.randomUUID(),
+      operationId: null,
+      choice: "adopt_remote",
+      createdAt: new Date().toISOString(),
+      expected: await incident(),
+    }
+  const proof = (await call(1, {
+    type: "settings-resolution-local-proof",
+    request,
+  })) as { status: string; record: unknown; checks: number }
+  const adopted = settingsResolutionRecordSchema.parse(proof.record)
+  assert(
+    proof.status === "applied" &&
+      proof.checks >= 5 &&
+      adopted.replacement === null &&
+      adopted.supersededOperationIds.length >= 3,
+    "Settings local guard/rollback proof is incomplete"
+  )
+  assert(
+    canonical(await state()) === canonical(before),
+    "Adoption manufactured remote ACK/history"
+  )
+  const adoptedSnapshot = await snapshot(1)
+  for (const id of adopted.supersededOperationIds) {
+    const entry = adoptedSnapshot.backup.stores.outbox.find(
+      (value) => value.operation.operationId === id
+    )
+    assert(
+      entry?.state === "superseded",
+      "Settings adoption manufactured an ACK"
+    )
+  }
+  await equalSettings()
+  await save(0, "Europe/London")
+  await call(0, { type: "mixed-run" })
+  await save(1, "Pacific/Honolulu")
+  await save(1, "Asia/Tokyo")
+  await call(1, { type: "mixed-run" })
+  const expected = await incident(),
+    retry: SettingsResolutionRequest = {
+      userId: owner,
+      resolutionId: crypto.randomUUID(),
+      operationId: crypto.randomUUID(),
+      choice: "retry_local",
+      createdAt: new Date().toISOString(),
+      expected,
+    }
+  assert(
+    expected.reason === "conflict" &&
+      expected.intentions
+        .filter((entry) => entry.entityKey === `settings:${owner}`)
+        .some((entry) => entry.state === "pending" && entry.attempts === 0),
+    "Real settings retry lacks its blocked later intention"
+  )
+  const retryBefore = await state(),
+    localBefore = await snapshot(1)
+  const decision = (await call(1, {
+    type: "resolve-settings",
+    request: retry,
+  })) as { status: string; record: unknown }
+  const record = settingsResolutionRecordSchema.parse(decision.record)
+  assert(
+    decision.status === "applied" &&
+      record.local.timeZone === "Asia/Tokyo" &&
+      canonical(await state()) === canonical(retryBefore),
+    "Settings retry overwrote the latest draft or wrote remotely before sending"
+  )
+  const decided = await snapshot(1)
+  for (const store of [
+    "items",
+    "occurrences",
+    "tags",
+    "itemViews",
+    "taskPlacements",
+  ] as const)
+    assert(
+      ordered(localBefore.backup.stores[store]) ===
+        ordered(decided.backup.stores[store]),
+      "Settings retry reprogrammed content or preferences"
+    )
+  const lost = (await call(1, { type: "lost-settings-response-run" })) as {
+    status: string
+    uploaded: number
+  }
+  const pending = (await snapshot(1)).backup.stores.outbox.find(
+      (entry) => entry.operation.operationId === record.operationId
+    ),
+    committed = await state()
+  assert(
+    lost.status === "retry_later" &&
+      lost.uploaded === 0 &&
+      pending?.state === "pending" &&
+      pending.attempts === 1 &&
+      pending.lease === null,
+    "Lost settings recovery response manufactured local confirmation"
+  )
+  assert(
+    committed.counts.receipts === retryBefore.counts.receipts + 1 &&
+      committed.page.through === retryBefore.page.through + 1,
+    "Settings retry did not commit once"
+  )
+  await call(1, { type: "mixed-run" })
+  assert(
+    canonical(await state()) === canonical(committed),
+    "Settings retry replay duplicated remote history"
+  )
+  const ack = (await snapshot(1)).backup.stores.outbox.find(
+    (entry) => entry.operation.operationId === record.operationId
+  )
+  assert(
+    ack?.state === "acknowledged" &&
+      ack.attempts === 2 &&
+      canonical(ack.operation) === canonical(record.replacement),
+    "Settings recovery did not ACK its exact new UUID"
+  )
+  await equalSettings()
+  await save(0, "America/New_York")
+  await call(0, { type: "mixed-run" })
+  await call(1, { type: "mixed-run" })
+  const later = await snapshot(1)
+  const replay = (await call(1, {
+    type: "resolve-settings",
+    request: requestFrom(record),
+  })) as { status: string }
+  assert(
+    replay.status === "replayed" &&
+      canonical((await snapshot(1)).backup.stores) ===
+        canonical(later.backup.stores) &&
+      later.backup.stores.settings[0].timeZone === "America/New_York",
+    "Settings replay overwrote newer confirmed values"
+  )
+  return { adopted: true, retried: true, replayed: true }
+}

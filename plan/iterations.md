@@ -1,5 +1,16 @@
 # Iteraciones de implementación
 
+## 19b2 — Transacción y evidencia de recuperación de zona
+
+Estado: completado,25Next6 correctos; registro yfeature disponibles, UI pendiente.
+
+- Objetivo: persistir decisiones de settings con backup3 validado y probar conflictos reales antes de habilitarUI.
+- target_paths: src/{lib/local-db/{sync-incidents,sync-store,settings-resolution}.ts,lib/backup/local-backup.ts,lib/sync/settings-resolution.test.ts,schemas/{local-recurring-backup,next-sync-test}.ts,features/sync/local-settings-resolution.ts}, test/next-settings-sync/features/**, plan/**.
+- Dependencias:b283633 publicado,53%5h/79%7d, reservas10%/1%;19b1validado. Secuencial, sólo recursos propios.
+- Aceptación: snapshot9stores enmismaTX, exactexpected/actor/epoch/IDs/counter, superseded sinACK, replacementpending0, registro+proyección atómicos yreplay sinreescribir. Backup3 reconoce/revalida registro nuevo; intenciones1/evidencia2/wire6 sin cambios. Readerviejo conserva rechazo conservador de metadata desconocida; no wipe/migración.
+- Validación: conflicto real settings conchild, stale/epoch/rollback/notificación, adopción sin escritura remota, retry/respuesta perdida/ACKúnico ysettings/shadow/cursor iguales en dosparticiones; otras colecciones conservadas. Next/Mongo/IndexedDB propios yDoDcompleto/cleanup/plan/log/commitpushint/HEAD/cuotas. UI pendiente19b3.
+
+
 ## 19b1 — Contrato de recuperación de zona personal
 
 Estado: completado; preparación pura, sin nueva elección visible.

@@ -8,6 +8,9 @@ La zona horaria personal ya es editable offline, sincroniza por cuenta y está v
 
 ### Continuación de las21:19
 
+19b2 prueba decisiones atómicas de zona ybackup3,25Next6 conadopción/retry/replay/CASreal. Aún falta conectar suUI; generación6 conserva las funciones previas activas.
+
+
 19b1 prepara contrato y guardias de recuperación de zona personal, aún sin executor/backup/UI. Siete pruebas nuevas y851tests aprobados; siguientes19b2–3 conectan transacción, evidencia portable yelección visible tras prueba real.
 
 

@@ -133,6 +133,8 @@ async function execute(
       "lost-settings-response-run",
       "epoch-after-settings-commit-run",
       "settings-incidents",
+      "resolve-settings",
+      "settings-resolution-local-proof",
       "settings-editor-proof",
       "hook-mount",
       "hook-rerender",

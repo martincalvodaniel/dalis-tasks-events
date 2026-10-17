@@ -10,6 +10,7 @@ import {
   remoteRecurringShadowSchema,
 } from "@/schemas/local-plan-occurrence-sync"
 import { remoteShadowSchema } from "@/schemas/local-sync"
+import { settingsResolutionRecordSchema } from "@/schemas/settings-resolution"
 
 // Portable format three does not change intention one or durable evidence two.
 export const localRecurringBackupV3Schema = localBackupV2Schema.extend({
@@ -20,7 +21,11 @@ export const localRecurringBackupV3Schema = localBackupV2Schema.extend({
       .max(10000),
     syncMetadata: z
       .array(
-        z.union([localBackupMetadataV2Schema, localPlanOccurrenceOutcomeSchema])
+        z.union([
+          localBackupMetadataV2Schema,
+          localPlanOccurrenceOutcomeSchema,
+          settingsResolutionRecordSchema,
+        ])
       )
       .max(10000),
   }),

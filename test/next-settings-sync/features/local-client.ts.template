@@ -1,4 +1,6 @@
 "use client"
+import { resolveSettingsIncident } from "@/features/sync/local-settings-resolution"
+import { proveLocalSettingsResolution } from "@fixture/settings-resolution-local-proof"
 import { proveCommonPlanResolutionUi } from "@fixture/common-plan-resolution-ui"
 import { provePlanRecovery } from "@fixture/plan-recovery-proof"
 import { proveSettingsEditor } from "@fixture/settings-editor-host"
@@ -557,6 +559,10 @@ export async function executeLocalFixtureCommand(
       return resolveSyncIncident(active, command.request)
     case "resolve-common-plan-ui":
       return proveCommonPlanResolutionUi(active, command.request)
+    case "resolve-settings":
+      return resolveSettingsIncident(active, command.request)
+    case "settings-resolution-local-proof":
+      return proveLocalSettingsResolution(active, command.request)
     case "settings-incidents":
       return readSyncIncidents(active)
     case "legacy-root-resolution-proof": {

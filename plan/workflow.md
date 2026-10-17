@@ -506,3 +506,7 @@ Entrada72%5h/82%7d tras72e9f30, reservas10%/1%. Feature/UI coherentes, diálogo 
 ### 19b1 — Contrato de recuperación settings
 
 Entrada60%5h/80%7d tras2da06ca, reservas10%/1%. Preparación pura yguardia de cadenas externas, sin registros nuevos escritos niUIactivada. DoDcompleto/plan/log mismo commitpushint/HEAD/cuotas. Seguir conexecutor+backup en cortepropio sihay margen para cerrar pruebas/reparación/publicación.
+
+### 19b2 — Decisión durable de zona
+
+Entrada53%5h/79%7d trasb283633, reservas10%/1%.25Next6 reales conrollback/replay/backup/adopción/retry pasan; DoDcompleto/cleanup/plan/log mismo commitpushint/HEAD/cuotas. Nuevo registro eslocal yportable3, sin cambiarwire6; lectores anteriores rechazan metadata desconocida sin borrar. UI19b3 siguiente si cabe corte completo.

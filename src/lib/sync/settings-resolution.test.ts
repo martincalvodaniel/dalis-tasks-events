@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test"
+import { validateLocalRecurringBackup } from "@/lib/backup/local-backup"
 import { planLocalSettingsPreferenceResult } from "@/lib/sync/preference-result-plan"
 import { projectRecurringSettingsSyncIncidentOverview } from "@/lib/sync/recurring-incident-snapshot"
 import {
@@ -6,6 +7,8 @@ import {
   planSettingsIncidentResolution,
   validateSettingsResolutionRecord,
 } from "@/lib/sync/settings-resolution"
+import { localBackupMetadataV2Schema } from "@/schemas/local-backup"
+import { localPlanOccurrenceOutcomeSchema } from "@/schemas/local-plan-occurrence-sync"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import { userSettingsEntityKey } from "@/schemas/user-settings-key"
 import type { PreferenceEffect } from "@/types/preference-effects"
@@ -312,6 +315,88 @@ test("durable settings decisions validate their actor and exact planned value wi
   expect(() =>
     validateSettingsResolutionRecord(
       { ...record, supersededOperationIds: [record.supersededOperationIds[0]] },
+      request.userId
+    )
+  ).toThrow()
+})
+
+test("portable format three validates settings decisions and rejects missing or contradictory evidence", () => {
+  const { current, request, input } = fixture(),
+    record = planSettingsIncidentResolution(request, current)
+  if (!record.replacement)
+    throw new Error("Settings retry fixture is missing its replacement")
+  const outbox = [
+    ...input.entries.map((entry) => ({
+      ...entry,
+      state: "superseded" as const,
+    })),
+    outboxEntrySchema.parse({
+      userId: request.userId,
+      entityKey: input.entries[0].entityKey,
+      operation: record.replacement,
+      sequence: 3,
+      dependencies: [],
+      state: "pending",
+      attempts: 0,
+      createdAt: request.createdAt,
+      lease: null,
+    }),
+  ]
+  const backup = {
+    format: "dalis-local-backup",
+    version: 3,
+    protocolVersion: 1,
+    databaseVersion: 2,
+    userId: request.userId,
+    exportedAt: request.createdAt,
+    stores: {
+      items: [],
+      occurrences: [],
+      tags: [],
+      itemViews: [],
+      taskPlacements: [],
+      memberships: [],
+      invitations: [],
+      settings: [record.local],
+      outbox,
+      remoteShadows: input.shadows,
+      syncMetadata: [
+        { key: "outbox-sequence", value: 3 },
+        ...input.outcomes,
+        record,
+      ],
+    },
+  }
+  expect(
+    validateLocalRecurringBackup(backup, request.userId).stores.outbox.at(-1)
+      ?.state
+  ).toBe("pending")
+  expect(localBackupMetadataV2Schema.safeParse(record).success).toBe(false)
+  expect(localPlanOccurrenceOutcomeSchema.safeParse(record).success).toBe(false)
+  expect(() =>
+    validateLocalRecurringBackup({ ...backup, version: 2 }, request.userId)
+  ).toThrow()
+  const contradictory = structuredClone(backup)
+  const choice = contradictory.stores.syncMetadata.find(
+    (value) => "resolutionId" in value
+  )
+  if (!choice || !("local" in choice))
+    throw new Error("Settings backup fixture lost its choice")
+  choice.local.timeZone = "UTC"
+  expect(() =>
+    validateLocalRecurringBackup(contradictory, request.userId)
+  ).toThrow()
+  expect(() =>
+    validateLocalRecurringBackup(
+      {
+        ...backup,
+        stores: {
+          ...backup.stores,
+          syncMetadata: backup.stores.syncMetadata.filter(
+            (value) => !("result" in value)
+          ),
+        },
+      },
       request.userId
     )
   ).toThrow()

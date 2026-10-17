@@ -15,6 +15,7 @@ import {
 } from "@/schemas/primitives"
 import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
 import { remoteRecurringChangesPageSchema } from "@/schemas/remote-recurring-changes"
+import { settingsResolutionRequestSchema } from "@/schemas/settings-resolution"
 import { syncCommandSchema } from "@/schemas/sync"
 import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
 import { syncResolutionRequestSchema } from "@/schemas/sync-resolution"
@@ -140,6 +141,14 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("lost-settings-response-run") }),
   z.strictObject({ type: z.literal("epoch-after-settings-commit-run") }),
   z.strictObject({ type: z.literal("settings-incidents") }),
+  z.strictObject({
+    type: z.literal("resolve-settings"),
+    request: settingsResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("settings-resolution-local-proof"),
+    request: settingsResolutionRequestSchema,
+  }),
   z.strictObject({ type: z.literal("settings-editor-proof") }),
   z.strictObject({ type: z.literal("legacy-root-resolution-proof") }),
   z.strictObject({ type: z.literal("plan-resolution-proof") }),
