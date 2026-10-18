@@ -1,5 +1,16 @@
 # Dalis Tasks & Events — plan maestro
 
+## Cierre de la continuación puntual del 18 de octubre a las 17:23
+
+Siete iteraciones de código publicadas yHEADremoto verificado:22cb3d2 (revisión conjunta),f8d8cd5 (contrato deasignación),25410d7 (TX/evidencia),c5a77a9 (prueba remota),c1b0fa3 (UI),0b04a31 (series) yf4ebaec (identidades portables). Ajustes permite recuperar contenido+categoría conjuntamente y asignaciones aisladas de planes simples o series sin otros cambios pendientes. No equivale a cerrar toda recuperación residual.
+
+Pruebas focalizadas Next6, dosorígenes IndexedDB/sesiones BetterAuth/Mongo propios: ambas elecciones reales con cancelar/reabrir/confirmar, cuatrovariantes, pérdida de respuesta/recarga/ACKúnico/convergencia porcohorte. Series conservan un slot confirmado;9checksIndexedDB repetidos con padre recurrente. Full30 permanece disponible, no se atribuye su ejecución completa a los scopes11. ÚltimaDoD955pass/223skip/0fail/11699aserciones, lint919sinavisos/tipos/Webpack/worker46. Sin nuevoGoogle/físicos niDBusuario/producción. Checklistfísica17oct sigue aprobada.
+
+Lectura20%5h/46%7d, reservas10%/1%. La siguiente recuperación deorden tiene efectos multirregistro y necesita contrato/captura/pruebas yreparación; no abrirla con sólo10puntos disponibles sobre reserva. Repo coherente sin WIP, mainhumano limpio yrecursos Mongo/browser propios retirados. Heartbeat puntual continuar-el-plan-a-las-21-19 PAUSED, mismochat/política failed_runs_only verificados; sin nueva cadena, créditos o reinicios.
+
+Siguiente19g1: contrato de recuperación de orden de categorías propias con catálogos/revisiones y guardias completos; luego persistencia/evidencia yNext/UI. Continúan borrado de categorías/placements, cohortes de apariciones/ausencia remota, accesibilidad ypreparación productiva autorizada. Cumpleaños aparcado ycompartirGmail fuera. No pedir repetir la checklist física sin cambio/fallo específico.
+
+
 ## 19f6 — Identidades globales de decisiones portables
 
 Se cierra una discrepancia de integridad: backup exigía claves metadata únicas, pero dos decisiones de familias distintas podían reutilizar el mismo resolutionId. Ahora el codec rechaza IDs de decisión duplicados entre prefijos y colisión con cualquier operación conservada; los writers ya protegían esa frontera. No confunde referencias legítimas a outcomes/replacements ni IDs de entidades/importación, no altera datos ni crea ACK.

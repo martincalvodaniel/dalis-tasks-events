@@ -1,5 +1,22 @@
 # Iteraciones de implementación
 
+## 19z9 — Cierre puntual 18oct17:23
+
+- Objetivo/target_paths: registrar cierre coherente en plan/{master,workflow,iterations,iteration-log}.md y pausar la automatización puntual existente.
+- Dependencias: siete cortes publicados hastaf4ebaec,20%5h/46%7d frenteareservas10%/1%; no abrir nueva recuperación multirregistro con coste completo incierto.
+- Aceptación: int/HEADremoto exacto, mainhumano intacto, ceroWIP yrecursos propios retirados; heartbeat PAUSED mismochat/política verificado, sin nueva cadena.
+- Validación: DoD de código cerrado en19f6; esta entrega sólo referencias/coherencia/diff/ConventionalCommitpushint/HEAD ycuotas finales.
+- Estado: completado; automatización pausada mediante herramienta deapp yconfiguración guardada verificada.
+
+## 19g1 — Próxima candidata: contrato de orden de categorías
+
+- Objetivo: delimitar recuperación explícita de una cadena propia tag.move y sus efectos multirregistro, sin copiar ciegamente el flujo aislado tag.save.
+- target_paths previstos: src/lib/sync/tag-order-resolution{,.test}.ts, src/schemas/tag-order-resolution.ts, src/types/tag-order-resolution.ts yplan/**; concretar después deleer planner/captura reales.
+- Dependencias:19f6 cerrado. Reutilizar planRemoteTagOperation/applyTagMoveCommand, snapshots personales ygrafo completo; no nuevo comando, protocolo oíndice por suposición.
+- Aceptación preparatoria: catálogos propios completos yrevisiones porentidad; primary yvecinos/efectos de reranking explícitos. Proteger tag.save/delete/asignaciones/movimientos/dependientes externos afectados, incertidumbre, ausencias ycatálogos parciales. Una sombra observada noacredita ancestro nicatálogo remoto completo. No ofrecer adopción/retry antes decontrato coherente, writer/evidencia/pruebas reales.
+- Validación prevista: oráculos puros de identidad/clausura/CAS/reranking/vecinos borrados/revisionesagotadas/actividadindependiente/capacidad. Después capturaTX/evidenciaportable/NextMongo dosparticiones/UI por cortes separados. Registrar ambigüedades sin inventar permiso ni descargar evidencia.
+- Estado: pendiente; ningún archivo deimplementación abierto.
+
 ## 19f6 — Completada: identidades globales de decisiones portables
 
 - Estado: tresregresiones nuevas/51backups/955tests/DoD completos aprobados.
