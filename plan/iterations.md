@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19c7 — Capacidad posterior antes de recuperar apariciones
+
+- Estado: completado; cinco checks IndexedDB propios y876tests aprobados.
+- Objetivo: rechazar una decisión nueva si sus reemplazos o recibo exceden los10.000 registros que los lectores capturan íntegros; no borrar ni compactar historia.
+- target_paths: src/schemas/plan-occurrence-resolution.ts, src/lib/local-db/plan-occurrence-resolution.ts, src/lib/sync/plan-occurrence-resolution.test.ts, test/browser/appearance-resolution-capacity.ts, scripts/browser-test-server.ts y plan/{master,iterations,workflow,conflict-recovery,iteration-log}.md.
+- Dependencias: e2973c2 local/originint exactos y limpios; renovación100%5h/85%7d, reset1792318896, reserva10%/1%. Continuación puntual secuencial; guíaNext instalada consultada.
+- Aceptación: suma posterior de outbox ymetadata validada antes de escrituras; adopción cuenta cero reemplazos y un recibo; retry cuenta todos losreemplazos y un recibo, contador yaexistente no añade fila. Replay previo continúa sin escrituras aunque no quede capacidad. Preservar todoestado alrechazar, sinACK nuevo. No índices/DBusuario/wire nuevos.
+- Validación: schema estricto/fronteras0/1/103/exceso/enteros, IndexedDB nativo con cola/metadata llenas ycomparación exacta antes/después, éxito hasta ellímite yreplay; suite/lint/tipos/Webpack/worker/diff, plan/log mismo commitpushint/HEAD/cuotas. No nueva pruebaGoogle ni física.
+
 ## 19z4 — Continuación puntual18oct07:21
 
 - Objetivo: programar la continuación solicitada para hoy18oct2026 a las07:21 Europe/Madrid, sin abrir código con8%5h/86%7d.

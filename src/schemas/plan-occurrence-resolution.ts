@@ -38,6 +38,24 @@ export const planOccurrenceIncidentSnapshotSchema = z
   )
 
 export const maximumPlanOccurrenceRetryOperations = 103
+export const planOccurrenceResolutionCapacitySchema = z
+  .strictObject({
+    outboxCount: z.number().int().min(0).max(10000),
+    metadataCount: z.number().int().min(0).max(10000),
+    replacementCount: z
+      .number()
+      .int()
+      .min(0)
+      .max(maximumPlanOccurrenceRetryOperations),
+  })
+  .refine(
+    (value) => value.outboxCount + value.replacementCount <= 10000,
+    "Appearance resolution would exceed the complete queue limit"
+  )
+  .refine(
+    (value) => value.metadataCount + 1 <= 10000,
+    "Appearance resolution would exceed the complete metadata limit"
+  )
 export const planOccurrenceResolutionRequestSchema = z
   .strictObject({
     userId: userIdSchema,

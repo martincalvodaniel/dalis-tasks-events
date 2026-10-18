@@ -14,6 +14,7 @@ import { localBackupMetadataV2Schema } from "@/schemas/local-backup"
 import { localPlanOccurrenceOutcomeSchema } from "@/schemas/local-plan-occurrence-sync"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import { planSchema } from "@/schemas/plan-item"
+import { planOccurrenceResolutionCapacitySchema } from "@/schemas/plan-occurrence-resolution"
 import { settingsResolutionRecordSchema } from "@/schemas/settings-resolution"
 import type { OutboxEntry } from "@/types/local-sync"
 import type { PlanOccurrence } from "@/types/plan-occurrence"
@@ -810,4 +811,47 @@ test("portable retry requires every exact replacement in its original ordered de
       original.length
     ].state
   ).toBe("pending")
+})
+
+test("appearance resolution reserves complete queue and metadata capacity for every new record", () => {
+  for (const replacementCount of [0, 1, 103]) {
+    const value = {
+      outboxCount: 10000 - replacementCount,
+      metadataCount: 9999,
+      replacementCount,
+    }
+    expect(planOccurrenceResolutionCapacitySchema.parse(value)).toEqual(value)
+    expect(
+      planOccurrenceResolutionCapacitySchema.safeParse({
+        ...value,
+        metadataCount: 10000,
+      }).success
+    ).toBe(false)
+    expect(
+      planOccurrenceResolutionCapacitySchema.safeParse({
+        ...value,
+        outboxCount: value.outboxCount + 1,
+      }).success
+    ).toBe(false)
+  }
+  for (const change of [
+    { outboxCount: -1 },
+    { metadataCount: -1 },
+    { replacementCount: -1 },
+    { outboxCount: 0.5 },
+    { metadataCount: 0.5 },
+    { replacementCount: 0.5 },
+    { outboxCount: 10001 },
+    { metadataCount: 10001 },
+    { replacementCount: 104 },
+    { extra: true },
+  ])
+    expect(
+      planOccurrenceResolutionCapacitySchema.safeParse({
+        outboxCount: 0,
+        metadataCount: 0,
+        replacementCount: 0,
+        ...change,
+      }).success
+    ).toBe(false)
 })

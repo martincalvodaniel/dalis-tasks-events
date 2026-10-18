@@ -17,6 +17,7 @@ if (
   suite !== "occurrence-edit" &&
   suite !== "plan-occurrence-outbox" &&
   suite !== "plan-occurrence-revision" &&
+  suite !== "appearance-resolution-capacity" &&
   suite !== "task-snapshot" &&
   suite !== "occurrence-ordering"
 )

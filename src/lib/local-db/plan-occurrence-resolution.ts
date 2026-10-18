@@ -9,7 +9,10 @@ import {
   validatePlanOccurrenceResolutionRecord,
 } from "@/lib/sync/plan-occurrence-resolution"
 import { outboxEntrySchema, outboxSequenceSchema } from "@/schemas/local-sync"
-import { planOccurrenceResolutionRequestSchema } from "@/schemas/plan-occurrence-resolution"
+import {
+  planOccurrenceResolutionCapacitySchema,
+  planOccurrenceResolutionRequestSchema,
+} from "@/schemas/plan-occurrence-resolution"
 import { userIdSchema } from "@/schemas/primitives"
 import type { PlanOccurrenceResolutionRecord } from "@/types/plan-occurrence-resolution"
 
@@ -96,6 +99,11 @@ export function resolveLocalPlanOccurrenceIncident(
               const replacements = record.replacement
                 ? [record.replacement, ...(record.dependentReplacements ?? [])]
                 : []
+              planOccurrenceResolutionCapacitySchema.parse({
+                outboxCount: entries.length,
+                metadataCount: evidence.result.length,
+                replacementCount: replacements.length,
+              })
               const identities = [
                 request.resolutionId,
                 ...replacements.map((operation) => operation.operationId),

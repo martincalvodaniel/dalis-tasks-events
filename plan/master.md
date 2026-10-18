@@ -2,6 +2,8 @@
 
 ## Estado operativo — 18 de octubre de 2026
 
+19c7 entregado en la continuación07:21: recuperación de apariciones valida capacidad posterior decola/metadata antes de escribir, sincompactar historia. Cinco checksIndexedDB reales y876tests/lint/tipos/Webpack/worker46 aprobados; siguiente recuperación residual según dependencias.
+
 Protocolo de cuotas actualizado por indicación humana: consulta directa de ambas ventanas tras cada entrega; sólo preguntar si la herramienta no puede leerlas. Reservas10%5h/1%7d y alcance de autorizaciones intactos.
 
 La zona horaria personal ya es editable offline, sincroniza por cuenta y está validada en el piloto Google de preproducción. El índice autorizado se crea mediante `ensureIndexes()` sólo en Preview de `int`; su disponibilidad está comprobada por readiness y dos ACK reales. Se ha restaurado Europe/Madrid, sin modificar los seis elementos ni sus preferencias de contenido.

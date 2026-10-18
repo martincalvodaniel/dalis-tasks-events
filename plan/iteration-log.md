@@ -2540,3 +2540,11 @@ Lectura13%5h/86%7d, reserva10%/1%. No abrir otrocorte. Heartbeat puntual pausado
 ### 19z4 — Reanudar18oct07:21
 
 Usuario solicita continuación puntual a las07:21 Europe/Madrid. Heartbeat existente reactivado/renombrado conCOUNT1, mismochat yfailed_runs_only conservados, configuraciónverificada; no duplicados. Lectura8%5h/86%7d; resetpublicado1792300836 (07:20:36Madrid). Mantenerhora solicitada ycomprobar renovación/margen reales aldisparar; reservas10%/1%, sin créditos/reinicios. Retomar19c7 desdeHEADcompleto antesderecuperación residual, sin reabrir aceptación física ni funcionesactivas. Pausar alconcluir, sin cadenaadicional. Corte exclusivamente documental, referencias/coherencia/diff ycommitpushint/HEAD/cuotas.
+
+## 19c7 — Capacidad completa posterior de recuperación
+
+Schema estricto cuenta todos losreemplazos (0–103), outbox actual ymetadata actual; rechaza suma posterior>10.000 antes de modificar proyección/cola/contador/recibo. Adopción necesita un recibo, cero operaciones; contador existente sólo seactualiza. Replay durable precede esta comprobación y no vuelve aescribir. No seborra/compacta historia ni cambia wire/backup/índices. No equivale a límite debytes ni cierra capacidad deotras mutaciones.
+
+Una prueba pura nueva cubre 0/1/103, límites exactos/exceso/negativos/fracciones/shape estricto. Cinco checks deIndexedDB nativo enpartición browser-test propia: cola llena rechaza retry sin cambios, metadata llena rechaza adopción/retry, dos reemplazos+recibo llenan exactamente outbox/metadata, replay conambasllenas no escribe, adopción permite cola llena sinoperación. La fixture usa sentinels explícitos para capacidad, noafirma validez debackup portable deesos sentinels. Primera ejecución rechazó porIDsdependientes incompletos de lafixture, corregida usando contador real de comandos y repetida conlimpieza. Captura /private/tmp/dalis-appearance-capacity.png, partición/tab/servidor propios retirados.
+
+Suite876pass/223skip/0fail/11107aserciones, lint872sinavisos/tipos/Webpack/worker46/diff. SinMongo, NextRPC, Google ni pruebasfísicas nuevas; últimas pruebas de27Next6 no seatribuyen aestecambio. Mismo commitpushint/HEAD/cuotas.
