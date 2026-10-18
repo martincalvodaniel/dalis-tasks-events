@@ -143,6 +143,10 @@ export const nextSettingsProofScopeSchema = z
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({
+    type: z.literal("resolve-assignment-ui"),
+    request: itemViewResolutionRequestSchema,
+  }),
+  z.strictObject({
     type: z.literal("assignment-comparison"),
     operationId: entityIdSchema,
   }),

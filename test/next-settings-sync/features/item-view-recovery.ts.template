@@ -30,7 +30,7 @@ export async function proveRemoteItemViewRecovery({owner,call,snapshot,state,rel
     let request:ItemViewResolutionRequest={userId:owner,resolutionId:crypto.randomUUID(),operationId:choice==="retry_local"?crypto.randomUUID():null,choice,createdAt:new Date().toISOString(),expected}
     const guard=await call(1,{type:"assignment-guard-proof",request}) as {checks:number};assert(guard.checks===3,"Assignment guards incomplete")
     const before=await state(),localBefore=await snapshot(1)
-    const result=await call(1,{type:"resolve-assignment",request}) as {status:string;record:unknown}
+    const result=await call(1,{type:variant==="task"||variant==="event"?"resolve-assignment-ui":"resolve-assignment",request}) as {status:string;record:unknown}
     const record=itemViewResolutionRecordSchema.parse(result.record)
     request={userId:record.userId,resolutionId:record.resolutionId,operationId:record.operationId,choice:record.choice,createdAt:record.createdAt,expected:record.expected}
     assert(result.status==="applied"&&canonical(await state())===canonical(before),"Local assignment choice manufactured remote history")

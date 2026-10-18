@@ -307,3 +307,31 @@ test("unrelated acknowledged history and independent pending categories do not e
   }
   expect(availableItemViewResolutionChoices(extra, f.actor)).toEqual([])
 })
+
+test("assignment review retains only known names of its two selected categories", () => {
+  const f = fixture(),
+    remoteId = crypto.randomUUID(),
+    unrelated = crypto.randomUUID()
+  const raw = structuredClone(f.capture)
+  const remote = raw.incident.remote[0].record
+  const outcome = raw.incident.outcome.result.outcome
+  if (
+    remote?.store !== "itemViews" ||
+    outcome.status !== "conflict" ||
+    outcome.current.store !== "itemViews"
+  )
+    throw new Error("Fixture assignment is missing")
+  remote.record.primaryTagId = remoteId
+  outcome.current.record.primaryTagId = remoteId
+  raw.incident.tagNames[remoteId] = "Known remote category"
+  raw.incident.tagNames[unrelated] = "Unrelated category"
+  const snapshot = captureItemViewResolutionSnapshot(raw)
+  expect(snapshot.incident.tagNames).toEqual({
+    [f.tag.id]: f.tag.name,
+    [remoteId]: "Known remote category",
+  })
+  delete raw.incident.tagNames[remoteId]
+  expect(
+    captureItemViewResolutionSnapshot(raw).incident.tagNames[remoteId]
+  ).toBeUndefined()
+})

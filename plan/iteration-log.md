@@ -1,5 +1,14 @@
 # Registro de iteraciones
 
+## 19f4 — Recuperación de asignaciones visible en Ajustes
+
+«Revisar asignación» reconstruye la comparación completa y acredita los ACK previos antes de ofrecer opciones para un plan propio simple. Permite adoptar la asignación remota o reenviar la categoría local confirmada, con radios, preview de contenido conservado, categoría/color conocidos y confirmación compacta. IDs estables enref, cuenta/época/mounted y caché propia; cancelar no escribe. No modifica contenido, categorías u orden. La captura conserva sólo nombres conocidos de las categorías revisadas, sin incluir cambios de nombres independientes ni inventar nombres/colores ausentes.
+
+Cinco SSR nuevos y una prueba pura de nombres;947pass/223skip/0fail/11678 aserciones, lint918/tipos/Webpack/worker46/diff aprobados. Once Next6 focalizados finales pasan: ambas elecciones UI real cancelar/reabrir/confirmar y UUIDs generados por el componente, cuatro variantes, dos respuestas perdidas trascommit, recarga, ACK único y convergencia porplan. Se repitió el recorrido al mejorar nombres; un intento agotó45segundos manuales y se ajustó sólo el timeout de esa fixture (120segundos externo/90interno), no tiempos del producto. Full30 disponible, no atribuirlo almodo focalizado. Recursos propios retirados; sinGoogle/físicos nuevos/DBusuario/producción.
+
+Entrada57%5h/52%7d, reservas10%/1%, secuencial. Cadenas de contenido+categoría y asignaciones simples ya ofrecen recuperación explícita; continúan otras preferencias/cadenas recurrentes/ausencia según dependencias. No declarar cerrada toda recuperación residual.
+
+
 ## 19f3 — Asignaciones: Next/Mongo y dos particiones aprobados
 
 Once escenarios focalizados Next6: diez fronteras previas y un recorrido con cuatro variantes, productores reales y cadenas de tres asignaciones. Adopción y tres reenvíos conservan exactamente contenido, categorías, orden, outcomes y originales supersedidos. Dos respuestas perdidas tras commit remoto, recarga con pending attempt1, mismo UUID→ACK aplicado attempt2 y recibo/journal únicos aprobados. Cuenta/época/stale rechazan sin mutación; replay de la decisión no retrocede estado confirmado. Proyecciones de item/vista, shadow y cursor exactos en ambas particiones por plan. No es convergencia global, Google interactivo ni dispositivos físicos nuevos.

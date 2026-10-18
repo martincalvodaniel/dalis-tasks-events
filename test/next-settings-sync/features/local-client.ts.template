@@ -1,4 +1,5 @@
 "use client"
+import { proveItemViewResolutionUi } from "@fixture/item-view-resolution-ui"
 import { readItemViewIncidentComparison, resolveItemViewIncident } from "@/features/sync/local-item-view-resolution"
 import { provePlanCategoryResolutionUi } from "@fixture/plan-category-resolution-ui"
 import { remotePushInputV2Schema } from "@/schemas/remote-push-v2"
@@ -573,6 +574,8 @@ export async function executeLocalFixtureCommand(
       return proveCommonPlanResolutionUi(active, command.request)
     case "resolve-settings-ui":
       return proveSettingsResolutionUi(active, command.request)
+    case "resolve-assignment-ui":
+      return proveItemViewResolutionUi(active,command.request)
     case "assignment-comparison":
       return readItemViewIncidentComparison(active,command.operationId)
     case "resolve-assignment":

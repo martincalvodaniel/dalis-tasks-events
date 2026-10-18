@@ -1,3 +1,4 @@
+import { ItemViewIncidentActions } from "@/features/sync/components/item-view-incident-actions"
 import { PersonalIncidentVersion } from "@/features/sync/components/personal-incident-version"
 import { SettingsIncidentActions } from "@/features/sync/components/settings-incident-actions"
 import { TagIncidentActions } from "@/features/sync/components/tag-incident-actions"
@@ -94,6 +95,12 @@ export function PersonalIncidentCard({
         </details>
         {command.type === "settings.update" && account ? (
           <SettingsIncidentActions account={account} incident={incident} />
+        ) : command.type === "item-view.set" && account ? (
+          <ItemViewIncidentActions
+            key={`${account.userId}:${account.epoch}:${incident.entry.operation.operationId}`}
+            account={account}
+            incident={incident}
+          />
         ) : command.type === "tag.save" && account ? (
           <TagIncidentActions account={account} incident={incident} />
         ) : (

@@ -1,0 +1,121 @@
+"use client"
+
+import { createRoot } from "react-dom/client"
+import { SWRConfig } from "swr"
+import { PersonalIncidentCard } from "@/features/sync/components/personal-incident-card"
+import { requireActiveAccount } from "@/features/workspace/require-active-account"
+import { readLocalRecurringBackup } from "@/lib/local-db/backup"
+import { openLocalDatabase } from "@/lib/local-db/client"
+import { subscribeLocalOutboxChanges } from "@/lib/local-db/sync-notifications"
+import { itemViewResolutionRecordSchema } from "@/schemas/item-view-resolution"
+import type {
+  ItemViewResolutionRequest,
+  ItemViewResolutionRecord,
+} from "@/types/item-view-resolution"
+
+export async function proveItemViewResolutionUi(
+  account: { userId: string; epoch: string },
+  request: ItemViewResolutionRequest
+) {
+  await requireActiveAccount(account)
+  const container = document.createElement("aside")
+  container.setAttribute("aria-label", "Recuperación de asignación de prueba")
+  document.body.append(container)
+  const root = createRoot(container)
+  let chosen: ItemViewResolutionRecord | null = null
+  let unsubscribe = () => {},
+    disconnect = () => {}
+  const database = await openLocalDatabase(account.userId)
+  try {
+    const before = JSON.stringify((await readLocalRecurringBackup(database, account.userId, new Date().toISOString())).stores)
+    const cancellationChecks: Promise<void>[] = []
+    let dialogPresent = false, openings = 0, cancellations = 0
+    const completed = new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        unsubscribe()
+        disconnect()
+        reject(new Error("Assignment recovery UI interaction timed out"))
+      }, 90000)
+      const finish = () => {
+        const details = container.querySelector("details")
+        if (details && !details.open) details.open = true
+        const present = Boolean(container.querySelector("dialog"))
+        if (present && !dialogPresent) openings++
+        if (!present && dialogPresent && !chosen) {
+          cancellationChecks.push(readLocalRecurringBackup(database, account.userId, new Date().toISOString()).then((backup) => {
+            const committed = backup.stores.syncMetadata.some((value) => "resolutionId" in value && "incident" in value.expected && value.expected.incident.entry.operation.operationId === request.expected.incident.entry.operation.operationId)
+            if (!committed) {
+              if (JSON.stringify(backup.stores) !== before) throw new Error("Cancelled assignment review changed durable state")
+              cancellations++
+            }
+          }))
+        }
+        dialogPresent = present
+        if (chosen && !present) {
+          clearTimeout(timer)
+          unsubscribe()
+          disconnect()
+          resolve()
+        }
+      }
+      const observer = new MutationObserver(finish)
+      observer.observe(container, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        characterData: true,
+      })
+      disconnect = () => observer.disconnect()
+      unsubscribe = subscribeLocalOutboxChanges(account.userId, () => {
+        void readLocalRecurringBackup(
+          database,
+          account.userId,
+          new Date().toISOString()
+        )
+          .then((backup) => {
+            const value = backup.stores.syncMetadata.find(
+              (value) =>
+                "resolutionId" in value &&
+                "incident" in value.expected &&
+                value.expected.incident.entry.operation.operationId ===
+                  request.expected.incident.entry.operation.operationId
+            )
+            if (value) {
+              chosen = itemViewResolutionRecordSchema.parse(value)
+              finish()
+            }
+          })
+          .catch((error) => {
+            clearTimeout(timer)
+            unsubscribe()
+            disconnect()
+            reject(error)
+          })
+      })
+    })
+    root.render(
+      <SWRConfig value={{ provider: () => new Map() }}>
+        <PersonalIncidentCard account={account} incident={request.expected.incident} />
+      </SWRConfig>
+    )
+    await completed
+    await Promise.all(cancellationChecks)
+    if (openings < 2 || cancellations < 1) throw new Error("Assignment UI proof requires cancellation and reopening")
+    await requireActiveAccount(account)
+    const record = itemViewResolutionRecordSchema.parse(chosen)
+    if (
+      record.choice !== request.choice ||
+      JSON.stringify(record.expected) !== JSON.stringify(request.expected)
+    )
+      throw new Error(
+        "Assignment recovery UI did not confirm its reviewed choice"
+      )
+    return { status: "applied", record }
+  } finally {
+    unsubscribe()
+    disconnect()
+    root.unmount()
+    container.remove()
+    database.close()
+  }
+}

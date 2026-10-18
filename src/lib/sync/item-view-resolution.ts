@@ -75,8 +75,18 @@ export function captureItemViewResolutionSnapshot(
         pending.push(id)
       }
   }
+  const selected = new Set(
+    [...incident.local, ...incident.remote].flatMap((value) =>
+      value.record?.store === "itemViews" && value.record.record.primaryTagId
+        ? [value.record.record.primaryTagId]
+        : []
+    )
+  )
+  const tagNames = Object.fromEntries(
+    Object.entries(incident.tagNames).filter(([id]) => selected.has(id))
+  )
   const snapshot = {
-    incident: { ...incident, intentions: chain, tagNames: {} },
+    incident: { ...incident, intentions: chain, tagNames },
     parent,
     localTag: value.localTag,
     acknowledgedDependencies: entries

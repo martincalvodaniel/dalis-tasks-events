@@ -132,6 +132,7 @@ async function execute(
     [
       "assignment-comparison",
       "resolve-assignment",
+      "resolve-assignment-ui",
       "assignment-guard-proof",
       "joint-comparison",
       "resolve-joint",

@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19f4 — Completada: revisión visible de asignaciones y prueba interactiva
+
+- Estado: UI activa tras once escenarios Next6 focalizados finales/947tests/DoD aprobados ycleanup completo.
+- Objetivo: conectar revisión de asignaciones desde Ajustes sólo después de captura guardada; probar ambas elecciones en UI real antes de publicar.
+- target_paths: src/features/sync/components/{item-view-incident-actions,item-view-incident-resolution-dialog,item-view-incident-ui.test,personal-incident-card}.tsx, src/lib/sync/item-view-resolution{,.test}.ts, src/schemas/next-sync-test.ts, test/next-settings-sync/features/{item-view-resolution-ui,item-view-recovery,local-client,device-client,controller}.*.template yplan/**.
+- Dependencias:19f3/c5a77a9 publicado,57%5h/52%7d, reservas10%/1%; Next/React vigentes, secuencial. Sin planner/wire/índice nuevos.
+- Aceptación: botón de revisión noautoriza nada; lectura completa acredita padre/cola/prerrequisitos antes de opciones. Snapshot exacto, UUIDsestables, cuenta/epoch/mounted/caché propios, radios yconfirmación compactos españoles, cancelar sinwrites. No inventar nombre/color remoto; sólo coincidencia de categoría conocida.
+- Validación: SSR/guardias yNext assignment focalizado11, las elecciones adopt/retry de task/event porUI real cancelar/reabrir/confirmar con IDsgenerados porUI; demás variantes/loss/reload/replay/ACKúnico/convergencia porplan. Full30 sigue disponible sin atribuirle ejecución completa. DoD/cleanup/plan/log/ConventionalCommitpushint/HEAD/cuotas.
+
 ## 19f3 — Completada: prueba remota de recuperación de asignaciones
 
 - Estado: once escenarios focalizados aprobados, cuatro variantes/ACKreales/convergencia porplan;941tests/DoD completos. UI sigueoculta.
