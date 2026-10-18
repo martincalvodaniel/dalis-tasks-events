@@ -1,0 +1,465 @@
+"use client"
+import type { z } from "zod"
+import { canonical, foldRecurringChanges } from "@fixture/projection"
+import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
+import { planOccurrenceRetryOperationCount } from "@/lib/sync/plan-occurrence-resolution"
+import {
+  nextSyncDeviceCommandSchema,
+  nextSettingsSyncStateSchema,
+} from "@/schemas/next-sync-test"
+import { planSchema } from "@/schemas/plan-item"
+import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
+import {
+  planOccurrenceIncidentSnapshotSchema,
+  planOccurrenceResolutionRecordSchema,
+} from "@/schemas/plan-occurrence-resolution"
+import type { planOccurrenceCommandSchema } from "@/schemas/plan-occurrence-command"
+import type {
+  PlanOccurrenceResolutionRecord,
+  PlanOccurrenceResolutionRequest,
+} from "@/types/plan-occurrence-resolution"
+import type { LocalRecurringBackup } from "@/types/local-backup"
+import type { LocalPullCursor } from "@/types/local-sync"
+import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
+
+type Snapshot = { backup: LocalRecurringBackup; cursor: LocalPullCursor }
+type Ports = {
+  owner: string
+  call(
+    index: number,
+    input: z.infer<typeof nextSyncDeviceCommandSchema>
+  ): Promise<unknown>
+  snapshot(index: number): Promise<Snapshot>
+  state(): Promise<z.infer<typeof nextSettingsSyncStateSchema>>
+  reloadSecondary(): Promise<void>
+}
+function assert(value: unknown, message: string): asserts value {
+  if (!value) throw new Error(message)
+}
+function requestFrom(
+  record: PlanOccurrenceResolutionRecord
+): PlanOccurrenceResolutionRequest {
+  return {
+    userId: record.userId,
+    resolutionId: record.resolutionId,
+    operationId: record.operationId,
+    choice: record.choice,
+    createdAt: record.createdAt,
+    expected: record.expected,
+    ...(record.dependentOperationIds !== undefined
+      ? { dependentOperationIds: record.dependentOperationIds }
+      : {}),
+  }
+}
+export async function proveRemoteAppearanceRetry({
+  call,
+  snapshot,
+  state,
+  owner,
+  reloadSecondary,
+}: Ports) {
+  for (const mode of ["draft", "cancelled"] as const) {
+    const loser = mode === "draft" ? 0 : 1,
+      winner = 1 - loser
+    const itemId = crypto.randomUUID(),
+      first = `${itemId}:2026-10-17`,
+      second = `${itemId}:2026-10-18`,
+      step = crypto.randomUUID(),
+      reversed = crypto.randomUUID(),
+      added = crypto.randomUUID()
+    await call(winner, {
+      type: "save-plan",
+      request: {
+        mode: "create",
+        itemId,
+        contentOperationId: crypto.randomUUID(),
+        viewOperationId: crypto.randomUUID(),
+        primaryTagId: null,
+        now: new Date().toISOString(),
+        input: {
+          kind: "plan",
+          variant: "note",
+          title: `Retry aparición ${mode}`,
+          description: "Original",
+          status: "not_started",
+          checklist: [
+            { id: step, text: "First", completed: false },
+            { id: reversed, text: "Second", completed: false },
+          ],
+          schedule: {
+            mode: "all_day",
+            startDate: "2026-10-17",
+            endDateExclusive: "2026-10-18",
+          },
+          recurrence: {
+            frequency: "daily",
+            interval: 1,
+            anchorDate: "2026-10-17",
+            timeZone: "Europe/Madrid",
+            end: { type: "count", count: 3 },
+          },
+        },
+      },
+    })
+    await call(winner, { type: "mixed-run" })
+    await call(loser, { type: "mixed-run" })
+    async function commit(
+      index: number,
+      command: z.infer<typeof planOccurrenceCommandSchema>
+    ) {
+      const copy = await snapshot(index),
+        series = planSchema.parse(
+          copy.backup.stores.items.find((value) => value.id === itemId)
+        ),
+        stored = copy.backup.stores.occurrences.find(
+          (value) => value.id === command.occurrenceId
+        )
+      const expectedOccurrence = editablePlanOccurrence(
+        series,
+        stored ? planOccurrenceSchema.parse(stored) : null,
+        command,
+        owner
+      ).current
+      return call(index, {
+        type: "commit-occurrence",
+        operationId: crypto.randomUUID(),
+        now: new Date().toISOString(),
+        command,
+        expectedItem: series,
+        expectedOccurrence,
+      })
+    }
+    await commit(winner, {
+      type: "plan.set-occurrence-status",
+      itemId,
+      occurrenceId: first,
+      status: "completed",
+    })
+    await call(winner, { type: "mixed-run" })
+    await commit(winner, {
+      type: "plan.set-occurrence-checklist-entry",
+      itemId,
+      occurrenceId: first,
+      entryId: reversed,
+      completed: true,
+    })
+    await call(winner, { type: "mixed-run" })
+    await commit(winner, {
+      type: "plan.set-occurrence-status",
+      itemId,
+      occurrenceId: second,
+      status: "in_progress",
+    })
+    await call(winner, { type: "mixed-run" })
+    await commit(loser, {
+      type: "plan.update-occurrence",
+      itemId,
+      occurrenceId: first,
+      input: {
+        title: `Whole chosen draft ${mode}`,
+        description: "Latest full description",
+        schedule: {
+          mode: "all_day",
+          startDate: "2026-10-19",
+          endDateExclusive: "2026-10-21",
+        },
+        checklist: [
+          { id: step, text: "Changed first text" },
+          { id: reversed, text: "Reversed state" },
+          { id: added, text: "Added step" },
+        ],
+      },
+    })
+    await commit(loser, {
+      type: "plan.set-occurrence-status",
+      itemId,
+      occurrenceId: first,
+      status: "in_progress",
+    })
+    await commit(loser, {
+      type: "plan.set-occurrence-checklist-entry",
+      itemId,
+      occurrenceId: first,
+      entryId: step,
+      completed: true,
+    })
+    await commit(loser, {
+      type: "plan.set-occurrence-checklist-entry",
+      itemId,
+      occurrenceId: first,
+      entryId: added,
+      completed: true,
+    })
+    if (mode === "cancelled")
+      await commit(loser, {
+        type: "plan.cancel-occurrence",
+        itemId,
+        occurrenceId: first,
+      })
+    await call(loser, { type: "mixed-run" })
+    const incidents = (await call(loser, {
+      type: "settings-incidents",
+    })) as RecurringSyncIncidentOverview[]
+    const incident = incidents.find(
+      (value) =>
+        value.kind === "plan-occurrence" && value.incident.series.id === itemId
+    )
+    assert(
+      incident?.kind === "plan-occurrence",
+      "Real retry CAS conflict missing"
+    )
+    const expected = planOccurrenceIncidentSnapshotSchema.parse(
+        incident.incident
+      ),
+      count = planOccurrenceRetryOperationCount(expected)
+    const request: PlanOccurrenceResolutionRequest = {
+      userId: owner,
+      resolutionId: crypto.randomUUID(),
+      operationId: crypto.randomUUID(),
+      dependentOperationIds: Array.from({ length: count - 1 }, () =>
+        crypto.randomUUID()
+      ),
+      choice: "retry_local",
+      createdAt: new Date().toISOString(),
+      expected,
+    }
+    const remoteBefore = await state(),
+      before = await snapshot(loser)
+    const result = (await call(
+      loser,
+      mode === "draft"
+        ? { type: "appearance-retry-local-proof", request }
+        : { type: "resolve-appearance", request }
+    )) as { status: string; record: unknown; checks?: number }
+    const record = planOccurrenceResolutionRecordSchema.parse(result.record)
+    assert(
+      result.status === "applied" &&
+        record.replacement &&
+        (mode !== "draft" || (result.checks ?? 0) >= 5),
+      "Durable retry guard/rollback proof incomplete"
+    )
+    assert(
+      canonical(await state()) === canonical(remoteBefore),
+      "Local retry manufactured remote ACK or journal"
+    )
+    const operations = [
+        record.replacement,
+        ...(record.dependentReplacements ?? []),
+      ],
+      decided = await snapshot(loser)
+    assert(
+      operations.length >= 5,
+      "Retry did not include the complete content, status and checklist chain"
+    )
+    for (const [index, operation] of operations.entries()) {
+      const entry = decided.backup.stores.outbox.find(
+        (value) => value.operation.operationId === operation.operationId
+      )
+      assert(
+        entry?.state === "pending" &&
+          entry.attempts === 0 &&
+          entry.lease === null &&
+          canonical(entry.operation) === canonical(operation) &&
+          canonical(entry.dependencies) ===
+            canonical(index ? [operations[index - 1].operationId] : []),
+        "Retry queue lost frozen identities, dependencies or pending state"
+      )
+    }
+    for (const reviewed of record.expected.intentions) {
+      const entry = decided.backup.stores.outbox.find(
+        (value) =>
+          value.operation.operationId === reviewed.operation.operationId
+      )
+      assert(
+        canonical(entry) ===
+          canonical({ ...reviewed, state: "superseded", lease: null }),
+        "Retry rewrote original intention evidence"
+      )
+    }
+    for (const store of [
+      "items",
+      "tags",
+      "itemViews",
+      "taskPlacements",
+      "settings",
+      "remoteShadows",
+    ] as const)
+      assert(
+        canonical(before.backup.stores[store]) ===
+          canonical(decided.backup.stores[store]),
+        "Retry changed unrelated content or preference evidence"
+      )
+    const lost = (await call(loser, { type: "lost-plan-response-run" })) as {
+      status: string
+      uploaded: number
+    }
+    assert(
+      lost.status === "retry_later" && lost.uploaded === 0,
+      "Lost retry response manufactured local ACK"
+    )
+    const pending = await snapshot(loser),
+      committedFirst = await state()
+    assert(
+      committedFirst.counts.receipts === remoteBefore.counts.receipts + 1 &&
+        committedFirst.page.through === remoteBefore.page.through + 1,
+      "Lost first retry response duplicated or missed the remote commit"
+    )
+    for (const [index, operation] of operations.entries()) {
+      const entry = pending.backup.stores.outbox.find(
+        (value) => value.operation.operationId === operation.operationId
+      )
+      assert(
+        entry?.state === "pending" &&
+          entry.attempts === (index ? 0 : 1) &&
+          entry.lease === null &&
+          canonical(entry.operation) === canonical(operation),
+        "Lost retry response changed attempted or dependent payloads"
+      )
+    }
+    assert(
+      canonical(
+        pending.backup.stores.occurrences.find((value) => value.id === first)
+      ) === canonical(record.local),
+      "Partial remote commit overwrote the whole optimistic draft"
+    )
+    if (mode === "cancelled") {
+      await reloadSecondary()
+      const reloaded = await snapshot(loser)
+      assert(
+        canonical(reloaded.backup.stores) ===
+          canonical(pending.backup.stores) &&
+          canonical(reloaded.cursor) === canonical(pending.cursor),
+        "Reload lost retry receipt, pending children or checkpoint"
+      )
+    }
+    await call(winner, { type: "mixed-run" })
+    const intermediate = planOccurrenceSchema.parse(
+      (await snapshot(winner)).backup.stores.occurrences.find(
+        (value) => value.id === first
+      )
+    )
+    assert(
+      intermediate.content?.title === record.local.content?.title &&
+        intermediate.revision === (record.expected.remote?.revision ?? 0) + 1 &&
+        intermediate.status === "completed" &&
+        !intermediate.cancelled,
+      "Peer did not observe the expected intermediate content-only commit"
+    )
+    for (let pass = 0; pass < operations.length + 2; pass++) {
+      await call(loser, { type: "mixed-run" })
+      const copy = await snapshot(loser)
+      if (
+        operations.every((operation) =>
+          copy.backup.stores.outbox.some(
+            (entry) =>
+              entry.operation.operationId === operation.operationId &&
+              entry.state === "acknowledged"
+          )
+        )
+      )
+        break
+    }
+    await call(winner, { type: "mixed-run" })
+    const remote = await state(),
+      local = await snapshot(loser)
+    assert(
+      remote.counts.receipts ===
+        remoteBefore.counts.receipts + operations.length &&
+        remote.page.through === remoteBefore.page.through + operations.length,
+      "Retry replay duplicated remote receipts or omitted a chain step"
+    )
+    for (const [index, operation] of operations.entries()) {
+      const entry = local.backup.stores.outbox.find(
+        (value) => value.operation.operationId === operation.operationId
+      )
+      assert(
+        entry?.state === "acknowledged" &&
+          entry.attempts === (index ? 1 : 2) &&
+          entry.lease === null &&
+          canonical(entry.operation) === canonical(operation),
+        "Retry did not receive one ACK for its exact frozen replacement"
+      )
+    }
+    const finished = planOccurrenceSchema.parse(
+      local.backup.stores.occurrences.find((value) => value.id === first)
+    )
+    assert(
+      canonical(finished.content) === canonical(record.local.content) &&
+        canonical(finished.schedule) === canonical(record.local.schedule) &&
+        finished.status === record.local.status &&
+        canonical(finished.checklist) === canonical(record.local.checklist) &&
+        finished.cancelled === record.local.cancelled &&
+        finished.revision ===
+          (record.expected.remote?.revision ?? 0) + operations.length,
+      "Retry final remote content, schedule, status or checklist differs from the chosen draft"
+    )
+    const replay = (await call(loser, {
+      type: "resolve-appearance",
+      request: requestFrom(record),
+    })) as { status: string }
+    assert(
+      replay.status === "replayed" &&
+        canonical((await snapshot(loser)).backup.stores) ===
+          canonical(local.backup.stores) &&
+        canonical(await state()) === canonical(remote),
+      "Retry decision replay duplicated queued commands or rewrote confirmed state"
+    )
+    if (mode === "draft") {
+      await commit(loser, {
+        type: "plan.set-occurrence-status",
+        itemId,
+        occurrenceId: first,
+        status: "in_progress",
+      })
+      const newer = await snapshot(loser)
+      await call(loser, {
+        type: "resolve-appearance",
+        request: requestFrom(record),
+      })
+      assert(
+        canonical((await snapshot(loser)).backup.stores) ===
+          canonical(newer.backup.stores),
+        "Retry replay overwrote a newer local edit"
+      )
+      await call(loser, { type: "mixed-run" })
+      await call(winner, { type: "mixed-run" })
+    }
+    const authoritative = await state(),
+      projection = foldRecurringChanges(authoritative.page)
+    for (let index = 0; index < 2; index++) {
+      const copy = await snapshot(index)
+      assert(
+        copy.cursor.after === authoritative.page.through &&
+          copy.cursor.through === null,
+        "Retry missed remote checkpoint"
+      )
+      assert(
+        canonical(
+          copy.backup.stores.items.find((value) => value.id === itemId)
+        ) === canonical(projection.items.get(itemId)),
+        "Retry changed its parent"
+      )
+      const own = copy.backup.stores.occurrences.filter(
+        (value) => value.seriesId === itemId
+      )
+      assert(own.length === 2, "Retry lost or invented another appearance")
+      for (const value of own) {
+        const shadow = copy.backup.stores.remoteShadows.find(
+          (shadow) => shadow.entityKey === `plan-occurrence:${value.id}`
+        )
+        assert(
+          canonical(value) === canonical(projection.occurrences.get(value.id)),
+          "Retry partitions did not converge with exact Mongo projection"
+        )
+        assert(
+          shadow &&
+            "kind" in shadow &&
+            shadow.kind === "plan-occurrence" &&
+            canonical(shadow.record) === canonical(value),
+          "Retry shadow differs from its confirmed projection"
+        )
+      }
+    }
+  }
+  return { retried: 2, responseLost: true, reloaded: true }
+}

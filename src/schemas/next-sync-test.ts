@@ -162,6 +162,10 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
     type: z.literal("settings-resolution-local-proof"),
     request: settingsResolutionRequestSchema,
   }),
+  z.strictObject({
+    type: z.literal("appearance-retry-local-proof"),
+    request: planOccurrenceResolutionRequestSchema,
+  }),
   z.strictObject({ type: z.literal("settings-editor-proof") }),
   z.strictObject({ type: z.literal("legacy-root-resolution-proof") }),
   z.strictObject({ type: z.literal("plan-resolution-proof") }),

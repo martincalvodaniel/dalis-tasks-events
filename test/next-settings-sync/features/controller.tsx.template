@@ -1,4 +1,5 @@
 "use client"
+import { proveRemoteAppearanceRetry } from "@fixture/appearance-retry"
 import { proveRemoteAppearanceRecovery } from "@fixture/appearance-recovery"
 import { proveRemoteSettingsRecovery } from "@fixture/settings-recovery"
 import { proveRemoteCommonPlanRecovery } from "@fixture/common-plan-recovery"
@@ -1385,6 +1386,44 @@ export function FixtureController() {
         }
       )
       await check(
+        "Retry completo de aparición conserva todos los UUID con respuesta perdida, recarga y ACK únicos",
+        async () => {
+          const proof = await proveRemoteAppearanceRetry({
+            call,
+            snapshot,
+            state: () => state(owner),
+            owner,
+            reloadSecondary: async () => {
+              const reloaded = new Promise<void>((resolve, reject) => {
+                const timer = setTimeout(() => {
+                  window.removeEventListener("message", listener)
+                  reject(new Error("Owned retry reload timed out"))
+                }, 45000)
+                const listener = (event: MessageEvent) => {
+                  if (
+                    event.source !== secondary ||
+                    event.origin !== fixture.origins[1] ||
+                    event.data?.runId !== fixture.runId ||
+                    event.data?.ready !== true
+                  )
+                    return
+                  clearTimeout(timer)
+                  window.removeEventListener("message", listener)
+                  resolve()
+                }
+                window.addEventListener("message", listener)
+              })
+              await call(1, { type: "reload-local" })
+              await reloaded
+            },
+          })
+          assert(
+            proof.retried === 2 && proof.responseLost && proof.reloaded,
+            "Complete appearance retry evidence missing"
+          )
+        }
+      )
+      await check(
         "Executor común privado conserva backup y revierte decisiones fallidas sin ACK",
         async () => {
           const before = await state(owner)
@@ -1456,7 +1495,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Veintiséis escenarios Next6 correctos; sesiones propias cerradas"
+            "Veintisiete escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

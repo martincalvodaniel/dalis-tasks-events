@@ -729,3 +729,85 @@ test("cancelled remote and missing or deleted local draft stay adoption-only", (
     expect(() => planOccurrenceRetryOperationCount(next)).toThrow()
   }
 })
+
+test("portable retry requires every exact replacement in its original ordered dependency chain", () => {
+  const current = retryComparison(),
+    request = retryRequest(current),
+    record = planOccurrenceIncidentResolution(request, current)
+  if (!record.replacement) throw new Error("Retry replacement missing")
+  const operations = [
+    record.replacement,
+    ...(record.dependentReplacements ?? []),
+  ]
+  const original = current.intentions.map((entry) => ({
+    ...entry,
+    state: "superseded" as const,
+  }))
+  const queued = operations.map((operation, index) =>
+    outboxEntrySchema.parse({
+      userId: request.userId,
+      entityKey: current.entry.entityKey,
+      operation,
+      sequence: original.length + index + 1,
+      dependencies: index ? [operations[index - 1].operationId] : [],
+      state: "pending",
+      attempts: 0,
+      lease: null,
+      createdAt: request.createdAt,
+    })
+  )
+  const backup = {
+    format: "dalis-local-backup",
+    version: 3,
+    protocolVersion: 1,
+    databaseVersion: 2,
+    userId: request.userId,
+    exportedAt: request.createdAt,
+    stores: {
+      items: [current.series],
+      occurrences: [record.local],
+      tags: [],
+      itemViews: [],
+      taskPlacements: [],
+      settings: [],
+      memberships: [],
+      invitations: [],
+      outbox: [...original, ...queued],
+      remoteShadows: [],
+      syncMetadata: [
+        { key: "outbox-sequence", value: original.length + queued.length },
+        current.outcome,
+        record,
+      ],
+    },
+  }
+  expect(
+    validateLocalRecurringBackup(backup, request.userId).stores.outbox
+  ).toHaveLength(original.length + queued.length)
+  const truncated = structuredClone(backup)
+  truncated.stores.outbox.pop()
+  expect(() => validateLocalRecurringBackup(truncated, request.userId)).toThrow(
+    "replacement evidence"
+  )
+  const changed = structuredClone(backup)
+  changed.stores.outbox.at(-1)?.dependencies.splice(0)
+  expect(() => validateLocalRecurringBackup(changed, request.userId)).toThrow(
+    "replacement evidence"
+  )
+  const altered = structuredClone(backup),
+    last = altered.stores.outbox.at(-1)
+  if (!last || !("expectedOccurrenceRevision" in last.operation.command))
+    throw new Error("Retry tail fixture missing")
+  last.operation.command.expectedOccurrenceRevision = 0
+  expect(() => validateLocalRecurringBackup(altered, request.userId)).toThrow(
+    "replacement evidence"
+  )
+  const lost = structuredClone(backup),
+    first = lost.stores.outbox[original.length]
+  first.attempts = 1
+  expect(
+    validateLocalRecurringBackup(lost, request.userId).stores.outbox[
+      original.length
+    ].state
+  ).toBe("pending")
+})

@@ -10,6 +10,8 @@ La zona horaria personal ya es editable offline, sincroniza por cuenta y está v
 
 ### Continuación18oct02:20
 
+19c5 cierra retry durable de toda la excepción: cola/counter/proyección/recibo atómicos ybackup de cada reemplazo exacto.27Next6 prueban dos reintentos reales, respuestaperdida, recarga antesACK, UUID/payloads intactos, etapas intermedias yconvergencia final porserie.873pass/223skip/0fail, lint871/tipos/Webpack/worker46. Falta botón/diálogo de retry19c6; adopción permanece activa.
+
 19c4 prepara reenvío completo de aparición usando1–103 comandos existentes conUUIDnuevos/CAS porpaso yregistro ordenado. Cinco pruebas nuevas incluyen simulación de planner remoto yACK: payloads previstos permanecen exactos yproyección final coincide. Retry permanece rechazado por executor/backup yoculto en UI hasta19c5–6; adopción activa intacta.872pass/223skip/0fail, lint871/tipos/Webpack/worker46.
 
 19c3 activa en Ajustes la adopción de aparición remota conocida, con preview completo yconfirmación explícita probada. Sólo slot propio seguro: otros slots/dependencias externas/envíos inciertos permanecen protegidos.26Next6,867pass/223skip/0fail, lint870/tipos/Webpack/worker46. La recuperación de apariciones todavía no ofrece reintento del borrador ni copia; seguir ese contrato sin inventar ACK o descartar cadenas.

@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19c5 — Retry durable de toda la aparición y ACK reales
+
+Estado: completado;27Next6 correctos, retry durable/backup preparados y botón todavía oculto.
+
+- Objetivo: cerrar escritura de toda la cadena, evidencia portable yprueba remota real antes de ofrecer retry en UI.
+- target_paths: src/{lib/local-db/plan-occurrence-resolution.ts,lib/backup/local-backup.ts,lib/sync/plan-occurrence-resolution.test.ts,schemas/next-sync-test.ts}, test/next-settings-sync/features/** y plan/**.
+- Dependencias:71350a4 publicado,53%5h/93%7d, reservas10%/1%; planner completo19c4 yadopción activa19c3. Secuencial, sin cambios remotos de protocolo/índices.
+- Aceptación: todos los reemplazos/counter/proyección/recibo/superseded juntos enunaTX; UUID/distinción/overflow/cuenta/epoch/dependencias revalidados. Backup exige cadaoperación/dependencia/orden/fecha exactos youtcomes trasACK; replay conserva cambios posteriores. CadaACKreal único, respuestaperdida mantiene primeros intentos yresto sinintento; contenido/checklist/progreso/cancelación finales iguales aMongo en dosparticiones. No atomicidad remota multicomando ni convergencia global ante casos bloqueados aparte.
+- Validación: backup válido ytruncado/corrupto, late-rollback de cadena/counter/recibo, guardias yNext/Mongo/IndexedDB propios con productores reales, peer ve etapa intermedia antesdeconvergencia, replay/ACK final/recarga. Suite/lint/tipos/Webpack/worker/cleanup/plan/log/commitpushint/HEAD/cuotas. UI retry oculta hasta19c6.
+
 ## 19c4 — Plan puro de reenvío completo de aparición
 
 Estado: completado; sólo planner preparado, retry rechazado por executor/backup y oculto en UI.

@@ -135,6 +135,7 @@ async function execute(
       "settings-incidents",
       "resolve-appearance",
       "appearance-resolution-local-proof",
+      "appearance-retry-local-proof",
       "resolve-settings",
       "resolve-settings-ui",
       "settings-resolution-local-proof",

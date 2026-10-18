@@ -205,8 +205,31 @@ function validateBackup(
   for (const record of s.syncMetadata) {
     if (record.key.startsWith("appearance-resolution:")) {
       const decision = validatePlanOccurrenceResolutionRecord(record, actor)
-      if (decision.choice !== "adopt_remote")
-        throw new Error("Appearance retry evidence is not available yet")
+      if (decision.replacement) {
+        const replacements = [
+          decision.replacement,
+          ...(decision.dependentReplacements ?? []),
+        ]
+        const first = entries.get(replacements[0].operationId)
+        for (let index = 0; index < replacements.length; index++) {
+          const operation = replacements[index],
+            entry = entries.get(operation.operationId)
+          if (
+            !first ||
+            !entry ||
+            entry.userId !== actor ||
+            entry.entityKey !== decision.expected.entry.entityKey ||
+            entry.sequence !== first.sequence + index ||
+            entry.createdAt !== decision.createdAt ||
+            JSON.stringify(entry.operation) !== JSON.stringify(operation) ||
+            JSON.stringify(entry.dependencies) !==
+              JSON.stringify(index ? [replacements[index - 1].operationId] : [])
+          )
+            throw new Error(
+              "Backup appearance retry is missing its exact ordered replacement evidence"
+            )
+        }
+      }
     }
     if (record.key.startsWith("settings-resolution:"))
       validateSettingsResolutionRecord(record, actor)

@@ -23,8 +23,6 @@ export function resolveLocalPlanOccurrenceIncident(
 }> {
   const userId = userIdSchema.parse(userIdInput),
     request = planOccurrenceResolutionRequestSchema.parse(input)
-  if (request.choice !== "adopt_remote")
-    return Promise.reject(new Error("Appearance retry is not available yet"))
   if (request.userId !== userId || database.name !== localDatabaseName(userId))
     return Promise.reject(
       new Error("Appearance decision belongs to another partition")
@@ -95,9 +93,12 @@ export function resolveLocalPlanOccurrenceIncident(
                 throw new Error(
                   "Appearance resolution metadata exceeds its complete record limit"
                 )
+              const replacements = record.replacement
+                ? [record.replacement, ...(record.dependentReplacements ?? [])]
+                : []
               const identities = [
                 request.resolutionId,
-                ...(request.operationId ? [request.operationId] : []),
+                ...replacements.map((operation) => operation.operationId),
               ]
               if (
                 identities.some((id) => byId.has(id)) ||
@@ -139,6 +140,10 @@ export function resolveLocalPlanOccurrenceIncident(
                 throw new Error(
                   "Appearance resolution sequence is behind its durable queue"
                 )
+              const nextCounter = outboxSequenceSchema.parse({
+                key: "outbox-sequence",
+                value: counter.value + replacements.length,
+              })
               const outbox = context.transaction.objectStore("outbox")
               for (const id of ids)
                 outbox.put(
@@ -149,6 +154,23 @@ export function resolveLocalPlanOccurrenceIncident(
                   })
                 )
               context.transaction.objectStore("occurrences").put(record.local)
+              for (const [index, operation] of replacements.entries())
+                outbox.add(
+                  outboxEntrySchema.parse({
+                    userId,
+                    entityKey: current.incident.entry.entityKey,
+                    operation,
+                    sequence: counter.value + index + 1,
+                    dependencies: index
+                      ? [replacements[index - 1].operationId]
+                      : [],
+                    state: "pending",
+                    attempts: 0,
+                    lease: null,
+                    createdAt: record.createdAt,
+                  })
+                )
+              if (replacements.length) metadata.put(nextCounter)
               metadata.add(record)
               context.setResult({ status: "applied", record })
             } catch (error) {

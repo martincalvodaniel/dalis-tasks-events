@@ -546,3 +546,7 @@ Entrada75%5h/96%7d tras90dbb27, reservas10%/1%.26Next6 con UI real ycancelación
 ### 19c4 — Retry puro acotado
 
 Entrada60%5h/94%7d trasdca6b47; reservas10%/1%. Cadena de comandos existentes yregistro ordenado probados, conguardias temporales enexecutor/backup ysin botón. Simulación de planner remoto/ACK confirma CASprevisto ypayloads estables; siguiente entrega exige prueba remota real. DoD completo/plan/log mismo commitpushint/HEAD/cuotas.
+
+### 19c5 — Retry durable con respuesta perdida
+
+Entrada53%5h/93%7d tras71350a4; reservas10%/1%.27Next6 completos prueban dos cadenas reales, rollback/counter/replay/recarga antesACK yconvergencia porserie. Prueba portable rechaza cola truncada, dependencia alterada ypayload cambiado, aceptando pendiente intentado sinACK. DoD/cleanup/plan/log mismo commitpushint/HEAD/cuotas; siguiente19c6 sólo con margen para UI real yreparación.
