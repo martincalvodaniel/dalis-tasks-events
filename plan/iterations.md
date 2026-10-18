@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19f6 — Completada: identidades globales de decisiones portables
+
+- Estado: tresregresiones nuevas/51backups/955tests/DoD completos aprobados.
+- Objetivo: cerrar la discrepancia entre writers y backup: los writers impiden reutilizarUUID de decisión en otrodominio uoperación, pero el validatorportable sólo exige clavesmetadata únicas yguardias parciales porfamilia.
+- target_paths: src/lib/backup/{local-backup,local-backup-identities.test}.ts yplan/**.
+- Dependencias:0b04a31 publicado,23%5h/46%7d, reservas10%/1%; corte puro acotado sinMongo/Next/UI nuevos.
+- Aceptación: rechazar dos resolutionId iguales aunque sus prefijosmetadata sean distintos, y decisión que colisione con cualquier operación conservada, incluso ajena a sucohorte o ACKhistórico. No rechazar operaciones referenciadas legítimamente por outcome/replacement ni mezclar IDsdeentidad/importación conesta regla. No mutación/compactación/reescritura.
+- Validación: backup3 combinado válido de decisiones independientes ycasos colisionados, regresión debackups anteriores yDoD completo; plan/log/mismoConventionalCommitpushint/HEAD/cuotas. Sin afirmar pruebasbrowser nuevas.
+
 ## 19f5 — Completada: asignación aislada de series propias
 
 - Estado: nuevechecksIndexedDB/onceNext6 nointeractivos/952tests/DoD aprobados,aparición confirmada conservada.

@@ -1,5 +1,12 @@
 # Recuperación explícita de conflictos
 
+## 19f6 — Identidades globales de decisiones portables
+
+Se cierra una discrepancia de integridad: backup exigía claves metadata únicas, pero dos decisiones de familias distintas podían reutilizar el mismo resolutionId. Ahora el codec rechaza IDs de decisión duplicados entre prefijos y colisión con cualquier operación conservada; los writers ya protegían esa frontera. No confunde referencias legítimas a outcomes/replacements ni IDs de entidades/importación, no altera datos ni crea ACK.
+
+Tres pruebas nuevas combinan dos cohortes independientes válidas y rechazan ambas colisiones. Regresión backup51pass/471aserciones; suite955pass/223skip/0fail/11699aserciones, lint919 sinavisos/tipos/Webpack/worker46/diff aprobados. Sin nuevas pruebas browser/Mongo, wire, formato, UI, DBusuario o producción. Entrada23%5h/46%7d, reservas10%/1%; corte puro acotado. No se abre una nueva recuperación compleja antes del cierre seguro.
+
+
 ## 19f5 — Recuperación de asignación de series propias
 
 El mismo diálogo admite ahora una serie viva propia cuando sólo quedan asignaciones pendientes. El executor remoto6 ya autorizaba esa operación con guard compartido/CAS; se retira la restricción local a planes simples, manteniendo captura completa y rechazo de contenido, otros slots o movimientos pendientes de la serie. Sólo se escribe la vista; no se sustituyen otros slots ni sus intenciones. No cambia UI, wire, índices o permisos.

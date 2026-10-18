@@ -110,6 +110,17 @@ function validateBackup(
     s.outbox.map((record) => record.operation.operationId),
     "operation IDs"
   )
+  const resolutionIds = s.syncMetadata.flatMap((record) =>
+    "resolutionId" in record ? [record.resolutionId] : []
+  )
+  unique(resolutionIds, "resolution IDs")
+  const operationIds = new Set(
+    s.outbox.map((entry) => entry.operation.operationId)
+  )
+  if (resolutionIds.some((id) => operationIds.has(id)))
+    throw new Error(
+      "Backup decision identity collides with preserved operation history"
+    )
   unique(
     s.outbox.map((record) => record.sequence),
     "operation sequences"
