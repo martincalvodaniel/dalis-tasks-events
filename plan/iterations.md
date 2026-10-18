@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19e3a — Captura conjunta en una transacción local
+
+- Estado: completado; ocho checks IndexedDB propios, lector privado sin nuevas elecciones ni escrituras.
+- Objetivo: reconstruir snapshot conjunto19e2 dentro de unaTX IndexedDB compartida por todo elgrafo, vista/categoría/shadow remotos actuales.
+- target_paths: src/lib/local-db/plan-category-resolution-capture.ts, src/types/plan-category-resolution.ts, test/browser/plan-category-capture.ts, scripts/browser-test-server.ts yplan/**.
+- Dependencias:be34aaa publicado,23%5h/73%7d yreservas10%/1%; captura pura19e2/guardia19e1 aprobadas. Corte secuencial menor que writer+portable+integración, no abrir éstos ahora.
+- Aceptación: unaTX de9stores, peticiones síncronas sinIO externo; actor/partición/UUID revalidados ytodos los registros completos antes de devolver. Reutilizar lectorevidencia/cola, leer vista yshadow exactos porID; falta de remoto noes permiso. Categoría local ausente capturada comonull; helpers obligan relectura futura enTX deescritura. Lectura no modifica cola/evidencia ni fabricaACK.
+- Validación: IndexedDB propio readonly exacto/stale deotra versión/independientes/actor/ausencias/corrupción/intentadas/dependientes/reapertura; DoD/cleanup/plan/log/mismo commitpushint/HEAD/cuotas. Siguiente19e3b writer+portable/rollback/replay, luego Next/UI; sinMongo/DBusuario/índices nuevos.
+
 ## 19c8 — Capacidad posterior de recuperación común y zona
 
 - Estado: completado; ocho checks IndexedDB propios aprobados.

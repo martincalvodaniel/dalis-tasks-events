@@ -20,6 +20,7 @@ if (
   suite !== "appearance-resolution-capacity" &&
   suite !== "tag-resolution" &&
   suite !== "resolution-capacity" &&
+  suite !== "plan-category-capture" &&
   suite !== "task-snapshot" &&
   suite !== "occurrence-ordering"
 )

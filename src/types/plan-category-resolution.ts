@@ -1,5 +1,6 @@
 import type { z } from "zod"
 import type {
+  planCategoryResolutionCaptureSchema,
   planCategoryResolutionRecordSchema,
   planCategoryResolutionRequestSchema,
   planCategoryResolutionSnapshotSchema,
@@ -12,4 +13,8 @@ export type PlanCategoryResolutionRecord = z.infer<
 >
 export type PlanCategoryResolutionSnapshot = z.infer<
   typeof planCategoryResolutionSnapshotSchema
+>
+
+export type PlanCategoryResolutionCapture = z.infer<
+  typeof planCategoryResolutionCaptureSchema
 >

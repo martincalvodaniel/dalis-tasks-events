@@ -2,6 +2,8 @@
 
 ## Estado operativo — 18 de octubre de 2026
 
+19e3a prepara captura consistente de recuperación conjunta dentro de una transacción local: ocho checks IndexedDB propios prueban lectura sin mutación, actividad independiente, cuenta/ausencias/corrupción, intenciones inciertas, revisión remota y reapertura. No habilita la escritura conjunta. Siguiente19e3b: writer atómico y evidencia portable con rollback/replay antes de Next y UI.
+
 19c8 aplica la protección de capacidad también a recuperaciones comunes y de zona: rechaza crecimiento de cola/evidencia fuera del límite y copias que superen10.000 elementos antes de escribir. Ocho checks IndexedDB propios, replay sin duplicados y DoD completos aprobados. La decisión conjunta19e2 sigue preparatoria.
 
 19e2 cierra el contrato puro de decisión conjunta: comparación compacta de contenido/vista/categoría y ACKs previos relacionados, adopción de ambos remotos o dos operaciones nuevas con CAS independientes para reenviar ambos borradores. Las revisiones agotadas y categorías no confirmadas limitan el reenvío. Aún no hay transacción/backup/UI conjuntos: siguiente19e3 debe reconstruir la captura dentro de unaTX y preservar evidencia antes de prueba remota/elecciones.

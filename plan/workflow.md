@@ -594,3 +594,7 @@ Entrada37%5h/76%7d tras7cad063, reservas10%/1%. Corte puro secuencial cerrado co
 ### 19c8 — Corregir capacidad activa antes de ampliar recuperación
 
 Entrada31%5h/75%7d tras820596b, reservas10%/1%. Ocho checks nativos yDoD completo, sin abrir transacción conjunta mayor a mitad de ventana. Cleanup/plan/log/mismo commitpushint/HEAD/cuotas para elegir corte siguiente o cierre seguro.
+
+### 19e3a — Último corte acotado de captura
+
+Entrada23%5h/73%7d trasbe34aaa, reservas10%/1%. Se elige lector privado probado en vez de abrir writer+backup+remoto a medias. Ocho checks propios yDoD completos, limpieza/plan/log/mismo commitpushint/HEAD/cuotas. Evaluar cierre según lecturareal; ejecución puntual sin nueva cadena.
