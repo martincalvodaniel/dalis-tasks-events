@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19d1 — Contrato puro de recuperación de nombre/color de categoría
+
+- Estado: completado, contrato puro; sin nuevas elecciones UI.
+- Objetivo: adoptar una categoría remota viva conocida o reenviar el nombre/color local conUUID/CAS nuevos, conservando el orden remoto. Sólo cadenas aisladas tag.save; movimientos/borrado/asignaciones/dependencias externas siguen protegidos.
+- target_paths: src/{schemas/tag-resolution.ts,types/tag-resolution.ts,lib/sync/{tag-resolution,tag-resolution.test,incident-snapshot}.ts} y plan/{master,iterations,conflict-recovery,iteration-log,workflow}.md.
+- Dependencias:699ec2a publicado y93%5h/84%7d, reservas10%/1%. Evidencia personal/snapshot/exec remoto tag.save ya activos6. Secuencial.
+- Aceptación: validar cuenta/identidad/toda cadena/snapshot/outcome exactos, revisions observadas sinancestro inventado, nombres duplicados del catálogo; adoptar sinACK, retry sólo nombre/color conposición remota. Registrar decisión replanteable, sin escritura/backup/UI todavía. Bloqueos de dependencia externa calculados también para categorías.
+- Validación: planner/registro/actores/frescura/tombstones/IDs/catálogo/cadenas yregresión de incidentes/settings; DoD completo/plan/log/mismo commitpushint/HEAD/cuotas. NoMongo/índices nuevos niDBusuario.
+
 ## 19c7 — Capacidad posterior antes de recuperar apariciones
 
 - Estado: completado; cinco checks IndexedDB propios y876tests aprobados.

@@ -333,7 +333,6 @@ function projectIncidentOverview(
           intentions,
           Object.fromEntries(tags.map((tag) => [tag.id, tag.name]))
         )
-        if (entry.operation.command.type !== "settings.update") return incident
         const ids = new Set(
           intentions
             .filter((value) => value.entityKey === entry.entityKey)

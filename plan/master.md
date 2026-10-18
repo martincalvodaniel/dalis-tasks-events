@@ -2,6 +2,8 @@
 
 ## Estado operativo — 18 de octubre de 2026
 
+19d1 prepara recuperación de nombre/color de categorías propias con remoto vivo conocido: adoptar oreenviar conCASnuevo conservando orden remoto. Dependencias externas bloqueadas; sin executor/backup/UI nuevos aún.881tests aprobados, siguiente19d2 persistencia/evidencia yprueba nativa antes de integración remota/UI.
+
 19c7 entregado en la continuación07:21: recuperación de apariciones valida capacidad posterior decola/metadata antes de escribir, sincompactar historia. Cinco checksIndexedDB reales y876tests/lint/tipos/Webpack/worker46 aprobados; siguiente recuperación residual según dependencias.
 
 Protocolo de cuotas actualizado por indicación humana: consulta directa de ambas ventanas tras cada entrega; sólo preguntar si la herramienta no puede leerlas. Reservas10%5h/1%7d y alcance de autorizaciones intactos.

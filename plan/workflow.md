@@ -566,3 +566,7 @@ Usuario solicita continuación puntual a las07:21 Europe/Madrid. Heartbeat exist
 ### Renovación18oct07:21 — 19c7
 
 Lectura100%5h/85%7d confirma renovación, resetnuevo1792318896. HEAD e2973c2/originint limpio/verificado, mainhumano preservado. Continuación puntual autorizada, reservas10%/1%, secuencial; sincréditos/reinicios ni nuevacadena.19c7 cierra guardia decapacidad conprueba nativa propia yDoD completo; mismo commitpushint/HEAD/cuotas.
+
+### 19d1 — Categorías, contrato preparatorio
+
+Entrada93%5h/84%7d tras699ec2a, reserva10%/1%. Secuencial, planner puro yguardia de dependencia antes deexecutor/UI. DoD completo yplan/log mismo commitpushint/HEAD/cuotas. Sin reabrir sincronizaciónactiva ni pruebasfísicas aprobadas.
