@@ -19,6 +19,7 @@ if (
   suite !== "plan-occurrence-revision" &&
   suite !== "appearance-resolution-capacity" &&
   suite !== "tag-resolution" &&
+  suite !== "resolution-capacity" &&
   suite !== "task-snapshot" &&
   suite !== "occurrence-ordering"
 )

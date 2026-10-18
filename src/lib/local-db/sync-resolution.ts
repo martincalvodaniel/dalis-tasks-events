@@ -4,6 +4,7 @@ import { queueLocalSyncIncidents } from "@/lib/local-db/sync-incidents"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { planSyncIncidentResolution } from "@/lib/sync/incident-resolution"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
+import { localResolutionCapacitySchema } from "@/schemas/local-resolution-capacity"
 import { outboxEntrySchema, outboxSequenceSchema } from "@/schemas/local-sync"
 import {
   syncResolutionRecordSchema,
@@ -65,6 +66,10 @@ export function resolveLocalSyncIncident(
             return
           }
           const sequence = metadata.get("outbox-sequence")
+          const evidence = metadata.getAll(undefined, 10001)
+          const copyCount = request.copyItemId
+            ? context.transaction.objectStore("items").count()
+            : null
           const priorOutcome = request.operationId
             ? metadata.get(`operation-outcome:${request.operationId}`)
             : null
@@ -72,13 +77,22 @@ export function resolveLocalSyncIncident(
             ? context.transaction.objectStore("items").get(request.copyItemId)
             : null
           let copyReady = copyTarget === null
+          let evidenceReady = false,
+            copyCountReady = copyCount === null
           let sequenceReady = false
           let outcomeReady = priorOutcome === null
           let snapshot: Parameters<
             Parameters<typeof queueLocalSyncIncidents>[2]
           > | null = null
           const finish = () => {
-            if (!sequenceReady || !outcomeReady || !copyReady || !snapshot)
+            if (
+              !sequenceReady ||
+              !outcomeReady ||
+              !copyReady ||
+              !snapshot ||
+              !evidenceReady ||
+              !copyCountReady
+            )
               return
             try {
               const [incidents, entries] = snapshot
@@ -93,6 +107,15 @@ export function resolveLocalSyncIncident(
                 incident,
                 allowPlans
               )
+              localResolutionCapacitySchema.parse({
+                outboxCount: entries.length,
+                metadataCount: evidence.result.length,
+                replacementCount: record.replacement ? 1 : 0,
+              })
+              if (record.copy && (copyCount?.result ?? 10000) >= 10000)
+                throw new Error(
+                  "Resolution copy would exceed the complete item limit"
+                )
               const ids = new Set(record.supersededOperationIds)
               const byId = new Map(
                 entries.map((entry) => [entry.operation.operationId, entry])
@@ -183,6 +206,15 @@ export function resolveLocalSyncIncident(
               context.fail(error)
             }
           }
+          evidence.onsuccess = () => {
+            evidenceReady = true
+            finish()
+          }
+          if (copyCount)
+            copyCount.onsuccess = () => {
+              copyCountReady = true
+              finish()
+            }
           sequence.onsuccess = () => {
             sequenceReady = true
             finish()

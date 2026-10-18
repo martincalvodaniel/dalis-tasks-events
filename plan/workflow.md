@@ -590,3 +590,7 @@ Entrada42%5h/76%7d tras868a173, reservas10%/1%. Corte puro secuencial cerrado co
 ### 19e2 — Contrato antes de persistencia conjunta
 
 Entrada37%5h/76%7d tras7cad063, reservas10%/1%. Corte puro secuencial cerrado con DoD/plan/log/mismo commitpushint/HEAD/cuotas. No abrir TX/prueba remota/UI enentregas parciales si elcoste completo yreparación/cierre no caben; conservar candidato19e3 exacto.
+
+### 19c8 — Corregir capacidad activa antes de ampliar recuperación
+
+Entrada31%5h/75%7d tras820596b, reservas10%/1%. Ocho checks nativos yDoD completo, sin abrir transacción conjunta mayor a mitad de ventana. Cleanup/plan/log/mismo commitpushint/HEAD/cuotas para elegir corte siguiente o cierre seguro.

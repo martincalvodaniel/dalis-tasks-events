@@ -2,6 +2,8 @@
 
 ## Estado operativo — 18 de octubre de 2026
 
+19c8 aplica la protección de capacidad también a recuperaciones comunes y de zona: rechaza crecimiento de cola/evidencia fuera del límite y copias que superen10.000 elementos antes de escribir. Ocho checks IndexedDB propios, replay sin duplicados y DoD completos aprobados. La decisión conjunta19e2 sigue preparatoria.
+
 19e2 cierra el contrato puro de decisión conjunta: comparación compacta de contenido/vista/categoría y ACKs previos relacionados, adopción de ambos remotos o dos operaciones nuevas con CAS independientes para reenviar ambos borradores. Las revisiones agotadas y categorías no confirmadas limitan el reenvío. Aún no hay transacción/backup/UI conjuntos: siguiente19e3 debe reconstruir la captura dentro de unaTX y preservar evidencia antes de prueba remota/elecciones.
 
 19e1 prepara la revisión conjunta de contenido y asignación: un clasificador puro valida la cola completa y demuestra que sólo las intenciones del plan y sus asignaciones no intentadas forman la cohorte. Protege dependientes externos y movimientos pendientes, sin activar decisiones todavía. Siguiente: contrato de elección con snapshots exactos de contenido/vista/categoría; después transacción, evidencia y pruebas remotas antes de UI.

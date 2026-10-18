@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19c8 — Capacidad posterior de recuperación común y zona
+
+- Estado: completado; ocho checks IndexedDB propios aprobados.
+- Objetivo: aplicar el mismo límite completo de outbox/metadata a decisiones activas comunes/settings, incluyendo copia que añade un item.
+- target_paths: src/lib/local-db/{sync-resolution,settings-resolution}.ts, test/browser/resolution-capacity.ts, scripts/browser-test-server.ts yplan/**.
+- Dependencias:820596b publicado,31%5h/75%7d yreservas10%/1%; schema compartido19d2 yguardia19c7 probados. Secuencial.
+- Aceptación: antes de escribir, contar todas las filas posteriores (replacement+recibo ycopy cuando corresponde), rechazar exceso sincompactarhistoria. Replay durable anterior a los límites no reescribe ni duplica. Adoptar permitecola llena si no añadeoperación.
+- Validación: IndexedDB propio para comunes/settings conmetadata/cola llenas, frontera exacta/replay ycopialimitada; suite/lint/tipos/Webpack/worker/cleanup/plan/log/mismo commitpushint/HEAD/cuotas. NoRPC/Mongo/DBusuario/índices/wire nuevos. Continuar19e3 sólo si cabe corte completo.
+
 ## 19e2 — Contrato puro de decisión conjunta
 
 - Estado: completado; nueve tests/78 aserciones, sin escritura/backup/UI nueva.

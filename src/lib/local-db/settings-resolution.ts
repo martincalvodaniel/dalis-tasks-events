@@ -8,6 +8,7 @@ import {
   planSettingsIncidentResolution,
   validateSettingsResolutionRecord,
 } from "@/lib/sync/settings-resolution"
+import { localResolutionCapacitySchema } from "@/schemas/local-resolution-capacity"
 import { outboxEntrySchema, outboxSequenceSchema } from "@/schemas/local-sync"
 import { userIdSchema } from "@/schemas/primitives"
 import { settingsResolutionRequestSchema } from "@/schemas/settings-resolution"
@@ -94,6 +95,11 @@ export function resolveLocalSettingsIncident(
                 throw new Error(
                   "Settings resolution metadata exceeds its complete record limit"
                 )
+              localResolutionCapacitySchema.parse({
+                outboxCount: entries.length,
+                metadataCount: evidence.result.length,
+                replacementCount: record.replacement ? 1 : 0,
+              })
               const identities = [
                 request.resolutionId,
                 ...(request.operationId ? [request.operationId] : []),
