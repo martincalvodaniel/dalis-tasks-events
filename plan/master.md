@@ -1,5 +1,13 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19h2b — Borrado aislado con transacción local preparada
+
+Captura9stores reconstruye catálogo/cola/clausura yacredita prerrequisitosACK conoutcomes aplicados antesdecomparar oescribir. Writer guarda catálogo elegido, original superseded exacto,0/1reemplazo pending, contador/tail/recibo atómicos; noACKlocal ni cambios deasignaciones/otrasfamilias/sombras/outcomes. Adopción puede restaurar explícitamente laprimaria revisada omantener tombstone remoto. Replay previo conserva edits posteriores ynonotifica. Actor/partición/snapshot/IDs/capacidad/counter/tail yfeaturecuenta/época guardados; faltantetail cuenta capacidad ycorrupciónnorepara.
+
+Diez checksIndexedDB propios aprobados: readonly/reapertura, actor/stale, rollbacktardío, asignaciones/movimientos protegidos, referenciasincompletas/ajenas, IDs/overflow/capacidad, ACKDTOvsoutcome, retry/nextdependiente/replay, tail, adopciónremotaviva ytombstone. Backup3 valida resultados; captura /private/tmp/dalis-tag-delete-native.png. Partición/pestaña/servidor propios retirados.1015pass/223skip/0fail/11998aserciones, lint953sinavisos/tipos/Webpack/worker46/diff aprobados. Formatter necesitó segundapass sobreunacadena de lafixture, corregido antesdeDoDfinal.
+
+Entrada26%5h/33%7d, reservas10%/1%, secuencial. SinNext/Mongo/UI nuevos, producción/DBusuario/índices/wire. Siguiente19h3: prueba Next6 compilado conproductores reales de borrado, dosparticiones/Mongo, adopción/retry/tombstone, guardias ypérdida/recarga/replay/ACKúnico; sólodespués19h4 UI. Decidir trascuota si cabe entrega completa o cerrar yreactivar03:25 autorizado.
+
 ## 19h2a — Borrado aislado con evidencia portable
 
 Backup3 admite decisión deaceptar catálogo oreintentartag.delete conramaexpected.incident propia. Valida originalsuperseded exacto, outcomefrozen intacto, prerrequisitosACK conoutcomes realmente aplicados, reemplazo0/1 exacto ysecuencia posterior/depsvacías, más IDsglobales centrales. No obliga a retroceder proyección actual: lateredits ypendingintentado se conservan sinfabricarACK.

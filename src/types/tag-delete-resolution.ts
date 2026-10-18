@@ -9,3 +9,5 @@ export type TagDeletionResolutionRequest = z.infer<
 export type TagDeletionResolutionRecord = z.infer<
   typeof tagDeletionResolutionRecordSchema
 >
+
+export type { TagCatalogResolutionSnapshot as TagDeletionResolutionSnapshot } from "@/types/tag-catalog-resolution"

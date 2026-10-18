@@ -20,6 +20,7 @@ if (
   suite !== "appearance-resolution-capacity" &&
   suite !== "tag-resolution" &&
   suite !== "tag-order-resolution" &&
+  suite !== "tag-delete-resolution" &&
   suite !== "item-view-resolution" &&
   suite !== "resolution-capacity" &&
   suite !== "plan-category-capture" &&

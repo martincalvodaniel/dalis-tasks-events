@@ -17,6 +17,8 @@ import {
 } from "@/lib/local-db/sync-incidents"
 import { notifyLocalOutboxChange } from "@/lib/local-db/sync-notifications"
 import { resolveLocalSyncIncident } from "@/lib/local-db/sync-resolution"
+import { resolveLocalTagDeletionIncident } from "@/lib/local-db/tag-delete-resolution"
+import { readLocalTagDeletionResolutionSnapshot } from "@/lib/local-db/tag-delete-resolution-capture"
 import { resolveLocalTagOrderIncident } from "@/lib/local-db/tag-order-resolution"
 import { readLocalTagOrderResolutionSnapshot } from "@/lib/local-db/tag-order-resolution-capture"
 import { resolveLocalTagIncident } from "@/lib/local-db/tag-resolution"
@@ -145,6 +147,23 @@ export class LocalSyncStore {
     )
   }
 
+  readTagDeletionIncidentSnapshot(operationId: string) {
+    return readLocalTagDeletionResolutionSnapshot(
+      this.database,
+      this.userId,
+      operationId
+    )
+  }
+  resolveTagDeletionIncident(input: unknown) {
+    return resolveLocalTagDeletionIncident(
+      this.database,
+      this.userId,
+      input
+    ).then((result) => {
+      if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+      return result
+    })
+  }
   readTagOrderIncidentSnapshot(operationId: string) {
     return readLocalTagOrderResolutionSnapshot(
       this.database,

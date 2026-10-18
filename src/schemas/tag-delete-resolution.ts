@@ -42,3 +42,5 @@ export const tagDeletionResolutionRecordSchema =
         maximumLocalOperationOutcomeBytes,
       "Category deletion decision exceeds its byte limit"
     )
+
+export { tagCatalogResolutionCaptureSchema as tagDeletionResolutionCaptureSchema } from "@/schemas/tag-catalog-resolution"
