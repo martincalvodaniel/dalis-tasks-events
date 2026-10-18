@@ -1,5 +1,11 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19g1b — Decisión y preview de orden preparados
+
+Nueve pruebas nuevas validan adoptar el catálogo observado o reaplicar únicamente el último tag.move de la cadena. La nueva operación usa UUID nuevo/CAS primario observado y vecinos originales; todos los efectos de reranking se calculan con el planner remoto existente, con límites de bytes y revisión por entidad. El preview conserva revisiones observadas, nombres/colores y tombstones remotos; no simula ACK ni reenvía campos locales obsoletos. Vecinos ausentes/no adyacentes, primaria borrada, revisión primaria/peer agotada o efectos demasiado grandes dejan sólo adopción. Registros durables se replanifican exactamente para detectar corrupción.
+
+21pruebas focalizadas/101aserciones;976pass/223skip/0fail/11800aserciones, lint926 sinavisos/tipos/Webpack/worker46/diff aprobados. Se corrigieron copias independientes de intenciones en la fixture y dos estrechamientos de tipos de las aserciones. Sin writer/backup/UI nuevos, Mongo/browser o DBusuario. Siguiente19g2: reconstrucción TX y evidencia portable antes de ofrecer elecciones. Se intercala la petición humana de separar la home en Atrasadas/Hoy/Próximas.
+
 ## 19g1a — Captura de orden preparada
 
 Doce pruebas puras delimitan una cadena aislada de tag.move de la misma categoría primaria. Se conservan catálogo local completo, todas las categorías observadas (incluidas altas y tombstones), raíz/outcome exactos, hijos no intentados y clausura transitiva de prerrequisitos ACK. Otros cambios personales pendientes, dependencias externas, catálogos parciales, registros ajenos/duplicados y envíos inciertos quedan protegidos. Si el conflicto conoce una revisión posterior a la sombra hay que actualizar antes de revisar. Una sombra posterior no se usa como ancestro y el catálogo observado no se presenta como estado actual garantizado del servidor.

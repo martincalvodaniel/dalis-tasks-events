@@ -1,5 +1,19 @@
 # Iteraciones de implementación
 
+## 19g1b — Decisión y preview de orden preparados
+
+Nueve pruebas nuevas validan adoptar el catálogo observado o reaplicar únicamente el último tag.move de la cadena. La nueva operación usa UUID nuevo/CAS primario observado y vecinos originales; todos los efectos de reranking se calculan con el planner remoto existente, con límites de bytes y revisión por entidad. El preview conserva revisiones observadas, nombres/colores y tombstones remotos; no simula ACK ni reenvía campos locales obsoletos. Vecinos ausentes/no adyacentes, primaria borrada, revisión primaria/peer agotada o efectos demasiado grandes dejan sólo adopción. Registros durables se replanifican exactamente para detectar corrupción.
+
+21pruebas focalizadas/101aserciones;976pass/223skip/0fail/11800aserciones, lint926 sinavisos/tipos/Webpack/worker46/diff aprobados. Se corrigieron copias independientes de intenciones en la fixture y dos estrechamientos de tipos de las aserciones. Sin writer/backup/UI nuevos, Mongo/browser o DBusuario. Siguiente19g2: reconstrucción TX y evidencia portable antes de ofrecer elecciones. Se intercala la petición humana de separar la home en Atrasadas/Hoy/Próximas.
+
+## 19g1b — Delimitación previa (completada arriba)
+
+- Objetivo: decisión pura para adoptar todo el catálogo observado o reaplicar exclusivamente el último movimiento revisado sobre ese catálogo, con efectos multirregistro explícitos y sin simular ACK.
+- target_paths: schemas/types/tag-order-resolution.ts, lib/sync/tag-order-decision{,.test}.ts y plan/**.
+- Dependencias:19g1a/7b37727 publicado;89%5h/43%7d, reservas10%/1%, secuencial.
+- Aceptación: snapshot exacto/actor/identidades nuevas, originales intactos; adopción cero operaciones, retry un tag.move con vecinos originales y CAS primario observado. Planner remoto valida adyacencia, tombstones, reranking, revisiones de todos los efectos y bytes; proyección optimista conserva revisiones observadas y campos remotos, nunca reenvía nombres/colores locales. Ausencia de vecinos o agotamiento permite sólo adopción. Recibo validable por replanificación exacta y acotado; sin writer/backup/UI todavía.
+- Validación: oráculos puros de última intención, nombres remotos, alta/tombstone, vecinos cambiados, reranking/revisiones independientes, overflow, IDs, stale/corrupción/actor/inmutabilidad y DoD completo. Mismo ConventionalCommit/pushint/HEAD/cuotas.
+
 ## 19g1a — Completada: captura pura de una cadena aislada de orden
 
 - Estado:12pruebas puras/42aserciones,967tests/DoD completos; sin elecciones ni mutaciones nuevas.
@@ -34,7 +48,7 @@
 - Dependencias:19f6 cerrado. Reutilizar planRemoteTagOperation/applyTagMoveCommand, snapshots personales ygrafo completo; no nuevo comando, protocolo oíndice por suposición.
 - Aceptación preparatoria: catálogos propios completos yrevisiones porentidad; primary yvecinos/efectos de reranking explícitos. Proteger tag.save/delete/asignaciones/movimientos/dependientes externos afectados, incertidumbre, ausencias ycatálogos parciales. Una sombra observada noacredita ancestro nicatálogo remoto completo. No ofrecer adopción/retry antes decontrato coherente, writer/evidencia/pruebas reales.
 - Validación prevista: oráculos puros de identidad/clausura/CAS/reranking/vecinos borrados/revisionesagotadas/actividadindependiente/capacidad. Después capturaTX/evidenciaportable/NextMongo dosparticiones/UI por cortes separados. Registrar ambigüedades sin inventar permiso ni descargar evidencia.
-- Estado:19g1a cerrado;19g1b decisión/preview pendientes, después TX/backup/Next/UI. Primer alcance sólo una primaria con cadena de movimientos; otras cohortes siguen protegidas.
+- Estado:19g1a cerrado;19g1b decisión/preview cerrado, después TX/backup/Next/UI. Primer alcance sólo una primaria con cadena de movimientos; otras cohortes siguen protegidas.
 
 ## 19f6 — Completada: identidades globales de decisiones portables
 
