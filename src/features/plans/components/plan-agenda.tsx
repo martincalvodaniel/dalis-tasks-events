@@ -26,8 +26,13 @@ export function PlanAgenda({ account }: { account: LocalAccount }) {
       />
       <PlanList
         account={account}
-        selection={{ kind: "upcoming", date: today }}
-        heading="Hoy y próximas"
+        selection={{ kind: "day", date: today }}
+        heading="Hoy"
+      />
+      <PlanList
+        account={account}
+        selection={{ kind: "upcoming", date: today, excludeDate: today }}
+        heading="Próximas"
       />
     </>
   )

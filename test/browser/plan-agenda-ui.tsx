@@ -2,9 +2,11 @@ import { useState } from "react"
 import { createRoot } from "react-dom/client"
 import { SWRConfig } from "swr"
 import { OFFLINE_ACCOUNT_KEY } from "@/config/pwa"
+import { PlanAgenda } from "@/features/plans/components/plan-agenda"
 import { PlanList } from "@/features/plans/components/plan-list"
 import { saveLocalPlan } from "@/features/plans/local-plans"
 import type { LocalAccount } from "@/features/workspace/local-account"
+import { addCivilDays, todayInTimeZone } from "@/lib/calendar/civil-date"
 import {
   ACCOUNT_CONTROL_DATABASE,
   activatePreparedAccount,
@@ -31,7 +33,8 @@ const accountChangeKey = "dalis:account-change"
 const labels = ["Tarea", "Evento", "Cita", "Nota"]
 const variants = ["task", "event", "appointment", "note"] as const
 const colors = ["#123abc", "#e85d04", "#2b9348", "#b5179e"]
-const date = "2026-10-10"
+const home = query.get("home") === "1"
+const date = home ? todayInTimeZone("Europe/Madrid") : "2026-10-10"
 function uuid(value: number) {
   return `00000000-0000-4000-8000-${String(value).padStart(12, "0")}`
 }
@@ -155,13 +158,31 @@ if (!reload) {
             ],
             schedule: {
               mode: "all_day",
-              startDate: date,
-              endDateExclusive: "2026-10-11",
+              startDate: home
+                ? addCivilDays(
+                    date,
+                    recurring || index === 0 || index === 1
+                      ? -1
+                      : index === 2
+                        ? 1
+                        : 0
+                  )
+                : date,
+              endDateExclusive: home
+                ? addCivilDays(
+                    date,
+                    recurring || index === 0 || index === 2
+                      ? 2
+                      : index === 1
+                        ? 0
+                        : 1
+                  )
+                : "2026-10-11",
             },
             recurrence: recurring
               ? {
                   frequency: "daily",
-                  anchorDate: date,
+                  anchorDate: home ? addCivilDays(date, -1) : date,
                   interval: 1,
                   timeZone: "Europe/Madrid",
                   end: { type: "count", count: 3 },
@@ -219,7 +240,11 @@ export function PlanAgendaFixture({
 const root = createRoot(rootElement)
 root.render(
   <SWRConfig value={{ shouldRetryOnError: false }}>
-    <PlanAgendaFixture account={account} />
+    {home ? (
+      <PlanAgenda account={account} />
+    ) : (
+      <PlanAgendaFixture account={account} />
+    )}
   </SWRConfig>
 )
 status.textContent = reload

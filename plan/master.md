@@ -1,5 +1,13 @@
 # Dalis Tasks & Events — plan maestro
 
+## 16c19 — Home separada en Atrasadas, Hoy y Próximas
+
+Petición humana atendida: tres secciones compactas con la misma agrupación por categoría, colores, checklist y orden. Hoy conserva intervalos activos, incluso nocturnos/de varios días; Próximas excluye los que incluyen hoy para no duplicar la misma fila. El filtro se aplica a planes simples y apariciones (incluidas excepciones reprogramadas) y no cambia la selección inclusiva del calendario u otros listados. Usa el día de la zona personal; no necesita calcular mañana, incluso en9999-12-31. No mutaciones ni nuevos fetches remotos/protocolo/índices.
+
+Tres regresiones nuevas/16aserciones;979pass/223skip/0fail/11816aserciones, lint926/tipos/Webpack/worker46/diff aprobados. Fixture propia dehome con cuatrovariantes, categorías yseries probada con páginas completas enescritorio y390px móvil; capturas /private/tmp/dalis-home-sections-{desktop,mobile}.png. Partición/control/session de prueba, pestaña yservidor propios retirados; viewport restablecido ypreproducción humana intacta. NoGoogle/Mongo/físicos nuevos. Entrada81%5h/42%7d, reservas10%/1%, secuencial; skill vercel-react-best-practices aplicada yguíaNext vigente.
+
+Se retoma19g2. El usuario pide que, al acercarnos al cierre de5h ysi queda trabajo, se reprograme este mismoheartbeat para19oct03:25Europe/Madrid. Esa nueva autorización sustituye la pausa puntual anterior sólo paraesta siguiente continuación; verificar reset/cuotas reales aldespertar, sinotra cadena automática.
+
 ## 19g1b — Decisión y preview de orden preparados
 
 Nueve pruebas nuevas validan adoptar el catálogo observado o reaplicar únicamente el último tag.move de la cadena. La nueva operación usa UUID nuevo/CAS primario observado y vecinos originales; todos los efectos de reranking se calculan con el planner remoto existente, con límites de bytes y revisión por entidad. El preview conserva revisiones observadas, nombres/colores y tombstones remotos; no simula ACK ni reenvía campos locales obsoletos. Vecinos ausentes/no adyacentes, primaria borrada, revisión primaria/peer agotada o efectos demasiado grandes dejan sólo adopción. Registros durables se replanifican exactamente para detectar corrupción.

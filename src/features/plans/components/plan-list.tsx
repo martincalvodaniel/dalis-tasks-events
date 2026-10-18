@@ -180,7 +180,9 @@ export function PlanList({
           : selection.kind === "overdue"
             ? "Atrasadas"
             : selection.kind === "upcoming"
-              ? "Hoy y próximas"
+              ? selection.excludeDate
+                ? "Próximas"
+                : "Hoy y próximas"
               : "Planes guardados"
       }
       className="mt-4 space-y-2 sm:mt-6"
@@ -478,7 +480,9 @@ export function PlanList({
             : selection.kind === "overdue"
               ? "No tienes planes atrasados."
               : selection.kind === "upcoming"
-                ? "No hay planes para hoy o próximas fechas. Pulsa + para añadir uno."
+                ? selection.excludeDate
+                  ? "No hay planes para próximas fechas. Pulsa + para añadir uno."
+                  : "No hay planes para hoy o próximas fechas. Pulsa + para añadir uno."
                 : "Pulsa + para añadir tu primer plan."}
         </p>
       )}

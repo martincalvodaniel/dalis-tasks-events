@@ -412,3 +412,78 @@ describe("common plan agenda appearance rows", () => {
     expect(() => planAppearanceRange([parent], [], day, "invalid")).toThrow()
   })
 })
+
+test("home separates recurrence slots by displayed dates, including moved multi-day exceptions", () => {
+  const parent = plan(1),
+    views = planOccurrencesPage(parent, {
+      startDate: "2026-10-10",
+      endDate: "2026-10-13",
+    }).occurrences.map((occurrence) => appearance(parent, occurrence)),
+    today = "2026-10-11"
+  const current = createPlanAgendaRows([parent], views, {
+      kind: "day",
+      date: today,
+    }),
+    future = createPlanAgendaRows([parent], views, {
+      kind: "upcoming",
+      date: today,
+      excludeDate: today,
+    })
+  expect(current).toHaveLength(2)
+  expect(future).toHaveLength(2)
+  expect(
+    future.every((value) => !current.some((row) => row.key === value.key))
+  ).toBe(true)
+  const moved = {
+    ...views[0].occurrence,
+    schedule: {
+      mode: "all_day" as const,
+      startDate: "2026-10-13",
+      endDateExclusive: "2026-10-15",
+    },
+  }
+  const changed = [appearance(parent, moved), ...views.slice(1)]
+  expect(
+    createPlanAgendaRows([parent], changed, {
+      kind: "upcoming",
+      date: today,
+      excludeDate: today,
+    }).some((row) => row.key === moved.id)
+  ).toBe(true)
+  expect(
+    createPlanAgendaRows([parent], changed, { kind: "day", date: today }).some(
+      (row) => row.key === moved.id
+    )
+  ).toBe(false)
+  expect(
+    planAppearanceRange(
+      [parent],
+      [moved],
+      { kind: "upcoming", date: today, excludeDate: today },
+      "2026-11-10"
+    )
+  ).toEqual({ startDate: today, endDate: "2026-11-10" })
+  expect(
+    createPlanAgendaRows([parent], views, { kind: "upcoming", date: today })
+  ).toHaveLength(4)
+})
+
+test("home partition does not require incrementing the last civil day", () => {
+  const current = plan(7, "note", false)
+  current.schedule = {
+    mode: "timed",
+    localStart: "9999-12-31T09:00",
+    localEnd: null,
+    timeZone: "UTC",
+  }
+  expect(
+    createPlanAgendaRows([current], [], { kind: "day", date: "9999-12-31" })
+  ).toHaveLength(1)
+  expect(
+    createPlanAgendaRows([current], [], {
+      kind: "upcoming",
+      date: "9999-12-31",
+      excludeDate: "9999-12-31",
+    })
+  ).toHaveLength(0)
+})

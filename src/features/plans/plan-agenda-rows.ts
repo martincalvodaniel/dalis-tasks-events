@@ -65,6 +65,10 @@ export function createPlanAgendaRows(
   )
   if (selection.kind !== "all") {
     const date = civilDateSchema.parse(selection.date)
+    const excludedDate =
+      selection.kind === "upcoming" && selection.excludeDate
+        ? civilDateSchema.parse(selection.excludeDate)
+        : null
     for (const appearance of appearances) {
       const occurrence = planOccurrenceSchema.parse(appearance.occurrence)
       const parent = parents.get(appearance.seriesId)
@@ -89,7 +93,8 @@ export function createPlanAgendaRows(
           ? planIncludesDate(plan, date)
           : selection.kind === "overdue"
             ? isPlanOverdue(plan, date)
-            : planDueDate(plan) >= date
+            : planDueDate(plan) >= date &&
+              (!excludedDate || !planIncludesDate(plan, excludedDate))
       if (visible)
         rows.push({
           key: occurrence.id,

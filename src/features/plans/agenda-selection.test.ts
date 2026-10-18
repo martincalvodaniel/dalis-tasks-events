@@ -156,3 +156,55 @@ test("grouping keeps every variant together by personal category and category po
     )
   ).toHaveLength(1)
 })
+
+test("home sections keep multi-day and overnight plans in today without duplicating upcoming", () => {
+  const today = "2026-10-11",
+    plans = [
+      plan("task", 1),
+      plan("event", 2, {
+        mode: "timed",
+        localStart: "2026-10-10T23:00",
+        localEnd: "2026-10-12T01:00",
+        timeZone: "Europe/Madrid",
+      }),
+      plan("appointment", 3, {
+        mode: "all_day",
+        startDate: "2026-10-12",
+        endDateExclusive: "2026-10-13",
+      }),
+      plan("note", 4, {
+        mode: "all_day",
+        startDate: "2026-10-09",
+        endDateExclusive: "2026-10-10",
+      }),
+    ]
+  const current = selectAgendaPlans(plans, { kind: "day", date: today }),
+    future = selectAgendaPlans(plans, {
+      kind: "upcoming",
+      date: today,
+      excludeDate: today,
+    }),
+    past = selectAgendaPlans(plans, { kind: "overdue", date: today })
+  expect(current.map((value) => value.id)).toEqual([id(1), id(2)])
+  expect(future.map((value) => value.id)).toEqual([id(3)])
+  expect(past.map((value) => value.id)).toEqual([id(4)])
+  expect(
+    new Set([...current, ...future, ...past].map((value) => value.id)).size
+  ).toBe(4)
+  expect(
+    selectAgendaPlans(plans, { kind: "upcoming", date: today })
+  ).toHaveLength(3)
+  expect(
+    selectAgendaPlans(
+      [{ ...plans[0], status: "completed", completedAt: now }],
+      { kind: "day", date: today }
+    )
+  ).toHaveLength(1)
+  expect(() =>
+    selectAgendaPlans(plans, {
+      kind: "upcoming",
+      date: today,
+      excludeDate: "bad-date",
+    })
+  ).toThrow()
+})
