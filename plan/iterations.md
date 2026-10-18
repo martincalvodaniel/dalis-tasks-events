@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19z4 — Continuación puntual18oct07:21
+
+- Objetivo: programar la continuación solicitada para hoy18oct2026 a las07:21 Europe/Madrid, sin abrir código con8%5h/86%7d.
+- target_paths: plan/{iterations,workflow,iteration-log}.md yheartbeat gestionado existente.
+- Dependencias: dc325ce publicado, ramaint limpia; último códigobfa0fc5 y19c7 candidata vigente.
+- Aceptación: reutilizar continuar-el-plan-a-las-21-19 conhora07:21, ACTIVE/COUNT1, mismochat yfailed_runs_only; verificar cuota real aldisparar. Resetpublicado1792300836 (07:20:36Madrid), reserva10%5h/1%7d. Mantenerhora humana aunque margen alreset sea24segundos, sin asumirrenovación. Pausar alconcluir, sin nuevacadena.
+- Validación: configuración gestionada comprobada, referencias/coherencia/diff; mismoConventionalCommit/pushint/HEAD/cuotas. Sin pruebas físicas repetidas ni producción.
+- Estado: completado; programación verificada medianteherramienta ylectura deconfiguración.
+
 ## 19c7 — Próxima candidata: capacidad posterior a la resolución
 
 - Estado: pendiente; no abrir con13%5h/86%7d yreserva10%/1% trasbfa0fc5.
