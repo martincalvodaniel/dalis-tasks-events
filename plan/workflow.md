@@ -683,3 +683,10 @@ Petición humana atendida: tres secciones compactas con la misma agrupación por
 Tres regresiones nuevas/16aserciones;979pass/223skip/0fail/11816aserciones, lint926/tipos/Webpack/worker46/diff aprobados. Fixture propia dehome con cuatrovariantes, categorías yseries probada con páginas completas enescritorio y390px móvil; capturas /private/tmp/dalis-home-sections-{desktop,mobile}.png. Partición/control/session de prueba, pestaña yservidor propios retirados; viewport restablecido ypreproducción humana intacta. NoGoogle/Mongo/físicos nuevos. Entrada81%5h/42%7d, reservas10%/1%, secuencial; skill vercel-react-best-practices aplicada yguíaNext vigente.
 
 Se retoma19g2. El usuario pide que, al acercarnos al cierre de5h ysi queda trabajo, se reprograme este mismoheartbeat para19oct03:25Europe/Madrid. Esa nueva autorización sustituye la pausa puntual anterior sólo paraesta siguiente continuación; verificar reset/cuotas reales aldespertar, sinotra cadena automática.
+
+
+## 19g2a — Evidencia portable de orden preparada
+
+Backup3 admite la decisión de orden con rama específica expected.incident, replanificación exacta de catálogo/último movimiento y originales supersedidos íntegros. Exige outcome congelado original, clausura de prerrequisitos con outcomes aplicados reales, correspondencia exacta de0/1 reemplazos (UUID/comando/CAS/fecha/entidad/secuencia posterior/dependencias vacías) yguardias globales deidentidad. Un DTO de ACK no basta. Proyección actual puede avanzar después de la decisión sin que el recibo la retroceda; pending intentado sigue siendo pending.
+
+Ocho tests nuevos/36aserciones de roundtrip/adopción/retry/truncado/corrupción/ACK/IDs;987pass/223skip/0fail/11852aserciones, lint928sinavisos/tipos/Webpack/worker46/diff aprobados. Sin writer/UI nuevos, Mongo/browser/DBusuario/protocolo/índice. Entrada77%5h/41%7d, reservas10%/1%, secuencial. Siguiente19g2b capturaTX/writer yrollback/replay/capacidad enIndexedDB propio, antes deNext/UI.

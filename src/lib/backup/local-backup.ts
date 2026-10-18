@@ -2,6 +2,7 @@ import { assertBackupOwnership } from "@/lib/backup/backup-ownership"
 import { validateBackupImportEvidence } from "@/lib/backup/import-record"
 import { validateItemViewResolutionEvidence } from "@/lib/backup/item-view-resolution-evidence"
 import { validatePlanCategoryResolutionEvidence } from "@/lib/backup/plan-category-resolution-evidence"
+import { validateTagOrderResolutionEvidence } from "@/lib/backup/tag-order-resolution-evidence"
 import { decodeLocalOperationOutcome } from "@/lib/sync/local-operation-outcome-v2"
 import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
 import { decodeLocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
@@ -217,6 +218,8 @@ function validateBackup(
   )
   const superseded = new Set<string>()
   for (const record of s.syncMetadata) {
+    if (record.key.startsWith("tag-order-resolution:"))
+      validateTagOrderResolutionEvidence(record, actor, entries, outcomes)
     if (record.key.startsWith("item-view-resolution:"))
       validateItemViewResolutionEvidence(record, actor, entries, outcomes)
     if (record.key.startsWith("plan-category-resolution:"))

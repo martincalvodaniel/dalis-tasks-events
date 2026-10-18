@@ -14,6 +14,7 @@ import { remoteShadowSchema } from "@/schemas/local-sync"
 import { planCategoryResolutionRecordSchema } from "@/schemas/plan-category-resolution"
 import { planOccurrenceResolutionRecordSchema } from "@/schemas/plan-occurrence-resolution"
 import { settingsResolutionRecordSchema } from "@/schemas/settings-resolution"
+import { tagOrderResolutionRecordSchema } from "@/schemas/tag-order-resolution"
 import { tagResolutionRecordSchema } from "@/schemas/tag-resolution"
 
 // Portable format three does not change intention one or durable evidence two.
@@ -31,6 +32,7 @@ export const localRecurringBackupV3Schema = localBackupV2Schema.extend({
           settingsResolutionRecordSchema,
           tagResolutionRecordSchema,
           itemViewResolutionRecordSchema,
+          tagOrderResolutionRecordSchema,
           planCategoryResolutionRecordSchema,
           planOccurrenceResolutionRecordSchema,
         ])

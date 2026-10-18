@@ -1,5 +1,11 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19g2a — Evidencia portable de orden preparada
+
+Backup3 admite la decisión de orden con rama específica expected.incident, replanificación exacta de catálogo/último movimiento y originales supersedidos íntegros. Exige outcome congelado original, clausura de prerrequisitos con outcomes aplicados reales, correspondencia exacta de0/1 reemplazos (UUID/comando/CAS/fecha/entidad/secuencia posterior/dependencias vacías) yguardias globales deidentidad. Un DTO de ACK no basta. Proyección actual puede avanzar después de la decisión sin que el recibo la retroceda; pending intentado sigue siendo pending.
+
+Ocho tests nuevos/36aserciones de roundtrip/adopción/retry/truncado/corrupción/ACK/IDs;987pass/223skip/0fail/11852aserciones, lint928sinavisos/tipos/Webpack/worker46/diff aprobados. Sin writer/UI nuevos, Mongo/browser/DBusuario/protocolo/índice. Entrada77%5h/41%7d, reservas10%/1%, secuencial. Siguiente19g2b capturaTX/writer yrollback/replay/capacidad enIndexedDB propio, antes deNext/UI.
+
 ## 16c19 — Home separada en Atrasadas, Hoy y Próximas
 
 Petición humana atendida: tres secciones compactas con la misma agrupación por categoría, colores, checklist y orden. Hoy conserva intervalos activos, incluso nocturnos/de varios días; Próximas excluye los que incluyen hoy para no duplicar la misma fila. El filtro se aplica a planes simples y apariciones (incluidas excepciones reprogramadas) y no cambia la selección inclusiva del calendario u otros listados. Usa el día de la zona personal; no necesita calcular mañana, incluso en9999-12-31. No mutaciones ni nuevos fetches remotos/protocolo/índices.
