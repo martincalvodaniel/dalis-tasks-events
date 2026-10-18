@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 19f1 — Contrato de asignación aislada
+
+Planner y comparación compacta para `item-view.set` de un plan propio simple: adoptar remoto conocido o reenviar la última categoría propia confirmada con CAS/UUID nuevos. No modifica contenido, categorías u orden. Captura valida cola completa, intención exacta, grafo ordenado y clausura transitiva de prerrequisitos ACK; el DTO por sí solo no acredita esos ACK. Dependientes externos, contenido/movimientos pendientes del mismo plan, referencias ausentes, incertidumbre, ausencia/tombstone y recurrencia quedan protegidos. Categoría desconocida/borrada/sin confirmar y revisión agotada sólo permiten adoptar.
+
+Diez pruebas puras/86 aserciones cubren cuatro variantes, planner remoto, frescura, identidad, corrupción, guardias, clausura ACK e independencia.935pass/223skip/0fail/11561 aserciones, lint908 sin avisos/tipos/Webpack/worker46/diff aprobados. No caller/writer/backup/UI nuevos ni prueba de convergencia. Siguiente19f2: captura y decisión en TX, evidencia portable y pruebas IndexedDB antes de Next/UI. Entrada81%5h/55%7d, reservas10%/1%, secuencial.
+
+
 ## 19e5b — Recuperación conjunta disponible en Ajustes
 
 La revisión de un plan propio simple con asignaciones pendientes relacionadas ya lee la comparación completa antes de mostrar elecciones. Permite adoptar ambos remotos o guardar el borrador y su categoría para enviar; mantiene UUIDs de decisión estables, guardias de cuenta/época, historial y caché propia. Cancelar no escribe. Las dependencias no admitidas siguen protegidas y una decisión local no equivale a ACK.

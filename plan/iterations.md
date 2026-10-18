@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19f1 — Completada: contrato de recuperación de asignaciones aisladas
+
+- Estado: diez pruebas puras/86 aserciones,935 tests yDoD aprobados; sin mutación niUI activada.
+- Objetivo: preparar una elección explícita para conflictos `item-view.set` de planes propios simples, sin mutar contenido, categorías u orden.
+- target_paths: src/{schemas,types,lib/sync}/item-view-resolution{,.test}.ts y plan/**.
+- Dependencias:19e5b publicado en22cb3d2;81%5h/55%7d, reservas10%/1%. Secuencial, sin caller, writer, backup o UI nuevos hasta pruebas posteriores.
+- Aceptación: captura exige cola completa validada, padre propio vivo sin repetición y cadena exacta de asignaciones; dependientes externos, contenido/movimientos del mismo plan, referencias ausentes e intenciones inciertas bloquean. Snapshot compacto conserva prerrequisitos ACK como evidencia que el writer/backup deberán acreditar contra outcomes reales. Adopción usa remoto vivo conocido sin operación; retry sólo categoría propia viva confirmada o ninguna, CAS nuevo de vista y UUID nuevo; remoto ausente/tombstone no se resucita. Proyección de contenido/categoría/orden intacta.
+- Validación: cuatro variantes, cadena y dependencias, frescura sin ancestro ficticio, categoría desconocida/borrada/sinconfirmar, revisión agotada, identidad/corrupción, planner remoto puro; DoD y mismo commit/push/HEAD/cuotas. No atribuir convergencia a pruebas puras ni ofrecer elecciones todavía.
+
 ## 19e5b — Completada: revisión conjunta visible e interacción real
 
 - Estado: UI conectada después de once escenarios Next6 focalizados aprobados, ambas elecciones con cancelación/reapertura reales;925 tests/DoD/cleanup completos.
