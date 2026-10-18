@@ -1,5 +1,14 @@
 # Registro de iteraciones
 
+## 19e5b — Recuperación conjunta disponible en Ajustes
+
+La revisión de un plan propio simple con asignaciones pendientes relacionadas ya lee la comparación completa antes de mostrar elecciones. Permite adoptar ambos remotos o guardar el borrador y su categoría para enviar; mantiene UUIDs de decisión estables, guardias de cuenta/época, historial y caché propia. Cancelar no escribe. Las dependencias no admitidas siguen protegidas y una decisión local no equivale a ACK.
+
+Prueba Next6 focalizada `joint-ui`: diez escenarios de frontera más recuperación conjunta de las cuatro variantes; ambas elecciones mediante UI real, cancelar/reabrir/confirmar y UUIDs generados por el componente. Respuesta perdida de contenido y asignación, recarga antes de ACK, replay único y convergencia exacta por cohorte aprobados. Se conserva el modo completo de 29 escenarios; no se atribuyen esas 29 regresiones a esta ejecución focalizada. Un primer intento agotó el tiempo de interacción y retiró sus recursos; la repetición completa aprobó. Sesiones, particiones, pestañas, proyecto y Mongo propios retirados; sin Google interactivo ni nuevos dispositivos físicos.
+
+925 tests, 223 opt-in omitidos, cero fallos y 11475 aserciones; lint904, tipos, Webpack y worker46 aprobados. Siguiente: recuperación residual de preferencias y cadenas de apariciones según dependencias, después accesibilidad y preparación final. Sin DB del usuario, nuevos índices o producción.
+
+
 ## 18e1b2 — Resiliencia y lifecycle real6
 
 17oct tras2716a29 entrada66%5h/95%7d/reservas10%/1%. SettingsSyncProvider conecta useSettingsSyncEngine al contexto; ActiveSyncProvider sólo lo elige con protocolo6 y producto sigue5. Nextfixture usa referencia real guardada. Run30d4e57f pasa19casos:14anteriores+lostresponse de settingsparent/child, epochdespuéscommit sinACK/outcome local antiguo, hook6/caché5/notificaciones/rerender/unmount/wake, otra cuenta remota antesclaim+reauth y conflicto settings conchildpending intacto/categoríaindependiente. Replay conservaUUID/command/deps e historia única; cambioepoch sólo impide consumo local, no se anuncia cancelación de red en vuelo.

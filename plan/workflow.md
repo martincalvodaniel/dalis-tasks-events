@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## Continuación puntual del 18 de octubre a las 17:23
+
+Renovación real comprobada: 100% de 5h y 58% semanal; próximo reset publicado 1792354998. Reservas 10%/1%, continuación secuencial puntual, sin créditos ni nueva cadena. Worktree gestionado `int` desde b8f982f, HEAD remoto exacto y main humano intacto. Cada entrega cierra código/plan/pruebas/commit/push/HEAD y consulta directa de ambas cuotas. Primera entrega19e5b conecta la revisión conjunta únicamente tras su prueba interactiva Next/Mongo propia.
+
 ## Regla vigente de consulta de cuotas — 17 de octubre
 
 Por corrección expresa del usuario, consultar directamente get_usage_limits para ambas ventanas después de cada entrega, también en trabajo interactivo. Restante =100-usedPercent; preguntar al usuario únicamente si la herramienta no permite obtener una lectura necesaria. Esta regla sustituye las preguntas sistemáticas descritas en históricos. Mantener reservas10%5h/1%7d y detenerse en una entrega cerrada si no cabe el siguiente corte completo. Consultar cuotas no autoriza nuevos lotes desatendidos, programación, créditos ni reinicios.

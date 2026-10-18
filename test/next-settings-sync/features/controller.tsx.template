@@ -10,6 +10,7 @@ import { useEffect, useState } from "react"
 import type { z } from "zod"
 import {
   nextSyncPublicConfigSchema,
+  nextSettingsProofScopeSchema,
   nextSyncDeviceCommandSchema,
   nextSettingsSyncStateSchema,
 } from "@/schemas/next-sync-test"
@@ -39,9 +40,12 @@ export function FixtureController() {
   const [status, setStatus] = useState("Preparando la prueba aislada de Next")
   const [rows, setRows] = useState<string[]>([])
   const [running, setRunning] = useState(false)
+  const [proofScope, setProofScope] = useState<"full" | "joint-ui">("full")
   useEffect(() => {
     void (async () => {
-      const run = new URLSearchParams(location.search).get("run")
+      const query = new URLSearchParams(location.search)
+      const scope = nextSettingsProofScopeSchema.parse(query.get("scope") ?? undefined)
+      const run = query.get("run")
       const parsed = nextSyncPublicConfigSchema.parse(
         await (
           await fetch(`/fixture/config?runId=${run}`, { cache: "no-store" })
@@ -51,6 +55,7 @@ export function FixtureController() {
         location.origin === parsed.origins[0],
         "Fixture controller host is invalid"
       )
+      setProofScope(scope)
       setConfig(parsed)
       setStatus("Listo. La prueba abre un segundo dispositivo en otra pestaña")
     })().catch(() => setStatus("No se ha podido preparar la prueba aislada"))
@@ -630,6 +635,7 @@ export function FixtureController() {
         } })
         assert(proof.adopted === 1 && proof.retried === 3 && proof.lostReplies === 2, "Joint remote evidence incomplete")
       })
+      if (proofScope === "joint-ui") { passed = true; return }
       await check(
         "Cuatro variantes recuperan conflictos reales y convergen sin ACK local",
         async () => {
@@ -1527,7 +1533,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Veintinueve escenarios Next6 correctos; sesiones propias cerradas"
+            proofScope === "joint-ui" ? "Once escenarios Next6 focalizados correctos; sesiones propias cerradas" : "Veintinueve escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

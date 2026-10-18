@@ -6,6 +6,7 @@ import {
   commonPlanReleaseEnabled,
   recurringSyncReleaseEnabled,
 } from "@/config/common-plan-release"
+import { PlanCategoryIncidentActions } from "@/features/sync/components/plan-category-incident-actions"
 import { SyncIncidentResolutionDialog } from "@/features/sync/components/sync-incident-resolution-dialog"
 import { resolveSyncIncident } from "@/features/sync/local-incidents"
 import { isAccountSyncCacheKey } from "@/features/sync/manual-sync"
@@ -73,11 +74,11 @@ export function SyncIncidentActions({
   return (
     <div>
       {choices.length === 0 ? (
-        <p className="text-xs text-zinc-500">
-          {incident.blockedByRelatedIntentions
-            ? "Hay cambios relacionados fuera de este elemento. Se conservan; su resolución todavía no está disponible."
-            : "Tus cambios se conservan. Este caso todavía necesita un flujo de recuperación distinto."}
-        </p>
+        <PlanCategoryIncidentActions
+          key={`${account.userId}:${account.epoch}:${incident.entry.operation.operationId}`}
+          account={account}
+          incident={incident}
+        />
       ) : (
         <div className="flex flex-wrap gap-2">
           <button

@@ -1,4 +1,5 @@
 "use client"
+import { provePlanCategoryResolutionUi } from "@fixture/plan-category-resolution-ui"
 import { remotePushInputV2Schema } from "@/schemas/remote-push-v2"
 import { readPlanCategoryIncidentComparison, resolvePlanCategoryIncident } from "@/features/sync/local-plan-category-resolution"
 import { proveLocalAppearanceRetry } from "@fixture/appearance-retry-local-proof"
@@ -573,6 +574,8 @@ export async function executeLocalFixtureCommand(
       return proveSettingsResolutionUi(active, command.request)
     case "joint-comparison":
       return readPlanCategoryIncidentComparison(active, command.operationId)
+    case "resolve-joint-ui":
+      return provePlanCategoryResolutionUi(active, command.request)
     case "resolve-joint":
       return resolvePlanCategoryIncident(active, command.request)
     case "joint-guard-proof": {

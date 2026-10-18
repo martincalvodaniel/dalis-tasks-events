@@ -132,6 +132,7 @@ async function execute(
     [
       "joint-comparison",
       "resolve-joint",
+      "resolve-joint-ui",
       "joint-guard-proof",
       "lost-joint-view-response-run",
       "lost-settings-response-run",

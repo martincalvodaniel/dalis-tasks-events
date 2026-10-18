@@ -137,6 +137,9 @@ export const nextSettingsSyncStateSchema = z.strictObject({
 export function nextSyncMissingActionId(runIdInput: unknown): string {
   return `40${entityIdSchema.parse(runIdInput).replaceAll("-", "")}00000000`
 }
+export const nextSettingsProofScopeSchema = z
+  .enum(["full", "joint-ui"])
+  .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("prepare-local"), userId: userIdSchema }),
   z.strictObject({
@@ -155,6 +158,10 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({
     type: z.literal("joint-comparison"),
     operationId: entityIdSchema,
+  }),
+  z.strictObject({
+    type: z.literal("resolve-joint-ui"),
+    request: planCategoryResolutionRequestSchema,
   }),
   z.strictObject({
     type: z.literal("resolve-joint"),

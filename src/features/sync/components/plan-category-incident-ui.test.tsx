@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test"
 import { renderToStaticMarkup } from "react-dom/server"
 import { PlanCategoryIncidentResolutionDialog } from "@/features/sync/components/plan-category-incident-resolution-dialog"
+import { SyncIncidentActions } from "@/features/sync/components/sync-incident-actions"
 import { planCategoryResolutionFixture } from "@/lib/backup/plan-category-resolution-fixture"
 import { capturePlanCategoryResolutionSnapshot } from "@/lib/sync/plan-category-resolution"
 
@@ -86,4 +87,29 @@ test("joint preview labels an unknown remote category rather than inventing a na
   expect(html).toContain("Categoría: no disponible")
   expect(html).not.toContain("Chosen")
   expect(html).not.toContain("#123456")
+})
+
+test("joint review trigger is available only for its own simple related conflict and never exposes choices before capture", () => {
+  const f = planCategoryResolutionFixture(),
+    incident = f.capture.incident
+  const account = { userId: f.actor, epoch: crypto.randomUUID() }
+  const render = (value = incident, actor = account) =>
+    renderToStaticMarkup(
+      <SyncIncidentActions account={actor} incident={value} />
+    )
+  expect(render()).toContain("Revisar plan y categoría")
+  expect(render()).not.toContain("Usar ambos remotos")
+  expect(render()).not.toContain("Guardar ambos para enviar")
+  expect(render(incident, { ...account, userId: "foreign" })).not.toContain(
+    "Revisar plan y categoría"
+  )
+  expect(render({ ...incident, remote: null })).not.toContain(
+    "Revisar plan y categoría"
+  )
+  expect(render({ ...incident, reason: "unavailable" })).not.toContain(
+    "Revisar plan y categoría"
+  )
+  expect(
+    render({ ...incident, local: { ...f.local, deletedAt: f.now } })
+  ).not.toContain("Revisar plan y categoría")
 })

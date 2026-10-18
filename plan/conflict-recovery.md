@@ -1,5 +1,14 @@
 # Recuperación explícita de conflictos
 
+## 19e5b — Recuperación conjunta disponible en Ajustes
+
+La revisión de un plan propio simple con asignaciones pendientes relacionadas ya lee la comparación completa antes de mostrar elecciones. Permite adoptar ambos remotos o guardar el borrador y su categoría para enviar; mantiene UUIDs de decisión estables, guardias de cuenta/época, historial y caché propia. Cancelar no escribe. Las dependencias no admitidas siguen protegidas y una decisión local no equivale a ACK.
+
+Prueba Next6 focalizada `joint-ui`: diez escenarios de frontera más recuperación conjunta de las cuatro variantes; ambas elecciones mediante UI real, cancelar/reabrir/confirmar y UUIDs generados por el componente. Respuesta perdida de contenido y asignación, recarga antes de ACK, replay único y convergencia exacta por cohorte aprobados. Se conserva el modo completo de 29 escenarios; no se atribuyen esas 29 regresiones a esta ejecución focalizada. Un primer intento agotó el tiempo de interacción y retiró sus recursos; la repetición completa aprobó. Sesiones, particiones, pestañas, proyecto y Mongo propios retirados; sin Google interactivo ni nuevos dispositivos físicos.
+
+925 tests, 223 opt-in omitidos, cero fallos y 11475 aserciones; lint904, tipos, Webpack y worker46 aprobados. Siguiente: recuperación residual de preferencias y cadenas de apariciones según dependencias, después accesibilidad y preparación final. Sin DB del usuario, nuevos índices o producción.
+
+
 **Estado vigente19c6:** elecciones activas para raíces legacy y planes comunes sin repetición ni cadenas externas. Adopción/reintento/copia probados en Next/IndexedDB/Mongo con diálogo real. Ajustes también ofrece adoptar/reintentar la zona personal con transacción/evidencia y guardias propias; no cambia planes ni simula ACK. Quedan cadenas de contenido+categoría, otras preferencias y casos de apariciones con otros slots/dependencias, remoto ausente o copia. 19c1–2 preparan adopción de una aparición con padre/slot/cadena/evidencia exactos y executor/backup probados en26Next6.19c3 activa adopción y19c6 añade reenvío completo desde Ajustes con diálogo real ypreview;27Next6 prueban chain/replay/ACK. Copia yotras cadenas de apariciones siguen pendientes. Las cancelaciones/tombstones remotos se conservan, remoto ausente no se interpreta como permiso. Los apartados siguientes conservan la secuencia histórica.
 
 

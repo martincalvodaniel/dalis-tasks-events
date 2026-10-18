@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
 import {
   nextRecurringSyncStateSchema,
+  nextSettingsProofScopeSchema,
   nextSettingsSyncStateSchema,
   nextSyncDeviceCommandSchema,
   nextSyncIndexControlSchema,
@@ -284,4 +285,11 @@ test("joint fixture commands keep strict identities and reject unknown fields", 
     { type: "lost-joint-view-response-run", operationId },
   ])
     expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
+})
+
+test("focused Next proof scope is explicit, defaults to full and rejects unknown selections", () => {
+  expect(nextSettingsProofScopeSchema.parse(undefined)).toBe("full")
+  expect(nextSettingsProofScopeSchema.parse("joint-ui")).toBe("joint-ui")
+  for (const invalid of ["", "skip-auth", "joint", 1, null, {}])
+    expect(nextSettingsProofScopeSchema.safeParse(invalid).success).toBe(false)
 })

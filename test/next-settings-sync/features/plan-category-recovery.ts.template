@@ -45,14 +45,16 @@ export async function proveRemotePlanCategoryRecovery({ owner, call, snapshot, s
       "Real joint producer lost conflict, graph or unattempted assignment")
     assert(expected.incident.remote?.revision === 3 && expected.remoteView.revision === 2, "Joint CAS revisions are not independently observed")
     const choice = variant === "task" ? "adopt_remote" : "retry_local"
-    const request: PlanCategoryResolutionRequest = { userId: owner, resolutionId: crypto.randomUUID(),
+    let request: PlanCategoryResolutionRequest = { userId: owner, resolutionId: crypto.randomUUID(),
       operationId: choice === "retry_local" ? crypto.randomUUID() : null, viewOperationId: choice === "retry_local" ? crypto.randomUUID() : null,
       choice, createdAt: new Date().toISOString(), expected }
     const guard = await call(1, { type: "joint-guard-proof", request }) as { checks: number }
     assert(guard.checks === 3, "Joint feature guards were not exercised")
     const before = await state(), localBefore = await snapshot(1)
-    const result = await call(1, { type: "resolve-joint", request }) as { status: string; record: unknown }
+    const result = await call(1, { type: variant === "task" || variant === "event" ? "resolve-joint-ui" : "resolve-joint", request }) as { status: string; record: unknown }
     const record = planCategoryResolutionRecordSchema.parse(result.record)
+    request = { userId: record.userId, resolutionId: record.resolutionId, operationId: record.operationId,
+      viewOperationId: record.viewOperationId, choice: record.choice, createdAt: record.createdAt, expected: record.expected }
     assert(result.status === "applied" && canonical(await state()) === canonical(before), "Local joint decision manufactured remote history")
     const decided = await snapshot(1)
     for (const old of [...expected.incident.intentions, ...expected.viewIntentions]) {

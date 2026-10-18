@@ -102,7 +102,9 @@ for (const variant of ["task", "event", "appointment", "note"] as const) {
       />
     )
     expect(blocked).not.toContain("Usar remoto conocido")
-    expect(blocked).toContain("cambios relacionados fuera")
+    expect(blocked).toContain("Revisar plan y categoría")
+    expect(blocked).not.toContain("Usar ambos remotos")
+    expect(blocked).not.toContain("Guardar ambos para enviar")
     if (!incident.remote) throw new Error("Common fixture remote is missing")
     const deleted = renderToStaticMarkup(
       <SyncIncidentCard

@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19e5b — Completada: revisión conjunta visible e interacción real
+
+- Estado: UI conectada después de once escenarios Next6 focalizados aprobados, ambas elecciones con cancelación/reapertura reales;925 tests/DoD/cleanup completos.
+- Objetivo: conectar lectura/elección guardada desde Ajustes para conflictos propios simples conasignaciones relacionadas, validar UIreal antes depublicar.
+- target_paths: src/features/sync/components/{plan-category-incident-actions.tsx,sync-incident-actions.tsx,plan-category-incident-ui.test.tsx,common-plan-incident-ui.test.tsx}, src/schemas/next-sync-test{,.test}.ts, test/next-settings-sync/features/{plan-category-resolution-ui.tsx,plan-category-recovery.ts,local-client.ts,device-client.ts,controller.tsx}.template, plan/**.
+- Dependencias: b8f982f/HEADorigin exactos, mainhumano limpio, renovación real100%5h/58%7d yreset1792354998. Reservas10%/1%, continuación puntual17:23 autorizada. Docker28.4.0/imagenpinnedamd64 revalidados; skillReact/guíasNext vigentes, secuencial.
+- Aceptación: revisión lee snapshot completo antes deofrecer opciones; cuenta/epoch/IDsestables/guardias stale, cancelación sinwrites, caché sólo propia, scopesremontados al cambiarcuenta/epoch/incidente. Casos externos desconocidos no reciben opciones. Reutilizar diálogo19e5a, sin cambiar planner/ejecutor ni wires/índices.
+- Validación: selector strict full|joint-ui (defaultfull, inválido rechazado); modoNext focalizado10fronteras+casoconjunto cuatrovariantes, ambas elecciones UIreal cancelar/reabrir/confirmar yUUIDgenerados porUI hastaACK/convergencia; conservar29escenarios completos disponibles sinatribuirlos a esta ejecución. SSR/guardias/DoD/cleanup/plan/log/mismo commitpushint/HEAD/cuotas antesdepublicar caller.
+
 ## 19z8 — Continuación puntual del18oct a las17:23
 
 - Objetivo: programar la continuación solicitada para hoy18oct2026,17:23 Europe/Madrid, desde últimoHEAD cerrado deint.
@@ -17,9 +26,9 @@
 - Validación:29Next6 backend/11IndexedDB propios/923tests yDoD cerrados enrespectivos cortes; este cierre sólo referencias/coherencia/diff/ConventionalCommit/pushint/HEAD/cuotas. No producción/DBusuario ni nueva checklistfísica.
 - Estado: completado; automatización pausada mediante herramienta deapp yconfiguración guardada verificada.
 
-## 19e5b — Próxima candidata: conexión UI conjunta y recorrido interactivo
+## 19e5b — Delimitación previa (completada arriba)
 
-- Estado: pendiente;19e5a sólo prepara diálogo, no calleractivo.
+- Estado histórico: completada en la entrada19e5b vigente; se conserva esta delimitación como antecedente.
 - Objetivo: ofrecer revisión conjunta desde SyncIncidentActions sólo para planpropio simple/conflicto; capturar comparación mediante featurecuenta/epoch yofrecer elecciones únicamente trasvalidación completa. Confirmación conUUIDs estables enref, noelección porDTOajeno; cancelación noescribe, stale obligarevisar, invalidación sólo caché de cuenta/época.
 - target_paths previstos: nuevo src/features/sync/components/plan-category-incident-actions.tsx, sync-incident-actions.tsx, pruebasUI, test/next-settings-sync/features/{plan-category-resolution-ui,plan-category-recovery,local-client,device-client,controller} yschemas/next-sync-test.ts/plan/**.
 - Dependencias:19e3b1/b2/19e4/19e5a cerrados. Reutilizar diálogo preparado yfeature guardada, no ampliar alcance aapariciones/ausencia remota/cadenas externas. No nuevos comandos/protocolo/índice.
