@@ -37,7 +37,9 @@ export function captureTagCatalogResolutionSnapshot(
     incident.entry.attempts < 1 ||
     incident.blockedByRelatedIntentions
   )
-    throw new Error("Category catalog requires its own isolated command conflict")
+    throw new Error(
+      "Category catalog requires its own isolated command conflict"
+    )
   const key = `tag:${command.tagId}`
   const chain = entries
     .filter(

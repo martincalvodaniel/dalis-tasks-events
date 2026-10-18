@@ -1,5 +1,19 @@
 # Iteraciones de implementación
 
+## 19h1b — Decisión de borrado preparada sin caller
+
+Contrato puro admite aceptar catálogo observado oreintentar exactamente tag.delete conUUID nuevo/CAS primario observado. Adopción acepta tombstone remoto orestaura explícitamente sólolacategoría revisada; retry requiereprimariaviva yrevisión noagotada, sininferirACK. Catálogooptimista conserva campos/revisionesobservadas depeers; sólo cambia tombstone/timestamp deprimaria, mientras elexecutorremoto calcularásurevisión confirmada. No modificaasignaciones: suvisibilidadderivada cambiará segúnsucategoría ydeberá explicarseenUI. Recibo5MiB replanificableexacto, snapshot/actor/IDs nuevos/historia protegidos. Ausenciadesconocida siguefuera.
+
+Seis tests nuevos/37aserciones,13focalizados/61aserciones;1008pass/223skip/0fail/11973aserciones, lint947sinavisos/tipos/Webpack/worker46/diff aprobados. Elajuste final deltexto deerror de19h1a necesitaba salto delformatter; se corrige yrepiteDoD completoenestecorte. Sin writer/backup/UI nuevos niMongo/browser/DBusuario. Entrada33%5h/34%7d, reservas10%/1%, secuencial. Siguiente19h2a evidencia portable; después TX/Next/UI segúnmargen. No ofrecer elecciones hastaejecutor/evidencia/pruebasreales.
+
+## 19h1b — Delimitación previa (completada arriba)
+
+- Objetivo: aceptar explícitamente el catálogo remoto conocido oreintentar exactamente elborrado deunacategoría, sininferenciaACK.
+- target_paths: schemas/types/tag-delete-resolution.ts, lib/sync/tag-delete-decision{,.test}.ts yplan/**.
+- Dependencias:19h1a/fb8cabd publicado;33%5h/34%7d, reservas10%/1%, secuencial.
+- Aceptación: snapshotexacto/actor/UUIDs nuevos; adoptar puede mantener tombstone remoto orestaurarúnicamentelaprimaria revisada deformaexplícita. Retry sólo primariaviva conrevisión disponible, comando original tag.delete/CASobservado y0/1nuevaoperación. Catálogo elegido conserva camposremotos depeers yrevisionesobservadas; nuevos timestamps sólo optimistic, noACK. Recibo acotado replanificable yoriginalexacto superseded; no modificarasignaciones, sólo suvisibilidadderivada podrácambiarsegúncategoríaeliminada/restaurada. Sinwriter/backup/UI nuevos.
+- Validación: adopción/remotoborrado/retry/overflow/ausencia/stale/actor/IDs/corrupción/inmutabilidad/plannerremoto, DoD completo,mismo ConventionalCommitpushint/HEAD/cuotas.
+
 ## 19h1a — Captura de borrado aislado preparada
 
 Evidencia pura deunaúnica raíz tag.delete propia enconflicto: exige tombstone local, catálogo observado completo conprimaria conocida viva oeliminada, outcome exacto yclausura deACKs capturada. Ausencia remota, otroscambiospersonales/dependientes, envíosinciertos, datosajenos/duplicados/parciales ycapacidad siguenprotegidos. Sólo laprimaria revisada puede restaurarse desde untombstonelocal mediante unaelección explícita posterior; ningúnpeer se resucita. No choices/writer/backup/UI nuevos todavía.

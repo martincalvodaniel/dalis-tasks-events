@@ -357,3 +357,10 @@ Evidencia pura deunaúnica raíz tag.delete propia enconflicto: exige tombstone 
 Guardias comunes de catálogo/frescura/cola se extraen a tag-catalog-resolution paraevitarduplicación. Wrappers deorden conservan estructura/formato yrestricciónaprimariaviva. Siete tests nuevos/24aserciones,29tests focalizados/129aserciones ydocechecksIndexedDB deorden repetidos aprobados; captura /private/tmp/dalis-tag-order-shared-guards.png.1002pass/223skip/0fail/11936aserciones, lint943sinavisos/tipos/Webpack/worker46/diff aprobados. Partición/pestaña/servidor propios limpios; sinNext/Mongo nuevos/DBusuario/protocolo/índices.
 
 Entrada38%5h/35%7d, reservas10%/1%, secuencial. Siguiente19h1b decisión explícita deaceptar catálogo observado oreintentar borrado conCASnuevo, despuésportable/TX/pruebaremota/UI. Mantener distinción entre capturaACKDTO ysuacreditación real; elcatálogo observado noes unestadoactual garantizado delservidor.
+
+
+## 19h1b — Decisión de borrado preparada sin caller
+
+Contrato puro admite aceptar catálogo observado oreintentar exactamente tag.delete conUUID nuevo/CAS primario observado. Adopción acepta tombstone remoto orestaura explícitamente sólolacategoría revisada; retry requiereprimariaviva yrevisión noagotada, sininferirACK. Catálogooptimista conserva campos/revisionesobservadas depeers; sólo cambia tombstone/timestamp deprimaria, mientras elexecutorremoto calcularásurevisión confirmada. No modificaasignaciones: suvisibilidadderivada cambiará segúnsucategoría ydeberá explicarseenUI. Recibo5MiB replanificableexacto, snapshot/actor/IDs nuevos/historia protegidos. Ausenciadesconocida siguefuera.
+
+Seis tests nuevos/37aserciones,13focalizados/61aserciones;1008pass/223skip/0fail/11973aserciones, lint947sinavisos/tipos/Webpack/worker46/diff aprobados. Elajuste final deltexto deerror de19h1a necesitaba salto delformatter; se corrige yrepiteDoD completoenestecorte. Sin writer/backup/UI nuevos niMongo/browser/DBusuario. Entrada33%5h/34%7d, reservas10%/1%, secuencial. Siguiente19h2a evidencia portable; después TX/Next/UI segúnmargen. No ofrecer elecciones hastaejecutor/evidencia/pruebasreales.
