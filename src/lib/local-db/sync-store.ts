@@ -1,6 +1,8 @@
 "use client"
 
 import { openLocalDatabase } from "@/lib/local-db/client"
+import { resolveLocalItemViewIncident } from "@/lib/local-db/item-view-resolution"
+import { readLocalItemViewResolutionSnapshot } from "@/lib/local-db/item-view-resolution-capture"
 import { resolveLocalPlanCategoryIncident } from "@/lib/local-db/plan-category-resolution"
 import { readLocalPlanCategoryResolutionSnapshot } from "@/lib/local-db/plan-category-resolution-capture"
 import { resolveLocalPlanOccurrenceIncident } from "@/lib/local-db/plan-occurrence-resolution"
@@ -141,6 +143,21 @@ export class LocalSyncStore {
     )
   }
 
+  readItemViewIncidentSnapshot(operationId: string) {
+    return readLocalItemViewResolutionSnapshot(
+      this.database,
+      this.userId,
+      operationId
+    )
+  }
+  resolveItemViewIncident(input: unknown) {
+    return resolveLocalItemViewIncident(this.database, this.userId, input).then(
+      (result) => {
+        if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+        return result
+      }
+    )
+  }
   readPlanCategoryIncidentSnapshot(operationId: string) {
     return readLocalPlanCategoryResolutionSnapshot(
       this.database,

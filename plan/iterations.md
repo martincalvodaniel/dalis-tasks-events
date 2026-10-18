@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19f2 — Completada: persistencia y evidencia de recuperación de asignación
+
+- Estado: nueve checksIndexedDB yseis testsportables nuevos aprobados;941 tests/DoD completos. SinUI/Next nuevos todavía.
+- Objetivo: reconstruir la comparación dentro deTX y guardar vista/cola/counter/recibo atómicos, con evidencia portable completa antes de callerUI.
+- target_paths: src/lib/local-db/{item-view-resolution,item-view-resolution-capture,sync-store}.ts, src/features/sync/local-item-view-resolution.ts, src/lib/backup/{item-view-resolution-evidence,item-view-resolution-fixture,item-view-resolution-backup.test,local-backup}.ts, src/lib/sync/item-view-resolution.test.ts, src/schemas/local-recurring-backup.ts, scripts/browser-test-server.ts, test/browser/item-view-resolution.ts yplan/**.
+- Dependencias:19f1 publicado f8d8cd5,75%5h/54%7d, reservas10%/1%; AGENTlocal leído, secuencial. Sin RPC/UI nuevos ni cambio de wire/índices.
+- Aceptación: captura9stores, padre/categoría/cola/outcomes enmismaTX, ACKs previos acreditados porresultados reales; replay previo conserva ediciones posteriores; IDs globales/capacidad/counter seguros antes writes.0/1 reemplazos, originales superseded exactos, ceroACKlocal. Backup3 valida originales/resultado/prerrequisitos/reemplazo exacto sinreinterpretar expected.incident como expected.entry. Cuenta/epoch/notificaciones trascommit. No modifica item/tags/orden.
+- Validación: backup válido/pendienteintentado/truncado/corrupto, IndexedDB propio rollbacktardío/stale/cuenta/dependencias/colisión/capacidad/replay/adopción/reapertura; DoD, cleanup, mismo commitpushint/HEAD/cuotas. Next yUI soncortes posteriores.
+
 ## 19f1 — Completada: contrato de recuperación de asignaciones aisladas
 
 - Estado: diez pruebas puras/86 aserciones,935 tests yDoD aprobados; sin mutación niUI activada.

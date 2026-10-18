@@ -1,5 +1,6 @@
 import { assertBackupOwnership } from "@/lib/backup/backup-ownership"
 import { validateBackupImportEvidence } from "@/lib/backup/import-record"
+import { validateItemViewResolutionEvidence } from "@/lib/backup/item-view-resolution-evidence"
 import { validatePlanCategoryResolutionEvidence } from "@/lib/backup/plan-category-resolution-evidence"
 import { decodeLocalOperationOutcome } from "@/lib/sync/local-operation-outcome-v2"
 import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
@@ -205,6 +206,8 @@ function validateBackup(
   )
   const superseded = new Set<string>()
   for (const record of s.syncMetadata) {
+    if (record.key.startsWith("item-view-resolution:"))
+      validateItemViewResolutionEvidence(record, actor, entries, outcomes)
     if (record.key.startsWith("plan-category-resolution:"))
       validatePlanCategoryResolutionEvidence(record, actor, entries, outcomes)
     if (record.key.startsWith("appearance-resolution:")) {
@@ -290,7 +293,9 @@ function validateBackup(
               ...record.expected.incident.intentions,
               ...record.expected.viewIntentions,
             ]
-          : record.expected.intentions
+          : "incident" in record.expected
+            ? record.expected.incident.intentions
+            : record.expected.intentions
       for (const id of record.supersededOperationIds) {
         const entry = entries.get(id)
         const reviewed = intentions.find(

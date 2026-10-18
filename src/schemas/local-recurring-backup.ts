@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { itemViewResolutionRecordSchema } from "@/schemas/item-view-resolution"
 import {
   localBackupMetadataV2Schema,
   localBackupStoresV2Schema,
@@ -29,6 +30,7 @@ export const localRecurringBackupV3Schema = localBackupV2Schema.extend({
           localPlanOccurrenceOutcomeSchema,
           settingsResolutionRecordSchema,
           tagResolutionRecordSchema,
+          itemViewResolutionRecordSchema,
           planCategoryResolutionRecordSchema,
           planOccurrenceResolutionRecordSchema,
         ])

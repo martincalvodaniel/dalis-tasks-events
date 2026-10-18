@@ -19,6 +19,7 @@ if (
   suite !== "plan-occurrence-revision" &&
   suite !== "appearance-resolution-capacity" &&
   suite !== "tag-resolution" &&
+  suite !== "item-view-resolution" &&
   suite !== "resolution-capacity" &&
   suite !== "plan-category-capture" &&
   suite !== "plan-category-resolution" &&

@@ -1,5 +1,14 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19f2 — Asignaciones: transacción y evidencia preparadas
+
+Captura readonly y writer de9stores reconstruyen padre/vista/categoría/cola en una TX. Los prerrequisitos ACK se acreditan contra outcomes aplicados reales antes de devolver la comparación, también al escribir. Adopción guarda la vista remota; retry añade una sola intención pendiente con CAS nuevo. Vista, supersesión explícita, secuencia y recibo son atómicos; contenido/categorías/orden permanecen intactos. Replay previo no reescribe trabajo posterior ni notifica. Feature guardada por cuenta/época, IDs globales y capacidad previos a writes.
+
+Backup3 incluye la decisión y valida originales exactos, outcome congelado, clausura ACK y reemplazo exacto. Rama `expected.incident` explícita; no asumir `expected.entry`. Seis pruebas portables nuevas incluyen truncado/corrupción y pending intentado; se separaron referencias compartidas en la fixture para simular ediciones posteriores sin alterar el recibo congelado. Nueve checks IndexedDB propios aprobados: readonly/reapertura, cuenta/stale, rollback tardío, dependencia semántica, IDs/counter, capacidad, falsoACK/ACKreal, retry/replay y adopción. Partición, pestaña y servidor propios retirados.
+
+941pass/223skip/0fail/11587 aserciones, lint915 sin avisos/tipos/Webpack/worker46/diff aprobados. No UI o RPC nuevos activos, índices/DBusuario/producción; siguiente19f3 prueba Next/Mongo con dos particiones y UI únicamente tras aceptación. Entrada75%5h/54%7d, reservas10%/1%, secuencial.
+
+
 ## 19f1 — Contrato de asignación aislada
 
 Planner y comparación compacta para `item-view.set` de un plan propio simple: adoptar remoto conocido o reenviar la última categoría propia confirmada con CAS/UUID nuevos. No modifica contenido, categorías u orden. Captura valida cola completa, intención exacta, grafo ordenado y clausura transitiva de prerrequisitos ACK; el DTO por sí solo no acredita esos ACK. Dependientes externos, contenido/movimientos pendientes del mismo plan, referencias ausentes, incertidumbre, ausencia/tombstone y recurrencia quedan protegidos. Categoría desconocida/borrada/sin confirmar y revisión agotada sólo permiten adoptar.
