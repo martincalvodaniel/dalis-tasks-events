@@ -10,6 +10,8 @@ La zona horaria personal ya es editable offline, sincroniza por cuenta y está v
 
 ### Continuación18oct02:20
 
+19c3 activa en Ajustes la adopción de aparición remota conocida, con preview completo yconfirmación explícita probada. Sólo slot propio seguro: otros slots/dependencias externas/envíos inciertos permanecen protegidos.26Next6,867pass/223skip/0fail, lint870/tipos/Webpack/worker46. La recuperación de apariciones todavía no ofrece reintento del borrador ni copia; seguir ese contrato sin inventar ACK o descartar cadenas.
+
 19c2 prueba transacción/evidencia portable de adopción con26Next6: dos conflictos CAS reales (progreso/cancelación), rollback tardío, cuenta/epoch/stale/replay y otros slots conservados. Proyección/shadow/cursor de cada serie recuperada coinciden exactamente conMongo en dosparticiones; un tercer caso con otro slot pendiente sigue bloqueado yconservado. No se atribuye convergencia global a esa cola de prueba deliberadamente bloqueada. Aún falta UI19c3; sólo adopción preparada, sin retry/copia de aparición.
 
 Renovación real100%5h/100%7d, reset5h1792300836; reservas10%/1%, continuación puntual y secuencial. 19c1 prepara contrato/planner de adopción de la excepción remota de un slot, con padre vivo, snapshots/evidencia exactos y bloqueos de otras apariciones/dependencias/intentos inciertos. Aún sin executor/backup/UI nuevos. Nueve pruebas nuevas; suite864pass/223skip/0fail, lint865/tipos/Webpack/worker46. La checklist física permanece aprobada; no reabrirla ni activar producción.

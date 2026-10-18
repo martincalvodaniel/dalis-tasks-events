@@ -1,10 +1,14 @@
+import { PlanOccurrenceIncidentActions } from "@/features/sync/components/plan-occurrence-incident-actions"
 import { PlanOccurrenceIncidentVersion } from "@/features/sync/components/plan-occurrence-incident-version"
+import type { LocalAccount } from "@/features/workspace/local-account"
 import type { PlanOccurrenceSyncIncidentSnapshot } from "@/types/recurring-sync-incident"
 
 export function PlanOccurrenceIncidentCard({
   incident,
+  account,
 }: {
   incident: PlanOccurrenceSyncIncidentSnapshot
+  account?: Pick<LocalAccount, "userId" | "epoch">
 }) {
   return (
     <details className="border-t border-zinc-200 text-sm dark:border-zinc-800">
@@ -65,10 +69,17 @@ export function PlanOccurrenceIncidentCard({
             {incident.intentions.length} cambios relacionados conservados.
           </p>
         </details>
-        <p className="text-xs text-zinc-500">
-          La resolución desde esta pantalla aún no está disponible. Ningún
-          cambio se ha descartado ni confirmado por esta comparación.
-        </p>
+        {account ? (
+          <PlanOccurrenceIncidentActions
+            account={account}
+            incident={incident}
+          />
+        ) : (
+          <p className="text-xs text-zinc-500">
+            La resolución desde esta pantalla aún no está disponible. Ningún
+            cambio se ha descartado ni confirmado por esta comparación.
+          </p>
+        )}
       </div>
     </details>
   )

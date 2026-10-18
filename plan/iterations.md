@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19c3 — Adopción visible de aparición en Ajustes
+
+Estado: completado; elección activa con26Next6 ydiálogo real aprobados.
+
+- Objetivo: habilitar la elección de remoto conocido ya probada, con preview completo de excepción yconfirmación explícita.
+- target_paths: src/features/sync/components/{plan-occurrence-incident-card,plan-occurrence-incident-version,plan-occurrence-incident-actions,plan-occurrence-resolution-dialog,plan-occurrence-resolution-ui.test,sync-incident-panel}.tsx, test/next-settings-sync/features/{appearance-recovery,appearance-resolution-local-proof,appearance-resolution-ui}*.template y plan/**.
+- Dependencias:90dbb27 publicado,75%5h/96%7d, reservas10%/1%;26Next6 prueban executor/backup reales. GuíasNext yskill vercel-react-best-practices consultadas; secuencial.
+- Aceptación: sólo comparación completa propia segura ofrece adopción, sin retry/copia. Preview muestra título/descripción/horario completo/estado/checklist/cancelación yfechaoriginal, cuenta toda la cadena revisada, explica historial sinACK/cambio de otros días o padre. Cancelar noescribe; confirmar utiliza feature real, UUIDestable ycache sólo cuenta/epoch. Casos bloqueados conservados sin botón.
+- Validación: SSR de opciones/guardias/preview ydiálogo real cancel/reabrir/confirm dentro de conflicto Next/Mongo/IndexedDB;26escenarios/DoD completo/cleanup/plan/log/commitpushint/HEAD/cuotas. Sin nuevo destino, cambios DB oíndices.
+
 ## 19c2 — Adopción durable y evidencia portable de aparición
 
 Estado: completado;26Next6 correctos y escritura/backup probados, UI pendiente.

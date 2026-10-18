@@ -1,0 +1,106 @@
+"use client"
+
+import { createRoot } from "react-dom/client"
+import { SWRConfig } from "swr"
+import { PlanOccurrenceIncidentCard } from "@/features/sync/components/plan-occurrence-incident-card"
+import { requireActiveAccount } from "@/features/workspace/require-active-account"
+import { readLocalRecurringBackup } from "@/lib/local-db/backup"
+import { openLocalDatabase } from "@/lib/local-db/client"
+import { subscribeLocalOutboxChanges } from "@/lib/local-db/sync-notifications"
+import { planOccurrenceResolutionRecordSchema } from "@/schemas/plan-occurrence-resolution"
+import type {
+  PlanOccurrenceResolutionRequest,
+  PlanOccurrenceResolutionRecord,
+} from "@/types/plan-occurrence-resolution"
+
+export async function proveAppearanceResolutionUi(
+  account: { userId: string; epoch: string },
+  request: PlanOccurrenceResolutionRequest
+) {
+  await requireActiveAccount(account)
+  const container = document.createElement("aside")
+  container.setAttribute("aria-label", "Recuperación de aparición de prueba")
+  document.body.append(container)
+  const root = createRoot(container)
+  let chosen: PlanOccurrenceResolutionRecord | null = null
+  let unsubscribe = () => {},
+    disconnect = () => {}
+  const database = await openLocalDatabase(account.userId)
+  try {
+    const completed = new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        unsubscribe()
+        disconnect()
+        reject(new Error("Appearance recovery UI interaction timed out"))
+      }, 90000)
+      const finish = () => {
+        const details = container.querySelector("details")
+        if (details && !details.open) details.open = true
+        if (chosen && !container.querySelector("dialog")) {
+          clearTimeout(timer)
+          unsubscribe()
+          disconnect()
+          resolve()
+        }
+      }
+      const observer = new MutationObserver(finish)
+      observer.observe(container, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        characterData: true,
+      })
+      disconnect = () => observer.disconnect()
+      unsubscribe = subscribeLocalOutboxChanges(account.userId, () => {
+        void readLocalRecurringBackup(
+          database,
+          account.userId,
+          new Date().toISOString()
+        )
+          .then((backup) => {
+            const value = backup.stores.syncMetadata.find(
+              (value) =>
+                "resolutionId" in value &&
+                value.expected.entry.operation.operationId ===
+                  request.expected.entry.operation.operationId
+            )
+            if (value) {
+              chosen = planOccurrenceResolutionRecordSchema.parse(value)
+              finish()
+            }
+          })
+          .catch((error) => {
+            clearTimeout(timer)
+            unsubscribe()
+            disconnect()
+            reject(error)
+          })
+      })
+    })
+    root.render(
+      <SWRConfig value={{ provider: () => new Map() }}>
+        <PlanOccurrenceIncidentCard
+          account={account}
+          incident={request.expected}
+        />
+      </SWRConfig>
+    )
+    await completed
+    await requireActiveAccount(account)
+    const record = planOccurrenceResolutionRecordSchema.parse(chosen)
+    if (
+      record.choice !== request.choice ||
+      JSON.stringify(record.expected) !== JSON.stringify(request.expected)
+    )
+      throw new Error(
+        "Appearance recovery UI did not confirm its reviewed choice"
+      )
+    return { status: "applied", record }
+  } finally {
+    unsubscribe()
+    disconnect()
+    root.unmount()
+    container.remove()
+    database.close()
+  }
+}

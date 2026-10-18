@@ -20,6 +20,11 @@ export function PlanOccurrenceIncidentVersion({
       {occurrence ? (
         <div className="mt-1 space-y-1 break-words">
           <p>{occurrence.content?.title ?? series?.title ?? "Aparición"}</p>
+          {(occurrence.content?.description ?? series?.description) ? (
+            <p className="whitespace-pre-wrap text-zinc-600 dark:text-zinc-400">
+              {occurrence.content?.description ?? series?.description}
+            </p>
+          ) : null}
           <p>
             {incidentTaskStatuses[occurrence.status]} · revisión{" "}
             {occurrence.revision}
@@ -28,8 +33,8 @@ export function PlanOccurrenceIncidentVersion({
           {occurrence.deletedAt ? <p>Aparición eliminada</p> : null}
           <p>
             {occurrence.schedule.mode === "all_day"
-              ? `Todo el día · ${occurrence.schedule.startDate}`
-              : `${occurrence.schedule.localStart.replace("T", " ")} · ${occurrence.schedule.timeZone}`}
+              ? `Todo el día · desde ${occurrence.schedule.startDate} hasta ${occurrence.schedule.endDateExclusive} (sin incluir)`
+              : `${occurrence.schedule.localStart.replace("T", " ")}${occurrence.schedule.localEnd ? ` — ${occurrence.schedule.localEnd.replace("T", " ")}` : ""} · ${occurrence.schedule.timeZone}`}
           </p>
           {occurrence.checklist.length ? (
             <ul aria-label="Pasos de la aparición">

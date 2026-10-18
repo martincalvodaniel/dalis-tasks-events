@@ -55,12 +55,14 @@ export async function proveRemoteAppearanceRecovery({
 }: Ports) {
   let adopted = 0
   for (const mode of ["progress", "cancelled", "guarded"] as const) {
+    const loser = mode === "progress" ? 0 : 1,
+      winner = 1 - loser
     const itemId = crypto.randomUUID(),
       stepId = crypto.randomUUID(),
       now = new Date().toISOString(),
       first = `${itemId}:2026-10-17`,
       second = `${itemId}:2026-10-18`
-    await call(0, {
+    await call(winner, {
       type: "save-plan",
       request: {
         mode: "create",
@@ -93,8 +95,8 @@ export async function proveRemoteAppearanceRecovery({
         },
       },
     })
-    await call(0, { type: "mixed-run" })
-    await call(1, { type: "mixed-run" })
+    await call(winner, { type: "mixed-run" })
+    await call(loser, { type: "mixed-run" })
     async function commit(
       index: number,
       command: z.infer<typeof planOccurrenceCommandSchema>
@@ -122,7 +124,7 @@ export async function proveRemoteAppearanceRecovery({
       })
     }
     await commit(
-      0,
+      winner,
       mode === "cancelled"
         ? { type: "plan.cancel-occurrence", itemId, occurrenceId: first }
         : {
@@ -132,21 +134,21 @@ export async function proveRemoteAppearanceRecovery({
             status: "completed",
           }
     )
-    await call(0, { type: "mixed-run" })
-    await commit(0, {
+    await call(winner, { type: "mixed-run" })
+    await commit(winner, {
       type: "plan.set-occurrence-status",
       itemId,
       occurrenceId: second,
       status: "in_progress",
     })
-    await call(0, { type: "mixed-run" })
-    await commit(1, {
+    await call(winner, { type: "mixed-run" })
+    await commit(loser, {
       type: "plan.set-occurrence-status",
       itemId,
       occurrenceId: first,
       status: "in_progress",
     })
-    await commit(1, {
+    await commit(loser, {
       type: "plan.set-occurrence-checklist-entry",
       itemId,
       occurrenceId: first,
@@ -154,14 +156,14 @@ export async function proveRemoteAppearanceRecovery({
       completed: true,
     })
     if (mode === "guarded")
-      await commit(1, {
+      await commit(loser, {
         type: "plan.set-occurrence-status",
         itemId,
         occurrenceId: second,
         status: "completed",
       })
-    await call(1, { type: "mixed-run" })
-    const incidents = (await call(1, {
+    await call(loser, { type: "mixed-run" })
+    const incidents = (await call(loser, {
       type: "settings-incidents",
     })) as RecurringSyncIncidentOverview[]
     const incident = incidents.find(
@@ -183,7 +185,7 @@ export async function proveRemoteAppearanceRecovery({
       createdAt: new Date().toISOString(),
       expected,
     }
-    const before = await snapshot(1),
+    const before = await snapshot(loser),
       remoteBefore = await state()
     if (mode === "guarded") {
       assert(
@@ -192,13 +194,13 @@ export async function proveRemoteAppearanceRecovery({
       )
       let failed = false
       try {
-        await call(1, { type: "resolve-appearance", request })
+        await call(loser, { type: "resolve-appearance", request })
       } catch {
         failed = true
       }
       assert(
         failed &&
-          canonical((await snapshot(1)).backup.stores) ===
+          canonical((await snapshot(loser)).backup.stores) ===
             canonical(before.backup.stores) &&
           canonical(await state()) === canonical(remoteBefore),
         "Guarded appearance decision lost another slot or fabricated ACK"
@@ -206,7 +208,7 @@ export async function proveRemoteAppearanceRecovery({
       continue
     }
     const result = (await call(
-      1,
+      loser,
       mode === "progress"
         ? { type: "appearance-resolution-local-proof", request }
         : { type: "resolve-appearance", request }
@@ -221,7 +223,7 @@ export async function proveRemoteAppearanceRecovery({
       canonical(await state()) === canonical(remoteBefore),
       "Appearance adoption manufactured remote receipt or journal"
     )
-    const after = await snapshot(1)
+    const after = await snapshot(loser)
     assert(
       canonical(
         after.backup.stores.occurrences.find((value) => value.id === first)
@@ -240,26 +242,26 @@ export async function proveRemoteAppearanceRecovery({
       )
     }
     if (mode === "progress") {
-      await commit(1, {
+      await commit(loser, {
         type: "plan.set-occurrence-status",
         itemId,
         occurrenceId: first,
         status: "not_started",
       })
-      const newer = await snapshot(1)
-      const replay = (await call(1, {
+      const newer = await snapshot(loser)
+      const replay = (await call(loser, {
         type: "resolve-appearance",
         request: requestFrom(record),
       })) as { status: string }
       assert(
         replay.status === "replayed" &&
-          canonical((await snapshot(1)).backup.stores) ===
+          canonical((await snapshot(loser)).backup.stores) ===
             canonical(newer.backup.stores),
         "Appearance decision replay overwrote a later local edit"
       )
     } else assert(record.local.cancelled, "Remote cancellation was revived")
-    await call(1, { type: "mixed-run" })
-    await call(0, { type: "mixed-run" })
+    await call(loser, { type: "mixed-run" })
+    await call(winner, { type: "mixed-run" })
     const authoritative = await state(),
       projection = foldRecurringChanges(authoritative.page)
     for (let index = 0; index < 2; index++) {
@@ -299,14 +301,14 @@ export async function proveRemoteAppearanceRecovery({
         )
       }
     }
-    const replayBefore = await snapshot(1)
-    const replay = (await call(1, {
+    const replayBefore = await snapshot(loser)
+    const replay = (await call(loser, {
       type: "resolve-appearance",
       request: requestFrom(record),
     })) as { status: string }
     assert(
       replay.status === "replayed" &&
-        canonical((await snapshot(1)).backup.stores) ===
+        canonical((await snapshot(loser)).backup.stores) ===
           canonical(replayBefore.backup.stores),
       "Appearance replay changed a confirmed later version"
     )

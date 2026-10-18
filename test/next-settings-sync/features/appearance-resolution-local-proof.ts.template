@@ -1,4 +1,5 @@
 "use client"
+import { proveAppearanceResolutionUi } from "@fixture/appearance-resolution-ui"
 
 import { resolvePlanOccurrenceIncident } from "@/features/sync/local-plan-occurrence-resolution"
 import { readSyncIncidents } from "@/features/sync/local-incidents"
@@ -120,7 +121,7 @@ export async function proveLocalAppearanceResolution(
       same(before, await snapshot()) && notices === count,
       "Appearance rollback left projection, intentions, receipt or notification"
     )
-    const result = await resolvePlanOccurrenceIncident(account, fresh)
+    const result = await proveAppearanceResolutionUi(account, fresh)
     assert(
       result.status === "applied" && notices > count,
       "Appearance adoption did not notify after commit"
@@ -156,15 +157,23 @@ export async function proveLocalAppearanceResolution(
       ),
       "Appearance adoption advanced the outbox counter"
     )
-    const replay = await resolvePlanOccurrenceIncident(account, fresh)
+    const reviewed = {
+      userId: result.record.userId,
+      resolutionId: result.record.resolutionId,
+      operationId: null,
+      choice: result.record.choice,
+      createdAt: result.record.createdAt,
+      expected: result.record.expected,
+    }
+    const replay = await resolvePlanOccurrenceIncident(account, reviewed)
     assert(
       replay.status === "replayed" && same(after, await snapshot()),
       "Appearance decision replay rewrote durable state"
     )
     await rejected(() =>
       resolvePlanOccurrenceIncident(account, {
-        ...fresh,
-        createdAt: new Date(Date.parse(fresh.createdAt) + 1).toISOString(),
+        ...reviewed,
+        createdAt: new Date(Date.parse(reviewed.createdAt) + 1).toISOString(),
       })
     )
     assert(

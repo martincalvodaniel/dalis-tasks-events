@@ -39,6 +39,7 @@ export function SyncIncidentPanel({
             <PlanOccurrenceIncidentCard
               key={value.incident.entry.operation.operationId}
               incident={value.incident}
+              account={account}
             />
           )
         if ("kind" in value && value.kind === "preference")
