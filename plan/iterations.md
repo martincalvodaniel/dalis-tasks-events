@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19z6 — Continuación puntual del18oct a las12:22
+
+- Objetivo: programar la continuación solicitada por el usuario para hoy18oct2026,12:22 Europe/Madrid, desde el último commit completo deint.
+- target_paths: plan/{iterations,workflow,iteration-log}.md y heartbeat gestionado existente; sin código de producto.
+- Dependencias: código0665080 y cierre b2c2d99 publicados, repo limpio; lectura real8%5h/71%7d, reservas10%/1%. No abrir implementación ahora.
+- Aceptación: reutilizar continuar-el-plan-a-las-21-19 mediante automation_update, ACTIVE/puntual/COUNT1, mismochat ynotificación failed_runs_only. Verificar cuotas al despertar; reset publicado1792318896 (12:21:36Madrid), sólo24segundos antes de la hora humana solicitada, nunca asumir renovación por reloj. Pausar al terminar, sin nueva cadena.
+- Validación: configuración guardada verificada, referencias/coherencia/diff; mismo ConventionalCommit ypushorigin/int/HEADremoto/cuotas. Siguiente19e3b durable/portable, luego19e4 remoto y19e5 UI según dependencias. No repetir checklist física aceptada ni tocar producción.
+- Estado: completado; horario/chat/política verificados tras actualizar la automatización.
+
 ## 19e3b — Próxima candidata: decisión conjunta durable y portable
 
 - Estado: pendiente; no abrir con16%5h/72%7d y reserva10%/1% tras0665080.

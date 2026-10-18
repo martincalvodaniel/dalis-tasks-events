@@ -2616,3 +2616,10 @@ DoD902pass/223skip/0fail/11308aserciones, lint893sinavisos/tipos/Webpack/worker4
 28Next6 reales propios (config/defaults/BetterAuth persistido/Mongo/dosorígenes IndexedDB) pasanconambos diálogos de categoría/cancelar/reabrir/confirmar, respuestaperdida/recarga/ACK único yconvergencia porcategoría; no convergencia global dehistorias bloqueadas niGoogle/physical nuevos. Pruebas nativas adicionales:5aparicionescapacidad,5decisionescategoría,8capacidadcomunes/settings/copia y8capturasconjuntas. Suite902pass/223skip/0fail/11308aserciones, lint893sinavisos/tipos/Webpack/worker46. Recursospropios limpios ymainhumano conservado.
 
 Lectura16%5h/72%7d, reserva10%/1%; no abrir writerconjunto cuyo coste completo pueda cruzarla. Heartbeat existente pausado medianteautomation_update, mismos campos/chat/política conservados, sinotra programación. Siguiente19e3b deja rutas/contrato/portabilidad/validaciones explícitos;19e4 remoto y19e5 UI sólo después. Cierre exclusivamente documental, referencias/coherencia/diff ycommitpushint/HEAD/cuotas.
+
+
+## 19z6 — Programación puntual para18oct12:22Madrid
+
+Petición humana atendida reutilizando continuar-el-plan-a-las-21-19 mediante herramienta de la app: nombre actualizado a Continuar el plan a las12:22, ACTIVE, horario12:22 yCOUNT1, mismochat/política failed_runs_only verificados enconfiguración guardada. No se ha editado TOML ni creado duplicado. Prompt actualizado conúltimo código0665080/cierre b2c2d99, evidencia28Next6/902tests y próximo19e3b durable/portable antes de19e4 remoto/19e5 UI.
+
+Lectura real8%5h/71%7d yreset1792318896 (12:21:36Madrid). Se respeta12:22 solicitada yse exige verificar renovación real;24segundos de margen no prueban cuota renovada. Reservas10%/1%, sin código ahora, créditos/reinicios ni nueva cadena. Cierre documental con referencias/coherencia/diff, ConventionalCommit/pushorigin/int/HEADremoto/cuotas. Sin DBusuario, producción ni repetición de checklist física aceptada.

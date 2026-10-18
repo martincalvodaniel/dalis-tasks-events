@@ -602,3 +602,8 @@ Entrada23%5h/73%7d trasbe34aaa, reservas10%/1%. Se elige lector privado probado 
 ### 19z5 — Cierre seguro de la continuación07:21
 
 Nueve cortes secuenciales completos:19c7,19d1–4,19e1–2,19c8,19e3a, cadauno concommit/pushint/HEADremoto/cuotas; último0665080. Lectura16%5h/72%7d, reservas10%/1%. El siguiente writer+portable+prueba nativa/reparación/cierre no cabe con ese margen: mantener candidato19e3b completo, sin abrirlo a medias. Automatización puntual pausada mediante herramienta, conservando chat/campos/notificación failed_runs_only; no cadena nueva. Mainhumano limpio ypreservado, recursos propios retirados. Cierre documental con referencias/coherencia/diff/mismo commitpushint/HEAD/cuotas.
+
+
+### 19z6 — Revisión puntual solicitada para12:22
+
+El usuario pide continuar hoy18oct2026 a las12:22 Europe/Madrid. Reutilizado heartbeat existente, renombrado yreactivado mediante automation_update conuna sola ejecución, mismochat ynotificación failed_runs_only; configuración guardada verificada. Última lectura real8%5h/71%7d, reset1792318896/12:21:36Madrid: el horario humano deja24segundos, por lo que al despertar se exige comprobar renovación/margen reales antes de editar. Reservas10%5h/1%7d, consulta directa tras cada commit/pushint/HEAD; sin créditos/reinicios ni otra cadena al terminar. No abrir código ahora. Reanudar19e3b desde últimoHEAD completo, conservar aceptación física y límites de producción.
