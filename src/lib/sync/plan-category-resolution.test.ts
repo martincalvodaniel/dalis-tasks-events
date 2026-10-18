@@ -3,6 +3,7 @@ import { applyItemCommand } from "@/lib/calendar/item-command"
 import { planRemoteItemViewOperation } from "@/lib/preferences/remote-item-view-plan"
 import {
   availablePlanCategoryResolutionChoices,
+  availableReviewedPlanCategoryResolutionChoices,
   capturePlanCategoryResolutionSnapshot,
   planPlanCategoryIncidentResolution,
   validatePlanCategoryResolutionRecord,
@@ -418,4 +419,32 @@ test("exhausted remote revisions remain adoption-only without creating an unsend
       },
     })
   ).toEqual(["adopt_remote"])
+})
+
+test("reviewed joint choices remain presentation-only and honor actor, category and revision guards", () => {
+  const { raw, request } = comparison()
+  expect(
+    availableReviewedPlanCategoryResolutionChoices(request.expected, raw.userId)
+  ).toEqual(["adopt_remote", "retry_local"])
+  expect(
+    availableReviewedPlanCategoryResolutionChoices(request.expected, "foreign")
+  ).toEqual([])
+  expect(
+    availableReviewedPlanCategoryResolutionChoices(
+      { ...request.expected, localTag: null },
+      raw.userId
+    )
+  ).toEqual(["adopt_remote"])
+  expect(
+    availableReviewedPlanCategoryResolutionChoices(
+      {
+        ...request.expected,
+        remoteView: { ...raw.remoteView, revision: Number.MAX_SAFE_INTEGER },
+      },
+      raw.userId
+    )
+  ).toEqual(["adopt_remote"])
+  expect(
+    availableReviewedPlanCategoryResolutionChoices({}, raw.userId)
+  ).toEqual([])
 })

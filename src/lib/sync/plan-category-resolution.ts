@@ -180,6 +180,18 @@ function canRetry(value: PlanCategoryResolutionSnapshot) {
   )
 }
 
+// Reviewed options are presentation only; writes must reconstruct the complete transaction capture.
+export function availableReviewedPlanCategoryResolutionChoices(
+  input: unknown,
+  actor: string
+): PlanCategoryResolutionRequest["choice"][] {
+  try {
+    const value = validateSnapshot(input, actor)
+    return canRetry(value) ? ["adopt_remote", "retry_local"] : ["adopt_remote"]
+  } catch {
+    return []
+  }
+}
 export function availablePlanCategoryResolutionChoices(
   input: unknown
 ): PlanCategoryResolutionRequest["choice"][] {

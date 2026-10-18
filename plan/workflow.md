@@ -622,3 +622,8 @@ Entrada94%5h/70%7d tras6165517, reservas10%/1%. Once checks nativos propios apro
 ### 19e4 — Prueba remota antes de UI conjunta
 
 Entrada88%5h/69%7d tras8a5e99d, reservas10%/1%. Secuencial, Docker28.4.0/imagenpinnedamd64 revalidados, sólo recursos propios. Fallo diagnóstico depágina100 resuelto sinampliar contrato deproducto;29Next6 completos yDoD916 aprobados. Cleanup/plan/log/mismo commitpushint/HEAD/cuotas; siguiente19e5 sólo si cabe corte completo. Ninguna nueva programación ni producción.
+
+
+### 19e5a — Dividir UI antes de cruzar reserva
+
+Lectura28%5h/60%7d tras ec623bf, reservas10%/1%. La prueba remota19e4 necesitó reparación deldiagnóstico ymúltiplesejecuciones; no abrir integraciónUI+Next completa si su costeobservado/reparación/cierre puede cruzar10%. Elegido diálogo/SSR privado yhelperdeopciones, DoD completo sincalleractivo. Siguiente19e5b queda explícito yexige interacciónreal antes deactivar. Mismo commitpushint/HEAD/cuotas; continuación puntual sinotra programación.

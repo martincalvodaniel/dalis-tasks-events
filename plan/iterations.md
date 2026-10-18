@@ -1,5 +1,22 @@
 # Iteraciones de implementación
 
+## 19e5b — Próxima candidata: conexión UI conjunta y recorrido interactivo
+
+- Estado: pendiente;19e5a sólo prepara diálogo, no calleractivo.
+- Objetivo: ofrecer revisión conjunta desde SyncIncidentActions sólo para planpropio simple/conflicto; capturar comparación mediante featurecuenta/epoch yofrecer elecciones únicamente trasvalidación completa. Confirmación conUUIDs estables enref, noelección porDTOajeno; cancelación noescribe, stale obligarevisar, invalidación sólo caché de cuenta/época.
+- target_paths previstos: nuevo src/features/sync/components/plan-category-incident-actions.tsx, sync-incident-actions.tsx, pruebasUI, test/next-settings-sync/features/{plan-category-resolution-ui,plan-category-recovery,local-client,device-client,controller} yschemas/next-sync-test.ts/plan/**.
+- Dependencias:19e3b1/b2/19e4/19e5a cerrados. Reutilizar diálogo preparado yfeature guardada, no ampliar alcance aapariciones/ausencia remota/cadenas externas. No nuevos comandos/protocolo/índice.
+- Aceptación/validación: ambas elecciones UIreal con cancelar/reabrir/confirmar yUUID generados porUI hastaACK remoto único/convergencia porcohorte enNext/Mongo/dosorígenes propios. La evidencia29Next6 cerrada cubre backend; recorridoUI específico puede ejecutar sólofrontera+casoconjunto paraevitar repeticiones deotros diálogos, sin atribuirle las29regresiones. Si se selecciona modo focalizado, validarlo expresamente ymantener suitecompleta disponible. SSR/guardias/DoD/cleanup/plan/log/commitpushint/HEAD/cuotas antes deactivar caller. Concretar corte ypresupuesto antes deeditar.
+
+## 19e5a — Preview conjunto y opciones revisadas (sin caller activo)
+
+- Estado: completado; seis tests SSR/76aserciones ytest puro/5aserciones;DoD923pass/223skip/0fail.
+- Objetivo: preparar diálogo fiel decontenido/asignación ycontrato de opciones sobre snapshot ya capturado, antes de la conexión UIinteractiva19e5b.
+- target_paths: src/lib/sync/plan-category-resolution{,.test}.ts, src/features/sync/components/{plan-category-incident-resolution-dialog.tsx,plan-category-incident-ui.test.tsx} yplan/**.
+- Dependencias:ec623bf publicado,29Next6 completos ywriter/backup aprobados.28%5h/60%7d, reservas10%/1%; no abrir toda integraciónUI+Next si reparación/cierre pueden cruzarlas. Skill React/guíasNext ya consultadas; secuencial.
+- Aceptación: adoptar muestra plan/vista remotos conocidos yretry borrador/asignación locales, nombre/color local sólo cuando identidad coincide; categoría desconocida se indica sininventar nombre. Estado/checklist/fecha/revisiones visibles,radio de elección yconfirmación española compacta, cancelación yguardias busy heredadas. Opciones compactas noautorizan escritura: writer reread completo obligatorio. Sin caller activo ni cambio aSyncIncidentActions.
+- Validación: SSR cuatrovariantes, ambas elecciones,preview/guardias/unknown ytextos; tests purechoice, DoD/plan/log/mismo commitpushint/HEAD/cuotas.19e5b deberá conectar lectura guardada/cuenta/epoch/IDsestables/cache yprobar cancelar/reabrir/confirmar enNext real antes deactivar.
+
 ## 19e4 — Recuperación conjunta con productores y Mongo/Next reales
 
 - Estado: completado;29Next6 con cuatrovariantes ydos pérdidas derespuesta aprobados, DoD916pass/223skip/0fail.
