@@ -8,6 +8,10 @@ La zona horaria personal ya es editable offline, sincroniza por cuenta y está v
 
 [Guía de uso](user-guide.md) preparada y [checklist física de diez pasos](manual-device-checklist.md) **aprobada por el usuario el17oct2026**: recorrido secuencial de dos dispositivos, reapertura offline y reconexión cerrados. Siguen pendientes las cadenas de recuperación de contenido+categoría, las apariciones y las preferencias distintas de la zona personal, la revisión completa de accesibilidad y la publicación productiva autorizada. La checklist no valida conflictos concurrentes ni autoriza producción. Cumpleaños aparcado; compartir fuera de alcance.
 
+### Continuación18oct02:20
+
+Renovación real100%5h/100%7d, reset5h1792300836; reservas10%/1%, continuación puntual y secuencial. 19c1 prepara contrato/planner de adopción de la excepción remota de un slot, con padre vivo, snapshots/evidencia exactos y bloqueos de otras apariciones/dependencias/intentos inciertos. Aún sin executor/backup/UI nuevos. Nueve pruebas nuevas; suite864pass/223skip/0fail, lint865/tipos/Webpack/worker46. La checklist física permanece aprobada; no reabrirla ni activar producción.
+
 ### Continuación de las21:19
 
 Ocho cortes cerrados con recuperación visible de planes simples sin cadenas externas y zona personal, más guardia de dependientes externos de apariciones. La sincronización previa sigue activa en generación6. Última suite855pass/223skip/0fail/10967aserciones, lint861/tipos/Webpack/worker46. Durante ese lote no se ejecutó otro piloto Google ni la checklist física; posteriormente el usuario aprobó los diez pasos en15a3. Se cierra este lote puntual con reserva; no se programa otra cadena.

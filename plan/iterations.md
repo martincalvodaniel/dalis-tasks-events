@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19c1 — Contrato puro de adopción de una aparición
+
+Estado: completado; preparación pura, sin elecciones activadas.
+
+- Objetivo: preparar adopción explícita de la excepción remota conocida de un único slot, sin modificar padre/otros slots ni fabricar ACK.
+- target_paths: src/{schemas,types,lib/sync}/plan-occurrence-resolution.ts, src/lib/sync/plan-occurrence-resolution.test.ts y plan/**.
+- Dependencias: a76721b/originint exactos y limpios;19c0 detecta dependientes externos. Renovación real100%5h/100%7d, reset nuevo1792300836, reservas10%/1%. Secuencial, sin activar UI/executor.
+- Aceptación: snapshot exacto y propio de padre/slot/evidencia/cadena; sólo conflicto conocido con remoto comprometido y padre recurrente vivo. Conservar identidad y toda evidencia; superseder exclusivamente la cadena revisada del slot. Bloquear otros slots, mutaciones de padre, dependencias externas e intentos inciertos. Adoptar cancelación/tombstone conserva ese estado; remoto ausente requiere política futura y no ofrece elección. Retry/copia no se anuncian ni reinterpretan como adopción.
+- Validación: pruebas puras de actor/revisión/slot/cadena/concurrencia/replay tardío/evidencia corrupta; suite/lint/tipos/Webpack/worker/diff y plan/log mismo commitpushint/HEAD/cuotas. Ninguna operación remota nueva, formato escrito o índice/DBusuario.
+
 ## 19z2 — Continuación puntual a las02:20
 
 - Objetivo: programar la continuación solicitada para el18oct2026 a las02:20 Europe/Madrid, verificando cuotas antes de empezar.
