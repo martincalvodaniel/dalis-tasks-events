@@ -20,6 +20,7 @@ import { settingsResolutionRequestSchema } from "@/schemas/settings-resolution"
 import { syncCommandSchema } from "@/schemas/sync"
 import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
 import { syncResolutionRequestSchema } from "@/schemas/sync-resolution"
+import { tagResolutionRequestSchema } from "@/schemas/tag-resolution"
 
 const loopbackOriginSchema = z.string().refine((value) => {
   try {
@@ -142,6 +143,14 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("lost-settings-response-run") }),
   z.strictObject({ type: z.literal("epoch-after-settings-commit-run") }),
   z.strictObject({ type: z.literal("settings-incidents") }),
+  z.strictObject({
+    type: z.literal("resolve-tag"),
+    request: tagResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("tag-resolution-guard-proof"),
+    request: tagResolutionRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("resolve-appearance"),
     request: planOccurrenceResolutionRequestSchema,

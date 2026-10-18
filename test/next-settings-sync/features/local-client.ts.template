@@ -3,6 +3,7 @@ import { proveLocalAppearanceRetry } from "@fixture/appearance-retry-local-proof
 import { resolvePlanOccurrenceIncident } from "@/features/sync/local-plan-occurrence-resolution"
 import { proveLocalAppearanceResolution } from "@fixture/appearance-resolution-local-proof"
 import { proveSettingsResolutionUi } from "@fixture/settings-resolution-ui"
+import { resolveTagIncident } from "@/features/sync/local-tag-resolution"
 import { resolveSettingsIncident } from "@/features/sync/local-settings-resolution"
 import { proveLocalSettingsResolution } from "@fixture/settings-resolution-local-proof"
 import { proveCommonPlanResolutionUi } from "@fixture/common-plan-resolution-ui"
@@ -565,6 +566,23 @@ export async function executeLocalFixtureCommand(
       return proveCommonPlanResolutionUi(active, command.request)
     case "resolve-settings-ui":
       return proveSettingsResolutionUi(active, command.request)
+    case "resolve-tag":
+      return resolveTagIncident(active, command.request)
+    case "tag-resolution-guard-proof": {
+      const before = JSON.stringify((await readFixtureBackup(active)).stores)
+      let checks = 0
+      for (const work of [
+        () => resolveTagIncident({ ...active, epoch: crypto.randomUUID() }, command.request),
+        () => resolveTagIncident(active, { ...command.request, userId: "owned-foreign-category" }),
+        () => resolveTagIncident(active, { ...command.request, expected: { ...command.request.expected, tagNames: { ...command.request.expected.tagNames, [crypto.randomUUID()]: "Changed after review" } } }),
+      ]) {
+        let failed = false
+        try { await work() } catch { failed = true }
+        if (!failed || before !== JSON.stringify((await readFixtureBackup(active)).stores)) throw new Error("Category feature guard changed durable state")
+        checks++
+      }
+      return { checks }
+    }
     case "resolve-settings":
       return resolveSettingsIncident(active, command.request)
     case "settings-resolution-local-proof":

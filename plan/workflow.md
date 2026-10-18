@@ -574,3 +574,7 @@ Entrada93%5h/84%7d tras699ec2a, reserva10%/1%. Secuencial, planner puro yguardia
 ### 19d2 — Transacción personal propia
 
 Entrada87%5h/84%7d trasfed43db, reservas10%/1%; secuencial, persistencia/evidencia probadas sinUI anticipada. DoD/limpieza/plan/log mismo commitpushint/HEAD/cuotas antes deabrir integración remota19d3.
+
+### 19d3 — Frontera remota de categorías
+
+Entrada82%5h/83%7d trasd92a8f5, reservas10%/1%. Docker28.4.0 eimagenMongo pinnedamd64 revalidados, recursos propios limpiados.28Next6 aprobados, sinconfundir fixtures conGoogle ni pedir repeticiónfísica. DoD/plan/log/mismo commitpushint/HEAD/cuotas; continuarUI sólo si cabe corte completo.

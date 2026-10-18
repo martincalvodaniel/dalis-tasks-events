@@ -2,6 +2,8 @@
 
 ## Estado operativo — 18 de octubre de 2026
 
+19d3 aprobado:28Next6 compilado con dosorígenes/IndexedDB/sesionesBetterAuth/Mongo propios prueban adopción/retry de categoría, respuestaperdida/recarga yACK único. Siguiente19d4: ofrecer elecciones desdeAjustes conpreview/confirmación yUI real, sin ampliar soporte aborrado/orden/cadenas externas.
+
 19d2 cierra transacción/backup/feature guardada de categorías con cinco checksIndexedDB propios;882tests yDoD aprobados. UI todavía oculta: siguiente19d3 prueba remota Next/Mongo real.
 
 19d1 prepara recuperación de nombre/color de categorías propias con remoto vivo conocido: adoptar oreenviar conCASnuevo conservando orden remoto. Dependencias externas bloqueadas; sin executor/backup/UI nuevos aún.881tests aprobados, siguiente19d2 persistencia/evidencia yprueba nativa antes de integración remota/UI.

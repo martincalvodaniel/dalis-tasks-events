@@ -1,4 +1,5 @@
 "use client"
+import { proveRemoteTagRecovery } from "@fixture/tag-recovery"
 import { proveRemoteAppearanceRetry } from "@fixture/appearance-retry"
 import { proveRemoteAppearanceRecovery } from "@fixture/appearance-recovery"
 import { proveRemoteSettingsRecovery } from "@fixture/settings-recovery"
@@ -1423,6 +1424,22 @@ export function FixtureController() {
           )
         }
       )
+      await check("Categorías recuperadas con CAS, respuesta perdida, recarga y ACK real único", async () => {
+        const proof = await proveRemoteTagRecovery({ call, snapshot, state: () => state(owner), owner,
+          reloadSecondary: async () => {
+            const reloaded = new Promise<void>((resolve, reject) => {
+              const listener = (event: MessageEvent) => {
+                if (event.source !== secondary || event.origin !== fixture.origins[1] || event.data?.runId !== fixture.runId || event.data?.ready !== true) return
+                clearTimeout(timer); window.removeEventListener("message", listener); resolve()
+              }
+              const timer = setTimeout(() => { window.removeEventListener("message", listener); reject(new Error("Owned category reload timed out")) }, 45000)
+              window.addEventListener("message", listener)
+            })
+            await call(1, { type: "reload-local" }); await reloaded
+          },
+        })
+        assert(proof.adopted && proof.retried && proof.replayed, "Category recovery proof is incomplete")
+      })
       await check(
         "Executor común privado conserva backup y revierte decisiones fallidas sin ACK",
         async () => {
@@ -1495,7 +1512,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Veintisiete escenarios Next6 correctos; sesiones propias cerradas"
+            "Veintiocho escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

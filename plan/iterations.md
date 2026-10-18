@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19d3 — Recuperación de categoría con Next y Mongo reales
+
+- Estado: completado;28Next6 aprobados concleanup propio; UI todavía oculta hasta19d4.
+- Objetivo: generar conflictos reales de nombre/color con productores tag.save, resolver adopción/retry mediante feature y confirmar replay/ACK/convergencia exacta de esa categoría en dosparticiones.
+- target_paths: src/schemas/next-sync-test.ts, test/next-settings-sync/features/{tag-recovery.ts,local-client.ts,device-client.ts,controller.tsx}.template yplan/**.
+- Dependencias:d92a8f5 publicado,82%5h/83%7d yreserva10%/1%; contrato/executor/backup19d1–2 aprobados. Docker/imagenpinned propios a revalidar; Nextinstalado consultado.
+- Aceptación: guardias deactor/epoch/stale sinmutación; adopción noescribeMongo/ACK, retry conserva posición remota/nombrecolorlocal yhistoria; respuestaperdida trascommitreal mantiene mismoUUIDpendingattempt1, recarga antesACK yreplay genera unúnico receipt/journal/ACK. Proyección/shadow/cursor iguales aMongo endosorígenes para esa categoría; no convergencia global dehistorias bloqueadas aparte.
+- Validación:28Next6 compilado/defaults/BetterAuth persistido/Mongo/IndexedDB propios, mismos27previos, cleanupown, suite/lint/tipos/Webpack/worker/plan/log/mismo commitpushint/HEAD/cuotas. NoGoogle ni pruebasfísicas nuevas/DBusuario.
+
 ## 19d2 — Decisión de categoría durable y portable
 
 - Estado: completado; cinco checks IndexedDB propios, UI oculta hasta prueba remota real.
@@ -38,7 +47,7 @@
 
 ## 19c7 — Próxima candidata: capacidad posterior a la resolución
 
-- Estado: pendiente; no abrir con13%5h/86%7d yreserva10%/1% trasbfa0fc5.
+- Estado: candidata histórica de cierre bfa0fc5; completada en699ec2a durante continuación07:21.
 - Objetivo: antes de escribir una cadena nueva ysu recibo, validar que el total posterior deoutbox/metadata siga dentro dellímite de captura completa existente. No borrar historia para hacer sitio ni reescribir pendientes. La lectura ya rechaza exceso de10.000registros; falta garantizar límite después deañadir reemplazos/recibo.
 - target_paths previstos: schemas/planner/ejecutor local deapariciones, pruebas de frontera yplan; cerrar rutas/aceptación/alcance antes de editar. Sin IOremoto/índices/DBusuario. Después retomar contenido+categoría, otraspreferencias ycasos recurrentes protegidos; accesibilidad siguependiente.
 
