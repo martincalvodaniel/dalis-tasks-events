@@ -1,5 +1,19 @@
 # Iteraciones de implementación
 
+## 19h2a — Borrado aislado con evidencia portable
+
+Backup3 admite decisión deaceptar catálogo oreintentartag.delete conramaexpected.incident propia. Valida originalsuperseded exacto, outcomefrozen intacto, prerrequisitosACK conoutcomes realmente aplicados, reemplazo0/1 exacto ysecuencia posterior/depsvacías, más IDsglobales centrales. No obliga a retroceder proyección actual: lateredits ypendingintentado se conservan sinfabricarACK.
+
+Siete tests nuevos/25aserciones de roundtrip/adopción/retry/truncado/alteración/prerrequisitos/IDs/catálogos;1015pass/223skip/0fail/11998aserciones, lint949sinavisos/tipos/Webpack/worker46/diff aprobados. Se corrigió unaaserción que asumía queprimariaera primerUUIDordenado, ahora localiza porID exacto. Sinwriter/UI/Mongo/browser/DBusuario/wire/índice nuevos. Entrada29%5h/34%7d, reservas10%/1%, secuencial. Siguiente19h2b TXguardada/IndexedDB; Next/UI sólo después deaceptación ymargen real.
+
+## 19h2a — Delimitación previa (completada arriba)
+
+- Objetivo: conservar decisión/catálogos/root/outcome/prerrequisitos/reemplazo enbackup3 antes dewriter.
+- target_paths: schemas/local-recurring-backup.ts, lib/backup/{tag-delete-resolution-evidence,tag-delete-resolution-backup.test,local-backup}.ts yplan/**.
+- Dependencias:19h1b/7d9bbc4 publicado;29%5h/34%7d, reservas10%/1%, secuencial.
+- Aceptación: ramaexpected.incident explícita; original superseded íntegro, outcome congelado exacto yACKs previos acreditados conoutcomes aplicados.0/1reemplazos exactos conentidad/UUID/CAS/comando/fecha/secuencia posterior/deps vacías; IDs globales centrales. Adopción/restauración/tombstone yretry no implicanACKlocal, lateredits/pendingintentados conservados. SinUI/writer/índice/wire nuevo.
+- Validación: roundtrip deambas decisiones, truncado/corrupción/identidades/prerrequisitos yediciones posteriores; DoD completo,mismo ConventionalCommitpushint/HEAD/cuotas.
+
 ## 19h1b — Decisión de borrado preparada sin caller
 
 Contrato puro admite aceptar catálogo observado oreintentar exactamente tag.delete conUUID nuevo/CAS primario observado. Adopción acepta tombstone remoto orestaura explícitamente sólolacategoría revisada; retry requiereprimariaviva yrevisión noagotada, sininferirACK. Catálogooptimista conserva campos/revisionesobservadas depeers; sólo cambia tombstone/timestamp deprimaria, mientras elexecutorremoto calcularásurevisión confirmada. No modificaasignaciones: suvisibilidadderivada cambiará segúnsucategoría ydeberá explicarseenUI. Recibo5MiB replanificableexacto, snapshot/actor/IDs nuevos/historia protegidos. Ausenciadesconocida siguefuera.
