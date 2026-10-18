@@ -10,6 +10,7 @@ import {
   remoteRecurringShadowSchema,
 } from "@/schemas/local-plan-occurrence-sync"
 import { remoteShadowSchema } from "@/schemas/local-sync"
+import { planCategoryResolutionRecordSchema } from "@/schemas/plan-category-resolution"
 import { planOccurrenceResolutionRecordSchema } from "@/schemas/plan-occurrence-resolution"
 import { settingsResolutionRecordSchema } from "@/schemas/settings-resolution"
 import { tagResolutionRecordSchema } from "@/schemas/tag-resolution"
@@ -28,6 +29,7 @@ export const localRecurringBackupV3Schema = localBackupV2Schema.extend({
           localPlanOccurrenceOutcomeSchema,
           settingsResolutionRecordSchema,
           tagResolutionRecordSchema,
+          planCategoryResolutionRecordSchema,
           planOccurrenceResolutionRecordSchema,
         ])
       )

@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19e3b1 — Evidencia portable de decisión conjunta
+
+- Estado: completado; ocho tests/47aserciones, DoD910pass/223skip/0fail.
+- Objetivo: cerrar validación de backup3 del registro conjunto preparado, sin activar writer ni UI.
+- target_paths: src/{schemas/local-recurring-backup.ts,lib/backup/{local-backup.ts,plan-category-resolution-evidence.ts,plan-category-resolution-backup.test.ts}}, src/lib/backup/plan-category-resolution-fixture.ts y plan/**.
+- Dependencias:19e1/19e2/19e3a y e14cc2f publicados, int/origin exactos ymain humano limpio. Renovación real100%5h/71%7d; reset1792336934, reservas10%/1%. Continuación puntual12:22 autorizada, sin nueva cadena.
+- Aceptación: rama explícita para expected.incident+viewIntentions, replantear recibo, originales exactos enambosdominios yACKs directos contra outcomes reales, dosreemplazos consecutivos conCASindependientes yúnicadependencia vista→contenido. SinACK por supersesión, ni borrar evidencia, ni validar proyección final contra un estado anterior.
+- Validación: roundtrip/adopción/retry/pendingintentado/respuestaperdida, corrupción/truncado/ACKfabricado/IDs/orden/dependencias/originales; suite/lint/tipos/Webpack/worker/plan/log/commitpushint/HEAD/cuotas. Después19e3b2 TXlocal/guardias/pruebaIndexedDB antes de19e4 remoto y19e5 UI.
+
 ## 19z6 — Continuación puntual del18oct a las12:22
 
 - Objetivo: programar la continuación solicitada por el usuario para hoy18oct2026,12:22 Europe/Madrid, desde el último commit completo deint.
@@ -9,9 +18,9 @@
 - Validación: configuración guardada verificada, referencias/coherencia/diff; mismo ConventionalCommit ypushorigin/int/HEADremoto/cuotas. Siguiente19e3b durable/portable, luego19e4 remoto y19e5 UI según dependencias. No repetir checklist física aceptada ni tocar producción.
 - Estado: completado; horario/chat/política verificados tras actualizar la automatización.
 
-## 19e3b — Próxima candidata: decisión conjunta durable y portable
+## 19e3b — Decisión conjunta durable y portable (dividida)
 
-- Estado: pendiente; no abrir con16%5h/72%7d y reserva10%/1% tras0665080.
+- Estado: portable19e3b1 cerrado; siguiente19e3b2 TXlocal/guardias/prueba nativa. La reserva anterior16% queda histórica, renovación12:22 comprobada.
 - Objetivo: usar queueLocalPlanCategoryResolutionCapture dentro de unaTX readwrite de9stores y persistir item/view, supersesión explícita de toda la cohorte, cero o dosreemplazos, counter yrecibo. El segundo reemplazo debe depender exclusivamente delUUIDnuevo decontenido; CASdeitem yvista independientes.
 - target_paths previstos: nuevo src/lib/local-db/plan-category-resolution.ts, LocalSyncStore/feature guardada, schemas/local-recurring-backup.ts, lib/backup/local-backup.ts, pruebas propias yplan. Concretar el corte antes de editar.
 - Dependencias:19e1/19e2/19e3a preparados,0665080 publicado; noactivar UI todavía. No nuevos comandos/protocolos/índices remotos.

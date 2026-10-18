@@ -1,5 +1,6 @@
 import { assertBackupOwnership } from "@/lib/backup/backup-ownership"
 import { validateBackupImportEvidence } from "@/lib/backup/import-record"
+import { validatePlanCategoryResolutionEvidence } from "@/lib/backup/plan-category-resolution-evidence"
 import { decodeLocalOperationOutcome } from "@/lib/sync/local-operation-outcome-v2"
 import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
 import { decodeLocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
@@ -204,6 +205,8 @@ function validateBackup(
   )
   const superseded = new Set<string>()
   for (const record of s.syncMetadata) {
+    if (record.key.startsWith("plan-category-resolution:"))
+      validatePlanCategoryResolutionEvidence(record, actor, entries, outcomes)
     if (record.key.startsWith("appearance-resolution:")) {
       const decision = validatePlanOccurrenceResolutionRecord(record, actor)
       if (decision.replacement) {
@@ -281,9 +284,16 @@ function validateBackup(
         throw new Error("Backup outcome does not match its preserved operation")
     }
     if ("resolutionId" in record) {
+      const intentions =
+        "viewIntentions" in record.expected
+          ? [
+              ...record.expected.incident.intentions,
+              ...record.expected.viewIntentions,
+            ]
+          : record.expected.intentions
       for (const id of record.supersededOperationIds) {
         const entry = entries.get(id)
-        const reviewed = record.expected.intentions.find(
+        const reviewed = intentions.find(
           (intention) => intention.operation.operationId === id
         )
         if (

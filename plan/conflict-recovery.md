@@ -202,3 +202,10 @@ Helper encola evidencia/cola completas y vistas/categoría/shadow exactos dentro
 Ocho checksIndexedDB propios: captura exacta sinmutación, otroplan independiente no invalida, actor/IDausente, vista/remoto/outcome ausentes, asignaciónintentada/dependienteexterno, categoría ausente, nueva revisiónremota yreapertura conUUID/deps/evidencia intactos. Se aplicó segunda pasada deformat estable a lafixture tras aviso deBiome; repetidoslint/tipos/suite/build ymatrizfinal. Captura /private/tmp/dalis-plan-category-capture.png; partición/tab/servidor propios limpios.
 
 DoD902pass/223skip/0fail/11308aserciones, lint893sinavisos/tipos/Webpack/worker46/diff. SinMongo/RPC/Google/DBusuario nuevos.19e3b queda pendiente: TXlocal deitem/view/cola/counter/recibo, metadataportable/guardias UUIDglobales/capacidad, replay/rollback. Después conflictos reales ydosparticionesMongo/Next antesde ofrecer decisión conjunta.
+
+
+## 19e3b1 — Evidencia conjunta portable
+
+Backup3 incorpora rama explícita para incident+viewIntentions; replantea recibo yverifica campos completos de originales superseded, outcome local/base del conflicto, ACKs directos contra entrada/outcome aplicados reales ydosreemplazos consecutivos conCASindependientes ydependencia exclusiva vista→contenido. No compara proyección actual condecisión histórica: ediciones posteriores ypendingintentado trasrespuesta perdida permanecen válidos. Detecta dependiente externo no revisado eidentidad de resolución colisionada conoperación. No writer/elecciones conjuntos activos todavía.
+
+Ocho tests/47aserciones: adopción/retry roundtrip, lectorantiguo rechaza, truncado/corrupción deoriginales/outcomes/reemplazos/recibo, intentos/deps/orden/fechas/CAS, ACKDTO sinrecibo no confirma. Fixture deACK se corrigió alcontrato real sequence (no replayed); aviso deoptionalchain eimportshadow corregidos. DoD910pass/223skip/0fail/11355aserciones, lint896sinavisos/tipos/Webpack/worker46/diff aprobados. SinMongo/RPC/DBusuario nuevos niíndices; siguiente19e3b2 guardado atómico yprueba nativa antes de19e4/19e5.

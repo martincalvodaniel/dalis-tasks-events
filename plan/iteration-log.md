@@ -2623,3 +2623,10 @@ Lectura16%5h/72%7d, reserva10%/1%; no abrir writerconjunto cuyo coste completo p
 Petición humana atendida reutilizando continuar-el-plan-a-las-21-19 mediante herramienta de la app: nombre actualizado a Continuar el plan a las12:22, ACTIVE, horario12:22 yCOUNT1, mismochat/política failed_runs_only verificados enconfiguración guardada. No se ha editado TOML ni creado duplicado. Prompt actualizado conúltimo código0665080/cierre b2c2d99, evidencia28Next6/902tests y próximo19e3b durable/portable antes de19e4 remoto/19e5 UI.
 
 Lectura real8%5h/71%7d yreset1792318896 (12:21:36Madrid). Se respeta12:22 solicitada yse exige verificar renovación real;24segundos de margen no prueban cuota renovada. Reservas10%/1%, sin código ahora, créditos/reinicios ni nueva cadena. Cierre documental con referencias/coherencia/diff, ConventionalCommit/pushorigin/int/HEADremoto/cuotas. Sin DBusuario, producción ni repetición de checklist física aceptada.
+
+
+## 19e3b1 — Evidencia conjunta portable
+
+Backup3 incorpora rama explícita para incident+viewIntentions; replantea recibo yverifica campos completos de originales superseded, outcome local/base del conflicto, ACKs directos contra entrada/outcome aplicados reales ydosreemplazos consecutivos conCASindependientes ydependencia exclusiva vista→contenido. No compara proyección actual condecisión histórica: ediciones posteriores ypendingintentado trasrespuesta perdida permanecen válidos. Detecta dependiente externo no revisado eidentidad de resolución colisionada conoperación. No writer/elecciones conjuntos activos todavía.
+
+Ocho tests/47aserciones: adopción/retry roundtrip, lectorantiguo rechaza, truncado/corrupción deoriginales/outcomes/reemplazos/recibo, intentos/deps/orden/fechas/CAS, ACKDTO sinrecibo no confirma. Fixture deACK se corrigió alcontrato real sequence (no replayed); aviso deoptionalchain eimportshadow corregidos. DoD910pass/223skip/0fail/11355aserciones, lint896sinavisos/tipos/Webpack/worker46/diff aprobados. SinMongo/RPC/DBusuario nuevos niíndices; siguiente19e3b2 guardado atómico yprueba nativa antes de19e4/19e5.
