@@ -1,5 +1,22 @@
 # Iteraciones de implementación
 
+## 19e3b — Próxima candidata: decisión conjunta durable y portable
+
+- Estado: pendiente; no abrir con16%5h/72%7d y reserva10%/1% tras0665080.
+- Objetivo: usar queueLocalPlanCategoryResolutionCapture dentro de unaTX readwrite de9stores y persistir item/view, supersesión explícita de toda la cohorte, cero o dosreemplazos, counter yrecibo. El segundo reemplazo debe depender exclusivamente delUUIDnuevo decontenido; CASdeitem yvista independientes.
+- target_paths previstos: nuevo src/lib/local-db/plan-category-resolution.ts, LocalSyncStore/feature guardada, schemas/local-recurring-backup.ts, lib/backup/local-backup.ts, pruebas propias yplan. Concretar el corte antes de editar.
+- Dependencias:19e1/19e2/19e3a preparados,0665080 publicado; noactivar UI todavía. No nuevos comandos/protocolos/índices remotos.
+- Aceptación: replay previo no reescribe cambios posteriores; reread de clausura/categoría/vista/remotos en mismaTX, cuenta/epoch antes/después, IDsglobales también contra metadata, capacidad de0/2ops+1recibo/counter seguro. Mantener UUID/payload/deps/intentadas/outcomes/tombstones originales; superseded noACK.
+- Portable: registro19e2 todavía NO pertenece alunionbackup3. Añadir rama específica: expected contiene incident+viewIntentions, no reutilizar a ciegas expected.intentions del flujo común. Verificar originales deambosdominios, ACKs previos contra historia/outcomes reales yambosreemplazos exactos (usuario/entidad/fecha/secuencia/payload/dep). No inferir recibo deunACK capturado ni permitirdescartar dependientes.
+- Validación: stale/foreign/epoch/late-rollback (también view/counter/recibo), IDreuse/overflow/capacidad, replaytrasnuevaedición, backupválido/truncado/corrupto ypendingintentado sinACK. Después19e4 conflicto real deproductores/Next/Mongo/dosparticiones/respuestaperdida/recarga/CASindependientes/convergencia porcohorte; sólo entonces19e5 UI completa. Dividir antes de abrir si no cabe entrega cerrada.
+
+## 19z5 — Cierre puntual del lote07:21
+
+- Objetivo/target_paths: cierre seguro yhandoff en plan/{master,iterations,workflow,iteration-log}.md; pausar heartbeat gestionado existente.
+- Dependencias: nueve cortes de código completos, último0665080 publicado/HEADremoto exacto,16%5h/72%7d yreserva10%/1%.
+- Aceptación/validación: repo coherente ysin cambios ajenos, recursos propios limpios, mainhumano intacto, lectura real de cuotas, referencias/coherencia/diff; mismo ConventionalCommit/pushint/HEAD/cuotas. No código parcial, nueva cadena ni producción.
+- Estado: completado; continuar-el-plan-a-las-21-19 pausado mediante automation_update, mismochat/política/COUNT1 conservados.
+
 ## 19e3a — Captura conjunta en una transacción local
 
 - Estado: completado; ocho checks IndexedDB propios, lector privado sin nuevas elecciones ni escrituras.

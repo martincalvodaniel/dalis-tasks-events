@@ -2608,3 +2608,11 @@ Helper encola evidencia/cola completas y vistas/categoría/shadow exactos dentro
 Ocho checksIndexedDB propios: captura exacta sinmutación, otroplan independiente no invalida, actor/IDausente, vista/remoto/outcome ausentes, asignaciónintentada/dependienteexterno, categoría ausente, nueva revisiónremota yreapertura conUUID/deps/evidencia intactos. Se aplicó segunda pasada deformat estable a lafixture tras aviso deBiome; repetidoslint/tipos/suite/build ymatrizfinal. Captura /private/tmp/dalis-plan-category-capture.png; partición/tab/servidor propios limpios.
 
 DoD902pass/223skip/0fail/11308aserciones, lint893sinavisos/tipos/Webpack/worker46/diff. SinMongo/RPC/Google/DBusuario nuevos.19e3b queda pendiente: TXlocal deitem/view/cola/counter/recibo, metadataportable/guardias UUIDglobales/capacidad, replay/rollback. Después conflictos reales ydosparticionesMongo/Next antesde ofrecer decisión conjunta.
+
+## 19z5 — Nueve entregas y cierre puntual07:21
+
+18oct2026:19c7,19d1–4,19e1–2,19c8 y19e3a publicados con commit/pushint/HEAD/cuotas porentrega; último0665080. Nueva recuperación visible de nombre/color de categorías, límite posterior de cola/evidencia/copias ypreparación conjunta de contenido/asignación hasta captura readonly consistente.
+
+28Next6 reales propios (config/defaults/BetterAuth persistido/Mongo/dosorígenes IndexedDB) pasanconambos diálogos de categoría/cancelar/reabrir/confirmar, respuestaperdida/recarga/ACK único yconvergencia porcategoría; no convergencia global dehistorias bloqueadas niGoogle/physical nuevos. Pruebas nativas adicionales:5aparicionescapacidad,5decisionescategoría,8capacidadcomunes/settings/copia y8capturasconjuntas. Suite902pass/223skip/0fail/11308aserciones, lint893sinavisos/tipos/Webpack/worker46. Recursospropios limpios ymainhumano conservado.
+
+Lectura16%5h/72%7d, reserva10%/1%; no abrir writerconjunto cuyo coste completo pueda cruzarla. Heartbeat existente pausado medianteautomation_update, mismos campos/chat/política conservados, sinotra programación. Siguiente19e3b deja rutas/contrato/portabilidad/validaciones explícitos;19e4 remoto y19e5 UI sólo después. Cierre exclusivamente documental, referencias/coherencia/diff ycommitpushint/HEAD/cuotas.

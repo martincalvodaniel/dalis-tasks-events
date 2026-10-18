@@ -2,6 +2,14 @@
 
 ## Estado operativo — 18 de octubre de 2026
 
+### Cierre del lote puntual de las07:21
+
+**Nueve cortes de código publicados, último0665080.** Ajustes permite recuperar conflictos aislados de nombre/color de categorías mediante adopción remota o reenvío local con orden remoto conservado. Historial, intenciones youtcomes permanecen intactos; confirmación real y28escenariosNext6 conMongo/dosorígenes propios aprobados. Límites de recuperación protegen cola/metadata/copias antes de escribir, conpruebas nativas de frontera yreplay.
+
+Recuperación conjunta decontenido+categoría: guardia decohorte, contrato puro ysnapshot transaccional preparados, **sin writer/backup/UI conjuntos activos todavía**. Próximo19e3b define la entrega durable completa; después prueba remota19e4 yUI19e5. Siguen otros conflictos personales/recurrentes, accesibilidad ypublicación autorizada. Cumpleaños aparcado/compartirfuera, checklistfísica aprobada sinrepetición.
+
+DoD final902pass/223opt-in skip/0fail/11308aserciones, lint893sinavisos/tipos/Webpack/worker46. NoGoogle físico nuevo niDBusuario/producción. Recursos propios retirados ymainhumano preservado. Lectura16%5h/72%7d frente areserva10%/1%; no cabe writer+portable+reparación/cierre completos. Heartbeat puntual pausado, sin otra cadena programada. Las notas siguientes conservan la preparación del lote yno sustituyen este cierre.
+
 19e3a prepara captura consistente de recuperación conjunta dentro de una transacción local: ocho checks IndexedDB propios prueban lectura sin mutación, actividad independiente, cuenta/ausencias/corrupción, intenciones inciertas, revisión remota y reapertura. No habilita la escritura conjunta. Siguiente19e3b: writer atómico y evidencia portable con rollback/replay antes de Next y UI.
 
 19c8 aplica la protección de capacidad también a recuperaciones comunes y de zona: rechaza crecimiento de cola/evidencia fuera del límite y copias que superen10.000 elementos antes de escribir. Ocho checks IndexedDB propios, replay sin duplicados y DoD completos aprobados. La decisión conjunta19e2 sigue preparatoria.
