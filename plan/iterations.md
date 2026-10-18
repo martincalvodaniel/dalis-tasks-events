@@ -1,5 +1,21 @@
 # Iteraciones de implementación
 
+## 19g2b — Recuperación de orden atómica y portable preparada
+
+Captura9stores reconstruye catálogo local, todas las sombras propias, cola yclausura ACK enmismaTX; outcomes realmente aplicados acreditan prerrequisitos antes deofrecer comparación o escribir. Writer guarda catálogo observado/adoptado o preview multiefecto, originales supersedidos íntegros,0/1reemplazo pending, contador yrecibo atómicos. Replay previo valida decisión sinreescribir trabajo posterior ni notificar. Guardias deactor/partición/snapshot/identidades globales/capacidad/counter anteswrites, featurecuenta/epoch antes/después ynotificación sólo trascommit.
+
+Retry actualiza preference-tail paraque unmovimiento posterior deotraprimaria dependa delreemplazo. Si faltaba, se contabiliza suclave adicional antesdeescribir; un tail corrupto no se repara. No se cambia contenido/vistas/placements/settings/sombras/outcomes ni se inventa ACK. Adopción conserva altas/tombstones observados yno avanza contador.
+
+Doce checks nativos IndexedDB propios aprobados: readonly/reapertura, actor/stale/catálogos, rollbacktardío, intenciones protegidas, referencias parciales/ajenas/límite10001, IDs/overflow, capacidad conysintail, ACKDTO frentearesultado aplicado, retry/nuevodependiente/replay, reranking depeers conrevisiones independientes yadopción/tombstone. Backup3 valida cadaresultado; captura /private/tmp/dalis-tag-order-native.png. Partición/pestaña/servidor propios retirados.987pass/223skip/0fail/11852aserciones, lint932sinavisos/tipos/Webpack/worker46/diff aprobados. Se corrigió la firma options delproductor enlafixture antesdelaprimeraejecución. Entrada72%5h/40%7d, reservas10%/1%, secuencial. SinNext/Mongo/UI nuevos; siguiente19g3 prueba remota antesdeofrecer elecciones.
+
+## 19g2b — Delimitación previa (completada arriba)
+
+- Objetivo: reconstruir la comparación y guardar catálogo/cola/contador/recibo de orden en una únicaTX, antes de callerUI.
+- target_paths: lib/local-db/{tag-order-resolution,tag-order-resolution-capture,sync-store}.ts, features/sync/local-tag-order-resolution.ts, scripts/browser-test-server.ts, test/browser/tag-order-resolution.ts yplan/**.
+- Dependencias:19g2a/2ba5139 publicado;72%5h/40%7d, reservas10%/1%, secuencial; AGENTlocal leído.
+- Aceptación: TX9stores con catálogos ycola completos bounded10001/ACKs acreditados poroutcomes reales; no unir resultados deTX distintas ni sombras/outcomes para inventar catálogo. Replay previo sinreescribir/notificar; snapshot exacto/IDs globales/capacidad/counter anteswrites.0/1intención nueva pending, originales superseded exactos, proyección deotrasfamilias ysombras/outcomes intactos. Retryactualiza preference-tail para que unmovimiento posterior deotracategoría dependa delreemplazo; contabilizar clave adicional si faltaba, nunca reparar tail corrupto. Featurecuenta/epoch antes/después, notificación trascommit.
+- Validación: IndexedDB nativo propio para readonly/reapertura/stale/actor/catálogos/pertenencia/ACKfalso/rollbacktardío/multiefectos/IDs/counter/capacidad/tail/replay/adopción/backup. DoD completo y mismo ConventionalCommitpushint/HEAD/cuotas. SinNext/Mongo/UI nuevos aún.
+
 ## 19g2a — Evidencia portable de orden preparada
 
 Backup3 admite la decisión de orden con rama específica expected.incident, replanificación exacta de catálogo/último movimiento y originales supersedidos íntegros. Exige outcome congelado original, clausura de prerrequisitos con outcomes aplicados reales, correspondencia exacta de0/1 reemplazos (UUID/comando/CAS/fecha/entidad/secuencia posterior/dependencias vacías) yguardias globales deidentidad. Un DTO de ACK no basta. Proyección actual puede avanzar después de la decisión sin que el recibo la retroceda; pending intentado sigue siendo pending.
