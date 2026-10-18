@@ -2,6 +2,7 @@ import { ItemViewIncidentActions } from "@/features/sync/components/item-view-in
 import { PersonalIncidentVersion } from "@/features/sync/components/personal-incident-version"
 import { SettingsIncidentActions } from "@/features/sync/components/settings-incident-actions"
 import { TagIncidentActions } from "@/features/sync/components/tag-incident-actions"
+import { TagOrderIncidentActions } from "@/features/sync/components/tag-order-incident-actions"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import type { PersonalSyncIncidentSnapshot } from "@/types/sync-incident"
 
@@ -97,6 +98,12 @@ export function PersonalIncidentCard({
           <SettingsIncidentActions account={account} incident={incident} />
         ) : command.type === "item-view.set" && account ? (
           <ItemViewIncidentActions
+            key={`${account.userId}:${account.epoch}:${incident.entry.operation.operationId}`}
+            account={account}
+            incident={incident}
+          />
+        ) : command.type === "tag.move" && account ? (
+          <TagOrderIncidentActions
             key={`${account.userId}:${account.epoch}:${incident.entry.operation.operationId}`}
             account={account}
             incident={incident}

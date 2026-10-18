@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test"
 import { renderToStaticMarkup } from "react-dom/server"
+import { PersonalIncidentCard } from "@/features/sync/components/personal-incident-card"
 import { TagOrderIncidentResolutionDialog } from "@/features/sync/components/tag-order-incident-resolution-dialog"
 import { TagOrderResolutionVersion } from "@/features/sync/components/tag-order-resolution-version"
 import { tagOrderResolutionFixture } from "@/lib/backup/tag-order-resolution-fixture"
@@ -101,4 +102,31 @@ test("order dialog refuses foreign and unsupported choices, including removed ne
   expect(render(f.snapshot, f.actor, "adopt_remote", true)).toContain(
     "disabled"
   )
+})
+
+test("order action remains presentation-only and protects foreign, rejected and related incidents", () => {
+  const f = tagOrderResolutionFixture(),
+    account = { userId: f.actor, epoch: crypto.randomUUID() }
+  const render = (actor = account.userId, incident = f.snapshot.incident) =>
+    renderToStaticMarkup(
+      <PersonalIncidentCard
+        account={{ ...account, userId: actor }}
+        incident={incident}
+      />
+    )
+  expect(render()).toContain("Revisar orden")
+  expect(render()).not.toContain("Guardar movimiento para enviar")
+  expect(render("foreign")).not.toContain("Revisar orden")
+  expect(
+    render(account.userId, {
+      ...f.snapshot.incident,
+      blockedByRelatedIntentions: true,
+    })
+  ).not.toContain("Revisar orden")
+  expect(
+    render(account.userId, {
+      ...f.snapshot.incident,
+      reason: "invalid_command",
+    })
+  ).not.toContain("Revisar orden")
 })

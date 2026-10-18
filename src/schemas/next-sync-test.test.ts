@@ -292,6 +292,9 @@ test("focused Next proof scope is explicit, defaults to full and rejects unknown
   expect(nextSettingsProofScopeSchema.parse("joint-ui")).toBe("joint-ui")
   expect(nextSettingsProofScopeSchema.parse("assignment")).toBe("assignment")
   expect(nextSettingsProofScopeSchema.parse("tag-order")).toBe("tag-order")
+  expect(nextSettingsProofScopeSchema.parse("tag-order-ui")).toBe(
+    "tag-order-ui"
+  )
   expect(nextSettingsProofScopeSchema.parse("assignment-series")).toBe(
     "assignment-series"
   )
@@ -311,6 +314,7 @@ test("order fixture commands keep exact identity and reject missing or untrusted
     { type: "tag-order-comparison", operationId: "invalid" },
     { type: "tag-order-comparison", operationId, database: "production" },
     { type: "resolve-tag-order", request: {} },
+    { type: "resolve-tag-order-ui", request: {} },
     { type: "tag-order-guard-proof", request: {} },
   ])
     expect(nextSyncDeviceCommandSchema.safeParse(value).success).toBe(false)

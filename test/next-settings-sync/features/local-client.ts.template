@@ -1,4 +1,5 @@
 "use client"
+import { proveTagOrderResolutionUi } from "@fixture/tag-order-resolution-ui"
 import { readTagOrderIncidentComparison,resolveTagOrderIncident } from "@/features/sync/local-tag-order-resolution"
 import { proveItemViewResolutionUi } from "@fixture/item-view-resolution-ui"
 import { readItemViewIncidentComparison, resolveItemViewIncident } from "@/features/sync/local-item-view-resolution"
@@ -577,6 +578,7 @@ export async function executeLocalFixtureCommand(
       return proveSettingsResolutionUi(active, command.request)
     case "resolve-assignment-ui":
       return proveItemViewResolutionUi(active,command.request)
+    case "resolve-tag-order-ui":return proveTagOrderResolutionUi(active,command.request)
     case "tag-order-comparison":return readTagOrderIncidentComparison(active,command.operationId)
     case "resolve-tag-order":return resolveTagOrderIncident(active,command.request)
     case "tag-order-guard-proof": {

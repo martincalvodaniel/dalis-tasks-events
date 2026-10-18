@@ -10,9 +10,9 @@ import type { LocalRecurringBackup } from "@/types/local-backup"
 import type { LocalPullCursor } from "@/types/local-sync"
 import type { TagOrderResolutionRequest } from "@/types/tag-order-resolution"
 type Snapshot={backup:LocalRecurringBackup;cursor:LocalPullCursor}
-type Ports={owner:string;call(index:number,command:z.infer<typeof nextSyncDeviceCommandSchema>):Promise<unknown>;snapshot(index:number):Promise<Snapshot>;state():Promise<z.infer<typeof nextSettingsSyncStateSchema>>;reloadSecondary():Promise<void>}
+type Ports={interactive?:boolean;owner:string;call(index:number,command:z.infer<typeof nextSyncDeviceCommandSchema>):Promise<unknown>;snapshot(index:number):Promise<Snapshot>;state():Promise<z.infer<typeof nextSettingsSyncStateSchema>>;reloadSecondary():Promise<void>}
 function assert(value:unknown,message:string):asserts value{if(!value)throw new Error(message)}
-export async function proveRemoteTagOrderRecovery({owner,call,snapshot,state,reloadSecondary}:Ports){
+export async function proveRemoteTagOrderRecovery({owner,call,snapshot,state,reloadSecondary,interactive=false}:Ports){
  let adopted=0,retried=0,lostReplies=0
  for(const mode of ["adopt","retry","rerank","deleted-neighbor"] as const){
   const ids=[crypto.randomUUID(),crypto.randomUUID(),crypto.randomUUID()], initial=(await snapshot(0)).backup.stores.tags,base=Math.max(0,...initial.map(tag=>tag.position))+4096
@@ -37,7 +37,8 @@ export async function proveRemoteTagOrderRecovery({owner,call,snapshot,state,rel
   if(mode==="deleted-neighbor")assert(canonical(availableTagOrderResolutionChoices(expected,owner))===canonical(["adopt_remote"]),"Deleted neighbor still allowed a stale move")
   let request:TagOrderResolutionRequest={userId:owner,resolutionId:crypto.randomUUID(),operationId:choice==="retry_latest_move"?crypto.randomUUID():null,choice,createdAt:new Date().toISOString(),expected}
   const guard=await call(1,{type:"tag-order-guard-proof",request}) as {checks:number};assert(guard.checks===3,"Order guards incomplete")
-  const before=await state(),localBefore=await snapshot(1),result=await call(1,{type:"resolve-tag-order",request}) as {status:string;record:unknown},record=tagOrderResolutionRecordSchema.parse(result.record)
+  const before=await state(),localBefore=await snapshot(1),result=await call(1,{type:interactive&&(mode==="adopt"||mode==="retry")?"resolve-tag-order-ui":"resolve-tag-order",request}) as {status:string;record:unknown},record=tagOrderResolutionRecordSchema.parse(result.record)
+  request={userId:record.userId,resolutionId:record.resolutionId,operationId:record.operationId,choice:record.choice,createdAt:record.createdAt,expected:record.expected}
   assert(result.status==="applied"&&canonical(await state())===canonical(before),"Local order choice manufactured remote history")
   const decided=await snapshot(1)
   for(const store of ["items","itemViews","taskPlacements","occurrences","settings","remoteShadows"] as const)assert(canonical(localBefore.backup.stores[store])===canonical(decided.backup.stores[store]),"Order recovery changed another domain")

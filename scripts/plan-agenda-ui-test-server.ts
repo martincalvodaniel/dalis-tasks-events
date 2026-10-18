@@ -1,7 +1,16 @@
 import { resolve } from "node:path"
 
+const mode = process.argv[2] ?? "agenda"
+if (mode !== "agenda" && mode !== "tag-order-review")
+  throw new Error("Unknown plan UI fixture mode")
 const build = await Bun.build({
-  entrypoints: [resolve("test/browser/plan-agenda-ui.tsx")],
+  entrypoints: [
+    resolve(
+      mode === "tag-order-review"
+        ? "test/browser/tag-order-review.tsx"
+        : "test/browser/plan-agenda-ui.tsx"
+    ),
+  ],
   target: "browser",
   define: { "process.env.NODE_ENV": JSON.stringify("development") },
 })

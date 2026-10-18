@@ -132,6 +132,7 @@ async function execute(
     [
       "tag-order-comparison",
       "resolve-tag-order",
+      "resolve-tag-order-ui",
       "tag-order-guard-proof",
       "assignment-comparison",
       "resolve-assignment",

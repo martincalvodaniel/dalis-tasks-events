@@ -140,9 +140,20 @@ export function nextSyncMissingActionId(runIdInput: unknown): string {
   return `40${entityIdSchema.parse(runIdInput).replaceAll("-", "")}00000000`
 }
 export const nextSettingsProofScopeSchema = z
-  .enum(["full", "joint-ui", "assignment", "assignment-series", "tag-order"])
+  .enum([
+    "full",
+    "joint-ui",
+    "assignment",
+    "assignment-series",
+    "tag-order",
+    "tag-order-ui",
+  ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("resolve-tag-order-ui"),
+    request: tagOrderResolutionRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("tag-order-comparison"),
     operationId: entityIdSchema,
