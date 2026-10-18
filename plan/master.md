@@ -2,6 +2,8 @@
 
 ## Estado operativo — 18 de octubre de 2026
 
+**19d4: Ajustes permite recuperar conflictos aislados de nombre y color de categorías.** Puedes usar la categoría remota o reenviar el nombre/color local conservando el orden remoto. Ambos diálogos, cancelar/reabrir/confirmar y el recorrido hasta ACK/convergencia por categoría pasan en 28 escenarios Next6 propios. Las dependencias externas, borrado y orden mantienen sus guardias. Continúa recuperación de contenido con categoría y otras preferencias según dependencias.
+
 19d3 aprobado:28Next6 compilado con dosorígenes/IndexedDB/sesionesBetterAuth/Mongo propios prueban adopción/retry de categoría, respuestaperdida/recarga yACK único. Siguiente19d4: ofrecer elecciones desdeAjustes conpreview/confirmación yUI real, sin ampliar soporte aborrado/orden/cadenas externas.
 
 19d2 cierra transacción/backup/feature guardada de categorías con cinco checksIndexedDB propios;882tests yDoD aprobados. UI todavía oculta: siguiente19d3 prueba remota Next/Mongo real.

@@ -578,3 +578,7 @@ Entrada87%5h/84%7d trasfed43db, reservas10%/1%; secuencial, persistencia/evidenc
 ### 19d3 — Frontera remota de categorías
 
 Entrada82%5h/83%7d trasd92a8f5, reservas10%/1%. Docker28.4.0 eimagenMongo pinnedamd64 revalidados, recursos propios limpiados.28Next6 aprobados, sinconfundir fixtures conGoogle ni pedir repeticiónfísica. DoD/plan/log/mismo commitpushint/HEAD/cuotas; continuarUI sólo si cabe corte completo.
+
+### 19d4 — Elección personal visible
+
+Entrada65%5h/80%7d tras e905112; reservas10%/1%. Skill React y guías Next instaladas consultadas; 28Next6 revalidados con ambos diálogos reales y cancelación/reapertura. DoD/cleanup/guía/plan/log en mismo commitpushint/HEAD/cuotas. Evaluar el siguiente corte completo según lectura real, sin nueva cadena ni producción.

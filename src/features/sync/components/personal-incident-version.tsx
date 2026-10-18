@@ -19,8 +19,15 @@ export function PersonalIncidentVersion({
               "Sin versión observada"
             ) : (
               <>
+                {record.store === "tags" ? (
+                  <span
+                    aria-hidden="true"
+                    className="mr-1 inline-block size-2.5 rounded-full border border-zinc-400 align-middle"
+                    style={{ backgroundColor: record.record.color }}
+                  />
+                ) : null}
                 {record.store === "tags"
-                  ? `${record.record.name} · posición ${record.record.position}`
+                  ? `${record.record.name} · color ${record.record.color} · posición ${record.record.position}`
                   : record.store === "itemViews"
                     ? `Categoría: ${record.record.primaryTagId === null ? "sin categoría" : (tagNames[record.record.primaryTagId] ?? "no disponible")}`
                     : record.store === "taskPlacements"

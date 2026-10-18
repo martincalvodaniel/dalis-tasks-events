@@ -138,6 +138,7 @@ async function execute(
       "appearance-retry-local-proof",
       "resolve-settings",
       "resolve-tag",
+      "resolve-tag-ui",
       "tag-resolution-guard-proof",
       "resolve-settings-ui",
       "settings-resolution-local-proof",

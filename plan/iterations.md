@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19d4 — Elecciones de categoría visibles en Ajustes
+
+- Estado: completado; dos tests SSR/30 aserciones y 28 escenarios Next6 con diálogos reales aprobados.
+- Objetivo: ofrecer adopción/retry de nombre/color ya probado, conpreview/confirmación/UUIDestables yexplicación delorden remoto conservado.
+- target_paths: src/features/sync/components/{tag-incident-actions,tag-incident-resolution-dialog,tag-incident-ui.test,sync-incident-panel.test,personal-incident-card,personal-incident-version}.tsx, src/schemas/next-sync-test.ts, test/next-settings-sync/features/{tag-resolution-ui.tsx,tag-recovery.ts,local-client.ts,device-client.ts}.template yplan/**.
+- Dependencias:e905112 publicado,65%5h/80%7d yreservas10%/1%;28Next6 reales aprobados. GuíaNext useclient/serveractions yskill React consultadas; secuencial, sinnuevo destino.
+- Aceptación: cuenta propia6/guardias ychoices coinciden conplanner; selección congela comparación, cancelar noescribe, IDsse conservan alconfirmar. Previewnombre/color yposición remota exactos; historial/pendiente/nuevo conflicto explicados, sinresucitar borrado/orden/cadenas externas. Cachés sólo cuenta/época propia.
+- Validación: SSR deacciones/actor/guardias/preview/colores ydiálogo real enconflictoNext, cancelar/reabrir/confirmar/adopción/retry continuando respuesta perdida/recarga/ACK28Next6; DoD/cleanup/plan/log/mismo commitpushint/HEAD/cuotas. NoGoogle/DBusuario/protocolo/índices nuevos.
+
 ## 19d3 — Recuperación de categoría con Next y Mongo reales
 
 - Estado: completado;28Next6 aprobados concleanup propio; UI todavía oculta hasta19d4.

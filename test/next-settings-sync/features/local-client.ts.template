@@ -3,6 +3,7 @@ import { proveLocalAppearanceRetry } from "@fixture/appearance-retry-local-proof
 import { resolvePlanOccurrenceIncident } from "@/features/sync/local-plan-occurrence-resolution"
 import { proveLocalAppearanceResolution } from "@fixture/appearance-resolution-local-proof"
 import { proveSettingsResolutionUi } from "@fixture/settings-resolution-ui"
+import { proveTagResolutionUi } from "@fixture/tag-resolution-ui"
 import { resolveTagIncident } from "@/features/sync/local-tag-resolution"
 import { resolveSettingsIncident } from "@/features/sync/local-settings-resolution"
 import { proveLocalSettingsResolution } from "@fixture/settings-resolution-local-proof"
@@ -566,6 +567,8 @@ export async function executeLocalFixtureCommand(
       return proveCommonPlanResolutionUi(active, command.request)
     case "resolve-settings-ui":
       return proveSettingsResolutionUi(active, command.request)
+    case "resolve-tag-ui":
+      return proveTagResolutionUi(active, command.request)
     case "resolve-tag":
       return resolveTagIncident(active, command.request)
     case "tag-resolution-guard-proof": {

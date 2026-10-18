@@ -144,6 +144,10 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("epoch-after-settings-commit-run") }),
   z.strictObject({ type: z.literal("settings-incidents") }),
   z.strictObject({
+    type: z.literal("resolve-tag-ui"),
+    request: tagResolutionRequestSchema,
+  }),
+  z.strictObject({
     type: z.literal("resolve-tag"),
     request: tagResolutionRequestSchema,
   }),

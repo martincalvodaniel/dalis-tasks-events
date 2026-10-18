@@ -46,8 +46,9 @@ export async function proveRemoteTagRecovery({ owner, call, snapshot, state, rel
     const guards = await call(1, { type: "tag-resolution-guard-proof", request }) as { checks: number }
     assert(guards.checks === 3, "Category feature guards not exercised")
     const before = await state(), localBefore = await snapshot(1)
-    const result = await call(1, { type: "resolve-tag", request }) as { status: string; record: unknown }
+    const result = await call(1, { type: "resolve-tag-ui", request }) as { status: string; record: unknown }
     const record = tagResolutionRecordSchema.parse(result.record)
+    const reviewed: TagResolutionRequest = { userId: record.userId, resolutionId: record.resolutionId, operationId: record.operationId, choice: record.choice, createdAt: record.createdAt, expected: record.expected }
     assert(result.status === "applied" && canonical(await state()) === canonical(before), "Local category choice manufactured remote history")
     const decided = await snapshot(1)
     for (const original of expected.intentions.filter((value) => record.supersededOperationIds.includes(value.operation.operationId))) {
@@ -73,7 +74,7 @@ export async function proveRemoteTagRecovery({ owner, call, snapshot, state, rel
     } else assert(record.local.name === `Winner ${id}` && record.local.position === 20, "Category adoption lost remote state")
     await converge()
     const later = await snapshot(1)
-    const replay = await call(1, { type: "resolve-tag", request }) as { status: string }
+    const replay = await call(1, { type: "resolve-tag", request: reviewed }) as { status: string }
     assert(replay.status === "replayed" && canonical((await snapshot(1)).backup.stores) === canonical(later.backup.stores), "Category decision replay overwrote confirmed state")
   }
   return { adopted: true, retried: true, replayed: true }

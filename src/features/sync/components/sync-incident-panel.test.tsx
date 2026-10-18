@@ -246,7 +246,7 @@ test("copy recovery displays a complete draft and explains the new identity with
     expect(dialog).toContain(text)
 })
 
-test("personal comparisons stay compact, preserve all observed versions and offer no resolution choices", () => {
+test("guarded personal comparisons preserve all observed versions without unsafe choices", () => {
   const item = fixture()
   const tagId = crypto.randomUUID()
   const entry: OutboxEntry = {
@@ -343,7 +343,7 @@ test("personal comparisons stay compact, preserve all observed versions and offe
     "Estado local al recibir",
     "Remoto observado al recibir",
     "1 intención personal sin confirmar",
-    "resolución de preferencias todavía no está disponible",
+    "Tus cambios de categoría se conservan",
   ])
     expect(html).toContain(text)
   expect(html).toContain("text-sm")

@@ -1,5 +1,6 @@
 import { PersonalIncidentVersion } from "@/features/sync/components/personal-incident-version"
 import { SettingsIncidentActions } from "@/features/sync/components/settings-incident-actions"
+import { TagIncidentActions } from "@/features/sync/components/tag-incident-actions"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import type { PersonalSyncIncidentSnapshot } from "@/types/sync-incident"
 
@@ -93,6 +94,8 @@ export function PersonalIncidentCard({
         </details>
         {command.type === "settings.update" && account ? (
           <SettingsIncidentActions account={account} incident={incident} />
+        ) : command.type === "tag.save" && account ? (
+          <TagIncidentActions account={account} incident={incident} />
         ) : (
           <p className="text-xs text-zinc-500">
             La resolución de preferencias todavía no está disponible.
