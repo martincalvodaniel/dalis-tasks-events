@@ -2,6 +2,8 @@
 
 ## Estado operativo — 18 de octubre de 2026
 
+19e2 cierra el contrato puro de decisión conjunta: comparación compacta de contenido/vista/categoría y ACKs previos relacionados, adopción de ambos remotos o dos operaciones nuevas con CAS independientes para reenviar ambos borradores. Las revisiones agotadas y categorías no confirmadas limitan el reenvío. Aún no hay transacción/backup/UI conjuntos: siguiente19e3 debe reconstruir la captura dentro de unaTX y preservar evidencia antes de prueba remota/elecciones.
+
 19e1 prepara la revisión conjunta de contenido y asignación: un clasificador puro valida la cola completa y demuestra que sólo las intenciones del plan y sus asignaciones no intentadas forman la cohorte. Protege dependientes externos y movimientos pendientes, sin activar decisiones todavía. Siguiente: contrato de elección con snapshots exactos de contenido/vista/categoría; después transacción, evidencia y pruebas remotas antes de UI.
 
 **19d4: Ajustes permite recuperar conflictos aislados de nombre y color de categorías.** Puedes usar la categoría remota o reenviar el nombre/color local conservando el orden remoto. Ambos diálogos, cancelar/reabrir/confirmar y el recorrido hasta ACK/convergencia por categoría pasan en 28 escenarios Next6 propios. Las dependencias externas, borrado y orden mantienen sus guardias. Continúa recuperación de contenido con categoría y otras preferencias según dependencias.

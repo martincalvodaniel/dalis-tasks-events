@@ -586,3 +586,7 @@ Entrada65%5h/80%7d tras e905112; reservas10%/1%. Skill React y guías Next insta
 ### 19e1 — Delimitar antes de resolver cadenas
 
 Entrada42%5h/76%7d tras868a173, reservas10%/1%. Corte puro secuencial cerrado con DoD/plan/log/mismo commitpushint/HEAD/cuotas. Ninguna decisión parcial conectada: relectura transaccional y contrato completo siguen siendo requisitos.
+
+### 19e2 — Contrato antes de persistencia conjunta
+
+Entrada37%5h/76%7d tras7cad063, reservas10%/1%. Corte puro secuencial cerrado con DoD/plan/log/mismo commitpushint/HEAD/cuotas. No abrir TX/prueba remota/UI enentregas parciales si elcoste completo yreparación/cierre no caben; conservar candidato19e3 exacto.

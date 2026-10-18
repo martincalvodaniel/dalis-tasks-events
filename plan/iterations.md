@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19e2 — Contrato puro de decisión conjunta
+
+- Estado: completado; nueve tests/78 aserciones, sin escritura/backup/UI nueva.
+- Objetivo: capturar comparación compacta de contenido/asignación/categoría con clausura de cola completa y planificar adoptar ambos remotos o reenviar ambos borradores como dos operaciones nuevas enlazables.
+- target_paths: src/{schemas/plan-category-resolution.ts,types/plan-category-resolution.ts,lib/sync/{plan-category-resolution,plan-category-resolution.test}.ts} yplan/**.
+- Dependencias:7cad063 publicado,37%5h/76%7d yreservas10%/1%; clasificador19e1 yplanners remotos comunes existentes. Secuencial.
+- Aceptación: snapshot exacto de contenido/vista/categoría yprerrequisitosACK directos, sin congelar historia independiente. Revalidar clausura concola completa antes de cada planificación; snapshot compacto nuncaautoriza escritura por sí mismo. Adoptar no generaoperaciones; retry genera content+view UUIDdistintos/CASindependientes, mismoitem, categoría propia viva conocida, sinorden/copias/resurrección. Registro replanteable conserva todoslosIDsoriginales, estados/intenciones/outcomes sinmodificar.
+- Validación: cuatrovariantes/preview completo, reglas puras de los executors de contenido/vista yCASindependiente, cuenta/epoch no inferido, captura obsoleta, vistas faltantes/tombstones/categoría no confirmada, dependencias/identidades/corrupción. DoD/plan/log/mismo commitpushint/HEAD/cuotas. SiguienteTXlector/portable/rollback/Next real antesUI.
+
 ## 19e1 — Cohorte segura de contenido y asignación
 
 - Estado: completado; nueve tests/45 aserciones, sin nuevas elecciones.
