@@ -146,7 +146,7 @@ test("appearance choices stay scoped to the account and preserve guarded cases w
     <PlanOccurrenceIncidentCard incident={current} account={account} />
   )
   expect(html).toContain("Usar aparición remota")
-  expect(html).not.toContain("Enviar mi borrador")
+  expect(html).toContain("Enviar mi aparición")
   for (const incident of [
     current,
     { ...current, blockedByRelatedIntentions: true },
@@ -218,4 +218,73 @@ test("appearance confirmation shows the whole remote exception and explains the 
   )
   expect(allDay).toContain("2026-10-12")
   expect(allDay).toContain("sin incluir")
+})
+
+test("appearance retry previews the complete local draft and warns about staged remote progress", () => {
+  const { current } = comparison()
+  if (!current.local) throw new Error("Local appearance preview missing")
+  const incident = {
+    ...current,
+    local: {
+      ...current.local,
+      content: {
+        title: "Chosen local title",
+        description: "Chosen local description",
+      },
+      schedule: {
+        mode: "timed" as const,
+        localStart: "2026-10-13T10:15",
+        localEnd: "2026-10-13T11:45",
+        timeZone: "Europe/Madrid",
+      },
+    },
+  }
+  const html = renderToStaticMarkup(
+    <PlanOccurrenceResolutionDialog
+      incident={incident}
+      choice="retry_local"
+      busy={false}
+      onConfirm={async () => {}}
+      onClose={() => {}}
+    />
+  )
+  for (const text of [
+    "Chosen local description",
+    "10:15",
+    "11:45",
+    "Aparición que enviarás",
+    "no se fusionará automáticamente",
+    "pendiente de confirmación",
+    "estado intermedio",
+    "No cambia la serie ni otros días",
+    "Guardar para enviar",
+    "Cancelar",
+  ])
+    expect(html).toContain(text)
+  expect(html).not.toContain("La elección no envía cambios al servidor")
+})
+test("known cancelled remote only offers adoption and never a retry button", () => {
+  const { current } = comparison()
+  if (!current.remote || current.outcome.result.outcome.status !== "conflict")
+    throw new Error("Remote appearance preview missing")
+  const remote = { ...current.remote, cancelled: true }
+  const incident = {
+    ...current,
+    remote,
+    outcome: {
+      ...current.outcome,
+      result: {
+        ...current.outcome.result,
+        outcome: { ...current.outcome.result.outcome, current: remote },
+      },
+    },
+  }
+  const html = renderToStaticMarkup(
+    <PlanOccurrenceIncidentCard
+      incident={incident}
+      account={{ userId: current.entry.userId, epoch: crypto.randomUUID() }}
+    />
+  )
+  expect(html).toContain("Usar aparición remota")
+  expect(html).not.toContain("Enviar mi aparición")
 })

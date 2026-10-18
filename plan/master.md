@@ -1,6 +1,6 @@
 # Dalis Tasks & Events — plan maestro
 
-## Estado operativo — 17 de octubre de 2026
+## Estado operativo — 18 de octubre de 2026
 
 Protocolo de cuotas actualizado por indicación humana: consulta directa de ambas ventanas tras cada entrega; sólo preguntar si la herramienta no puede leerlas. Reservas10%5h/1%7d y alcance de autorizaciones intactos.
 
@@ -9,6 +9,10 @@ La zona horaria personal ya es editable offline, sincroniza por cuenta y está v
 [Guía de uso](user-guide.md) preparada y [checklist física de diez pasos](manual-device-checklist.md) **aprobada por el usuario el17oct2026**: recorrido secuencial de dos dispositivos, reapertura offline y reconexión cerrados. Siguen pendientes las cadenas de recuperación de contenido+categoría, las apariciones y las preferencias distintas de la zona personal, la revisión completa de accesibilidad y la publicación productiva autorizada. La checklist no valida conflictos concurrentes ni autoriza producción. Cumpleaños aparcado; compartir fuera de alcance.
 
 ### Continuación18oct02:20
+
+**19c6 entregado:** Ajustes permite adoptar remoto conocido o reenviar toda la excepción local de un slot, con preview, confirmación, historial intacto yUUID/CAS nuevos cuando corresponde.27escenariosNext6 propios pasan concancelación/reapertura/confirmación real, respuestaperdida, recarga antesACK yconvergencia porserie.875pass/223skip/0fail, lint871/tipos/Webpack/worker46. Otros slots pendientes, dependencias externas, rechazos yremoto ausente siguen conservados sin elección insegura; remoto cancelado/tombstone sólo permiteadopción. No nueva pruebaGoogle/física ni producción.
+
+Las notas siguientes registran preparación histórica del mismo lote; no sustituyen el estado vigente anterior.
 
 19c5 cierra retry durable de toda la excepción: cola/counter/proyección/recibo atómicos ybackup de cada reemplazo exacto.27Next6 prueban dos reintentos reales, respuestaperdida, recarga antesACK, UUID/payloads intactos, etapas intermedias yconvergencia final porserie.873pass/223skip/0fail, lint871/tipos/Webpack/worker46. Falta botón/diálogo de retry19c6; adopción permanece activa.
 

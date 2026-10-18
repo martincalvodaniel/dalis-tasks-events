@@ -8,7 +8,10 @@ import { resolvePlanOccurrenceIncident } from "@/features/sync/local-plan-occurr
 import { isAccountSyncCacheKey } from "@/features/sync/manual-sync"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
-import { availablePlanOccurrenceResolutionChoices } from "@/lib/sync/plan-occurrence-resolution"
+import {
+  availablePlanOccurrenceResolutionChoices,
+  planOccurrenceRetryOperationCount,
+} from "@/lib/sync/plan-occurrence-resolution"
 import { planOccurrenceResolutionRequestSchema } from "@/schemas/plan-occurrence-resolution"
 import type { PlanOccurrenceResolutionRequest } from "@/types/plan-occurrence-resolution"
 import type { PlanOccurrenceSyncIncidentSnapshot } from "@/types/recurring-sync-incident"
@@ -21,25 +24,45 @@ export function PlanOccurrenceIncidentActions({
   incident: PlanOccurrenceSyncIncidentSnapshot
 }) {
   const { mutate } = useSWRConfig()
-  const [selection, setSelection] =
-    useState<PlanOccurrenceSyncIncidentSnapshot | null>(null)
+  const [selection, setSelection] = useState<{
+    choice: PlanOccurrenceResolutionRequest["choice"]
+    incident: PlanOccurrenceSyncIncidentSnapshot
+  } | null>(null)
   const [busy, setBusy] = useState(false),
     [notice, setNotice] = useState("")
   const intent = useRef<PlanOccurrenceResolutionRequest | null>(null)
-  const available =
-    incident.entry.userId === account.userId &&
-    activeProductSyncProtocol === 6 &&
-    availablePlanOccurrenceResolutionChoices(incident).includes("adopt_remote")
+  const choices =
+    incident.entry.userId === account.userId && activeProductSyncProtocol === 6
+      ? availablePlanOccurrenceResolutionChoices(incident)
+      : []
+  function choose(choice: PlanOccurrenceResolutionRequest["choice"]) {
+    intent.current = null
+    setNotice("")
+    setSelection({ choice, incident })
+  }
   async function confirm(resolutionId: string) {
     if (!selection) throw new Error("Appearance recovery choice is missing")
-    intent.current ??= planOccurrenceResolutionRequestSchema.parse({
-      userId: account.userId,
-      resolutionId,
-      operationId: null,
-      choice: "adopt_remote",
-      createdAt: new Date().toISOString(),
-      expected: selection,
-    })
+    if (!intent.current) {
+      const count =
+        selection.choice === "retry_local"
+          ? planOccurrenceRetryOperationCount(selection.incident)
+          : 0
+      intent.current = planOccurrenceResolutionRequestSchema.parse({
+        userId: account.userId,
+        resolutionId,
+        operationId: count ? crypto.randomUUID() : null,
+        ...(count
+          ? {
+              dependentOperationIds: Array.from({ length: count - 1 }, () =>
+                crypto.randomUUID()
+              ),
+            }
+          : {}),
+        choice: selection.choice,
+        createdAt: new Date().toISOString(),
+        expected: selection.incident,
+      })
+    }
     setBusy(true)
     try {
       await resolvePlanOccurrenceIncident(account, intent.current)
@@ -58,18 +81,25 @@ export function PlanOccurrenceIncidentActions({
   }
   return (
     <div>
-      {available ? (
-        <button
-          type="button"
-          className="min-h-11 rounded-lg border border-zinc-300 px-3 dark:border-zinc-700"
-          onClick={() => {
-            intent.current = null
-            setNotice("")
-            setSelection(incident)
-          }}
-        >
-          Usar aparición remota
-        </button>
+      {choices.length ? (
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="min-h-11 rounded-lg border border-zinc-300 px-3 dark:border-zinc-700"
+            onClick={() => choose("adopt_remote")}
+          >
+            Usar aparición remota
+          </button>
+          {choices.includes("retry_local") ? (
+            <button
+              type="button"
+              className="min-h-11 rounded-lg bg-emerald-700 px-3 font-medium text-white"
+              onClick={() => choose("retry_local")}
+            >
+              Enviar mi aparición
+            </button>
+          ) : null}
+        </div>
       ) : (
         <p className="text-xs text-zinc-500">
           Tus cambios se conservan. Este caso necesita otra revisión antes de
@@ -83,7 +113,8 @@ export function PlanOccurrenceIncidentActions({
       ) : null}
       {selection ? (
         <PlanOccurrenceResolutionDialog
-          incident={selection}
+          incident={selection.incident}
+          choice={selection.choice}
           busy={busy}
           onConfirm={confirm}
           onClose={() => {

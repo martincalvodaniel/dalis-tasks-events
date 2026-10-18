@@ -1,4 +1,5 @@
 "use client"
+import { proveAppearanceResolutionUi } from "@fixture/appearance-resolution-ui"
 import { resolvePlanOccurrenceIncident } from "@/features/sync/local-plan-occurrence-resolution"
 import { readSyncIncidents } from "@/features/sync/local-incidents"
 import { changeLocalPlanOccurrence } from "@/features/plans/local-plans"
@@ -124,7 +125,7 @@ export async function proveLocalAppearanceRetry(
       same(before, await snapshot()) && notices === previousNotices,
       "Retry rollback left projection, replacements, counter, receipt or notification"
     )
-    const result = await resolvePlanOccurrenceIncident(account, fresh),
+    const result = await proveAppearanceResolutionUi(account, fresh),
       after = await snapshot()
     assert(
       result.status === "applied" && notices > previousNotices,
@@ -153,15 +154,24 @@ export async function proveLocalAppearanceRetry(
       ),
       "Retry changed another slot"
     )
-    const replay = await resolvePlanOccurrenceIncident(account, fresh)
+    const reviewed = {
+      userId: result.record.userId,
+      resolutionId: result.record.resolutionId,
+      operationId: result.record.operationId,
+      dependentOperationIds: result.record.dependentOperationIds,
+      choice: result.record.choice,
+      createdAt: result.record.createdAt,
+      expected: result.record.expected,
+    }
+    const replay = await resolvePlanOccurrenceIncident(account, reviewed)
     assert(
       replay.status === "replayed" && same(after, await snapshot()),
       "Retry decision replay duplicated its queue or receipt"
     )
     await rejected(() =>
       resolvePlanOccurrenceIncident(account, {
-        ...fresh,
-        createdAt: new Date(Date.parse(fresh.createdAt) + 1).toISOString(),
+        ...reviewed,
+        createdAt: new Date(Date.parse(reviewed.createdAt) + 1).toISOString(),
       })
     )
     assert(

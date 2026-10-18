@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19c6 — Elección visible de reenvío de aparición
+
+Estado: completado; adopción/retry activos con27Next6 ydiálogo real aprobados.
+
+- Objetivo: ofrecer retry ya probado con preview local completo, confirmación yUUIDestables, junto a adopción existente.
+- target_paths: src/features/sync/components/{plan-occurrence-incident-actions,plan-occurrence-resolution-dialog,plan-occurrence-resolution-ui.test}.tsx, test/next-settings-sync/features/appearance-retry-local-proof.ts.template y plan/**.
+- Dependencias:46944ac publicado,32%5h/89%7d, reservas10%/1%;27Next6 prueban cola/backup/ACK reales yrecarga. GuíasNext/skill React ya consultadas. Corte secuencial.
+- Aceptación: ofrecer sólo elecciones seguras ypropias; preview de todo elborrador elegido ycancelación cuando corresponda. Explicar sustitución revisada/historial, pendiente deconfirmación, ausencia defusión automática yestado intermedio enpeer. Generar todoslosIDs una solavez alconfirmar; cancelar noescribe. Remoto cancelado/tombstone no permite retry. Cuenta/epoch/caché guardados.
+- Validación: SSR deopciones/preview/guardias ydiálogo real cancelar/reabrir/confirmar, continuandorespuestaperdida/recarga/replay/ACK27Next6; suite/lint/tipos/Webpack/worker/cleanup/plan/log/commitpushint/HEAD/cuotas. Sin nuevos destinos, DBusuario, formato remoto oíndices.
+
 ## 19c5 — Retry durable de toda la aparición y ACK reales
 
 Estado: completado;27Next6 correctos, retry durable/backup preparados y botón todavía oculto.

@@ -550,3 +550,7 @@ Entrada60%5h/94%7d trasdca6b47; reservas10%/1%. Cadena de comandos existentes yr
 ### 19c5 — Retry durable con respuesta perdida
 
 Entrada53%5h/93%7d tras71350a4; reservas10%/1%.27Next6 completos prueban dos cadenas reales, rollback/counter/replay/recarga antesACK yconvergencia porserie. Prueba portable rechaza cola truncada, dependencia alterada ypayload cambiado, aceptando pendiente intentado sinACK. DoD/cleanup/plan/log mismo commitpushint/HEAD/cuotas; siguiente19c6 sólo con margen para UI real yreparación.
+
+### 19c6 — Retry visible y comprobado
+
+Entrada32%5h/89%7d tras46944ac; reservas10%/1%.27Next6 condiálogo real de retry/cancelación/reapertura/confirmación aprobados, manteniendo respuestaperdida/recarga/ACK único yconvergencia porserie. Lectura intermedia26%5h/88%7d usada para preservar margen; cuatrotestsSSR/36aserciones yDoD completo. Mismo commitpushint/HEAD/cuotas antes de decidir unúltimo corte mínimo; no abrir nuevo bloque de recuperación conpresupuesto insuficiente.
