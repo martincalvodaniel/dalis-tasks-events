@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19f3 — Completada: prueba remota de recuperación de asignaciones
+
+- Estado: once escenarios focalizados aprobados, cuatro variantes/ACKreales/convergencia porplan;941tests/DoD completos. UI sigueoculta.
+- Objetivo: demostrar conflicto y recuperación de asignación con productores reales, dos particiones IndexedDB y Next6/Mongo propios antes de ofrecer UI.
+- target_paths: src/schemas/next-sync-test{,.test}.ts, test/next-settings-sync/features/{item-view-recovery,local-client,device-client,controller}.*.template yplan/**.
+- Dependencias:25410d7/19f2 publicado,65%5h/53%7d, reservas10%/1%; descriptor/imagen Docker se revalidan antes de crear recursos propios. Guías Next vigentes, secuencial.
+- Aceptación: cuatro variantes, cadena de asignaciones reales, adopción/retry, guardias cuenta/epoch/stale, conservación exacta de contenido/categorías/orden/outcomes/originales, respuesta perdida trascommit/recarga/mismoUUID yACKreal único. Proyección/shadow/cursor exactos en ambas particiones porplan, no convergencia global niGoogle/físicos nuevos.
+- Validación: selector estricto full|joint-ui|assignment y matriz disponible; ejecutar diezfronteras+asignación (once), full pasa a30disponibles sinatribuirlos almodo focalizado. Cleanupown/DoD/plan/log/mismo commitpushint/HEAD/cuotas. UI sólo en19f4 tras aceptación.
+
 ## 19f2 — Completada: persistencia y evidencia de recuperación de asignación
 
 - Estado: nueve checksIndexedDB yseis testsportables nuevos aprobados;941 tests/DoD completos. SinUI/Next nuevos todavía.

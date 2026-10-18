@@ -1,4 +1,5 @@
 "use client"
+import { proveRemoteItemViewRecovery } from "@fixture/item-view-recovery"
 import { proveRemotePlanCategoryRecovery } from "@fixture/plan-category-recovery"
 import { proveRemoteTagRecovery } from "@fixture/tag-recovery"
 import { proveRemoteAppearanceRetry } from "@fixture/appearance-retry"
@@ -40,7 +41,7 @@ export function FixtureController() {
   const [status, setStatus] = useState("Preparando la prueba aislada de Next")
   const [rows, setRows] = useState<string[]>([])
   const [running, setRunning] = useState(false)
-  const [proofScope, setProofScope] = useState<"full" | "joint-ui">("full")
+  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment">("full")
   useEffect(() => {
     void (async () => {
       const query = new URLSearchParams(location.search)
@@ -621,7 +622,7 @@ export function FixtureController() {
           await call(1, { type: "mixed-run" })
         }
       )
-      await check("Contenido y categoría recuperados juntos con dos CAS y ACK únicos tras recarga", async () => {
+      if(proofScope !== "assignment") await check("Contenido y categoría recuperados juntos con dos CAS y ACK únicos tras recarga", async () => {
         const proof = await proveRemotePlanCategoryRecovery({ owner, call, snapshot, state: () => state(owner), reloadSecondary: async () => {
           const reloaded = new Promise<void>((resolve, reject) => {
             const listener = (event: MessageEvent) => {
@@ -636,6 +637,17 @@ export function FixtureController() {
         assert(proof.adopted === 1 && proof.retried === 3 && proof.lostReplies === 2, "Joint remote evidence incomplete")
       })
       if (proofScope === "joint-ui") { passed = true; return }
+      await check("Asignaciones aisladas recuperan conflicto y ACK único tras recarga",async()=>{
+        const proof=await proveRemoteItemViewRecovery({owner,call,snapshot,state:()=>state(owner),reloadSecondary:async()=>{
+          const reloaded=new Promise<void>((resolve,reject)=>{
+            const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
+            const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned assignment reload timed out"))},45000);window.addEventListener("message",listener)
+          })
+          await call(1,{type:"reload-local"});await reloaded
+        }})
+        assert(proof.adopted===1 && proof.retried===3 && proof.lostReplies===2,"Assignment proof incomplete")
+      })
+      if(proofScope === "assignment"){passed=true;return}
       await check(
         "Cuatro variantes recuperan conflictos reales y convergen sin ACK local",
         async () => {
@@ -1533,7 +1545,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            proofScope === "joint-ui" ? "Once escenarios Next6 focalizados correctos; sesiones propias cerradas" : "Veintinueve escenarios Next6 correctos; sesiones propias cerradas"
+            proofScope !== "full" ? "Once escenarios Next6 focalizados correctos; sesiones propias cerradas" : "Treinta escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

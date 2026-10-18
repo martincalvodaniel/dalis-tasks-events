@@ -1,0 +1,72 @@
+"use client"
+import type { z } from "zod"
+import { canonical, foldRecurringChanges } from "@fixture/projection"
+import { nextSyncDeviceCommandSchema, nextSettingsSyncStateSchema } from "@/schemas/next-sync-test"
+import { itemViewResolutionSnapshotSchema,itemViewResolutionRecordSchema } from "@/schemas/item-view-resolution"
+import { outboxEntrySchema } from "@/schemas/local-sync"
+import type { LocalRecurringBackup } from "@/types/local-backup"
+import type { LocalPullCursor } from "@/types/local-sync"
+import type { ItemViewResolutionRequest } from "@/types/item-view-resolution"
+type Snapshot={backup:LocalRecurringBackup;cursor:LocalPullCursor}
+type Ports={owner:string;call(index:number,command:z.infer<typeof nextSyncDeviceCommandSchema>):Promise<unknown>;snapshot(index:number):Promise<Snapshot>;state():Promise<z.infer<typeof nextSettingsSyncStateSchema>>;reloadSecondary():Promise<void>}
+function assert(value:unknown,message:string):asserts value{if(!value)throw new Error(message)}
+export async function proveRemoteItemViewRecovery({owner,call,snapshot,state,reloadSecondary}:Ports){
+  let adopted=0,retried=0,lostReplies=0
+  for(const variant of ["task","event","appointment","note"] as const){
+    const itemId=crypto.randomUUID(),tagId=crypto.randomUUID(),winnerTagId=crypto.randomUUID(),now=new Date().toISOString()
+    for(const id of [tagId,winnerTagId])await call(0,{type:"commit-local",command:{type:"tag.save",tagId:id,input:{name:`Categoría ${id}`,color:"#123456",position:30}}})
+    await call(0,{type:"mixed-run"});await call(1,{type:"mixed-run"})
+    const input={kind:"plan" as const,variant,title:`Asignación ${variant}`,description:"Contenido conservado",schedule:{mode:"all_day" as const,startDate:"2026-10-18",endDateExclusive:"2026-10-19"},status:"in_progress" as const,checklist:[{id:crypto.randomUUID(),text:"Paso conservado",completed:true}],recurrence:null}
+    await call(0,{type:"save-plan",request:{mode:"create",itemId,input,primaryTagId:null,contentOperationId:crypto.randomUUID(),viewOperationId:crypto.randomUUID(),now}})
+    await call(0,{type:"mixed-run"});await call(1,{type:"mixed-run"})
+    await call(0,{type:"commit-local",command:{type:"item-view.set",itemId,primaryTagId:winnerTagId}});await call(0,{type:"mixed-run"})
+    const original=outboxEntrySchema.parse(await call(1,{type:"commit-local",command:{type:"item-view.set",itemId,primaryTagId:tagId}}))
+    await call(1,{type:"commit-local",command:{type:"item-view.set",itemId,primaryTagId:null}})
+    await call(1,{type:"commit-local",command:{type:"item-view.set",itemId,primaryTagId:tagId}})
+    await call(1,{type:"mixed-run"})
+    const expected=itemViewResolutionSnapshotSchema.parse(await call(1,{type:"assignment-comparison",operationId:original.operation.operationId}))
+    assert(expected.incident.entry.state==="conflict"&&expected.incident.entry.attempts===1&&expected.incident.intentions.length===3,"Real assignment producer lost chain or conflict")
+    const choice=variant==="task"?"adopt_remote":"retry_local"
+    let request:ItemViewResolutionRequest={userId:owner,resolutionId:crypto.randomUUID(),operationId:choice==="retry_local"?crypto.randomUUID():null,choice,createdAt:new Date().toISOString(),expected}
+    const guard=await call(1,{type:"assignment-guard-proof",request}) as {checks:number};assert(guard.checks===3,"Assignment guards incomplete")
+    const before=await state(),localBefore=await snapshot(1)
+    const result=await call(1,{type:"resolve-assignment",request}) as {status:string;record:unknown}
+    const record=itemViewResolutionRecordSchema.parse(result.record)
+    request={userId:record.userId,resolutionId:record.resolutionId,operationId:record.operationId,choice:record.choice,createdAt:record.createdAt,expected:record.expected}
+    assert(result.status==="applied"&&canonical(await state())===canonical(before),"Local assignment choice manufactured remote history")
+    const decided=await snapshot(1)
+    for(const store of ["items","tags","taskPlacements","occurrences","settings","remoteShadows"] as const)assert(canonical(localBefore.backup.stores[store])===canonical(decided.backup.stores[store]),"Assignment recovery changed another domain")
+    for(const old of expected.incident.intentions)assert(canonical(decided.backup.stores.outbox.find(e=>e.operation.operationId===old.operation.operationId))===canonical({...old,state:"superseded",lease:null}),"Assignment recovery rewrote original intention")
+    for(const old of localBefore.backup.stores.syncMetadata.filter(v=>"result"in v))assert(decided.backup.stores.syncMetadata.some(v=>canonical(v)===canonical(old)),"Assignment lost outcome evidence")
+    if(record.replacement){
+      retried++
+      const pending=decided.backup.stores.outbox.find(e=>e.operation.operationId===record.operationId)
+      assert(pending?.state==="pending"&&pending.attempts===0&&!pending.dependencies.length&&record.replacement.baseRevision===2,"Assignment retry lost fresh CAS or invented ACK")
+      if(variant==="appointment"||variant==="note"){
+        const lost=await call(1,{type:"lost-plan-response-run"}) as {status:string;uploaded:number},committed=await state()
+        const attempted=(await snapshot(1)).backup.stores.outbox.find(e=>e.operation.operationId===record.operationId)
+        assert(lost.status==="retry_later"&&lost.uploaded===0&&attempted?.state==="pending"&&attempted.attempts===1&&!attempted.lease,"Lost assignment response manufactured ACK")
+        assert(committed.counts.receipts===before.counts.receipts+1&&committed.page.through===before.page.through+1,"Assignment did not commit once")
+        await reloadSecondary()
+        assert(canonical((await snapshot(1)).backup.stores.outbox.find(e=>e.operation.operationId===record.operationId))===canonical(attempted),"Assignment reload changed uncertain intention")
+        await call(1,{type:"mixed-run"});assert(canonical(await state())===canonical(committed),"Assignment replay duplicated remote history")
+        const ack=(await snapshot(1)).backup.stores.outbox.find(e=>e.operation.operationId===record.operationId)
+        assert(ack?.state==="acknowledged"&&ack.attempts===2&&canonical(ack.operation)===canonical(record.replacement),"Assignment same UUID did not obtain real replay ACK")
+        lostReplies++
+      }else await call(1,{type:"mixed-run"})
+    }else adopted++
+    await call(0,{type:"mixed-run"});await call(1,{type:"mixed-run"})
+    const authoritative=await state(),projection=foldRecurringChanges(authoritative.page)
+    assert(authoritative.counts.receipts===before.counts.receipts+(choice==="retry_local"?1:0)&&authoritative.page.through===before.page.through+(choice==="retry_local"?1:0),"Assignment choice confirmed wrong history count")
+    for(const index of [0,1]){
+      const local=await snapshot(index),view=local.backup.stores.itemViews.find(v=>v.itemId===itemId),shadow=local.backup.stores.remoteShadows.find(v=>v.entityKey===`item-view:${itemId}`)
+      assert(canonical(local.backup.stores.items.find(v=>v.id===itemId))===canonical(projection.items.get(itemId)),"Assignment recovery changed or diverged plan content")
+      assert(canonical(view)===canonical(projection.itemViews.get(itemId))&&view?.primaryTagId===(choice==="retry_local"?tagId:winnerTagId),"Recovered assignment differs from Mongo")
+      assert(shadow&&"kind"in shadow&&shadow.kind==="preference"&&shadow.record.store==="itemViews"&&canonical(shadow.record.record)===canonical(view),"Recovered assignment shadow differs from Mongo")
+      assert(local.cursor.after===authoritative.page.through&&local.cursor.through===null,"Assignment cursor did not finish")
+    }
+    const settled=await snapshot(1);const replay=await call(1,{type:"resolve-assignment",request}) as {status:string}
+    assert(replay.status==="replayed"&&canonical((await snapshot(1)).backup.stores)===canonical(settled.backup.stores),"Decision replay overwrote confirmed assignment")
+  }
+  return {adopted,retried,lostReplies}
+}

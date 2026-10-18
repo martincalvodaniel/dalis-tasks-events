@@ -1,4 +1,5 @@
 "use client"
+import { readItemViewIncidentComparison, resolveItemViewIncident } from "@/features/sync/local-item-view-resolution"
 import { provePlanCategoryResolutionUi } from "@fixture/plan-category-resolution-ui"
 import { remotePushInputV2Schema } from "@/schemas/remote-push-v2"
 import { readPlanCategoryIncidentComparison, resolvePlanCategoryIncident } from "@/features/sync/local-plan-category-resolution"
@@ -572,6 +573,24 @@ export async function executeLocalFixtureCommand(
       return proveCommonPlanResolutionUi(active, command.request)
     case "resolve-settings-ui":
       return proveSettingsResolutionUi(active, command.request)
+    case "assignment-comparison":
+      return readItemViewIncidentComparison(active,command.operationId)
+    case "resolve-assignment":
+      return resolveItemViewIncident(active,command.request)
+    case "assignment-guard-proof": {
+      const before=JSON.stringify((await readFixtureBackup(active)).stores)
+      let checks=0
+      for(const work of [
+        ()=>resolveItemViewIncident({...active,epoch:crypto.randomUUID()},command.request),
+        ()=>resolveItemViewIncident(active,{...command.request,userId:"owned-foreign-assignment"}),
+        ()=>resolveItemViewIncident(active,{...command.request,expected:{...command.request.expected,parent:{...command.request.expected.parent,title:"Changed after review"}}}),
+      ]) {
+        let failed=false;try{await work()}catch{failed=true}
+        if(!failed || before!==JSON.stringify((await readFixtureBackup(active)).stores))throw new Error("Assignment feature guard changed durable state")
+        checks++
+      }
+      return {checks}
+    }
     case "joint-comparison":
       return readPlanCategoryIncidentComparison(active, command.operationId)
     case "resolve-joint-ui":

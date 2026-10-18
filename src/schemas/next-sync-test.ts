@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { itemViewResolutionRequestSchema } from "@/schemas/item-view-resolution"
 import { planCategoryResolutionRequestSchema } from "@/schemas/plan-category-resolution"
 import { planCommandSchema } from "@/schemas/plan-command"
 import { planSchema } from "@/schemas/plan-item"
@@ -138,9 +139,21 @@ export function nextSyncMissingActionId(runIdInput: unknown): string {
   return `40${entityIdSchema.parse(runIdInput).replaceAll("-", "")}00000000`
 }
 export const nextSettingsProofScopeSchema = z
-  .enum(["full", "joint-ui"])
+  .enum(["full", "joint-ui", "assignment"])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("assignment-comparison"),
+    operationId: entityIdSchema,
+  }),
+  z.strictObject({
+    type: z.literal("resolve-assignment"),
+    request: itemViewResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("assignment-guard-proof"),
+    request: itemViewResolutionRequestSchema,
+  }),
   z.strictObject({ type: z.literal("prepare-local"), userId: userIdSchema }),
   z.strictObject({
     type: z.literal("prepare-legacy-local"),

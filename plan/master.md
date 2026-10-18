@@ -1,5 +1,12 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19f3 — Asignaciones: Next/Mongo y dos particiones aprobados
+
+Once escenarios focalizados Next6: diez fronteras previas y un recorrido con cuatro variantes, productores reales y cadenas de tres asignaciones. Adopción y tres reenvíos conservan exactamente contenido, categorías, orden, outcomes y originales supersedidos. Dos respuestas perdidas tras commit remoto, recarga con pending attempt1, mismo UUID→ACK aplicado attempt2 y recibo/journal únicos aprobados. Cuenta/época/stale rechazan sin mutación; replay de la decisión no retrocede estado confirmado. Proyecciones de item/vista, shadow y cursor exactos en ambas particiones por plan. No es convergencia global, Google interactivo ni dispositivos físicos nuevos.
+
+Selector estricto `assignment` añadido; completo30 disponible y `joint-ui` conservado. Este lote ejecuta once focalizados, no30. Se corrigió el nombre del mapa de proyección de la fixture antes de repetir compilación. Mongo/imagen pinned revalidados; proyecto, sesiones, orígenes, pestañas y recursos propios retirados.941pass/223skip/0fail/11588 aserciones, lint915/tipos/Webpack/worker46/diff aprobados. Sin índices nuevos, DBusuario ni producción; UI aún oculta. Siguiente19f4: revisión guardada en Ajustes y ambas elecciones con cancelar/reabrir/confirmar real antes de publicar. Entrada65%5h/53%7d, reservas10%/1%.
+
+
 ## 19f2 — Asignaciones: transacción y evidencia preparadas
 
 Captura readonly y writer de9stores reconstruyen padre/vista/categoría/cola en una TX. Los prerrequisitos ACK se acreditan contra outcomes aplicados reales antes de devolver la comparación, también al escribir. Adopción guarda la vista remota; retry añade una sola intención pendiente con CAS nuevo. Vista, supersesión explícita, secuencia y recibo son atómicos; contenido/categorías/orden permanecen intactos. Replay previo no reescribe trabajo posterior ni notifica. Feature guardada por cuenta/época, IDs globales y capacidad previos a writes.
