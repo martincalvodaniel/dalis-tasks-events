@@ -1,6 +1,6 @@
 # Recuperación explícita de conflictos
 
-**Estado vigente19b3:** elecciones activas para raíces legacy y planes comunes sin repetición ni cadenas externas. Adopción/reintento/copia probados en Next/IndexedDB/Mongo con diálogo real. Ajustes también ofrece adoptar/reintentar la zona personal con transacción/evidencia y guardias propias; no cambia planes ni simula ACK. Quedan cadenas de contenido+categoría, otras preferencias y apariciones. 19c1 prepara adopción de una aparición con padre/slot/cadena/evidencia exactos, sin executor/UI todavía. Las cancelaciones/tombstones remotos se conservan, remoto ausente no se interpreta como permiso. Los apartados siguientes conservan la secuencia histórica.
+**Estado vigente19b3:** elecciones activas para raíces legacy y planes comunes sin repetición ni cadenas externas. Adopción/reintento/copia probados en Next/IndexedDB/Mongo con diálogo real. Ajustes también ofrece adoptar/reintentar la zona personal con transacción/evidencia y guardias propias; no cambia planes ni simula ACK. Quedan cadenas de contenido+categoría, otras preferencias y apariciones. 19c1–2 preparan adopción de una aparición con padre/slot/cadena/evidencia exactos y executor/backup probados en26Next6; UI pendiente19c3. Las cancelaciones/tombstones remotos se conservan, remoto ausente no se interpreta como permiso. Los apartados siguientes conservan la secuencia histórica.
 
 
 ## 19a1 — Planner de conflictos de planes simples

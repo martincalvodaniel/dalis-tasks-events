@@ -3,6 +3,7 @@ import { planCommandSchema } from "@/schemas/plan-command"
 import { planSchema } from "@/schemas/plan-item"
 import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
 import { planOccurrenceCommandSchema } from "@/schemas/plan-occurrence-command"
+import { planOccurrenceResolutionRequestSchema } from "@/schemas/plan-occurrence-resolution"
 import { planSaveRequestSchema } from "@/schemas/plan-save"
 import {
   userSettingsInputSchema,
@@ -141,6 +142,14 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("lost-settings-response-run") }),
   z.strictObject({ type: z.literal("epoch-after-settings-commit-run") }),
   z.strictObject({ type: z.literal("settings-incidents") }),
+  z.strictObject({
+    type: z.literal("resolve-appearance"),
+    request: planOccurrenceResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("appearance-resolution-local-proof"),
+    request: planOccurrenceResolutionRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("resolve-settings"),
     request: settingsResolutionRequestSchema,

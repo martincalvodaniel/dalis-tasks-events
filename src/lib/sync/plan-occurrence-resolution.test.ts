@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test"
+import { validateLocalRecurringBackup } from "@/lib/backup/local-backup"
 import { applyPlanOccurrenceCommand } from "@/lib/calendar/plan-occurrence-command"
 import {
   availablePlanOccurrenceResolutionChoices,
@@ -6,9 +7,11 @@ import {
   validatePlanOccurrenceResolutionRecord,
 } from "@/lib/sync/plan-occurrence-resolution"
 import { projectPlanOccurrenceSyncIncidents } from "@/lib/sync/recurring-incident-snapshot"
+import { localBackupMetadataV2Schema } from "@/schemas/local-backup"
 import { localPlanOccurrenceOutcomeSchema } from "@/schemas/local-plan-occurrence-sync"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import { planSchema } from "@/schemas/plan-item"
+import { settingsResolutionRecordSchema } from "@/schemas/settings-resolution"
 import type { PlanOccurrenceResolutionRequest } from "@/types/plan-occurrence-resolution"
 
 const timestamp = "2026-10-11T13:00:00.000Z"
@@ -367,5 +370,64 @@ test("frozen evidence, decision identity and durable projection must agree exact
   ).toThrow()
   expect(() =>
     validatePlanOccurrenceResolutionRecord(record, "foreign")
+  ).toThrow()
+})
+
+test("portable three retains appearance decisions and rejects contradictory or missing evidence", () => {
+  const { current, request, input } = comparison()
+  const record = planOccurrenceIncidentResolution(request, current)
+  const backup = {
+    format: "dalis-local-backup",
+    version: 3,
+    protocolVersion: 1,
+    databaseVersion: 2,
+    userId: request.userId,
+    exportedAt: request.createdAt,
+    stores: {
+      items: input.items,
+      occurrences: [record.local],
+      tags: [],
+      itemViews: [],
+      taskPlacements: [],
+      settings: [],
+      memberships: [],
+      invitations: [],
+      outbox: input.entries.map((entry) => ({
+        ...entry,
+        state: "superseded" as const,
+      })),
+      remoteShadows: [],
+      syncMetadata: [
+        { key: "outbox-sequence", value: 2 },
+        ...input.outcomes,
+        record,
+      ],
+    },
+  }
+  expect(
+    validateLocalRecurringBackup(backup, request.userId).stores.occurrences
+  ).toEqual([record.local])
+  expect(localBackupMetadataV2Schema.safeParse(record).success).toBe(false)
+  expect(settingsResolutionRecordSchema.safeParse(record).success).toBe(false)
+  expect(() =>
+    validateLocalRecurringBackup({ ...backup, version: 2 }, request.userId)
+  ).toThrow()
+  const corrupt = structuredClone(backup)
+  corrupt.stores.syncMetadata[corrupt.stores.syncMetadata.length - 1] = {
+    ...record,
+    local: { ...record.local, cancelled: !record.local.cancelled },
+  }
+  expect(() => validateLocalRecurringBackup(corrupt, request.userId)).toThrow()
+  expect(() =>
+    validateLocalRecurringBackup(
+      {
+        ...backup,
+        stores: {
+          ...backup.stores,
+          syncMetadata: [{ key: "outbox-sequence", value: 2 }, record],
+        },
+      },
+      request.userId
+    )
   ).toThrow()
 })

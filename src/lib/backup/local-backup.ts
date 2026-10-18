@@ -3,6 +3,7 @@ import { validateBackupImportEvidence } from "@/lib/backup/import-record"
 import { decodeLocalOperationOutcome } from "@/lib/sync/local-operation-outcome-v2"
 import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
 import { decodeLocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
+import { validatePlanOccurrenceResolutionRecord } from "@/lib/sync/plan-occurrence-resolution"
 import { projectPlanOccurrenceSyncIncidents } from "@/lib/sync/recurring-incident-snapshot"
 import { decodeRemoteShadow } from "@/lib/sync/remote-shadow-v2"
 import { validateSettingsResolutionRecord } from "@/lib/sync/settings-resolution"
@@ -202,6 +203,8 @@ function validateBackup(
   )
   const superseded = new Set<string>()
   for (const record of s.syncMetadata) {
+    if (record.key.startsWith("appearance-resolution:"))
+      validatePlanOccurrenceResolutionRecord(record, actor)
     if (record.key.startsWith("settings-resolution:"))
       validateSettingsResolutionRecord(record, actor)
     if ("importId" in record)

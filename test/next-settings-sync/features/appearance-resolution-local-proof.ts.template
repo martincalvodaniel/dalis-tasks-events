@@ -1,0 +1,179 @@
+"use client"
+
+import { resolvePlanOccurrenceIncident } from "@/features/sync/local-plan-occurrence-resolution"
+import { readSyncIncidents } from "@/features/sync/local-incidents"
+import { changeLocalPlanOccurrence } from "@/features/plans/local-plans"
+import { readLocalRecurringBackup } from "@/lib/local-db/backup"
+import { openLocalDatabase, localDatabaseName } from "@/lib/local-db/client"
+import { subscribeLocalOutboxChanges } from "@/lib/local-db/sync-notifications"
+import type { PlanOccurrenceResolutionRequest } from "@/types/plan-occurrence-resolution"
+
+function assert(value: unknown, message: string): asserts value {
+  if (!value) throw new Error(message)
+}
+export async function proveLocalAppearanceResolution(
+  account: { userId: string; epoch: string },
+  request: PlanOccurrenceResolutionRequest
+) {
+  const database = await openLocalDatabase(account.userId)
+  let notices = 0,
+    checks = 0
+  const unsubscribe = subscribeLocalOutboxChanges(
+    account.userId,
+    () => notices++
+  )
+  const snapshot = async () =>
+    (
+      await readLocalRecurringBackup(
+        database,
+        account.userId,
+        new Date().toISOString()
+      )
+    ).stores
+  const same = (a: unknown, b: unknown) =>
+    JSON.stringify(a) === JSON.stringify(b)
+  async function rejected(work: () => Promise<unknown>) {
+    let failed = false
+    try {
+      await work()
+    } catch {
+      failed = true
+    }
+    assert(failed, "Expected appearance decision guard failure")
+    checks++
+  }
+  try {
+    const original = await snapshot()
+    await rejected(() =>
+      resolvePlanOccurrenceIncident(
+        { ...account, epoch: crypto.randomUUID() },
+        request
+      )
+    )
+    await rejected(() =>
+      resolvePlanOccurrenceIncident(account, {
+        ...request,
+        userId: "owned-foreign-appearance",
+      })
+    )
+    assert(
+      same(original, await snapshot()),
+      "Account guard changed appearance evidence"
+    )
+    const expected = request.expected
+    assert(expected.local, "Appearance local proof requires its own draft")
+    await changeLocalPlanOccurrence(
+      { ...account, itemCount: 0, offlineReady: false },
+      {
+        type: "plan.set-occurrence-status",
+        itemId: expected.series.id,
+        occurrenceId: expected.local.id,
+        status: "completed",
+      },
+      {
+        operationId: crypto.randomUUID(),
+        now: new Date(),
+        expectedItem: expected.series,
+        expectedOccurrence: expected.local,
+      }
+    )
+    const before = await snapshot()
+    await rejected(() => resolvePlanOccurrenceIncident(account, request))
+    assert(
+      same(before, await snapshot()),
+      "Stale appearance decision changed its partition"
+    )
+    const overview = (await readSyncIncidents(account)).find(
+      (value) =>
+        value.kind === "plan-occurrence" &&
+        value.incident.entry.operation.operationId ===
+          expected.entry.operation.operationId
+    )
+    assert(
+      overview?.kind === "plan-occurrence",
+      "Appearance conflict missing after later edit"
+    )
+    const fresh = { ...request, expected: overview.incident }
+    const count = notices,
+      add = IDBObjectStore.prototype.add
+    IDBObjectStore.prototype.add = function (
+      value: unknown,
+      key?: IDBValidKey
+    ) {
+      if (
+        this.transaction.db.name === localDatabaseName(account.userId) &&
+        this.name === "syncMetadata" &&
+        value &&
+        typeof value === "object" &&
+        "key" in value &&
+        String(value.key).startsWith("appearance-resolution:")
+      )
+        throw new Error("Owned late appearance receipt failure")
+      return add.call(this, value, key)
+    }
+    try {
+      await rejected(() => resolvePlanOccurrenceIncident(account, fresh))
+    } finally {
+      IDBObjectStore.prototype.add = add
+    }
+    assert(
+      same(before, await snapshot()) && notices === count,
+      "Appearance rollback left projection, intentions, receipt or notification"
+    )
+    const result = await resolvePlanOccurrenceIncident(account, fresh)
+    assert(
+      result.status === "applied" && notices > count,
+      "Appearance adoption did not notify after commit"
+    )
+    const after = await snapshot()
+    for (const store of [
+      "items",
+      "tags",
+      "itemViews",
+      "taskPlacements",
+      "settings",
+      "remoteShadows",
+      "memberships",
+      "invitations",
+    ] as const)
+      assert(
+        same(before[store], after[store]),
+        "Appearance adoption changed an unrelated store"
+      )
+    assert(
+      same(
+        before.occurrences.filter(
+          (value) => value.id !== result.record.local.id
+        ),
+        after.occurrences.filter((value) => value.id !== result.record.local.id)
+      ),
+      "Appearance adoption changed another slot"
+    )
+    assert(
+      same(
+        before.syncMetadata.filter((value) => value.key === "outbox-sequence"),
+        after.syncMetadata.filter((value) => value.key === "outbox-sequence")
+      ),
+      "Appearance adoption advanced the outbox counter"
+    )
+    const replay = await resolvePlanOccurrenceIncident(account, fresh)
+    assert(
+      replay.status === "replayed" && same(after, await snapshot()),
+      "Appearance decision replay rewrote durable state"
+    )
+    await rejected(() =>
+      resolvePlanOccurrenceIncident(account, {
+        ...fresh,
+        createdAt: new Date(Date.parse(fresh.createdAt) + 1).toISOString(),
+      })
+    )
+    assert(
+      same(after, await snapshot()),
+      "Reused decision identity changed durable state"
+    )
+    return { ...result, checks }
+  } finally {
+    unsubscribe()
+    database.close()
+  }
+}

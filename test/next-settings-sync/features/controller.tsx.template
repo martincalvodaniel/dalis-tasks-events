@@ -1,4 +1,5 @@
 "use client"
+import { proveRemoteAppearanceRecovery } from "@fixture/appearance-recovery"
 import { proveRemoteSettingsRecovery } from "@fixture/settings-recovery"
 import { proveRemoteCommonPlanRecovery } from "@fixture/common-plan-recovery"
 import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
@@ -1369,6 +1370,21 @@ export function FixtureController() {
         }
       )
       await check(
+        "Apariciones adoptan conflictos reales sin ACK y preservan otros slots con rollback y replay",
+        async () => {
+          const proof = await proveRemoteAppearanceRecovery({
+            call,
+            snapshot,
+            state: () => state(owner),
+            owner,
+          })
+          assert(
+            proof.adopted === 2 && proof.guarded,
+            "Appearance recovery evidence incomplete"
+          )
+        }
+      )
+      await check(
         "Executor común privado conserva backup y revierte decisiones fallidas sin ACK",
         async () => {
           const before = await state(owner)
@@ -1440,7 +1456,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Veinticinco escenarios Next6 correctos; sesiones propias cerradas"
+            "Veintiséis escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

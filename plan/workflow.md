@@ -534,3 +534,7 @@ Usuario solicita continuar a las02:20; hora actual17oct22:37Madrid, por lo que c
 ### Renovación real18oct02:20 — 19c1
 
 Confirmadas ambas cuotas100% restantes; reset5h nuevo1792300836, semanal1792887636, sin uso de créditos/reinicios. HEADa76721b/originint exactos y limpios. Continuación puntual autorizada, reservas10%5h/1%7d, secuencial; no nueva cadena. Primer corte prepara adopción pura de aparición, con pruebas/DoD yplan/log mismo commitpushint/HEAD/cuotas. Mantener aceptación física15a3 cerrada y main humano intacto.
+
+### 19c2 — Adopción durable probada
+
+Entrada93%5h/99%7d trasbfba03c, reservas10%/1%. Next propio26casos ybackup3 prueban adopción sinACK remoto, rollback/replay yguardia de otra fecha pendiente. Se detuvo el primer runner antes de ejecutar para corregir import de tipo de fixture; cleanup/retry aprobado. Dos pruebas de tipo debackup se ajustaron para no tratar metadata unknown como objeto sin validar; se repitió DoD. Mismo commitpushint/HEAD/cuotas. NoUI nueva ni DBusuario; siguiente19c3 si cabe corte completo.

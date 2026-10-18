@@ -1,0 +1,316 @@
+"use client"
+
+import type { z } from "zod"
+import { canonical, foldRecurringChanges } from "@fixture/projection"
+import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
+import {
+  nextSyncDeviceCommandSchema,
+  nextSettingsSyncStateSchema,
+} from "@/schemas/next-sync-test"
+import { planSchema } from "@/schemas/plan-item"
+import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
+import {
+  planOccurrenceIncidentSnapshotSchema,
+  planOccurrenceResolutionRecordSchema,
+} from "@/schemas/plan-occurrence-resolution"
+import type {
+  PlanOccurrenceResolutionRecord,
+  PlanOccurrenceResolutionRequest,
+} from "@/types/plan-occurrence-resolution"
+import type { planOccurrenceCommandSchema } from "@/schemas/plan-occurrence-command"
+import type { LocalRecurringBackup } from "@/types/local-backup"
+import type { LocalPullCursor } from "@/types/local-sync"
+import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
+
+type Snapshot = { backup: LocalRecurringBackup; cursor: LocalPullCursor }
+type Ports = {
+  owner: string
+  call(
+    index: number,
+    input: z.infer<typeof nextSyncDeviceCommandSchema>
+  ): Promise<unknown>
+  snapshot(index: number): Promise<Snapshot>
+  state(): Promise<z.infer<typeof nextSettingsSyncStateSchema>>
+}
+function assert(value: unknown, message: string): asserts value {
+  if (!value) throw new Error(message)
+}
+function requestFrom(
+  record: PlanOccurrenceResolutionRecord
+): PlanOccurrenceResolutionRequest {
+  return {
+    userId: record.userId,
+    resolutionId: record.resolutionId,
+    operationId: null,
+    choice: record.choice,
+    createdAt: record.createdAt,
+    expected: record.expected,
+  }
+}
+export async function proveRemoteAppearanceRecovery({
+  call,
+  snapshot,
+  state,
+  owner,
+}: Ports) {
+  let adopted = 0
+  for (const mode of ["progress", "cancelled", "guarded"] as const) {
+    const itemId = crypto.randomUUID(),
+      stepId = crypto.randomUUID(),
+      now = new Date().toISOString(),
+      first = `${itemId}:2026-10-17`,
+      second = `${itemId}:2026-10-18`
+    await call(0, {
+      type: "save-plan",
+      request: {
+        mode: "create",
+        itemId,
+        contentOperationId: crypto.randomUUID(),
+        viewOperationId: crypto.randomUUID(),
+        primaryTagId: null,
+        now,
+        input: {
+          kind: "plan",
+          variant: "appointment",
+          title: `Recuperar aparición ${mode}`,
+          description: "",
+          status: "not_started",
+          checklist: [
+            { id: stepId, text: "Paso conservado", completed: false },
+          ],
+          schedule: {
+            mode: "all_day",
+            startDate: "2026-10-17",
+            endDateExclusive: "2026-10-18",
+          },
+          recurrence: {
+            frequency: "daily",
+            interval: 1,
+            anchorDate: "2026-10-17",
+            timeZone: "Europe/Madrid",
+            end: { type: "count", count: 3 },
+          },
+        },
+      },
+    })
+    await call(0, { type: "mixed-run" })
+    await call(1, { type: "mixed-run" })
+    async function commit(
+      index: number,
+      command: z.infer<typeof planOccurrenceCommandSchema>
+    ) {
+      const copy = await snapshot(index),
+        series = planSchema.parse(
+          copy.backup.stores.items.find((value) => value.id === itemId)
+        )
+      const stored = copy.backup.stores.occurrences.find(
+        (value) => value.id === command.occurrenceId
+      )
+      const current = editablePlanOccurrence(
+        series,
+        stored ? planOccurrenceSchema.parse(stored) : null,
+        command,
+        owner
+      ).current
+      return call(index, {
+        type: "commit-occurrence",
+        operationId: crypto.randomUUID(),
+        now: new Date().toISOString(),
+        command,
+        expectedItem: series,
+        expectedOccurrence: current,
+      })
+    }
+    await commit(
+      0,
+      mode === "cancelled"
+        ? { type: "plan.cancel-occurrence", itemId, occurrenceId: first }
+        : {
+            type: "plan.set-occurrence-status",
+            itemId,
+            occurrenceId: first,
+            status: "completed",
+          }
+    )
+    await call(0, { type: "mixed-run" })
+    await commit(0, {
+      type: "plan.set-occurrence-status",
+      itemId,
+      occurrenceId: second,
+      status: "in_progress",
+    })
+    await call(0, { type: "mixed-run" })
+    await commit(1, {
+      type: "plan.set-occurrence-status",
+      itemId,
+      occurrenceId: first,
+      status: "in_progress",
+    })
+    await commit(1, {
+      type: "plan.set-occurrence-checklist-entry",
+      itemId,
+      occurrenceId: first,
+      entryId: stepId,
+      completed: true,
+    })
+    if (mode === "guarded")
+      await commit(1, {
+        type: "plan.set-occurrence-status",
+        itemId,
+        occurrenceId: second,
+        status: "completed",
+      })
+    await call(1, { type: "mixed-run" })
+    const incidents = (await call(1, {
+      type: "settings-incidents",
+    })) as RecurringSyncIncidentOverview[]
+    const incident = incidents.find(
+      (value) =>
+        value.kind === "plan-occurrence" && value.incident.series.id === itemId
+    )
+    assert(
+      incident?.kind === "plan-occurrence",
+      "Real appearance CAS conflict missing"
+    )
+    const expected = planOccurrenceIncidentSnapshotSchema.parse(
+      incident.incident
+    )
+    const request: PlanOccurrenceResolutionRequest = {
+      userId: owner,
+      resolutionId: crypto.randomUUID(),
+      operationId: null,
+      choice: "adopt_remote",
+      createdAt: new Date().toISOString(),
+      expected,
+    }
+    const before = await snapshot(1),
+      remoteBefore = await state()
+    if (mode === "guarded") {
+      assert(
+        expected.blockedByRelatedIntentions,
+        "Another unresolved slot was not guarded"
+      )
+      let failed = false
+      try {
+        await call(1, { type: "resolve-appearance", request })
+      } catch {
+        failed = true
+      }
+      assert(
+        failed &&
+          canonical((await snapshot(1)).backup.stores) ===
+            canonical(before.backup.stores) &&
+          canonical(await state()) === canonical(remoteBefore),
+        "Guarded appearance decision lost another slot or fabricated ACK"
+      )
+      continue
+    }
+    const result = (await call(
+      1,
+      mode === "progress"
+        ? { type: "appearance-resolution-local-proof", request }
+        : { type: "resolve-appearance", request }
+    )) as { status: string; record: unknown; checks?: number }
+    const record = planOccurrenceResolutionRecordSchema.parse(result.record)
+    assert(
+      result.status === "applied" &&
+        (mode !== "progress" || (result.checks ?? 0) >= 5),
+      "Appearance local guard/rollback proof incomplete"
+    )
+    assert(
+      canonical(await state()) === canonical(remoteBefore),
+      "Appearance adoption manufactured remote receipt or journal"
+    )
+    const after = await snapshot(1)
+    assert(
+      canonical(
+        after.backup.stores.occurrences.find((value) => value.id === first)
+      ) === canonical(record.local),
+      "Appearance did not adopt its reviewed remote exception"
+    )
+    for (const reviewed of record.expected.intentions) {
+      const preserved = after.backup.stores.outbox.find(
+        (value) =>
+          value.operation.operationId === reviewed.operation.operationId
+      )
+      assert(
+        canonical(preserved) ===
+          canonical({ ...reviewed, state: "superseded", lease: null }),
+        "Appearance adoption changed original UUID, payload, attempts or dependencies"
+      )
+    }
+    if (mode === "progress") {
+      await commit(1, {
+        type: "plan.set-occurrence-status",
+        itemId,
+        occurrenceId: first,
+        status: "not_started",
+      })
+      const newer = await snapshot(1)
+      const replay = (await call(1, {
+        type: "resolve-appearance",
+        request: requestFrom(record),
+      })) as { status: string }
+      assert(
+        replay.status === "replayed" &&
+          canonical((await snapshot(1)).backup.stores) ===
+            canonical(newer.backup.stores),
+        "Appearance decision replay overwrote a later local edit"
+      )
+    } else assert(record.local.cancelled, "Remote cancellation was revived")
+    await call(1, { type: "mixed-run" })
+    await call(0, { type: "mixed-run" })
+    const authoritative = await state(),
+      projection = foldRecurringChanges(authoritative.page)
+    for (let index = 0; index < 2; index++) {
+      const copy = await snapshot(index),
+        own = copy.backup.stores.occurrences.filter(
+          (value) => value.seriesId === itemId
+        )
+      assert(
+        copy.cursor.after === authoritative.page.through &&
+          copy.cursor.through === null,
+        "Appearance recovery missed remote checkpoint"
+      )
+      assert(
+        canonical(
+          copy.backup.stores.items.find((value) => value.id === itemId)
+        ) === canonical(projection.items.get(itemId)),
+        "Appearance adoption changed its parent"
+      )
+      assert(
+        own.length === 2,
+        "Appearance recovery lost or invented another slot"
+      )
+      for (const value of own) {
+        assert(
+          canonical(value) === canonical(projection.occurrences.get(value.id)),
+          "Appearance partitions did not converge with exact Mongo projection"
+        )
+        const shadow = copy.backup.stores.remoteShadows.find(
+          (shadow) => shadow.entityKey === `plan-occurrence:${value.id}`
+        )
+        assert(
+          shadow &&
+            "kind" in shadow &&
+            shadow.kind === "plan-occurrence" &&
+            canonical(shadow.record) === canonical(value),
+          "Appearance confirmed shadow differs from its projection"
+        )
+      }
+    }
+    const replayBefore = await snapshot(1)
+    const replay = (await call(1, {
+      type: "resolve-appearance",
+      request: requestFrom(record),
+    })) as { status: string }
+    assert(
+      replay.status === "replayed" &&
+        canonical((await snapshot(1)).backup.stores) ===
+          canonical(replayBefore.backup.stores),
+      "Appearance replay changed a confirmed later version"
+    )
+    adopted++
+  }
+  return { adopted, guarded: true }
+}

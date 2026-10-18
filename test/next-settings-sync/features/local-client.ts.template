@@ -1,4 +1,6 @@
 "use client"
+import { resolvePlanOccurrenceIncident } from "@/features/sync/local-plan-occurrence-resolution"
+import { proveLocalAppearanceResolution } from "@fixture/appearance-resolution-local-proof"
 import { proveSettingsResolutionUi } from "@fixture/settings-resolution-ui"
 import { resolveSettingsIncident } from "@/features/sync/local-settings-resolution"
 import { proveLocalSettingsResolution } from "@fixture/settings-resolution-local-proof"
@@ -566,6 +568,10 @@ export async function executeLocalFixtureCommand(
       return resolveSettingsIncident(active, command.request)
     case "settings-resolution-local-proof":
       return proveLocalSettingsResolution(active, command.request)
+    case "resolve-appearance":
+      return resolvePlanOccurrenceIncident(active, command.request)
+    case "appearance-resolution-local-proof":
+      return proveLocalAppearanceResolution(active, command.request)
     case "settings-incidents":
       return readSyncIncidents(active)
     case "legacy-root-resolution-proof": {

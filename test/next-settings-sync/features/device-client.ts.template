@@ -133,6 +133,8 @@ async function execute(
       "lost-settings-response-run",
       "epoch-after-settings-commit-run",
       "settings-incidents",
+      "resolve-appearance",
+      "appearance-resolution-local-proof",
       "resolve-settings",
       "resolve-settings-ui",
       "settings-resolution-local-proof",

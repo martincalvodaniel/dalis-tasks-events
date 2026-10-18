@@ -1,6 +1,7 @@
 "use client"
 
 import { openLocalDatabase } from "@/lib/local-db/client"
+import { resolveLocalPlanOccurrenceIncident } from "@/lib/local-db/plan-occurrence-resolution"
 import { applyLocalChangesPage } from "@/lib/local-db/pull-changes"
 import { readLocalSyncQueueSummary } from "@/lib/local-db/queue-summary"
 import { resolveLocalSettingsIncident } from "@/lib/local-db/settings-resolution"
@@ -102,6 +103,17 @@ export class LocalSyncStore {
       recurring,
       allowSettings,
       allowPlans
+    ).then((result) => {
+      if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+      return result
+    })
+  }
+
+  resolvePlanOccurrenceIncident(input: unknown) {
+    return resolveLocalPlanOccurrenceIncident(
+      this.database,
+      this.userId,
+      input
     ).then((result) => {
       if (result.status === "applied") notifyLocalOutboxChange(this.userId)
       return result

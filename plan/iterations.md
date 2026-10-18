@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19c2 — Adopción durable y evidencia portable de aparición
+
+Estado: completado;26Next6 correctos y escritura/backup probados, UI pendiente.
+
+- Objetivo: persistir adopción sin ACK en la misma TX de proyección/cola/evidencia y probar conflicto remoto real antes de UI.
+- target_paths: src/{lib/local-db/{plan-occurrence-resolution,sync-store}.ts,lib/backup/local-backup.ts,schemas/{local-recurring-backup,next-sync-test}.ts,features/sync/local-plan-occurrence-resolution.ts}, pruebas delplanner/backup, test/next-settings-sync/features/** y plan/**.
+- Dependencias: bfba03c publicado,93%5h/99%7d, reservas10%/1%; contrato puro19c1. Next instalado consultado, Docker28.4.0/imagen pinnedamd64 revalidados. Secuencial.
+- Aceptación: reconstrucción de9stores enmismaTX, actor/epoch/IDs/counter/evidencia exactos, sólo slot elegido ycadena revisada, registro+superseded juntos, notificación trascommit yreplay sinreescribir cambios posteriores. Backup3 reconoce/revalida metadata local nueva, sin cambiar wire6/intenciones1/evidencia2. Guardias externas se revalidan con cola completa, sin borrar odesbloquearotros slots. No UIactivada.
+- Validación: backup válido/corrupto/rechazolectorprevio yNext/IndexedDB/Mongo propios con productor real, conflictos CAS, stale/cuenta/epoch/rollback tardío, adopción sinrecibo remoto yreplay posterior, proyección/cursor exactos por serie en dosparticiones, cancelación remota. Suite/lint/tipos/Webpack/worker/cleanup/plan/log/commitpushint/HEAD/cuotas.
+
 ## 19c1 — Contrato puro de adopción de una aparición
 
 Estado: completado; preparación pura, sin elecciones activadas.
