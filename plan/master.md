@@ -2,6 +2,8 @@
 
 ## Estado operativo — 18 de octubre de 2026
 
+19e1 prepara la revisión conjunta de contenido y asignación: un clasificador puro valida la cola completa y demuestra que sólo las intenciones del plan y sus asignaciones no intentadas forman la cohorte. Protege dependientes externos y movimientos pendientes, sin activar decisiones todavía. Siguiente: contrato de elección con snapshots exactos de contenido/vista/categoría; después transacción, evidencia y pruebas remotas antes de UI.
+
 **19d4: Ajustes permite recuperar conflictos aislados de nombre y color de categorías.** Puedes usar la categoría remota o reenviar el nombre/color local conservando el orden remoto. Ambos diálogos, cancelar/reabrir/confirmar y el recorrido hasta ACK/convergencia por categoría pasan en 28 escenarios Next6 propios. Las dependencias externas, borrado y orden mantienen sus guardias. Continúa recuperación de contenido con categoría y otras preferencias según dependencias.
 
 19d3 aprobado:28Next6 compilado con dosorígenes/IndexedDB/sesionesBetterAuth/Mongo propios prueban adopción/retry de categoría, respuestaperdida/recarga yACK único. Siguiente19d4: ofrecer elecciones desdeAjustes conpreview/confirmación yUI real, sin ampliar soporte aborrado/orden/cadenas externas.

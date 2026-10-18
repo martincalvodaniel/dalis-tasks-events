@@ -582,3 +582,7 @@ Entrada82%5h/83%7d trasd92a8f5, reservas10%/1%. Docker28.4.0 eimagenMongo pinned
 ### 19d4 — Elección personal visible
 
 Entrada65%5h/80%7d tras e905112; reservas10%/1%. Skill React y guías Next instaladas consultadas; 28Next6 revalidados con ambos diálogos reales y cancelación/reapertura. DoD/cleanup/guía/plan/log en mismo commitpushint/HEAD/cuotas. Evaluar el siguiente corte completo según lectura real, sin nueva cadena ni producción.
+
+### 19e1 — Delimitar antes de resolver cadenas
+
+Entrada42%5h/76%7d tras868a173, reservas10%/1%. Corte puro secuencial cerrado con DoD/plan/log/mismo commitpushint/HEAD/cuotas. Ninguna decisión parcial conectada: relectura transaccional y contrato completo siguen siendo requisitos.

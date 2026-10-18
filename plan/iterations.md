@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19e1 — Cohorte segura de contenido y asignación
+
+- Estado: completado; nueve tests/45 aserciones, sin nuevas elecciones.
+- Objetivo: demostrar con cola completa cuándo se puede revisar conjuntamente un conflicto de plan simple y sus asignaciones item-view.set dependientes, preservando otros datos.
+- target_paths: src/{schemas/plan-category-recovery-chain.ts,lib/sync/{plan-category-recovery-chain,plan-category-recovery-chain.test}.ts} yplan/{master,iterations,workflow,conflict-recovery,iteration-log}.md.
+- Dependencias:868a173 publicado,42%5h/76%7d yreservas10%/1%; recuperación común ycatálogo6 activos, categorías19d4 cerradas. Secuencial.
+- Aceptación: grafo completo propio/ordenado sin truncar, cadena decontenido exacta y asignaciones delmismo plan sólo pendingattempt0; dependencias fuera de cohorte sóloACK, dependientes externos o movimientos del mismo plan bloqueados aunque falte arista. Normalizar guardia común únicamente después de demostrar clausura; no modificar UUID/payloads/deps/estado ni anunciarACK/permisos.
+- Validación: cuatro variantes, intercalado, cuenta/IDs/refs incompletos, intentadas/leases/rechazos, incoming/outgoing/ACK/superseded, recurrencia/borrados ysemántica de movimientos; DoD/plan/log/mismo commitpushint/HEAD/cuotas. Después contrato deelección/snapshots completos yTX/evidencia/pruebas reales antesUI. SinMongo/DBusuario/índices/wire nuevos.
+
 ## 19d4 — Elecciones de categoría visibles en Ajustes
 
 - Estado: completado; dos tests SSR/30 aserciones y 28 escenarios Next6 con diálogos reales aprobados.
