@@ -21,6 +21,7 @@ if (
   suite !== "tag-resolution" &&
   suite !== "resolution-capacity" &&
   suite !== "plan-category-capture" &&
+  suite !== "plan-category-resolution" &&
   suite !== "task-snapshot" &&
   suite !== "occurrence-ordering"
 )

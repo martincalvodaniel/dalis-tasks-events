@@ -1,6 +1,8 @@
 "use client"
 
 import { openLocalDatabase } from "@/lib/local-db/client"
+import { resolveLocalPlanCategoryIncident } from "@/lib/local-db/plan-category-resolution"
+import { readLocalPlanCategoryResolutionSnapshot } from "@/lib/local-db/plan-category-resolution-capture"
 import { resolveLocalPlanOccurrenceIncident } from "@/lib/local-db/plan-occurrence-resolution"
 import { applyLocalChangesPage } from "@/lib/local-db/pull-changes"
 import { readLocalSyncQueueSummary } from "@/lib/local-db/queue-summary"
@@ -137,6 +139,25 @@ export class LocalSyncStore {
         return result
       }
     )
+  }
+
+  readPlanCategoryIncidentSnapshot(operationId: string) {
+    return readLocalPlanCategoryResolutionSnapshot(
+      this.database,
+      this.userId,
+      operationId
+    )
+  }
+
+  resolvePlanCategoryIncident(input: unknown) {
+    return resolveLocalPlanCategoryIncident(
+      this.database,
+      this.userId,
+      input
+    ).then((result) => {
+      if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+      return result
+    })
   }
 
   close() {

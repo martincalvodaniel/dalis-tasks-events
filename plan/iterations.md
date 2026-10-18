@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19e3b2 — Persistencia conjunta atómica y guardias de cuenta
+
+- Estado: completado; once checks IndexedDB reales propios yDoD910pass/223skip/0fail.
+- Objetivo: cerrar writer local durable de contenido+asignación usando captura19e3a yportabilidad19e3b1, todavía sin UI conjunta.
+- target_paths: src/lib/local-db/{plan-category-resolution.ts,sync-store.ts}, src/features/sync/local-plan-category-resolution.ts, test/browser/plan-category-resolution.ts, scripts/browser-test-server.ts yplan/**.
+- Dependencias:6165517 publicado/HEADremoto exacto,94%5h/70%7d, reservas10%/1%. Secuencial; no nuevo wire/índice/DBusuario.
+- Aceptación:9stores enmismaTX para reread+item/view+superseded+0/2reemplazos+counter+recibo, vista depende sólo delnuevoUUIDcontenido. Replay previo valida petición/recibo yno reescribe estado posterior. IDs contra cola/metadata ycapacidad/counter antes deguardar. Feature6 valida cuenta/epoch antes/después; notificar sólo commit aplicado.
+- Validación: IndexedDB real propio stale/foreign/epoch, fallotardío/rollback completo, UUIDmetadata/reutilizado/overflow/capacidad, replaytrasnuevasediciones ybackup portable pendiente/intentado. DoD/cleanup/plan/log/mismo commitpushint/HEAD/cuotas; luego19e4 Next/Mongo antes de19e5 UI.
+
 ## 19e3b1 — Evidencia portable de decisión conjunta
 
 - Estado: completado; ocho tests/47aserciones, DoD910pass/223skip/0fail.
@@ -20,7 +29,7 @@
 
 ## 19e3b — Decisión conjunta durable y portable (dividida)
 
-- Estado: portable19e3b1 cerrado; siguiente19e3b2 TXlocal/guardias/prueba nativa. La reserva anterior16% queda histórica, renovación12:22 comprobada.
+- Estado: portable19e3b1 ywriter19e3b2 cerrados. Siguiente19e4 prueba Next/Mongo conproductores reales antes deUI19e5; renovación12:22 comprobada.
 - Objetivo: usar queueLocalPlanCategoryResolutionCapture dentro de unaTX readwrite de9stores y persistir item/view, supersesión explícita de toda la cohorte, cero o dosreemplazos, counter yrecibo. El segundo reemplazo debe depender exclusivamente delUUIDnuevo decontenido; CASdeitem yvista independientes.
 - target_paths previstos: nuevo src/lib/local-db/plan-category-resolution.ts, LocalSyncStore/feature guardada, schemas/local-recurring-backup.ts, lib/backup/local-backup.ts, pruebas propias yplan. Concretar el corte antes de editar.
 - Dependencias:19e1/19e2/19e3a preparados,0665080 publicado; noactivar UI todavía. No nuevos comandos/protocolos/índices remotos.
