@@ -708,3 +708,10 @@ Once escenarios focalizados tag-order deNext6 compilado/defaults/sesionesBetterA
 Full31 queda disponible; estaejecución acredita sólo11focalizados. La primera compilación detectó directiveuseclient detrás deimport enlasplantillas nuevas; corregido antesdeRPC. Primerrecorrido detectó queelschema de fixture no admitía tag.move/delete; ampliado explícitamente conregresión. UnDoD durantefixturetemporal incluyó suárbol bajo build/ yfalló tipos; repetido secuencialmente trascleanup, junto alestrechamiento de literals deltest. ÚltimaDoD989pass/223skip/0fail/11861aserciones, lint932sinavisos/tipos/Webpack/worker46/diff aprobados. Docker28.4.0/pinneddigestamd64 revalidados; runnerexit0, contenedor/proxy/temporales/sesiones/particiones/pestañas propios limpios. Captura /private/tmp/dalis-tag-order-next.png.
 
 Entrada66%5h/39%7d, reservas10%/1%, secuencial. Sin nuevo protocolo/índice/DBusuario oUIactiva. Siguiente19g4 preview/diálogo guardado yambas eleccionesUIreales antesdepublicar caller enAjustes.
+
+
+## 19g4a — Diálogo de orden preparado sin caller
+
+Preview puro reutiliza planificación exacta sincrearIDs durables niACK. Diálogo compara catálogo local ycatálogo elegido completo, ordenado visualmente ydesplazable; nombres/colores/revisiones/tombstones yprimaria resaltada. Opciones explícitas usan remoto conocido oreaplican sólo últimomovimiento, conadvertencia sobrecamposremotos, historia conservada, sustitución deintenciones ypending sinconfirmación. Guardiasactor/retryinviable/busy/cancelar; ConfirmationDialog reutilizado ycomponentes extraídos, sin estado derivado por effect.
+
+CuatroSSR/40aserciones ypreviewpuro/4aserciones nuevos,14tests focalizados/103aserciones;994pass/223skip/0fail/11905aserciones, lint935sinavisos/tipos/Webpack/worker46/diff aprobados. Sin interacción browser nueva ocalleractivo. Nextbackend11focalizados sigue cerrado en19g3; siguiente19g4b lectura/confirmación guardadas yambas elecciones reales concancelar/reabrir/confirmar enNext antesdepublicarAjustes. Entrada52%5h/37%7d, reservas10%/1%, secuencial.

@@ -1,5 +1,11 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19g4a — Diálogo de orden preparado sin caller
+
+Preview puro reutiliza planificación exacta sincrearIDs durables niACK. Diálogo compara catálogo local ycatálogo elegido completo, ordenado visualmente ydesplazable; nombres/colores/revisiones/tombstones yprimaria resaltada. Opciones explícitas usan remoto conocido oreaplican sólo últimomovimiento, conadvertencia sobrecamposremotos, historia conservada, sustitución deintenciones ypending sinconfirmación. Guardiasactor/retryinviable/busy/cancelar; ConfirmationDialog reutilizado ycomponentes extraídos, sin estado derivado por effect.
+
+CuatroSSR/40aserciones ypreviewpuro/4aserciones nuevos,14tests focalizados/103aserciones;994pass/223skip/0fail/11905aserciones, lint935sinavisos/tipos/Webpack/worker46/diff aprobados. Sin interacción browser nueva ocalleractivo. Nextbackend11focalizados sigue cerrado en19g3; siguiente19g4b lectura/confirmación guardadas yambas elecciones reales concancelar/reabrir/confirmar enNext antesdepublicarAjustes. Entrada52%5h/37%7d, reservas10%/1%, secuencial.
+
 ## 19g3 — Orden recuperado con Next/Mongo y dos particiones
 
 Once escenarios focalizados tag-order deNext6 compilado/defaults/sesionesBetterAuth persistidas ydosorígenes IndexedDB/Mongo propios aprobados. Productores reales generan raízconflict yúltimo movimiento conectado conUUID/payload/dependencias exactos. Dosadopciones (incluyevecinoborrado/tombstone) ydosretry (incluyerernumeración conrevisiones independientes depeers) conservan originales/outcomes/otrasfamilias. Cuenta/época/stale rechazan sinmutaciones. Dos respuestas perdidas trascommit, recargaantesACK yreplay delmismoUUID→ACKattempt2 producen unúnicorecibo/journal porreemplazo. Catálogo completo de categorías/proyección/sombras/cursor coincide exactamente conMongo enambasparticiones; no equivale aconvergencia global deotrasfamilias niGoogle/físicos nuevos.

@@ -5,6 +5,7 @@ import { planRemoteTagOperation } from "@/lib/preferences/remote-tag-plan"
 import {
   availableTagOrderResolutionChoices,
   planTagOrderIncidentResolution,
+  previewTagOrderResolutionChoice,
   validateTagOrderResolutionRecord,
 } from "@/lib/sync/tag-order-decision"
 import { captureTagOrderResolutionSnapshot } from "@/lib/sync/tag-order-resolution"
@@ -336,4 +337,24 @@ test("large rank compaction is unavailable instead of truncating effects", () =>
   expect(
     planTagOrderIncidentResolution(request(snapshot, false), snapshot).tags
   ).toHaveLength(1503)
+})
+
+test("review preview shares exact planning without creating identities, ACK or input mutations", () => {
+  const f = tagOrderResolutionFixture(),
+    before = JSON.stringify(f.snapshot)
+  for (const choice of ["adopt_remote", "retry_latest_move"] as const) {
+    const tags = previewTagOrderResolutionChoice(f.snapshot, f.actor, choice),
+      record = planTagOrderIncidentResolution(
+        {
+          ...request(f.snapshot, choice !== "adopt_remote"),
+          createdAt: f.entry.createdAt,
+        },
+        f.snapshot
+      )
+    expect(tags).toEqual(record.tags)
+  }
+  expect(JSON.stringify(f.snapshot)).toBe(before)
+  expect(() =>
+    previewTagOrderResolutionChoice(f.snapshot, "foreign", "adopt_remote")
+  ).toThrow()
 })

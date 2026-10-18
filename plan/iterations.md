@@ -1,5 +1,19 @@
 # Iteraciones de implementación
 
+## 19g4a — Diálogo de orden preparado sin caller
+
+Preview puro reutiliza planificación exacta sincrearIDs durables niACK. Diálogo compara catálogo local ycatálogo elegido completo, ordenado visualmente ydesplazable; nombres/colores/revisiones/tombstones yprimaria resaltada. Opciones explícitas usan remoto conocido oreaplican sólo últimomovimiento, conadvertencia sobrecamposremotos, historia conservada, sustitución deintenciones ypending sinconfirmación. Guardiasactor/retryinviable/busy/cancelar; ConfirmationDialog reutilizado ycomponentes extraídos, sin estado derivado por effect.
+
+CuatroSSR/40aserciones ypreviewpuro/4aserciones nuevos,14tests focalizados/103aserciones;994pass/223skip/0fail/11905aserciones, lint935sinavisos/tipos/Webpack/worker46/diff aprobados. Sin interacción browser nueva ocalleractivo. Nextbackend11focalizados sigue cerrado en19g3; siguiente19g4b lectura/confirmación guardadas yambas elecciones reales concancelar/reabrir/confirmar enNext antesdepublicarAjustes. Entrada52%5h/37%7d, reservas10%/1%, secuencial.
+
+## 19g4a — Delimitación previa (completada arriba)
+
+- Objetivo: revisión compacta que compara catálogo local con el elegido, sin caller activo todavía.
+- target_paths: lib/sync/tag-order-decision{,.test}.ts, features/sync/components/{tag-order-resolution-version,tag-order-incident-resolution-dialog,tag-order-incident-ui.test}.tsx yplan/**.
+- Dependencias:19g3/c9911e0 publicado;52%5h/37%7d, reservas10%/1%. SkillReact/guíasNext vigentes; secuencial.
+- Aceptación: preview usa mismo planner puro sinIDs durables niACK, muestra orden real/nombres/colores/tombstones/revisión porcategoría yprimaria resaltada; opciones explícitas adoptar catálogo observado o reaplicar últimomovimiento, no todo ordenlocal. Advierte sustitución explícita/intenciones/historia/pending/catálogo quizáposterior; busy/cancelar/actor yretryinviable protegidos. Listado completo desplazable sintruncamiento. Componentes extraídos, sin effects paraestado derivado yreutilizando ConfirmationDialog.
+- Validación: previewpuro/SSR deambas elecciones/orden/color/nombre/tombstone/actor/retryinviable/busy; DoD completo,mismo ConventionalCommitpushint/HEAD/cuotas. Activación posterior exige lector guardado ypruebaUIrealNext.
+
 ## 19g3 — Orden recuperado con Next/Mongo y dos particiones
 
 Once escenarios focalizados tag-order deNext6 compilado/defaults/sesionesBetterAuth persistidas ydosorígenes IndexedDB/Mongo propios aprobados. Productores reales generan raízconflict yúltimo movimiento conectado conUUID/payload/dependencias exactos. Dosadopciones (incluyevecinoborrado/tombstone) ydosretry (incluyerernumeración conrevisiones independientes depeers) conservan originales/outcomes/otrasfamilias. Cuenta/época/stale rechazan sinmutaciones. Dos respuestas perdidas trascommit, recargaantesACK yreplay delmismoUUID→ACKattempt2 producen unúnicorecibo/journal porreemplazo. Catálogo completo de categorías/proyección/sombras/cursor coincide exactamente conMongo enambasparticiones; no equivale aconvergencia global deotrasfamilias niGoogle/físicos nuevos.

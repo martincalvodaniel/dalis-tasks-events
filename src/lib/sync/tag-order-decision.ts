@@ -54,6 +54,23 @@ function previewLatestMove(
   return { replacement, tags }
 }
 
+// This projection is for review only; it cannot create an operation or prove a remote commit.
+export function previewTagOrderResolutionChoice(
+  input: unknown,
+  actor: string,
+  choice: TagOrderResolutionRequest["choice"]
+) {
+  const snapshot = validateTagOrderResolutionSnapshot(input, actor)
+  if (choice === "adopt_remote") return snapshot.observedTags
+  if (choice !== "retry_latest_move")
+    throw new Error("Category order preview choice is unsupported")
+  return previewLatestMove(
+    snapshot,
+    snapshot.incident.entry.operation.operationId,
+    snapshot.incident.entry.createdAt
+  ).tags
+}
+
 // Presentation only; the writer must recapture evidence and prove prerequisite ACKs.
 export function availableTagOrderResolutionChoices(
   input: unknown,
