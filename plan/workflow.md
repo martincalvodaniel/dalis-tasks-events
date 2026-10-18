@@ -542,3 +542,7 @@ Entrada93%5h/99%7d trasbfba03c, reservas10%/1%. Next propio26casos ybackup3 prue
 ### 19c3 — Adopción de aparición visible
 
 Entrada75%5h/96%7d tras90dbb27, reservas10%/1%.26Next6 con UI real ycancelación/reapertura/confirmación aprobados, rollback/replay e integridad por serie conservados. Dos testsSSR/23aserciones yDoD completos; recursos propios retirados. Mismo commitpushint/HEAD/cuotas antes de elegir siguiente corte. UI sólo adopta remoto conocido: no anunciar cerrado todo el bloque de apariciones.
+
+### 19c4 — Retry puro acotado
+
+Entrada60%5h/94%7d trasdca6b47; reservas10%/1%. Cadena de comandos existentes yregistro ordenado probados, conguardias temporales enexecutor/backup ysin botón. Simulación de planner remoto/ACK confirma CASprevisto ypayloads estables; siguiente entrega exige prueba remota real. DoD completo/plan/log mismo commitpushint/HEAD/cuotas.

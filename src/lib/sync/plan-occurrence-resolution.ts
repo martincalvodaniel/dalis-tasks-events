@@ -1,5 +1,9 @@
-import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
+import {
+  applyPlanOccurrenceCommand,
+  editablePlanOccurrence,
+} from "@/lib/calendar/plan-occurrence-command"
 import { validateLocalPlanOccurrenceOutcome } from "@/lib/sync/local-plan-occurrence-sync"
+import { planOccurrenceRetryCommands } from "@/lib/sync/plan-occurrence-retry"
 import {
   planOccurrenceIncidentSnapshotSchema,
   planOccurrenceResolutionRecordSchema,
@@ -127,11 +131,25 @@ export function availablePlanOccurrenceResolutionChoices(
 ): PlanOccurrenceResolutionRequest["choice"][] {
   try {
     const value = planOccurrenceIncidentSnapshotSchema.parse(input)
-    validateComparison(value, value.entry.userId)
+    const { remote } = validateComparison(value, value.entry.userId)
+    if (value.local) {
+      try {
+        planOccurrenceRetryCommands(value.series, value.local, remote)
+        return ["adopt_remote", "retry_local"]
+      } catch {
+        /* The known remote can still be adopted. */
+      }
+    }
     return ["adopt_remote"]
   } catch {
     return []
   }
+}
+export function planOccurrenceRetryOperationCount(input: unknown): number {
+  const value = planOccurrenceIncidentSnapshotSchema.parse(input)
+  const { remote } = validateComparison(value, value.entry.userId)
+  if (!value.local) throw new Error("Appearance retry requires a local draft")
+  return planOccurrenceRetryCommands(value.series, value.local, remote).length
 }
 export function planOccurrenceIncidentResolution(
   input: unknown,
@@ -144,6 +162,61 @@ export function planOccurrenceIncidentResolution(
   const { value, remote, ids } = validateComparison(current, request.userId)
   if (ids.has(request.resolutionId))
     throw new Error("Appearance decision requires a new identity")
+  if (request.choice === "retry_local") {
+    if (!value.local || !request.operationId)
+      throw new Error(
+        "Appearance retry requires a local draft and new operation"
+      )
+    const commands = planOccurrenceRetryCommands(
+      value.series,
+      value.local,
+      remote
+    )
+    const operationIds = [
+      request.operationId,
+      ...(request.dependentOperationIds ?? []),
+    ]
+    if (
+      operationIds.length !== commands.length ||
+      new Set(operationIds).size !== operationIds.length ||
+      operationIds.includes(request.resolutionId) ||
+      operationIds.some((id) => ids.has(id))
+    )
+      throw new Error(
+        "Appearance retry requires new distinct identities for its complete command chain"
+      )
+    if (remote.revision > Number.MAX_SAFE_INTEGER - commands.length)
+      throw new Error("Appearance retry exceeds its committed revision range")
+    let local = remote
+    const replacements = commands.map((command, index) => {
+      local = applyPlanOccurrenceCommand(
+        value.series,
+        local,
+        command,
+        request.userId,
+        request.createdAt
+      )
+      return remotePlanOccurrenceOperationSchema.parse({
+        operationId: operationIds[index],
+        protocolVersion: 1,
+        baseRevision: value.series.revision,
+        command: {
+          ...command,
+          expectedOccurrenceRevision: remote.revision + index,
+        },
+      })
+    })
+    return planOccurrenceResolutionRecordSchema.parse({
+      ...request,
+      key: `appearance-resolution:${request.resolutionId}`,
+      local,
+      replacement: replacements[0],
+      dependentReplacements: replacements.slice(1),
+      supersededOperationIds: value.intentions.map(
+        (entry) => entry.operation.operationId
+      ),
+    })
+  }
   return planOccurrenceResolutionRecordSchema.parse({
     ...request,
     key: `appearance-resolution:${request.resolutionId}`,
@@ -165,6 +238,9 @@ export function validatePlanOccurrenceResolutionRecord(
     userId: record.userId,
     resolutionId: record.resolutionId,
     operationId: record.operationId,
+    ...(record.dependentOperationIds !== undefined
+      ? { dependentOperationIds: record.dependentOperationIds }
+      : {}),
     choice: record.choice,
     createdAt: record.createdAt,
     expected: record.expected,

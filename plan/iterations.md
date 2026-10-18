@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19c4 — Plan puro de reenvío completo de aparición
+
+Estado: completado; sólo planner preparado, retry rechazado por executor/backup y oculto en UI.
+
+- Objetivo: preparar un reintento de toda la excepción local usando comandos existentes, sin introducir protocolo/comando remoto nuevo.
+- target_paths: src/{schemas/plan-occurrence-resolution.ts,lib/sync/{plan-occurrence-resolution,plan-occurrence-retry,plan-occurrence-resolution.test}.ts,lib/local-db/plan-occurrence-resolution.ts,lib/backup/local-backup.ts} y plan/**.
+- Dependencias:dca6b47 publicado,60%5h/94%7d, reservas10%/1%; adopción activa19c3. Secuencial, planner sólo; executor/backup rechazan retry hasta su siguiente corte coherente.
+- Aceptación: contenido/horario/checklist/progreso/cancelación completos elegidos explícitamente, cadena nueva de1–103 comandos soportados conUUIDdistintos yCAS previsto porpaso. Registro conserva reemplazos ordenados yoriginales. No resucitar remoto cancelado/tombstone, no inferir ancestro niACK. Adopción yrecibos existentes inalterados; no ofrecer botón retry antes executor/backup/prueba real.
+- Validación: planner remoto real puro porpaso, predicción deCAS yACK directo sin alterar payloads, máximo100pasos/cancelación, identidades/cantidad/rango yguardias; regresiónadopción/backup yDoD completo/plan/log/commitpushint/HEAD/cuotas. Sin DBusuario, índices odependencias nuevas.
+
 ## 19c3 — Adopción visible de aparición en Ajustes
 
 Estado: completado; elección activa con26Next6 ydiálogo real aprobados.

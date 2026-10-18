@@ -203,8 +203,11 @@ function validateBackup(
   )
   const superseded = new Set<string>()
   for (const record of s.syncMetadata) {
-    if (record.key.startsWith("appearance-resolution:"))
-      validatePlanOccurrenceResolutionRecord(record, actor)
+    if (record.key.startsWith("appearance-resolution:")) {
+      const decision = validatePlanOccurrenceResolutionRecord(record, actor)
+      if (decision.choice !== "adopt_remote")
+        throw new Error("Appearance retry evidence is not available yet")
+    }
     if (record.key.startsWith("settings-resolution:"))
       validateSettingsResolutionRecord(record, actor)
     if ("importId" in record)

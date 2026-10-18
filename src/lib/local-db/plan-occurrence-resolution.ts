@@ -23,6 +23,8 @@ export function resolveLocalPlanOccurrenceIncident(
 }> {
   const userId = userIdSchema.parse(userIdInput),
     request = planOccurrenceResolutionRequestSchema.parse(input)
+  if (request.choice !== "adopt_remote")
+    return Promise.reject(new Error("Appearance retry is not available yet"))
   if (request.userId !== userId || database.name !== localDatabaseName(userId))
     return Promise.reject(
       new Error("Appearance decision belongs to another partition")

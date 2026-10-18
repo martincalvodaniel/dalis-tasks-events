@@ -1,18 +1,24 @@
 import { expect, test } from "bun:test"
 import { validateLocalRecurringBackup } from "@/lib/backup/local-backup"
 import { applyPlanOccurrenceCommand } from "@/lib/calendar/plan-occurrence-command"
+import { planRemotePlanOccurrenceOperation } from "@/lib/calendar/remote-plan-occurrence-plan"
 import {
   availablePlanOccurrenceResolutionChoices,
   planOccurrenceIncidentResolution,
+  planOccurrenceRetryOperationCount,
   validatePlanOccurrenceResolutionRecord,
 } from "@/lib/sync/plan-occurrence-resolution"
+import { planLocalPlanOccurrenceResult } from "@/lib/sync/plan-occurrence-result-plan"
 import { projectPlanOccurrenceSyncIncidents } from "@/lib/sync/recurring-incident-snapshot"
 import { localBackupMetadataV2Schema } from "@/schemas/local-backup"
 import { localPlanOccurrenceOutcomeSchema } from "@/schemas/local-plan-occurrence-sync"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import { planSchema } from "@/schemas/plan-item"
 import { settingsResolutionRecordSchema } from "@/schemas/settings-resolution"
+import type { OutboxEntry } from "@/types/local-sync"
+import type { PlanOccurrence } from "@/types/plan-occurrence"
 import type { PlanOccurrenceResolutionRequest } from "@/types/plan-occurrence-resolution"
+import type { RemoteRecurringShadow } from "@/types/remote-recurring-sync"
 
 const timestamp = "2026-10-11T13:00:00.000Z"
 function fixture() {
@@ -152,6 +158,7 @@ test("adoption preserves the remote slot and original evidence without an operat
   const record = planOccurrenceIncidentResolution(request, current)
   expect(availablePlanOccurrenceResolutionChoices(current)).toEqual([
     "adopt_remote",
+    "retry_local",
   ])
   expect(record.local).toEqual(current.remote)
   expect(record.local.seriesId).toBe(current.series.id)
@@ -430,4 +437,295 @@ test("portable three retains appearance decisions and rejects contradictory or m
       request.userId
     )
   ).toThrow()
+})
+
+function retryRequest(
+  current: PlanOccurrenceResolutionRequest["expected"]
+): PlanOccurrenceResolutionRequest {
+  const count = planOccurrenceRetryOperationCount(current)
+  return {
+    userId: current.entry.userId,
+    resolutionId: crypto.randomUUID(),
+    operationId: crypto.randomUUID(),
+    dependentOperationIds: Array.from({ length: count - 1 }, () =>
+      crypto.randomUUID()
+    ),
+    choice: "retry_local",
+    createdAt: timestamp,
+    expected: current,
+  }
+}
+function retryComparison() {
+  const { current } = comparison()
+  if (!current.local || !current.remote)
+    throw new Error("Appearance retry fixture missing")
+  const stepId = crypto.randomUUID()
+  const remote = {
+    ...current.remote,
+    status: "not_started" as const,
+    completedAt: null,
+    checklist: [{ id: stepId, text: "Old step", completed: false }],
+  }
+  return {
+    ...current,
+    remote,
+    outcome: {
+      ...current.outcome,
+      result: {
+        ...current.outcome.result,
+        outcome: {
+          status: "conflict" as const,
+          operationId: current.entry.operation.operationId,
+          series: current.series,
+          current: remote,
+        },
+      },
+    },
+    local: {
+      ...current.local,
+      content: {
+        title: "Full local title",
+        description: "Full local description",
+      },
+      schedule: {
+        mode: "all_day" as const,
+        startDate: "2026-10-12",
+        endDateExclusive: "2026-10-14",
+      },
+      status: "completed" as const,
+      completedAt: timestamp,
+      checklist: [{ id: stepId, text: "Changed local step", completed: true }],
+    },
+  }
+}
+
+test("appearance retry builds the whole chosen exception as a bounded chain of existing commands", () => {
+  const current = retryComparison(),
+    request = retryRequest(current),
+    record = planOccurrenceIncidentResolution(request, current)
+  if (!record.replacement) throw new Error("Retry replacement missing")
+  const operations = [
+    record.replacement,
+    ...(record.dependentReplacements ?? []),
+  ]
+  expect(operations.map((value) => value.command.type)).toEqual([
+    "plan.update-occurrence",
+    "plan.set-occurrence-status",
+    "plan.set-occurrence-checklist-entry",
+  ])
+  expect(
+    operations.map((value) => value.command.expectedOccurrenceRevision)
+  ).toEqual([2, 3, 4])
+  expect(
+    operations.every((value) => value.baseRevision === current.series.revision)
+  ).toBe(true)
+  expect(record.local).toMatchObject({
+    content: current.local.content,
+    schedule: current.local.schedule,
+    status: current.local.status,
+    checklist: current.local.checklist,
+    revision: current.remote.revision,
+  })
+  expect(
+    validatePlanOccurrenceResolutionRecord(record, request.userId)
+  ).toEqual(record)
+})
+test("remote planning and direct ACKs preserve predicted replacement payloads and reach exact final projection", () => {
+  const current = retryComparison(),
+    request = retryRequest(current),
+    record = planOccurrenceIncidentResolution(request, current)
+  if (!record.replacement) throw new Error("Retry replacement missing")
+  const operations = [
+      record.replacement,
+      ...(record.dependentReplacements ?? []),
+    ],
+    original = structuredClone(operations),
+    senderId = crypto.randomUUID()
+  let entries: OutboxEntry[] = [
+    ...current.intentions.map((entry) => ({
+      ...entry,
+      state: "superseded" as const,
+    })),
+    ...operations.map((operation, index) =>
+      outboxEntrySchema.parse({
+        userId: request.userId,
+        entityKey: current.entry.entityKey,
+        operation,
+        sequence: current.intentions.length + index + 1,
+        dependencies: index ? [operations[index - 1].operationId] : [],
+        state: "pending",
+        attempts: 0,
+        lease: null,
+        createdAt: timestamp,
+      })
+    ),
+  ]
+  let shadows: RemoteRecurringShadow[] = [],
+    local: PlanOccurrence | null = record.local,
+    committed: PlanOccurrence = current.remote
+  for (let index = 0; index < operations.length; index++) {
+    const operation = operations[index]
+    const planned = planRemotePlanOccurrenceOperation({
+      userId: request.userId,
+      timestamp,
+      operation,
+      series: current.series,
+      current: committed,
+    })
+    if (planned.status !== "changes")
+      throw new Error("Predicted retry CAS failed")
+    committed = planned.record
+    entries = entries.map((entry) =>
+      entry.operation.operationId === operation.operationId
+        ? {
+            ...entry,
+            state: "sending",
+            attempts: 1,
+            lease: { ownerId: senderId, expiresAt: timestamp },
+          }
+        : entry
+    )
+    const result = planLocalPlanOccurrenceResult({
+      userId: request.userId,
+      series: current.series,
+      local,
+      entries,
+      shadows,
+      existingOutcome: null,
+      submission: {
+        operation,
+        senderId,
+        result: {
+          kind: "plan-occurrence",
+          userId: request.userId,
+          outcome: {
+            status: "applied",
+            operationId: operation.operationId,
+            occurrence: committed,
+            seriesRevision: current.series.revision,
+            sequence: index + 1,
+          },
+        },
+      },
+    })
+    entries = result.entries
+    shadows = result.shadows
+    local = result.local
+  }
+  expect(
+    entries
+      .filter((entry) =>
+        operations.some(
+          (operation) => operation.operationId === entry.operation.operationId
+        )
+      )
+      .map((entry) => entry.operation)
+  ).toEqual(original)
+  expect(local).toEqual(committed)
+  expect(committed).toMatchObject({
+    content: current.local.content,
+    schedule: current.local.schedule,
+    status: current.local.status,
+    checklist: current.local.checklist,
+    revision: current.remote.revision + operations.length,
+  })
+})
+test("maximum checklist plus progress and cancellation produces exactly103 safe operations", () => {
+  const current = retryComparison()
+  const steps = Array.from({ length: 100 }, (_, index) => ({
+    id: crypto.randomUUID(),
+    text: `Step ${index}`,
+    completed: false,
+  }))
+  const remote = { ...current.remote, checklist: steps }
+  const next = {
+    ...current,
+    remote,
+    outcome: {
+      ...current.outcome,
+      result: {
+        ...current.outcome.result,
+        outcome: {
+          status: "conflict" as const,
+          operationId: current.entry.operation.operationId,
+          series: current.series,
+          current: remote,
+        },
+      },
+    },
+    local: {
+      ...current.local,
+      cancelled: true,
+      checklist: steps.map((step) => ({ ...step, completed: true })),
+    },
+  }
+  expect(planOccurrenceRetryOperationCount(next)).toBe(103)
+  const record = planOccurrenceIncidentResolution(retryRequest(next), next)
+  expect(record.dependentReplacements).toHaveLength(102)
+  expect(record.dependentReplacements?.at(-1)?.command.type).toBe(
+    "plan.cancel-occurrence"
+  )
+  expect(record.local.cancelled).toBe(true)
+  expect(record.local.checklist.every((step) => step.completed)).toBe(true)
+})
+test("retry identity count, duplicate IDs and revision overflow are rejected before effects", () => {
+  const current = retryComparison(),
+    request = retryRequest(current)
+  for (const changed of [
+    { ...request, dependentOperationIds: [] },
+    {
+      ...request,
+      dependentOperationIds: [request.operationId, request.operationId],
+    },
+    { ...request, operationId: current.entry.operation.operationId },
+    { ...request, operationId: request.resolutionId },
+  ])
+    expect(() => planOccurrenceIncidentResolution(changed, current)).toThrow()
+  const remote = { ...current.remote, revision: Number.MAX_SAFE_INTEGER },
+    next = {
+      ...current,
+      remote,
+      outcome: {
+        ...current.outcome,
+        result: {
+          ...current.outcome.result,
+          outcome: {
+            status: "conflict" as const,
+            operationId: current.entry.operation.operationId,
+            series: current.series,
+            current: remote,
+          },
+        },
+      },
+    }
+  expect(() =>
+    planOccurrenceIncidentResolution(retryRequest(next), next)
+  ).toThrow("revision range")
+})
+test("cancelled remote and missing or deleted local draft stay adoption-only", () => {
+  const current = retryComparison()
+  for (const next of [
+    { ...current, local: null },
+    { ...current, local: { ...current.local, deletedAt: timestamp } },
+    { ...current, remote: { ...current.remote, cancelled: true } },
+    { ...current, remote: { ...current.remote, deletedAt: timestamp } },
+  ]) {
+    if (next.remote)
+      next.outcome = {
+        ...next.outcome,
+        result: {
+          ...next.outcome.result,
+          outcome: {
+            status: "conflict",
+            operationId: next.entry.operation.operationId,
+            series: next.series,
+            current: next.remote,
+          },
+        },
+      }
+    expect(availablePlanOccurrenceResolutionChoices(next)).toEqual([
+      "adopt_remote",
+    ])
+    expect(() => planOccurrenceRetryOperationCount(next)).toThrow()
+  }
 })
