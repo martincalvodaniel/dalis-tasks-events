@@ -2,6 +2,14 @@
 
 ## Estado operativo — 18 de octubre de 2026
 
+### Cierre de la continuación puntual12:22
+
+**Cuatro cortes publicados; último c42bde7.** Recuperación conjunta decontenido+categoría tiene ahora backup3 completo, guardado local atómico yprueba real deconflicto/replay enlas cuatrovariantes.29Next6 compilados conMongo/dosorígenes propios verifican pérdida de respuesta decontenido yvista, recarga, ACK únicos yconvergencia exacta porcohorte. Once checksIndexedDB propios validan rollback/guardias/capacidad. El diagnóstico recorre todas las páginas deljournal sinampliar límite productivo100.
+
+Diálogo conjunto yopciones revisadas preparados con seis testsSSR yguardias puras, **sin callerUI nuevo activo**. Siguiente19e5b conecta revisión desdeAjustes conlectura guardada, UUIDs estables ycache propia, ydebe probar cancelar/reabrir/confirmar reales antes deofrecerlo. DoD923pass/223skip/0fail/11452aserciones, lint903sinavisos/tipos/Webpack/worker46. NoGoogle/dispositivosfísicos nuevos, DBusuario ni producción; recursos propios limpios ymainhumano intacto.
+
+Lectura24%5h/59%7d, reservas10%/1%; elcoste observado deNext másintegración/reparación/cierre no permite abrirlo congarantía deconservar margen. Heartbeat puntual pausado, sin nueva cadena. Las notas siguientes describen entregas previas del lote yno sustituyen este cierre.
+
 ### Continuación puntual12:22
 
 Renovación comprobada100%5h/71%7d, reservas10%/1%.19e3b1 añade evidencia portable de recuperación conjunta: originales youtcomes exactos, ACKs previos reales yreemplazos consecutivos conCASindependientes/dependencia vista→contenido. Ocho tests nuevos/910totales yDoD aprobados; no writer niUI conjuntos todavía. 19e3b2 cierra persistencia atómica yonce checksIndexedDB: contenido/vista/cola/counter/recibo juntos, replay sinretroceder trabajo posterior, límites ycuenta/epoch. 19e4 pasa29Next6 conproductores reales ycuatrovariantes: pérdida de respuesta decontenido yvista, recarga, ACKúnicos yconvergencia exacta porcohorte. 19e5a prepara diálogo conpreview exacto deplan/categoría yopciones revisadas;923tests/DoD aprobados. **La UI conjunta aún no está conectada**: siguiente19e5b acción guardada yrecorrido UIreal antes deofrecer elección enAjustes. No producción ni nueva cadena automática.
