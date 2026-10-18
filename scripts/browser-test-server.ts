@@ -18,6 +18,7 @@ if (
   suite !== "plan-occurrence-outbox" &&
   suite !== "plan-occurrence-revision" &&
   suite !== "appearance-resolution-capacity" &&
+  suite !== "tag-resolution" &&
   suite !== "task-snapshot" &&
   suite !== "occurrence-ordering"
 )

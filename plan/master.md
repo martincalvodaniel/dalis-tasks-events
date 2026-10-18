@@ -2,6 +2,8 @@
 
 ## Estado operativo — 18 de octubre de 2026
 
+19d2 cierra transacción/backup/feature guardada de categorías con cinco checksIndexedDB propios;882tests yDoD aprobados. UI todavía oculta: siguiente19d3 prueba remota Next/Mongo real.
+
 19d1 prepara recuperación de nombre/color de categorías propias con remoto vivo conocido: adoptar oreenviar conCASnuevo conservando orden remoto. Dependencias externas bloqueadas; sin executor/backup/UI nuevos aún.881tests aprobados, siguiente19d2 persistencia/evidencia yprueba nativa antes de integración remota/UI.
 
 19c7 entregado en la continuación07:21: recuperación de apariciones valida capacidad posterior decola/metadata antes de escribir, sincompactar historia. Cinco checksIndexedDB reales y876tests/lint/tipos/Webpack/worker46 aprobados; siguiente recuperación residual según dependencias.

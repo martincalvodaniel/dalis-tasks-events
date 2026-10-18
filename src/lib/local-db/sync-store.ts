@@ -13,6 +13,7 @@ import {
 } from "@/lib/local-db/sync-incidents"
 import { notifyLocalOutboxChange } from "@/lib/local-db/sync-notifications"
 import { resolveLocalSyncIncident } from "@/lib/local-db/sync-resolution"
+import { resolveLocalTagIncident } from "@/lib/local-db/tag-resolution"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { readItemOutcome, readItemShadow } from "@/lib/sync/item-evidence"
 import { planRemoteItemProjection } from "@/lib/sync/item-projection"
@@ -122,6 +123,15 @@ export class LocalSyncStore {
 
   resolveSettingsIncident(input: unknown) {
     return resolveLocalSettingsIncident(this.database, this.userId, input).then(
+      (result) => {
+        if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+        return result
+      }
+    )
+  }
+
+  resolveTagIncident(input: unknown) {
+    return resolveLocalTagIncident(this.database, this.userId, input).then(
       (result) => {
         if (result.status === "applied") notifyLocalOutboxChange(this.userId)
         return result

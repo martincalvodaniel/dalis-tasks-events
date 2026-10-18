@@ -570,3 +570,7 @@ Lectura100%5h/85%7d confirma renovación, resetnuevo1792318896. HEAD e2973c2/ori
 ### 19d1 — Categorías, contrato preparatorio
 
 Entrada93%5h/84%7d tras699ec2a, reserva10%/1%. Secuencial, planner puro yguardia de dependencia antes deexecutor/UI. DoD completo yplan/log mismo commitpushint/HEAD/cuotas. Sin reabrir sincronizaciónactiva ni pruebasfísicas aprobadas.
+
+### 19d2 — Transacción personal propia
+
+Entrada87%5h/84%7d trasfed43db, reservas10%/1%; secuencial, persistencia/evidencia probadas sinUI anticipada. DoD/limpieza/plan/log mismo commitpushint/HEAD/cuotas antes deabrir integración remota19d3.

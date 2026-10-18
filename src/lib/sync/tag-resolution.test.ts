@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test"
+import { validateLocalRecurringBackup } from "@/lib/backup/local-backup"
 import { planRemoteTagOperation } from "@/lib/preferences/remote-tag-plan"
 import { projectRecurringSettingsSyncIncidentOverview } from "@/lib/sync/recurring-incident-snapshot"
 import {
@@ -309,4 +310,79 @@ test("category projection blocks incoming and outgoing unconfirmed dependencies 
       ])
     )
   ).toEqual([])
+})
+
+test("portable category decisions preserve exact originals, dependencies, outcomes and pending retry", () => {
+  const { current, request, input, actor } = fixture()
+  const record = planTagIncidentResolution(request, current)
+  if (!record.replacement) throw new Error("Category retry replacement missing")
+  const backup = {
+    format: "dalis-local-backup",
+    version: 3,
+    protocolVersion: 1,
+    databaseVersion: 2,
+    userId: actor,
+    exportedAt: request.createdAt,
+    stores: {
+      items: [],
+      occurrences: [],
+      tags: [record.local],
+      itemViews: [],
+      taskPlacements: [],
+      settings: [],
+      memberships: [],
+      invitations: [],
+      remoteShadows: [],
+      outbox: [
+        ...input.entries.map((entry) => ({
+          ...entry,
+          state: "superseded" as const,
+        })),
+        outboxEntrySchema.parse({
+          userId: actor,
+          entityKey: input.entries[0].entityKey,
+          operation: record.replacement,
+          sequence: 3,
+          dependencies: [],
+          state: "pending",
+          attempts: 0,
+          lease: null,
+          createdAt: request.createdAt,
+        }),
+      ],
+      syncMetadata: [
+        input.outcomes[0],
+        record,
+        { key: "outbox-sequence", value: 3 },
+      ],
+    },
+  }
+  expect(validateLocalRecurringBackup(backup, actor).stores.tags).toEqual([
+    record.local,
+  ])
+  const missing = structuredClone(backup)
+  missing.stores.outbox.pop()
+  expect(() => validateLocalRecurringBackup(missing, actor)).toThrow()
+  const changed = structuredClone(backup)
+  changed.stores.outbox[1].dependencies = []
+  expect(() => validateLocalRecurringBackup(changed, actor)).toThrow(
+    "original intention"
+  )
+  const retry = structuredClone(backup)
+  retry.stores.outbox[2].dependencies = [
+    retry.stores.outbox[0].operation.operationId,
+  ]
+  expect(() => validateLocalRecurringBackup(retry, actor)).toThrow(
+    "exact replacement"
+  )
+  const attempts = structuredClone(backup)
+  attempts.stores.outbox[0].attempts = 2
+  expect(() => validateLocalRecurringBackup(attempts, actor)).toThrow(
+    "original intention"
+  )
+  const pending = structuredClone(backup)
+  pending.stores.outbox[2].attempts = 1
+  expect(
+    validateLocalRecurringBackup(pending, actor).stores.outbox[2].attempts
+  ).toBe(1)
 })

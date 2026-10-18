@@ -7,6 +7,7 @@ import { validatePlanOccurrenceResolutionRecord } from "@/lib/sync/plan-occurren
 import { projectPlanOccurrenceSyncIncidents } from "@/lib/sync/recurring-incident-snapshot"
 import { decodeRemoteShadow } from "@/lib/sync/remote-shadow-v2"
 import { validateSettingsResolutionRecord } from "@/lib/sync/settings-resolution"
+import { validateTagResolutionRecord } from "@/lib/sync/tag-resolution"
 import { localBackupSchema } from "@/schemas/local-backup"
 import { planOccurrenceEntityKey } from "@/schemas/local-plan-occurrence-sync"
 import { localRecurringBackupSchema } from "@/schemas/local-recurring-backup"
@@ -229,6 +230,42 @@ function validateBackup(
               "Backup appearance retry is missing its exact ordered replacement evidence"
             )
         }
+      }
+    }
+    if (record.key.startsWith("tag-resolution:")) {
+      const decision = validateTagResolutionRecord(record, actor)
+      if (decision.replacement) {
+        const entry = entries.get(decision.replacement.operationId)
+        if (
+          !entry ||
+          entry.userId !== actor ||
+          entry.entityKey !== decision.expected.entry.entityKey ||
+          entry.createdAt !== decision.createdAt ||
+          entry.dependencies.length ||
+          JSON.stringify(entry.operation) !==
+            JSON.stringify(decision.replacement)
+        )
+          throw new Error(
+            "Backup category retry is missing its exact replacement evidence"
+          )
+      }
+      for (const reviewed of decision.expected.intentions.filter((entry) =>
+        decision.supersededOperationIds.includes(entry.operation.operationId)
+      )) {
+        const entry = entries.get(reviewed.operation.operationId)
+        if (
+          !entry ||
+          entry.userId !== reviewed.userId ||
+          entry.entityKey !== reviewed.entityKey ||
+          entry.sequence !== reviewed.sequence ||
+          entry.attempts !== reviewed.attempts ||
+          entry.createdAt !== reviewed.createdAt ||
+          JSON.stringify(entry.dependencies) !==
+            JSON.stringify(reviewed.dependencies)
+        )
+          throw new Error(
+            "Backup category decision changed its original intention evidence"
+          )
       }
     }
     if (record.key.startsWith("settings-resolution:"))

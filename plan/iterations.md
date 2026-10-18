@@ -1,5 +1,14 @@
 # Iteraciones de implementación
 
+## 19d2 — Decisión de categoría durable y portable
+
+- Estado: completado; cinco checks IndexedDB propios, UI oculta hasta prueba remota real.
+- Objetivo: guardar categoría elegida, supersesión explícita, reemplazo/counter yrecibo en unaTX local; replay sinreescritura ybackup íntegro.
+- target_paths: src/{schemas/{local-resolution-capacity,plan-occurrence-resolution,local-recurring-backup}.ts,lib/local-db/{tag-resolution,sync-store}.ts,lib/backup/local-backup.ts,features/sync/local-tag-resolution.ts,lib/sync/tag-resolution.test.ts}, test/browser/tag-resolution.ts, scripts/browser-test-server.ts yplan/**.
+- Dependencias: fed43db publicado,87%5h/84%7d yreservas10%/1%; planner/guardia19d1 preparados, schema completo/evidencia existentes. Secuencial.
+- Aceptación: cuenta/partición/snapshot/dependencias/UUIDglobales/counter/capacidad revalidados antes deguardar; originales youtcomes intactos como superseded, sinACK local; notificar sólo trascommit. Registro portable replanteado exige cada reemplazo/original exacto; antiguos lectores rechazan metadata desconocida sinborrar. Feature conserva cuenta/epoch6.
+- Validación: pruebas puros debackupalterado/truncado, IndexedDB propio stale/foreign/dependiente/late-rollback/replaytrasnuevaedición/notificación ypersistencia, regresión capacidad/apariciones/settings; DoD/cleanup/plan/log/mismo commitpushint/HEAD/cuotas. SinMongo/DBusuario/wire/índices nuevos; siguiente19d3 evidencia remota antesUI.
+
 ## 19d1 — Contrato puro de recuperación de nombre/color de categoría
 
 - Estado: completado, contrato puro; sin nuevas elecciones UI.
