@@ -1,5 +1,18 @@
 # Iteraciones de implementación
 
+## 19c7 — Próxima candidata: capacidad posterior a la resolución
+
+- Estado: pendiente; no abrir con13%5h/86%7d yreserva10%/1% trasbfa0fc5.
+- Objetivo: antes de escribir una cadena nueva ysu recibo, validar que el total posterior deoutbox/metadata siga dentro dellímite de captura completa existente. No borrar historia para hacer sitio ni reescribir pendientes. La lectura ya rechaza exceso de10.000registros; falta garantizar límite después deañadir reemplazos/recibo.
+- target_paths previstos: schemas/planner/ejecutor local deapariciones, pruebas de frontera yplan; cerrar rutas/aceptación/alcance antes de editar. Sin IOremoto/índices/DBusuario. Después retomar contenido+categoría, otraspreferencias ycasos recurrentes protegidos; accesibilidad siguependiente.
+
+## 19z3 — Cierre puntual del lote de apariciones
+
+- Objetivo/target_paths: registrar cierre seguro yestado vigente en plan/{master,iterations,workflow,iteration-log}.md; pausar heartbeat gestionado existente.
+- Dependencias: bfa0fc5 publicado/HEADremoto exacto, seis cortes19c1–6 completos,13%5h/86%7d yreserva10%/1%.
+- Aceptación/validación: repo coherente, recursos propios limpios, guía ypendientes exactos, referencias/diff; mismo commitpushint/HEAD ycuota real. Sin otra cadena programada, pruebas físicas repetidas, código oproducción.
+- Estado: completado; heartbeat continuar-el-plan-a-las-21-19 pausado por automation_update.
+
 ## 19c6 — Elección visible de reenvío de aparición
 
 Estado: completado; adopción/retry activos con27Next6 ydiálogo real aprobados.

@@ -10,6 +10,8 @@ La zona horaria personal ya es editable offline, sincroniza por cuenta y está v
 
 ### Continuación18oct02:20
 
+**Lote cerrado tras bfa0fc5:** seis cortes de código19c1–19c6 publicados yverificados. Adopción yreenvío completo de aparición disponibles en Ajustes;27Next6/875tests aprobados yrecursos propios limpios. Lectura13%5h/86%7d, reservas10%/1%. Ejecución puntual pausada, sin otra programación. Próxima revisión acotada: impedir que una nueva cadena/recibo sobrepase los límites de captura completa de outbox/metadata antes de escribir; después contenido+categoría/otraspreferencias ycasos recurrentes protegidos. No abrir más código con margen de cierre.
+
 **19c6 entregado:** Ajustes permite adoptar remoto conocido o reenviar toda la excepción local de un slot, con preview, confirmación, historial intacto yUUID/CAS nuevos cuando corresponde.27escenariosNext6 propios pasan concancelación/reapertura/confirmación real, respuestaperdida, recarga antesACK yconvergencia porserie.875pass/223skip/0fail, lint871/tipos/Webpack/worker46. Otros slots pendientes, dependencias externas, rechazos yremoto ausente siguen conservados sin elección insegura; remoto cancelado/tombstone sólo permiteadopción. No nueva pruebaGoogle/física ni producción.
 
 Las notas siguientes registran preparación histórica del mismo lote; no sustituyen el estado vigente anterior.
