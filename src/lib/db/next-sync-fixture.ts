@@ -5,6 +5,7 @@ import {
   getNextSyncTestConfig,
   type NextSyncPrivateConfig,
 } from "@/config/next-sync-test"
+import { readNextSettingsFixtureJournal } from "@/lib/sync/next-settings-fixture-journal"
 import {
   nextSyncBootstrapSchema,
   nextSyncCapabilitySchema,
@@ -299,14 +300,14 @@ async function readNextFixtureStateForScope(
           }
         : {}),
     },
-    page: await (scope === "settings"
-      ? readRemoteSettingsChangesV2
-      : scope === "recurring"
-        ? readRemoteRecurringChangesV2
-        : readRemotePlanChangesV2)(parsed.userId, {
-      after: 0,
-      limit: 100,
-    }),
+    page:
+      scope === "settings"
+        ? await readNextSettingsFixtureJournal((query) =>
+            readRemoteSettingsChangesV2(parsed.userId, query)
+          )
+        : await (scope === "recurring"
+            ? readRemoteRecurringChangesV2
+            : readRemotePlanChangesV2)(parsed.userId, { after: 0, limit: 100 }),
   }
 }
 

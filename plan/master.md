@@ -4,7 +4,7 @@
 
 ### Continuación puntual12:22
 
-Renovación comprobada100%5h/71%7d, reservas10%/1%.19e3b1 añade evidencia portable de recuperación conjunta: originales youtcomes exactos, ACKs previos reales yreemplazos consecutivos conCASindependientes/dependencia vista→contenido. Ocho tests nuevos/910totales yDoD aprobados; no writer niUI conjuntos todavía. 19e3b2 cierra persistencia atómica yonce checksIndexedDB: contenido/vista/cola/counter/recibo juntos, replay sinretroceder trabajo posterior, límites ycuenta/epoch. SiguienteNext19e4 conproductores reales antes deUI19e5. No producción ni nueva cadena automática.
+Renovación comprobada100%5h/71%7d, reservas10%/1%.19e3b1 añade evidencia portable de recuperación conjunta: originales youtcomes exactos, ACKs previos reales yreemplazos consecutivos conCASindependientes/dependencia vista→contenido. Ocho tests nuevos/910totales yDoD aprobados; no writer niUI conjuntos todavía. 19e3b2 cierra persistencia atómica yonce checksIndexedDB: contenido/vista/cola/counter/recibo juntos, replay sinretroceder trabajo posterior, límites ycuenta/epoch. 19e4 pasa29Next6 conproductores reales ycuatrovariantes: pérdida de respuesta decontenido yvista, recarga, ACKúnicos yconvergencia exacta porcohorte. Siguiente19e5 UI conjunta conpreview/confirmación;916tests/DoD ycleanup aprobados. No producción ni nueva cadena automática.
 
 ### Cierre del lote puntual de las07:21
 

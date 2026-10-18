@@ -270,3 +270,18 @@ test("settings fixture commands preserve expected records and reject unvalidated
     }).success
   ).toBe(false)
 })
+
+test("joint fixture commands keep strict identities and reject unknown fields", () => {
+  const operationId = crypto.randomUUID()
+  expect(
+    nextSyncDeviceCommandSchema.parse({ type: "joint-comparison", operationId })
+  ).toEqual({ type: "joint-comparison", operationId })
+  for (const invalid of [
+    { type: "joint-comparison", operationId: "invalid" },
+    { type: "joint-comparison", operationId, database: "production" },
+    { type: "resolve-joint", request: {} },
+    { type: "joint-guard-proof", request: {} },
+    { type: "lost-joint-view-response-run", operationId },
+  ])
+    expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
+})

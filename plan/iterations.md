@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19e4 — Recuperación conjunta con productores y Mongo/Next reales
+
+- Estado: completado;29Next6 con cuatrovariantes ydos pérdidas derespuesta aprobados, DoD916pass/223skip/0fail.
+- Objetivo: demostrar adopción/retry de contenido+categoría en cuatrovariantes con productores reales, sesiones persistidas ydosorígenes IndexedDB antes deUI.
+- target_paths: src/schemas/next-sync-test{,.test}.ts, test/next-settings-sync/features/{plan-category-recovery,local-client,device-client,controller}.template ylos cuatro adaptadores *resolution-ui.tsx.template para estrechar unionbackup ampliado, yplan/**.
+- Dependencias:8a5e99d publicado,88%5h/69%7d yreservas10%/1%;19e3b1/b2 aprobados. Docker28.4.0 yMongo pinnedamd64 revalidados. Skill React/guíasNext instaladas consultadas.
+- Extensión por diagnóstico: src/lib/db/next-sync-fixture.ts ysrc/lib/sync/next-settings-fixture-journal{,.test}.ts; el snapshot diagnóstico debe recorrer páginas productivas de100 hasta checkpoint completo, sinampliar límites del transporte ni omitir historia. Queries existentes de journal, sin nuevos índices.
+- Aceptación: conflicto CAS real consaveLocalPlan/progreso, cohorte exacta yvista nointentada; decisión local no toca Mongo. CASindependientes,0o2ACK remotos nuevos, originales/outcomes intactos, respuestaperdida decontenido yvista/recarga/replay sinrecibos duplicados, peer observa estado intermedio válido yconvergencia exacta porcohorte. Guardias cuenta/epoch/stale antesdeescritura. Mantener otros históricos bloqueados, no convergencia global niGoogle físico.
+- Validación: Next6 compilado/defaults/BetterAuth persistido conescenario adicional y28regresiones, prueba de schema estricto, DoD/cleanup/plan/log/mismo commitpushint/HEAD/cuotas. SóloMongo/browser propios; noUI nueva/DBusuario/índice/wireproductivo.
+
 ## 19e3b2 — Persistencia conjunta atómica y guardias de cuenta
 
 - Estado: completado; once checks IndexedDB reales propios yDoD910pass/223skip/0fail.

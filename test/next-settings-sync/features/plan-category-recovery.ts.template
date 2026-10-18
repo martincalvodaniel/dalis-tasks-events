@@ -1,0 +1,119 @@
+"use client"
+import type { z } from "zod"
+import { canonical, foldRecurringChanges } from "@fixture/projection"
+import { nextSyncDeviceCommandSchema, nextSettingsSyncStateSchema } from "@/schemas/next-sync-test"
+import { planCategoryResolutionRecordSchema, planCategoryResolutionSnapshotSchema } from "@/schemas/plan-category-resolution"
+import { planSchema } from "@/schemas/plan-item"
+import type { LocalRecurringBackup } from "@/types/local-backup"
+import type { LocalPullCursor } from "@/types/local-sync"
+import type { PlanCategoryResolutionRequest } from "@/types/plan-category-resolution"
+
+type Snapshot = { backup: LocalRecurringBackup; cursor: LocalPullCursor }
+type Ports = { owner: string; call(index: number, command: z.infer<typeof nextSyncDeviceCommandSchema>): Promise<unknown>;
+  snapshot(index: number): Promise<Snapshot>; state(): Promise<z.infer<typeof nextSettingsSyncStateSchema>>; reloadSecondary(): Promise<void> }
+function assert(value: unknown, message: string): asserts value { if (!value) throw new Error(message) }
+export async function proveRemotePlanCategoryRecovery({ owner, call, snapshot, state, reloadSecondary }: Ports) {
+  let adopted = 0, retried = 0, lostReplies = 0
+  for (const variant of ["task", "event", "appointment", "note"] as const) {
+    const itemId = crypto.randomUUID(), tagId = crypto.randomUUID(), now = new Date().toISOString(), stepId = crypto.randomUUID()
+    const input = { kind: "plan" as const, variant, title: `Base conjunta ${variant}`, description: "Borrador completo",
+      schedule: { mode: "all_day" as const, startDate: "2026-10-18", endDateExclusive: "2026-10-19" },
+      status: "not_started" as const, checklist: [{ id: stepId, text: "Paso conservado", completed: false }], recurrence: null }
+    await call(0, { type: "commit-local", command: { type: "tag.save", tagId, input: { name: `Categoría ${tagId}`, color: "#123456", position: 30 } } })
+    await call(0, { type: "mixed-run" }); await call(1, { type: "mixed-run" })
+    await call(0, { type: "save-plan", request: { mode: "create", itemId, input, primaryTagId: null,
+      contentOperationId: crypto.randomUUID(), viewOperationId: crypto.randomUUID(), now } })
+    await call(0, { type: "mixed-run" }); await call(1, { type: "mixed-run" })
+    const initial = await snapshot(1), expectedPlan = planSchema.parse(initial.backup.stores.items.find((item) => item.id === itemId)),
+      expectedView = initial.backup.stores.itemViews.find((view) => view.itemId === itemId)
+    assert(expectedView && expectedPlan.revision === 1, "Initial joint plan did not converge")
+    for (const status of ["in_progress", "completed"] as const) {
+      await call(0, { type: "change-plan-progress", operationId: crypto.randomUUID(), command: { type: "plan.set-status", itemId, status } })
+      await call(0, { type: "mixed-run" })
+    }
+    await call(0, { type: "commit-local", command: { type: "item-view.set", itemId, primaryTagId: null } })
+    await call(0, { type: "mixed-run" })
+    const originalId = crypto.randomUUID(), assignmentId = crypto.randomUUID(), childId = crypto.randomUUID()
+    await call(1, { type: "save-plan", request: { mode: "update", itemId, expectedPlan, expectedView,
+      input: { ...input, title: `Borrador conjunto ${variant}`, checklist: [{ id: stepId, text: "Paso local completo", completed: true }] },
+      primaryTagId: tagId, contentOperationId: originalId, viewOperationId: assignmentId, now: new Date().toISOString() } })
+    await call(1, { type: "change-plan-progress", operationId: childId, command: { type: "plan.set-status", itemId, status: "in_progress" } })
+    await call(1, { type: "mixed-run" })
+    const expected = planCategoryResolutionSnapshotSchema.parse(await call(1, { type: "joint-comparison", operationId: originalId }))
+    assert(expected.incident.entry.state === "conflict" && expected.incident.entry.attempts === 1 &&
+      expected.viewIntentions.length === 1 && expected.viewIntentions[0].attempts === 0 && expected.incident.intentions.length === 2,
+      "Real joint producer lost conflict, graph or unattempted assignment")
+    assert(expected.incident.remote?.revision === 3 && expected.remoteView.revision === 2, "Joint CAS revisions are not independently observed")
+    const choice = variant === "task" ? "adopt_remote" : "retry_local"
+    const request: PlanCategoryResolutionRequest = { userId: owner, resolutionId: crypto.randomUUID(),
+      operationId: choice === "retry_local" ? crypto.randomUUID() : null, viewOperationId: choice === "retry_local" ? crypto.randomUUID() : null,
+      choice, createdAt: new Date().toISOString(), expected }
+    const guard = await call(1, { type: "joint-guard-proof", request }) as { checks: number }
+    assert(guard.checks === 3, "Joint feature guards were not exercised")
+    const before = await state(), localBefore = await snapshot(1)
+    const result = await call(1, { type: "resolve-joint", request }) as { status: string; record: unknown }
+    const record = planCategoryResolutionRecordSchema.parse(result.record)
+    assert(result.status === "applied" && canonical(await state()) === canonical(before), "Local joint decision manufactured remote history")
+    const decided = await snapshot(1)
+    for (const old of [...expected.incident.intentions, ...expected.viewIntentions]) {
+      const saved = decided.backup.stores.outbox.find((entry) => entry.operation.operationId === old.operation.operationId)
+      assert(canonical(saved) === canonical({ ...old, state: "superseded", lease: null }), "Joint decision changed originals")
+    }
+    for (const old of localBefore.backup.stores.syncMetadata.filter((value) => "result" in value))
+      assert(decided.backup.stores.syncMetadata.some((value) => canonical(value) === canonical(old)), "Joint decision lost original outcome")
+    for (const store of ["occurrences", "tags", "settings", "taskPlacements", "remoteShadows"] as const)
+      assert(canonical(localBefore.backup.stores[store]) === canonical(decided.backup.stores[store]), "Joint decision changed unrelated records")
+    if (record.replacement && record.viewReplacement) {
+      retried++
+      assert(record.replacement.baseRevision === 3 && record.viewReplacement.baseRevision === 2, "Joint retry collapsed independent CAS")
+      const replacements = decided.backup.stores.outbox.filter((entry) => [record.operationId, record.viewOperationId].includes(entry.operation.operationId)).toSorted((a,b) => a.sequence - b.sequence)
+      assert(replacements.length === 2 && replacements.every((entry) => entry.state === "pending" && entry.attempts === 0) &&
+        replacements[0].dependencies.length === 0 && canonical(replacements[1].dependencies) === canonical([record.operationId]), "Joint retry fabricated ACK or kept old dependencies")
+      if (variant === "appointment" || variant === "note") {
+        const lostId = variant === "appointment" ? record.operationId : record.viewOperationId
+        const lost = await call(1, { type: variant === "appointment" ? "lost-plan-response-run" : "lost-joint-view-response-run" }) as { status: string }
+        const pending = (await snapshot(1)).backup.stores.outbox.find((entry) => entry.operation.operationId === lostId)
+        const committed = await state(), committedCount = variant === "appointment" ? 1 : 2
+        assert(lost.status === "retry_later" && pending?.state === "pending" && pending.attempts === 1 && pending.lease === null,
+          "Lost joint reply manufactured ACK or lost attempted UUID")
+        assert(committed.counts.receipts === before.counts.receipts + committedCount && committed.page.through === before.page.through + committedCount,
+          "Joint loss committed incorrect receipt count")
+        if (variant === "appointment") {
+          await call(0, { type: "mixed-run" })
+          const peer = await snapshot(0), projection = foldRecurringChanges(committed.page)
+          assert(canonical(peer.backup.stores.items.find((item) => item.id === itemId)) === canonical(projection.items.get(itemId)) &&
+            peer.backup.stores.itemViews.find((view) => view.itemId === itemId)?.primaryTagId === null,
+            "Peer did not observe valid content-first intermediate state")
+        }
+        await reloadSecondary()
+        const reloaded = (await snapshot(1)).backup.stores.outbox.find((entry) => entry.operation.operationId === lostId)
+        assert(canonical(reloaded) === canonical(pending), "Joint reload changed uncertain intention")
+        await call(1, { type: "mixed-run" })
+        const replayed = await state()
+        assert(replayed.counts.receipts === before.counts.receipts + 2 && replayed.page.through === before.page.through + 2,
+          "Joint replay duplicated receipt or journal")
+        const ack = (await snapshot(1)).backup.stores.outbox.find((entry) => entry.operation.operationId === lostId)
+        assert(ack?.state === "acknowledged" && ack.attempts === 2 && canonical(ack.operation) === canonical(pending.operation), "Joint exact UUID did not obtain real replay ACK")
+        lostReplies++
+      } else await call(1, { type: "mixed-run" })
+    } else adopted++
+    await call(0, { type: "mixed-run" }); await call(1, { type: "mixed-run" })
+    const authoritative = await state(), projection = foldRecurringChanges(authoritative.page)
+    assert(authoritative.counts.receipts === before.counts.receipts + (choice === "retry_local" ? 2 : 0) &&
+      authoritative.page.through === before.page.through + (choice === "retry_local" ? 2 : 0), "Joint decision confirmed wrong history count")
+    for (const index of [0, 1]) {
+      const current = await snapshot(index)
+      assert(current.cursor.after === authoritative.page.through && current.cursor.through === null, "Joint cursor missed checkpoint")
+      assert(canonical(current.backup.stores.items.find((item) => item.id === itemId)) === canonical(projection.items.get(itemId)) &&
+        canonical(current.backup.stores.itemViews.find((view) => view.itemId === itemId)) === canonical(projection.itemViews.get(itemId)), `Joint projection diverged ${variant}/${index}: ${canonical(current.backup.stores.items.find((item) => item.id === itemId))} / ${canonical(projection.items.get(itemId))}; view ${canonical(current.backup.stores.itemViews.find((view) => view.itemId === itemId))} / ${canonical(projection.itemViews.get(itemId))}`)
+      const itemShadow = current.backup.stores.remoteShadows.find((value) => value.entityKey === `item:${itemId}`),
+        viewShadow = current.backup.stores.remoteShadows.find((value) => value.entityKey === `item-view:${itemId}`)
+      assert(itemShadow && canonical(itemShadow.record) === canonical(projection.items.get(itemId)) &&
+        viewShadow && "kind" in viewShadow && viewShadow.kind === "preference" && canonical(viewShadow.record) === canonical({ store: "itemViews", record: projection.itemViews.get(itemId) }), "Joint shadow diverged from Mongo")
+    }
+    const after = await snapshot(1)
+    const replay = await call(1, { type: "resolve-joint", request }) as { status: string }
+    assert(replay.status === "replayed" && canonical((await snapshot(1)).backup.stores) === canonical(after.backup.stores), "Joint durable replay rewrote confirmed state")
+  }
+  return { adopted, retried, lostReplies }
+}

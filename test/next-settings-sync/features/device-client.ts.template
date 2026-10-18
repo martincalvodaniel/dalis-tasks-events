@@ -130,6 +130,10 @@ async function execute(
     throw new Error("Fixture blocked before touching foreign auth cookies")
   if (
     [
+      "joint-comparison",
+      "resolve-joint",
+      "joint-guard-proof",
+      "lost-joint-view-response-run",
       "lost-settings-response-run",
       "epoch-after-settings-commit-run",
       "settings-incidents",

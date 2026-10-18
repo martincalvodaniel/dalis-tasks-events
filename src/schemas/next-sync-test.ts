@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { planCategoryResolutionRequestSchema } from "@/schemas/plan-category-resolution"
 import { planCommandSchema } from "@/schemas/plan-command"
 import { planSchema } from "@/schemas/plan-item"
 import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
@@ -15,7 +16,10 @@ import {
   userIdSchema,
 } from "@/schemas/primitives"
 import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
-import { remoteRecurringChangesPageSchema } from "@/schemas/remote-recurring-changes"
+import {
+  remoteRecurringChangeSchema,
+  remoteRecurringChangesPageSchema,
+} from "@/schemas/remote-recurring-changes"
 import { settingsResolutionRequestSchema } from "@/schemas/settings-resolution"
 import { syncCommandSchema } from "@/schemas/sync"
 import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
@@ -119,11 +123,16 @@ export const nextRecurringSyncStateSchema = z.strictObject({
   }),
   page: remoteRecurringChangesPageSchema,
 })
+// Diagnostic snapshots consolidate bounded product pages; the wire page remains capped at 100.
+export const nextSettingsSyncJournalSchema =
+  remoteRecurringChangesPageSchema.safeExtend({
+    changes: z.array(remoteRecurringChangeSchema).max(10000),
+  })
 export const nextSettingsSyncStateSchema = z.strictObject({
   counts: nextRecurringSyncStateSchema.shape.counts.extend({
     settings: z.number().int().min(0),
   }),
-  page: remoteRecurringChangesPageSchema,
+  page: nextSettingsSyncJournalSchema,
 })
 export function nextSyncMissingActionId(runIdInput: unknown): string {
   return `40${entityIdSchema.parse(runIdInput).replaceAll("-", "")}00000000`
@@ -143,6 +152,19 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("lost-settings-response-run") }),
   z.strictObject({ type: z.literal("epoch-after-settings-commit-run") }),
   z.strictObject({ type: z.literal("settings-incidents") }),
+  z.strictObject({
+    type: z.literal("joint-comparison"),
+    operationId: entityIdSchema,
+  }),
+  z.strictObject({
+    type: z.literal("resolve-joint"),
+    request: planCategoryResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("joint-guard-proof"),
+    request: planCategoryResolutionRequestSchema,
+  }),
+  z.strictObject({ type: z.literal("lost-joint-view-response-run") }),
   z.strictObject({
     type: z.literal("resolve-tag-ui"),
     request: tagResolutionRequestSchema,

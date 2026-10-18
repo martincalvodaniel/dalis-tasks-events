@@ -617,3 +617,8 @@ Entrada real100%5h/71%7d, reset1792336934, reservas10%/1%. Int/origin exactos en
 ### 19e3b2 — Persistencia antes de exponer elecciones
 
 Entrada94%5h/70%7d tras6165517, reservas10%/1%. Once checks nativos propios aprobados yDoD completo, sin incorporar eleccionesUI antes de prueba remota19e4. Cleanup propio/plan/log/mismo commitpushint/HEAD/cuotas; continuación puntual secuencial sinnueva cadena.
+
+
+### 19e4 — Prueba remota antes de UI conjunta
+
+Entrada88%5h/69%7d tras8a5e99d, reservas10%/1%. Secuencial, Docker28.4.0/imagenpinnedamd64 revalidados, sólo recursos propios. Fallo diagnóstico depágina100 resuelto sinampliar contrato deproducto;29Next6 completos yDoD916 aprobados. Cleanup/plan/log/mismo commitpushint/HEAD/cuotas; siguiente19e5 sólo si cabe corte completo. Ninguna nueva programación ni producción.

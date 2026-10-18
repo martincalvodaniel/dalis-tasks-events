@@ -1,4 +1,5 @@
 "use client"
+import { proveRemotePlanCategoryRecovery } from "@fixture/plan-category-recovery"
 import { proveRemoteTagRecovery } from "@fixture/tag-recovery"
 import { proveRemoteAppearanceRetry } from "@fixture/appearance-retry"
 import { proveRemoteAppearanceRecovery } from "@fixture/appearance-recovery"
@@ -615,6 +616,20 @@ export function FixtureController() {
           await call(1, { type: "mixed-run" })
         }
       )
+      await check("Contenido y categoría recuperados juntos con dos CAS y ACK únicos tras recarga", async () => {
+        const proof = await proveRemotePlanCategoryRecovery({ owner, call, snapshot, state: () => state(owner), reloadSecondary: async () => {
+          const reloaded = new Promise<void>((resolve, reject) => {
+            const listener = (event: MessageEvent) => {
+              if (event.source !== secondary || event.origin !== fixture.origins[1] || event.data?.runId !== fixture.runId || event.data?.ready !== true) return
+              clearTimeout(timer); window.removeEventListener("message", listener); resolve()
+            }
+            const timer = setTimeout(() => { window.removeEventListener("message", listener); reject(new Error("Owned joint reload timed out")) }, 45000)
+            window.addEventListener("message", listener)
+          })
+          await call(1, { type: "reload-local" }); await reloaded
+        } })
+        assert(proof.adopted === 1 && proof.retried === 3 && proof.lostReplies === 2, "Joint remote evidence incomplete")
+      })
       await check(
         "Cuatro variantes recuperan conflictos reales y convergen sin ACK local",
         async () => {
@@ -1512,7 +1527,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            "Veintiocho escenarios Next6 correctos; sesiones propias cerradas"
+            "Veintinueve escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",
