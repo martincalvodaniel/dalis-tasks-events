@@ -103,7 +103,6 @@ function validateComparison(input: unknown, actor: string) {
   if (
     parent.ownerId !== actor ||
     parent.deletedAt ||
-    parent.recurrence ||
     incident.entry.userId !== actor ||
     incident.entry.entityKey !== key ||
     incident.entry.operation.command.type !== "item-view.set" ||
@@ -111,9 +110,7 @@ function validateComparison(input: unknown, actor: string) {
     incident.entry.state !== "conflict" ||
     incident.blockedByRelatedIntentions
   )
-    throw new Error(
-      "Assignment recovery requires its own living simple plan conflict"
-    )
+    throw new Error("Assignment recovery requires its own living plan conflict")
   const outcome = validateLocalPreferenceOutcomeV2(incident.outcome, actor)
   if (
     outcome.result.outcome.status !== "conflict" ||

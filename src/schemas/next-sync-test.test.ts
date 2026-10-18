@@ -291,6 +291,9 @@ test("focused Next proof scope is explicit, defaults to full and rejects unknown
   expect(nextSettingsProofScopeSchema.parse(undefined)).toBe("full")
   expect(nextSettingsProofScopeSchema.parse("joint-ui")).toBe("joint-ui")
   expect(nextSettingsProofScopeSchema.parse("assignment")).toBe("assignment")
+  expect(nextSettingsProofScopeSchema.parse("assignment-series")).toBe(
+    "assignment-series"
+  )
   for (const invalid of ["", "skip-auth", "joint", 1, null, {}])
     expect(nextSettingsProofScopeSchema.safeParse(invalid).success).toBe(false)
 })

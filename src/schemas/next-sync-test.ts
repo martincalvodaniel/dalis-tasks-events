@@ -139,7 +139,7 @@ export function nextSyncMissingActionId(runIdInput: unknown): string {
   return `40${entityIdSchema.parse(runIdInput).replaceAll("-", "")}00000000`
 }
 export const nextSettingsProofScopeSchema = z
-  .enum(["full", "joint-ui", "assignment"])
+  .enum(["full", "joint-ui", "assignment", "assignment-series"])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({

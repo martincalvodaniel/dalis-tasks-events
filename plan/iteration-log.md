@@ -1,5 +1,14 @@
 # Registro de iteraciones
 
+## 19f5 — Recuperación de asignación de series propias
+
+El mismo diálogo admite ahora una serie viva propia cuando sólo quedan asignaciones pendientes. El executor remoto6 ya autorizaba esa operación con guard compartido/CAS; se retira la restricción local a planes simples, manteniendo captura completa y rechazo de contenido, otros slots o movimientos pendientes de la serie. Sólo se escribe la vista; no se sustituyen otros slots ni sus intenciones. No cambia UI, wire, índices o permisos.
+
+Cuatro pruebas puras nuevas de variantes recurrentes protegen slots pendientes y SSR adicional usa el mismo diálogo. Nueve checksIndexedDB repetidos con padre recurrente pasan. Once Next6 focalizados `assignment-series` nointeractivos pasan con event/note mensuales, un slot realmente confirmado antes del conflicto, dos pérdidas/recargas/replay/ACK únicos y proyecciones exactas de serie/vista/slot en ambas particiones. El modo full30 y assignment interactivos permanecen disponibles; esta ejecución no afirma otra interacciónUI niGoogle/físicos. Recursos propios retirados.
+
+952pass/223skip/0fail/11695 aserciones, lint918 sinavisos/tipos/Webpack/worker46/diff aprobados. Sin DBusuario/producción. Entrada31%5h/48%7d, reservas10%/1%; corte acotado sin repetir interacción manual. Siguen recuperación de orden/borrado de categorías, placements, cohortes recurrentes/ausencia y revisión final según dependencias.
+
+
 ## 19f4 — Recuperación de asignaciones visible en Ajustes
 
 «Revisar asignación» reconstruye la comparación completa y acredita los ACK previos antes de ofrecer opciones para un plan propio simple. Permite adoptar la asignación remota o reenviar la categoría local confirmada, con radios, preview de contenido conservado, categoría/color conocidos y confirmación compacta. IDs estables enref, cuenta/época/mounted y caché propia; cancelar no escribe. No modifica contenido, categorías u orden. La captura conserva sólo nombres conocidos de las categorías revisadas, sin incluir cambios de nombres independientes ni inventar nombres/colores ausentes.

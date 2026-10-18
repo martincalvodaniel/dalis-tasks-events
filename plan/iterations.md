@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19f5 — Completada: asignación aislada de series propias
+
+- Estado: nuevechecksIndexedDB/onceNext6 nointeractivos/952tests/DoD aprobados,aparición confirmada conservada.
+- Objetivo: permitir el mismo flujo de asignación para una serie viva sin contenido/apariciones/movimientos pendientes, conservando íntegra la serie y sus slots.
+- target_paths: src/lib/sync/item-view-resolution{,.test}.ts, src/lib/backup/item-view-resolution-fixture.ts, src/features/sync/components/item-view-incident-ui.test.tsx, test/browser/item-view-resolution.ts, src/schemas/next-sync-test{,.test}.ts, test/next-settings-sync/features/{item-view-recovery,controller}.*.template yplan/**.
+- Dependencias:19f4/c1b0fa3 publicado,31%5h/48%7d, reservas10%/1%. Limitar coste: reutilizar UI sin editarla; scope explícito assignment-series ejecuta11escenarios sininteracción, conserva full30/assignment interactivos. Docker/descriptor pinned revalidados antesMongo propio. Secuencial.
+- Justificación: executor remoto6 ya admite item-view.set de serie con autorización/guard compartido yCAS. Recuperación sólo escribe vista, no padre niapariciones; la restricción local simple era conservadora. Cola completa rechaza cualquier otra operación unresolved conitemId=serie, inclusootros slots sin dependencia explícita. No relajar guardias ni superseder otros slots.
+- Aceptación: contrato puro/SSR de serie propia, concurrencia de slots/movimientos protegida;9checksIndexedDB conpadre recurrente yNext/Mongo dosparticiones conevent/note recurrentes, pérdida/recarga/ACKúnico, aparición confirmada conservada yproyecciónexacta. Sin nuevaUI/protocolo/índice/permiso/DBusuario.
+- Validación: DoD completo,cleanupown,plan/log/mismoConventionalCommitpushint/HEAD/cuotas. El modo nointeractivo no prueba nuevas interacciones; UI de19f4 ya probada y SSR de nuevosdatos.
+
 ## 19f4 — Completada: revisión visible de asignaciones y prueba interactiva
 
 - Estado: UI activa tras once escenarios Next6 focalizados finales/947tests/DoD aprobados ycleanup completo.

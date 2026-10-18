@@ -7,7 +7,8 @@ import { itemViewSchema, tagSchema } from "@/schemas/preferences"
 
 export function itemViewResolutionFixture(
   variant: "task" | "event" | "appointment" | "note" = "task",
-  actorInput = "view-resolution-owner"
+  actorInput = "view-resolution-owner",
+  recurring = false
 ) {
   const actor = actorInput,
     now = "2026-10-18T15:50:00.000Z"
@@ -26,7 +27,15 @@ export function itemViewResolutionFixture(
     status: "in_progress",
     completedAt: null,
     checklist: [],
-    recurrence: null,
+    recurrence: recurring
+      ? {
+          frequency: "monthly",
+          interval: 1,
+          anchorDate: "2026-10-18",
+          timeZone: "Europe/Madrid",
+          end: { type: "never" },
+        }
+      : null,
     revision: 3,
     createdAt: now,
     updatedAt: now,

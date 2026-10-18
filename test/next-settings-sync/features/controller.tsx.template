@@ -41,7 +41,7 @@ export function FixtureController() {
   const [status, setStatus] = useState("Preparando la prueba aislada de Next")
   const [rows, setRows] = useState<string[]>([])
   const [running, setRunning] = useState(false)
-  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment">("full")
+  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series">("full")
   useEffect(() => {
     void (async () => {
       const query = new URLSearchParams(location.search)
@@ -622,7 +622,7 @@ export function FixtureController() {
           await call(1, { type: "mixed-run" })
         }
       )
-      if(proofScope !== "assignment") await check("Contenido y categoría recuperados juntos con dos CAS y ACK únicos tras recarga", async () => {
+      if(proofScope !== "assignment" && proofScope !== "assignment-series") await check("Contenido y categoría recuperados juntos con dos CAS y ACK únicos tras recarga", async () => {
         const proof = await proveRemotePlanCategoryRecovery({ owner, call, snapshot, state: () => state(owner), reloadSecondary: async () => {
           const reloaded = new Promise<void>((resolve, reject) => {
             const listener = (event: MessageEvent) => {
@@ -638,7 +638,7 @@ export function FixtureController() {
       })
       if (proofScope === "joint-ui") { passed = true; return }
       await check("Asignaciones aisladas recuperan conflicto y ACK único tras recarga",async()=>{
-        const proof=await proveRemoteItemViewRecovery({owner,call,snapshot,state:()=>state(owner),reloadSecondary:async()=>{
+        const proof=await proveRemoteItemViewRecovery({owner,call,snapshot,interactive:proofScope!=="assignment-series",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned assignment reload timed out"))},45000);window.addEventListener("message",listener)
@@ -647,7 +647,7 @@ export function FixtureController() {
         }})
         assert(proof.adopted===1 && proof.retried===3 && proof.lostReplies===2,"Assignment proof incomplete")
       })
-      if(proofScope === "assignment"){passed=true;return}
+      if(proofScope === "assignment" || proofScope === "assignment-series"){passed=true;return}
       await check(
         "Cuatro variantes recuperan conflictos reales y convergen sin ACK local",
         async () => {

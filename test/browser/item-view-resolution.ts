@@ -27,7 +27,7 @@ async function run() {
     !(await indexedDB.databases()).some((value) => value.name === name),
     "Owned partition already exists"
   )
-  const f = itemViewResolutionFixture("note", actor),
+  const f = itemViewResolutionFixture("note", actor, true),
     database = await openLocalDatabase(actor),
     store = await LocalSyncStore.open(actor)
   let notices = 0,

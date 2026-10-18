@@ -85,3 +85,22 @@ test("assignment dialog rejects foreign actor and unavailable retry, hides unkno
   expect(render()).toBe("")
   expect(render(f.actor, "adopt_remote")).not.toContain("#123456")
 })
+
+test("series assignment review uses the same dialog and keeps the recurring parent intact", () => {
+  const f = itemViewResolutionFixture("note", "series-ui-owner", true)
+  const html = renderToStaticMarkup(
+    <ItemViewIncidentResolutionDialog
+      snapshot={f.current}
+      actor={f.actor}
+      choice="retry_local"
+      busy={false}
+      onSelect={() => {}}
+      onConfirm={async () => {}}
+      onClose={() => {}}
+    />
+  )
+  expect(html).toContain("Existing content")
+  expect(html).toContain("Local category")
+  expect(html).toContain("Guardar asignación para enviar")
+  expect(f.current.parent.recurrence?.frequency).toBe("monthly")
+})

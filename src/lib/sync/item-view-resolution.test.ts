@@ -335,3 +335,35 @@ test("assignment review retains only known names of its two selected categories"
     captureItemViewResolutionSnapshot(raw).incident.tagNames[remoteId]
   ).toBeUndefined()
 })
+
+for (const variant of ["task", "event", "appointment", "note"] as const)
+  test(`isolated ${variant} series assignment preserves the parent and blocks unresolved slots`, () => {
+    const f = fixture(variant, "series-assignment-owner", true),
+      before = JSON.stringify(f.parent)
+    const record = planItemViewIncidentResolution(f.request, f.current)
+    expect(record.local.primaryTagId).toBe(f.tag.id)
+    expect(JSON.stringify(f.parent)).toBe(before)
+    const slot = outboxEntrySchema.parse({
+      ...f.child,
+      sequence: 3,
+      dependencies: [],
+      entityKey: `item:${f.parent.id}`,
+      operation: {
+        ...f.child.operation,
+        operationId: crypto.randomUUID(),
+        command: {
+          type: "plan.set-occurrence-status",
+          itemId: f.parent.id,
+          occurrenceId: `${f.parent.id}:2026-10-18`,
+          status: "completed",
+          expectedOccurrenceRevision: 0,
+        },
+      },
+    })
+    expect(() =>
+      captureItemViewResolutionSnapshot({
+        ...f.capture,
+        entries: [...f.capture.entries, slot],
+      })
+    ).toThrow("another unresolved")
+  })
