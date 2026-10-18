@@ -1,5 +1,12 @@
 # Recuperación explícita de conflictos
 
+## 19g1a — Captura de orden preparada
+
+Doce pruebas puras delimitan una cadena aislada de tag.move de la misma categoría primaria. Se conservan catálogo local completo, todas las categorías observadas (incluidas altas y tombstones), raíz/outcome exactos, hijos no intentados y clausura transitiva de prerrequisitos ACK. Otros cambios personales pendientes, dependencias externas, catálogos parciales, registros ajenos/duplicados y envíos inciertos quedan protegidos. Si el conflicto conoce una revisión posterior a la sombra hay que actualizar antes de revisar. Una sombra posterior no se usa como ancestro y el catálogo observado no se presenta como estado actual garantizado del servidor.
+
+No writer, evidencia portable o UI nuevos. Siguiente19g1b: decisión explícita con preview para adoptar el catálogo conocido o reaplicar el último movimiento sobre él; no equivale a enviar todo el orden local ni a descartar otros cambios. Después TX/backup/Next/UI. DoD967pass/223skip/0fail/11741aserciones, lint924 sinavisos/tipos/Webpack/worker46/diff aprobados. Se corrigió el estrechamiento de tipo de la categoría primaria dentro de una función auxiliar. Sin Mongo/browser, índices, DBusuario o producción.
+
+
 ## 19f6 — Identidades globales de decisiones portables
 
 Se cierra una discrepancia de integridad: backup exigía claves metadata únicas, pero dos decisiones de familias distintas podían reutilizar el mismo resolutionId. Ahora el codec rechaza IDs de decisión duplicados entre prefijos y colisión con cualquier operación conservada; los writers ya protegían esa frontera. No confunde referencias legítimas a outcomes/replacements ni IDs de entidades/importación, no altera datos ni crea ACK.

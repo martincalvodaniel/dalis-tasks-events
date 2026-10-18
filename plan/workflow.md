@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## Continuación puntual del 18 de octubre a las 22:24
+
+Renovación verificada:100% de5h y45% semanal; nuevo reset publicado1792373057. Reservas10%/1%, secuencial, sin créditos/reinicios ni otra cadena. Partidae6f6f2c enint/origin exactos ymain humano limpio. Las dependencias fijadas faltaban en el destino del enlace node_modules; se retiró sólo el enlace del worktree y se ejecutó bun install --frozen-lockfile enint. Node_modules propio restaurado, sin editar main, lockfile o dependencias declaradas. Guía Next instalada leída. Cada corte cierra pruebas, plan/log, commit/pushint/HEAD y consulta de ambas cuotas.
+
 ## Continuación programada: 18 de octubre a las 22:24
 
 El usuario solicita reanudar el plan completo hoy a las22:24, Europe/Madrid. Se reutiliza el heartbeat existente `continuar-el-plan-a-las-21-19`, ACTIVE y puntual, en este chat y con la política de notificaciones conservada. Configuración y prompt guardados verificados; no se crea otra cadena.

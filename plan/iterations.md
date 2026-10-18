@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19g1a — Completada: captura pura de una cadena aislada de orden
+
+- Estado:12pruebas puras/42aserciones,967tests/DoD completos; sin elecciones ni mutaciones nuevas.
+- Objetivo: delimitar la evidencia revisable de `tag.move` antes de diseñar elecciones multirregistro.
+- `target_paths`: src/{schemas,types,lib/sync}/tag-order-resolution{,.test}.ts, fixture de prueba bajo src/lib/backup/tag-order-resolution-fixture.ts y plan/**.
+- Dependencias: e6f6f2c y origin/int exactos; renovación real100%5h/45%7d, reset1792373057, reservas10%/1%. Secuencial. Dependencias fijadas restauradas sólo en node_modules propio de int tras desaparecer el destino del enlace a main; lockfile intacto. Guía Next instalada leída.
+- Aceptación: una sola categoría primaria, raíz conflict real y cola completa ordenada; hijos sólo tag.move pending sin intento, clausura ACK y dependientes externos protegidos. Catálogo local completo y todas las sombras de categorías observadas, propios/únicos/comprometidos; ningún local sin evidencia remota, ninguna resurrección. Lectura parcial, corrupción, revisiones contradictorias, otros tag.save/delete/move y asignaciones/movimientos personales pendientes se rechazan; actividad de contenido independiente se conserva.
+- Límite: el catálogo observado es el conocido en este dispositivo, no garantía de catálogo actual del servidor ni ancestro. Requerir pull si el conflicto conoce una versión más nueva que la sombra. Un ACK en DTO deberá acreditarse contra outcomes reales al capturar en TX y validar backup.
+- Validación: oráculos de catálogos y grafo, replay tardío/frescura, cuenta/IDs/límites/cadena incierta/actividad independiente; DoD completo, plan/log mismo commitpushint/HEAD y cuotas. Sin writer/backup/UI nuevos ni pruebas de convergencia.19g1b definirá adoptar catálogo conocido o reaplicar explícitamente el último movimiento sobre él, con preview, antes de mutación.
+
 ## 19z10 — Continuación puntual solicitada para las 22:24
 
 - Objetivo: programar la reanudación del plan completo hoy 18 de octubre de 2026 a las 22:24, Europe/Madrid, desde el último commit cerrado de `int`.
@@ -17,14 +27,14 @@
 - Validación: DoD de código cerrado en19f6; esta entrega sólo referencias/coherencia/diff/ConventionalCommitpushint/HEAD ycuotas finales.
 - Estado: completado; automatización pausada mediante herramienta deapp yconfiguración guardada verificada.
 
-## 19g1 — Próxima candidata: contrato de orden de categorías
+## 19g1 — Contrato de orden de categorías (cortes en curso)
 
 - Objetivo: delimitar recuperación explícita de una cadena propia tag.move y sus efectos multirregistro, sin copiar ciegamente el flujo aislado tag.save.
 - target_paths previstos: src/lib/sync/tag-order-resolution{,.test}.ts, src/schemas/tag-order-resolution.ts, src/types/tag-order-resolution.ts yplan/**; concretar después deleer planner/captura reales.
 - Dependencias:19f6 cerrado. Reutilizar planRemoteTagOperation/applyTagMoveCommand, snapshots personales ygrafo completo; no nuevo comando, protocolo oíndice por suposición.
 - Aceptación preparatoria: catálogos propios completos yrevisiones porentidad; primary yvecinos/efectos de reranking explícitos. Proteger tag.save/delete/asignaciones/movimientos/dependientes externos afectados, incertidumbre, ausencias ycatálogos parciales. Una sombra observada noacredita ancestro nicatálogo remoto completo. No ofrecer adopción/retry antes decontrato coherente, writer/evidencia/pruebas reales.
 - Validación prevista: oráculos puros de identidad/clausura/CAS/reranking/vecinos borrados/revisionesagotadas/actividadindependiente/capacidad. Después capturaTX/evidenciaportable/NextMongo dosparticiones/UI por cortes separados. Registrar ambigüedades sin inventar permiso ni descargar evidencia.
-- Estado: pendiente; ningún archivo deimplementación abierto.
+- Estado:19g1a cerrado;19g1b decisión/preview pendientes, después TX/backup/Next/UI. Primer alcance sólo una primaria con cadena de movimientos; otras cohortes siguen protegidas.
 
 ## 19f6 — Completada: identidades globales de decisiones portables
 
