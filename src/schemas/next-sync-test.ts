@@ -25,6 +25,7 @@ import { settingsResolutionRequestSchema } from "@/schemas/settings-resolution"
 import { syncCommandSchema } from "@/schemas/sync"
 import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
 import { syncResolutionRequestSchema } from "@/schemas/sync-resolution"
+import { tagOrderResolutionRequestSchema } from "@/schemas/tag-order-resolution"
 import { tagResolutionRequestSchema } from "@/schemas/tag-resolution"
 
 const loopbackOriginSchema = z.string().refine((value) => {
@@ -139,9 +140,21 @@ export function nextSyncMissingActionId(runIdInput: unknown): string {
   return `40${entityIdSchema.parse(runIdInput).replaceAll("-", "")}00000000`
 }
 export const nextSettingsProofScopeSchema = z
-  .enum(["full", "joint-ui", "assignment", "assignment-series"])
+  .enum(["full", "joint-ui", "assignment", "assignment-series", "tag-order"])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("tag-order-comparison"),
+    operationId: entityIdSchema,
+  }),
+  z.strictObject({
+    type: z.literal("resolve-tag-order"),
+    request: tagOrderResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("tag-order-guard-proof"),
+    request: tagOrderResolutionRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("resolve-assignment-ui"),
     request: itemViewResolutionRequestSchema,
@@ -252,9 +265,14 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
     type: z.literal("commit-local"),
     command: syncCommandSchema.refine(
       (command) =>
-        ["item.create", "tag.save", "item-view.set", "task.move"].includes(
-          command.type
-        ),
+        [
+          "item.create",
+          "tag.save",
+          "tag.move",
+          "tag.delete",
+          "item-view.set",
+          "task.move",
+        ].includes(command.type),
       "Fixture local command is unsupported"
     ),
   }),

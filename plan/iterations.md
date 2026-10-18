@@ -1,5 +1,21 @@
 # Iteraciones de implementación
 
+## 19g3 — Orden recuperado con Next/Mongo y dos particiones
+
+Once escenarios focalizados tag-order deNext6 compilado/defaults/sesionesBetterAuth persistidas ydosorígenes IndexedDB/Mongo propios aprobados. Productores reales generan raízconflict yúltimo movimiento conectado conUUID/payload/dependencias exactos. Dosadopciones (incluyevecinoborrado/tombstone) ydosretry (incluyerernumeración conrevisiones independientes depeers) conservan originales/outcomes/otrasfamilias. Cuenta/época/stale rechazan sinmutaciones. Dos respuestas perdidas trascommit, recargaantesACK yreplay delmismoUUID→ACKattempt2 producen unúnicorecibo/journal porreemplazo. Catálogo completo de categorías/proyección/sombras/cursor coincide exactamente conMongo enambasparticiones; no equivale aconvergencia global deotrasfamilias niGoogle/físicos nuevos.
+
+Full31 queda disponible; estaejecución acredita sólo11focalizados. La primera compilación detectó directiveuseclient detrás deimport enlasplantillas nuevas; corregido antesdeRPC. Primerrecorrido detectó queelschema de fixture no admitía tag.move/delete; ampliado explícitamente conregresión. UnDoD durantefixturetemporal incluyó suárbol bajo build/ yfalló tipos; repetido secuencialmente trascleanup, junto alestrechamiento de literals deltest. ÚltimaDoD989pass/223skip/0fail/11861aserciones, lint932sinavisos/tipos/Webpack/worker46/diff aprobados. Docker28.4.0/pinneddigestamd64 revalidados; runnerexit0, contenedor/proxy/temporales/sesiones/particiones/pestañas propios limpios. Captura /private/tmp/dalis-tag-order-next.png.
+
+Entrada66%5h/39%7d, reservas10%/1%, secuencial. Sin nuevo protocolo/índice/DBusuario oUIactiva. Siguiente19g4 preview/diálogo guardado yambas eleccionesUIreales antesdepublicar caller enAjustes.
+
+## 19g3 — Delimitación previa (completada arriba)
+
+- Objetivo: probar productores reales de tag.move, conflicto y recuperación sobre Next6 compilado/defaults/sesiones BetterAuth propias/Mongo antes de UI.
+- target_paths: schemas/next-sync-test{,.test}.ts, test/next-settings-sync/features/{tag-order-recovery,local-client,device-client,controller}.*.template yplan/**.
+- Dependencias:9761353/19g2b publicado;66%5h/39%7d, reservas10%/1%. SkillReact/guíasNext vigentes; Docker/pinnedimage se revalidan antes recursos propios. Secuencial.
+- Aceptación: scope explícito tag-order ejecuta diezfronteras+cohorte orden, full31 disponible; no atribuir full almodo focalizado. Adopción yretry delúltimo movimiento, multiefecto/reranking conrevisiones propias, vecinoborrado/tombstone protegido; epoch/actor/stale sinwrites, originales/outcomes intactos. Dos pérdidas trascommit/recarga/mismoUUID→ACKúnico, proyecciones/shadows/cursor exactos para todo catálogo de categorías observado. No convergencia global deotrasfamilias niGoogle/físicos nuevos.
+- Validación: matriz/schemas/regresión, Next propio compilado yDoD completo, limpieza ownership,mismoConventionalCommitpushint/HEAD/cuotas. Sin nuevosíndices/wire/DBusuario oUIactiva.
+
 ## 19g2b — Recuperación de orden atómica y portable preparada
 
 Captura9stores reconstruye catálogo local, todas las sombras propias, cola yclausura ACK enmismaTX; outcomes realmente aplicados acreditan prerrequisitos antes deofrecer comparación o escribir. Writer guarda catálogo observado/adoptado o preview multiefecto, originales supersedidos íntegros,0/1reemplazo pending, contador yrecibo atómicos. Replay previo valida decisión sinreescribir trabajo posterior ni notificar. Guardias deactor/partición/snapshot/identidades globales/capacidad/counter anteswrites, featurecuenta/epoch antes/después ynotificación sólo trascommit.

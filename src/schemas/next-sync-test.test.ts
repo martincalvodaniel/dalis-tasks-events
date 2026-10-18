@@ -291,9 +291,44 @@ test("focused Next proof scope is explicit, defaults to full and rejects unknown
   expect(nextSettingsProofScopeSchema.parse(undefined)).toBe("full")
   expect(nextSettingsProofScopeSchema.parse("joint-ui")).toBe("joint-ui")
   expect(nextSettingsProofScopeSchema.parse("assignment")).toBe("assignment")
+  expect(nextSettingsProofScopeSchema.parse("tag-order")).toBe("tag-order")
   expect(nextSettingsProofScopeSchema.parse("assignment-series")).toBe(
     "assignment-series"
   )
   for (const invalid of ["", "skip-auth", "joint", 1, null, {}])
     expect(nextSettingsProofScopeSchema.safeParse(invalid).success).toBe(false)
+})
+
+test("order fixture commands keep exact identity and reject missing or untrusted inputs", () => {
+  const operationId = crypto.randomUUID()
+  expect(
+    nextSyncDeviceCommandSchema.parse({
+      type: "tag-order-comparison",
+      operationId,
+    })
+  ).toEqual({ type: "tag-order-comparison", operationId })
+  for (const value of [
+    { type: "tag-order-comparison", operationId: "invalid" },
+    { type: "tag-order-comparison", operationId, database: "production" },
+    { type: "resolve-tag-order", request: {} },
+    { type: "tag-order-guard-proof", request: {} },
+  ])
+    expect(nextSyncDeviceCommandSchema.safeParse(value).success).toBe(false)
+})
+
+test("order fixture uses validated real category move and deletion producers", () => {
+  const tagId = crypto.randomUUID()
+  for (const command of [
+    { type: "tag.move", tagId, beforeId: null, afterId: crypto.randomUUID() },
+    { type: "tag.delete", tagId },
+  ] as const)
+    expect(
+      nextSyncDeviceCommandSchema.parse({ type: "commit-local", command })
+    ).toEqual({ type: "commit-local", command })
+  expect(
+    nextSyncDeviceCommandSchema.safeParse({
+      type: "commit-local",
+      command: { type: "tag.move", tagId, beforeId: "invalid", afterId: null },
+    }).success
+  ).toBe(false)
 })
