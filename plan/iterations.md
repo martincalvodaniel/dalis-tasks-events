@@ -1,5 +1,22 @@
 # Iteraciones de implementación
 
+## 19h1a — Captura de borrado aislado preparada
+
+Evidencia pura deunaúnica raíz tag.delete propia enconflicto: exige tombstone local, catálogo observado completo conprimaria conocida viva oeliminada, outcome exacto yclausura deACKs capturada. Ausencia remota, otroscambiospersonales/dependientes, envíosinciertos, datosajenos/duplicados/parciales ycapacidad siguenprotegidos. Sólo laprimaria revisada puede restaurarse desde untombstonelocal mediante unaelección explícita posterior; ningúnpeer se resucita. No choices/writer/backup/UI nuevos todavía.
+
+Guardias comunes de catálogo/frescura/cola se extraen a tag-catalog-resolution paraevitarduplicación. Wrappers deorden conservan estructura/formato yrestricciónaprimariaviva. Siete tests nuevos/24aserciones,29tests focalizados/129aserciones ydocechecksIndexedDB deorden repetidos aprobados; captura /private/tmp/dalis-tag-order-shared-guards.png.1002pass/223skip/0fail/11936aserciones, lint943sinavisos/tipos/Webpack/worker46/diff aprobados. Partición/pestaña/servidor propios limpios; sinNext/Mongo nuevos/DBusuario/protocolo/índices.
+
+Entrada38%5h/35%7d, reservas10%/1%, secuencial. Siguiente19h1b decisión explícita deaceptar catálogo observado oreintentar borrado conCASnuevo, despuésportable/TX/pruebaremota/UI. Mantener distinción entre capturaACKDTO ysuacreditación real; elcatálogo observado noes unestadoactual garantizado delservidor.
+
+## 19h1a — Delimitación previa (completada arriba)
+
+- Objetivo: delimitar evidencia de un tag.delete enconflicto antes deofrecer adopción oreintento explícitos.
+- target_paths: schemas/types/tag-catalog-resolution.ts, schemas/tag-order-resolution.ts, lib/sync/{tag-catalog-resolution,tag-order-resolution,tag-delete-resolution,tag-delete-resolution.test}.ts, lib/backup/tag-delete-resolution-fixture.ts yplan/**.
+- Dependencias:646af39/orden visible cerrado;38%5h/35%7d, reservas10%/1%, secuencial.
+- Decisión: reutilizar guardias decatálogos/clausura/frescura deorden enunnúcleo puro común, wrappers existentes conservan elcontrato. Borrado sólo unaraíz tag.delete propia conflict/attempted sinlease ylocaltombstone; remoto conocido vivo otombstone, ausencia siguefuera. Sólo laprimaria revisada puede adoptar explícitamente remoto vivo frente atombstonelocal; otras eliminaciones no se resucitan.
+- Aceptación: catálogos completos, sinotroscambiospersonales/dependientes no revisados; ACKDTOs debenacreditarseenfuturoTX/backup. Frozenoutcome exacto, shadowposteriornoancestro, límites/actor/identidades/clausura intactos. Sin choices/writer/backup/UI nuevos.
+- Validación: oráculospuro deconflicto/tombstone/ausencia/cola/prerrequisitos/frescura/límites; regresiónorden y12checksIndexedDB propios trasextraer núcleo; DoDcompleto,mismoConventionalCommitpushint/HEAD/cuotas.
+
 ## 19g4b — Revisión de orden visible en Ajustes
 
 PersonalIncidentCard ofrece Revisar orden para conflicto propio tag.move. Botón sólo inicia lectura completa guardada; opciones noautorizan porDTO. Captura/confirmación cuentan conactor/época/mounted/cache propios, UUIDs estables enref ycancelación sinwrites. UIcompacta compara catálogos, mantiene guardias devecinos/otrascohortes ynomuestra retryinviable. Historial íntegro ysinACKlocal.

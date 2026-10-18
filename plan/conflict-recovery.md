@@ -348,3 +348,12 @@ Once Next6 focalizados tag-order-ui aprobados: ambas elecciones conCancelar/Reab
 La fixtureNext valida interacción pero no cargaCSS deproducto. Se añade modo visual explícito tag-order-review alservidor propio existente; revisión conCSS real delbuild enescritorio ymóvil390px, screenshot /private/tmp/dalis-tag-order-dialog-{desktop,mobile}.png. No abre DB ni guarda datos enese modo. La pruebaNext tiene captura /private/tmp/dalis-tag-order-ui-next.png. Docker28.4.0/imagenpinnedamd64 revalidados; runnerexit0, recursosMongo/particiones/control/sesiones/pestañas/servidores propios limpios yviewportrestaurado.
 
 995pass/223skip/0fail/11912aserciones, lint937sinavisos/tipos/Webpack/worker46/diff aprobados. Entrada49%5h/37%7d, reservas10%/1%, secuencial. Sin nuevoíndice/wire/DBusuario/producción. Recuperación deuna primaria tag.move cerrada; otrasprimarias/dependencias quedan protegidas. Siguen borradodecategorías/placements, cohortes recurrentes/ausencia, accesibilidad/preparación final.03:25 sigueprogramación humana pendiente paraelcierre deesta ventana.
+
+
+## 19h1a — Captura de borrado aislado preparada
+
+Evidencia pura deunaúnica raíz tag.delete propia enconflicto: exige tombstone local, catálogo observado completo conprimaria conocida viva oeliminada, outcome exacto yclausura deACKs capturada. Ausencia remota, otroscambiospersonales/dependientes, envíosinciertos, datosajenos/duplicados/parciales ycapacidad siguenprotegidos. Sólo laprimaria revisada puede restaurarse desde untombstonelocal mediante unaelección explícita posterior; ningúnpeer se resucita. No choices/writer/backup/UI nuevos todavía.
+
+Guardias comunes de catálogo/frescura/cola se extraen a tag-catalog-resolution paraevitarduplicación. Wrappers deorden conservan estructura/formato yrestricciónaprimariaviva. Siete tests nuevos/24aserciones,29tests focalizados/129aserciones ydocechecksIndexedDB deorden repetidos aprobados; captura /private/tmp/dalis-tag-order-shared-guards.png.1002pass/223skip/0fail/11936aserciones, lint943sinavisos/tipos/Webpack/worker46/diff aprobados. Partición/pestaña/servidor propios limpios; sinNext/Mongo nuevos/DBusuario/protocolo/índices.
+
+Entrada38%5h/35%7d, reservas10%/1%, secuencial. Siguiente19h1b decisión explícita deaceptar catálogo observado oreintentar borrado conCASnuevo, despuésportable/TX/pruebaremota/UI. Mantener distinción entre capturaACKDTO ysuacreditación real; elcatálogo observado noes unestadoactual garantizado delservidor.
