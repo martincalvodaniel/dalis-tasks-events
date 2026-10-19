@@ -7,7 +7,11 @@ import {
   previewPlacementResolutionChoice,
   validatePlacementResolutionRecord,
 } from "@/lib/sync/placement-decision"
-import { capturePlacementResolutionSnapshot } from "@/lib/sync/placement-resolution"
+import {
+  capturePlacementResolutionSnapshot,
+  validatePlacementResolutionSnapshot,
+} from "@/lib/sync/placement-resolution"
+import { maximumLocalOperationOutcomeBytes } from "@/schemas/local-preference-outcome-v2"
 import { planVariantSchema } from "@/schemas/plan-item"
 import type {
   PlacementResolutionRequest,
@@ -236,4 +240,51 @@ test("decisions reject changed snapshots, foreign identity, reused IDs and tampe
       f.actor
     )
   ).toThrow()
+})
+
+test("a snapshot fitting its own limit does not offer a choice whose durable evidence would overflow", () => {
+  const f = placementResolutionFixture(),
+    extras = Array.from({ length: 400 }, () => ({
+      ...f.items[0],
+      id: crypto.randomUUID(),
+      description: "",
+      schedule: {
+        mode: "all_day" as const,
+        startDate: "2026-10-10",
+        endDateExclusive: "2026-10-11",
+      },
+    })),
+    items = [...f.items, ...extras].toSorted((a, b) =>
+      a.id.localeCompare(b.id)
+    ),
+    snapshot = {
+      ...f.snapshot,
+      local: { ...f.snapshot.local, items },
+      observed: { ...f.snapshot.observed, items },
+    }
+  let remaining =
+    maximumLocalOperationOutcomeBytes -
+    256 -
+    new TextEncoder().encode(JSON.stringify(snapshot)).byteLength
+  for (const item of extras) {
+    const count = Math.min(8000, Math.floor(remaining / 2))
+    item.description = "x".repeat(count)
+    remaining -= count * 2
+  }
+  expect(remaining).toBeLessThan(2)
+  const current = validatePlacementResolutionSnapshot(snapshot, f.actor),
+    before = JSON.stringify(current)
+  expect(availablePlacementResolutionChoices(current, f.actor)).toEqual([])
+  for (const choice of ["adopt_remote", "retry_latest_move"] as const) {
+    expect(() =>
+      previewPlacementResolutionChoice(current, f.actor, choice)
+    ).toThrow("byte limit")
+    expect(() =>
+      planPlacementIncidentResolution(
+        request(current, choice === "retry_latest_move"),
+        current
+      )
+    ).toThrow("byte limit")
+  }
+  expect(JSON.stringify(current)).toBe(before)
 })

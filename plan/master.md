@@ -1,5 +1,12 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19i7 — Elecciones de orden limitadas por evidencia durable
+
+Disponibilidad ypreview deorden comprueban ahora elrecibo completo con elmismo constructor puro queelwriter. Un snapshot por debajode5MiB no basta si al añadir placements/intención/recibo se supera eltope: enesecaso no se ofrecen elecciones imposibles deguardar. IDs conocidos se usan sólo como placeholders demedida, nuncasepersisten nienvían; la decisión real mantiene IDs nuevos/distintos ysnapshot exacto. Esto no afirma espacio físico disponible: capacidad postwrite, ACKs yguardias siguenacreditándose enTX.
+
+Regresión desnapshot justodebajo dellímite peroambos registrosfuera aprobada, sinmutar entrada;16tests focalizados/125aserciones. DoD1061pass/223skip/0fail/12290aserciones, lint975 sinavisos/tipos/Webpack/worker46/diff aprobados. Entrada24%5h/20%7d, reservas10%/1%, secuencial. SinIO/caller/wire/índice/DBusuario. Constructor real conservaforma ypayload ya probados; nueva disponibilidad pura/SSR cubierta sin repetir runnerNext completo innecesariamente. Siguiente19j: clasificador preparatorio de múltiples slots/cadenas recurrentes, sólo si cabe entrega completa y cierre; no nuevas elecciones antes deevidencia/ejecutor.
+
+
 ## 19i6 — Recuperación de orden simple visible
 
 Ajustes conecta revisión de cadena task.move simple con cuenta/época/montaje/cache propios yUUID estables. Diálogo compacto muestra grupo/categoría/color/fecha civil, orden actual yresultado, títulos conocidos, primaria yposición eliminada sin afirmar que se borró elplan. Adopción noreenvía; retry sóloúltimomovimiento, con vecinos revisados yposible reranking delgrupo, pending hastaACK. No cambia fechas/contenido/asignaciones. Mezclas conseries, cambiosdegrupo, ausencia yotros pendientes siguenprotegidos. Cancelar sinwrites yerror conservaintención.

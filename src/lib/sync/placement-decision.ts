@@ -74,23 +74,56 @@ function previewLatestMovement(
     ),
   }
 }
-// Presentation only; the writer must recapture the catalog and prove prerequisite ACK outcomes.
+function buildRecord(
+  request: PlacementResolutionRequest
+): PlacementResolutionRecord {
+  const planned =
+    request.choice === "retry_latest_move" && request.operationId
+      ? previewLatestMovement(
+          request.expected,
+          request.operationId,
+          request.createdAt
+        )
+      : { replacement: null, placements: request.expected.observed.placements }
+  return placementResolutionRecordSchema.parse({
+    ...request,
+    key: `placement-resolution:${request.resolutionId}`,
+    ...planned,
+    supersededOperationIds: request.expected.incident.intentions.map(
+      (entry) => entry.operation.operationId
+    ),
+  })
+}
+function reviewRecord(
+  snapshot: PlacementResolutionSnapshot,
+  choice: PlacementResolutionRequest["choice"]
+) {
+  // Known IDs measure the representation only. They never reach persistence or the remote executor.
+  const id = snapshot.incident.entry.operation.operationId
+  return buildRecord({
+    userId: snapshot.incident.entry.userId,
+    resolutionId: id,
+    operationId: choice === "retry_latest_move" ? id : null,
+    choice,
+    createdAt: "2000-01-01T00:00:00.000Z",
+    expected: snapshot,
+  })
+}
+// Intrinsic representation limits do not prove storage capacity or prerequisite ACKs; the writer rechecks both.
 export function availablePlacementResolutionChoices(
   input: unknown,
   actor: string
 ): PlacementResolutionRequest["choice"][] {
   try {
     const snapshot = validatePlacementResolutionSnapshot(input, actor)
-    try {
-      previewLatestMovement(
-        snapshot,
-        snapshot.incident.entry.operation.operationId,
-        snapshot.incident.entry.createdAt
-      )
-      return ["adopt_remote", "retry_latest_move"]
-    } catch {
-      return ["adopt_remote"]
-    }
+    return (["adopt_remote", "retry_latest_move"] as const).filter((choice) => {
+      try {
+        reviewRecord(snapshot, choice)
+        return true
+      } catch {
+        return false
+      }
+    })
   } catch {
     return []
   }
@@ -100,15 +133,8 @@ export function previewPlacementResolutionChoice(
   actor: string,
   choice: PlacementResolutionRequest["choice"]
 ) {
-  const snapshot = validatePlacementResolutionSnapshot(input, actor)
-  if (choice === "adopt_remote") return snapshot.observed.placements
-  if (choice !== "retry_latest_move")
-    throw new Error("Placement preview choice is unsupported")
-  return previewLatestMovement(
-    snapshot,
-    snapshot.incident.entry.operation.operationId,
-    snapshot.incident.entry.createdAt
-  ).placements
+  return reviewRecord(validatePlacementResolutionSnapshot(input, actor), choice)
+    .placements
 }
 export function planPlacementIncidentResolution(
   input: unknown,
@@ -128,18 +154,7 @@ export function planPlacementIncidentResolution(
     )
   )
     throw new Error("Placement decision identities must be new and distinct")
-  const planned =
-    request.choice === "retry_latest_move" && request.operationId
-      ? previewLatestMovement(current, request.operationId, request.createdAt)
-      : { replacement: null, placements: current.observed.placements }
-  return placementResolutionRecordSchema.parse({
-    ...request,
-    key: `placement-resolution:${request.resolutionId}`,
-    ...planned,
-    supersededOperationIds: current.incident.intentions.map(
-      (entry) => entry.operation.operationId
-    ),
-  })
+  return buildRecord(request)
 }
 export function validatePlacementResolutionRecord(
   input: unknown,
