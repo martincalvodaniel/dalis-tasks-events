@@ -26,6 +26,7 @@ if (
   suite !== "resolution-capacity" &&
   suite !== "plan-category-capture" &&
   suite !== "plan-category-resolution" &&
+  suite !== "plan-occurrence-cohort-resolution" &&
   suite !== "task-snapshot" &&
   suite !== "occurrence-ordering"
 )

@@ -10,9 +10,10 @@ import { outboxEntrySchema } from "@/schemas/local-sync"
 
 export function planOccurrenceCohortResolutionFixture(
   retry = true,
-  prerequisite = false
+  prerequisite = false,
+  userId = "cohort-comparison-owner"
 ) {
-  let source = planOccurrenceCohortFixture()
+  let source = planOccurrenceCohortFixture(userId)
   if (prerequisite) {
     const entry = outboxEntrySchema.parse({
       ...source.entries[0],

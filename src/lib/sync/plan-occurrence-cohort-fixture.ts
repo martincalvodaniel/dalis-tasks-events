@@ -7,9 +7,10 @@ import {
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import { planSchema } from "@/schemas/plan-item"
 
-export function planOccurrenceCohortFixture() {
-  const userId = "cohort-comparison-owner",
-    id = crypto.randomUUID(),
+export function planOccurrenceCohortFixture(
+  userId = "cohort-comparison-owner"
+) {
+  const id = crypto.randomUUID(),
     now = "2026-10-19T16:00:00.000Z"
   const series = planSchema.parse({
     kind: "plan",

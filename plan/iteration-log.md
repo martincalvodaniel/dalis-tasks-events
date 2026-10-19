@@ -1,5 +1,16 @@
 # Registro de iteraciones
 
+## 19j3b — Persistencia atómica de recuperación multi-slot
+
+Captura readonly y writer preparatorio en una TX9stores. Relee padre actual, excepciones de la serie, cola completa ordenada porsecuencia, sombras youtcomes; la decisión requiere comparación exacta, prerrequisitos conoutcomes yclausura ya probados. Unslot conIDdelparent pero seriesIdcorrupto no se oculta como borrador ausente. La escritura conserva todas las originales, supersede sólo lacohorte y guarda0/Nreemplazos, todas las excepciones elegidas, contador yrecibo enel mismo commit IndexedDB.
+
+Antes de escribir valida IDs contra cola/metadata, capacidad posterior ycounter seguro/adelantado respecto al historial. Replay consulta primero elrecibo, revalida decisión yno toca ediciones posteriores ni exige espacio nuevo. Sin ACK local, limpieza dehistoria, reparación decontadores ni callerUI. No cambia padre, preferencias, orden, outcomes o sombras. Infraestructura departición propia: guardias de cuenta/época ynotificaciones se conectarán en siguiente corte defeature.
+
+Trece checksIndexedDB nativos aprobados: lectura coherente, actor/staleparent/local/remoto, posterior intentada/dependiente externo, outcome/remotoausente, ACK transitivo sinoutcome, slotcorrupto, rollback tardío enrecibo detodas las escrituras, colisiones, counterausente/atrasado/overflow, reintento+backup+replay tras recarga/edición, adopción sinops/counter, metadata alúltimoespacio ycola9998 quenoadmite4ops perosíadopción. Se usaron sólo partición/origenbrowser-testpropios; partición eliminada, pestaña cerrada yservidor detenido. No DBusuario, Mongo, Next oGoogle nuevos.
+
+DoD1102pass/225opt-in skip/0fail/12466aserciones, lint997 sin avisos/tipos/Webpack/worker46/diff aprobados. Se corrigieron nulabilidad delstatus yformato enfixture antes delcierre. Entrada39%5h/8%7d, reservas10%/1%, secuencial. Rutas nuevas lib/local-db/plan-occurrence-cohort-{capture,resolution}, test/browser yselectorprivado, fixtures admitenactorpropio. Sin protocolo/índice/dependencia nuevo. Siguiente19j3c: conexión aLocalSyncStore/feature conguardias cuenta/época ynotificaciones sólo tras commit, pruebas nativas delciclo; después19j4 productoresreales/Next/Mongo/dosparticiones antes de19j5UI.
+
+
 ## 19j3a — Evidencia portable de recuperación conjunta
 
 Backup3 admite la decisión multi-slot y valida contra historia durable: originales superseded exactos, outcomes citados y prerrequisitos aplicados reales, cadena nueva completa con payload/usuario/fecha/secuencias/dependencias exactos. Un snapshot de ACK no sustituye el outcome. Las decisiones no pueden compartir originales ni reutilizar identidades; la guardia de propiedad exclusiva también protege las familias anteriores.
