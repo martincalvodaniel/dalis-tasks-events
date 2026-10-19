@@ -147,11 +147,16 @@ export const nextSettingsProofScopeSchema = z
     "assignment",
     "assignment-series",
     "tag-delete",
+    "tag-delete-ui",
     "tag-order",
     "tag-order-ui",
   ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("resolve-tag-delete-ui"),
+    request: tagDeletionResolutionRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("tag-delete-comparison"),
     operationId: entityIdSchema,

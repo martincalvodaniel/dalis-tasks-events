@@ -43,7 +43,7 @@ export function FixtureController() {
   const [status, setStatus] = useState("Preparando la prueba aislada de Next")
   const [rows, setRows] = useState<string[]>([])
   const [running, setRunning] = useState(false)
-  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series" | "tag-order" | "tag-order-ui" | "tag-delete">("full")
+  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series" | "tag-order" | "tag-order-ui" | "tag-delete" | "tag-delete-ui">("full")
   useEffect(() => {
     void (async () => {
       const query = new URLSearchParams(location.search)
@@ -112,7 +112,7 @@ export function FixtureController() {
         return await new Promise((resolveReply, reject) => {
           const timer = setTimeout(
             () => reject(new Error("Fixture command timed out")),
-            ["resolve-assignment-ui","resolve-tag-order-ui"].includes(parsed.type) ? 120000 : 45000
+            ["resolve-assignment-ui","resolve-tag-order-ui","resolve-tag-delete-ui"].includes(parsed.type) ? 120000 : 45000
           )
           channel.port1.onmessage = (event) => {
             clearTimeout(timer)
@@ -624,8 +624,8 @@ export function FixtureController() {
           await call(1, { type: "mixed-run" })
         }
       )
-      if(proofScope === "full" || proofScope === "tag-delete") await check("Borrado de categoría recupera adopción, tombstone y ACK único tras recarga",async()=>{
-        const proof=await proveRemoteTagDeletionRecovery({owner,call,snapshot,state:()=>state(owner),reloadSecondary:async()=>{
+      if(proofScope === "full" || proofScope === "tag-delete" || proofScope === "tag-delete-ui") await check("Borrado de categoría recupera adopción, tombstone y ACK único tras recarga",async()=>{
+        const proof=await proveRemoteTagDeletionRecovery({owner,call,snapshot,interactive:proofScope!=="tag-delete",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned deletion reload timed out"))},45000);window.addEventListener("message",listener)
@@ -634,7 +634,7 @@ export function FixtureController() {
         }})
         assert(proof.adopted===2&&proof.retried===1&&proof.lostReplies===1,"Deletion proof incomplete")
       })
-      if(proofScope === "tag-delete"){passed=true;return}
+      if(proofScope === "tag-delete" || proofScope === "tag-delete-ui"){passed=true;return}
       if(proofScope === "full" || proofScope === "tag-order" || proofScope === "tag-order-ui") await check("Orden de categorías recupera multiefectos, tombstones y ACK único tras recarga",async()=>{
         const proof=await proveRemoteTagOrderRecovery({owner,call,snapshot,interactive:proofScope!=="tag-order",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{

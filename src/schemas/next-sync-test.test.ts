@@ -339,6 +339,9 @@ test("order fixture uses validated real category move and deletion producers", (
 
 test("category deletion fixture scope and commands reject unreviewed inputs", () => {
   expect(nextSettingsProofScopeSchema.parse("tag-delete")).toBe("tag-delete")
+  expect(nextSettingsProofScopeSchema.parse("tag-delete-ui")).toBe(
+    "tag-delete-ui"
+  )
   const operationId = crypto.randomUUID()
   expect(
     nextSyncDeviceCommandSchema.parse({
@@ -350,6 +353,7 @@ test("category deletion fixture scope and commands reject unreviewed inputs", ()
     { type: "tag-delete-comparison", operationId: "invalid" },
     { type: "tag-delete-comparison", operationId, database: "production" },
     { type: "resolve-tag-delete", request: {} },
+    { type: "resolve-tag-delete-ui", request: {} },
     { type: "tag-delete-guard-proof", request: {} },
   ])
     expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)

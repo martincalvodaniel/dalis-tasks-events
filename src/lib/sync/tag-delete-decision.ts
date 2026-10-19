@@ -52,6 +52,22 @@ function previewDeletion(
     ),
   }
 }
+// Presentation only; persistence recaptures the full catalog and proves prerequisite ACKs.
+export function previewTagDeletionResolutionChoice(
+  input: unknown,
+  actor: string,
+  choice: TagDeletionResolutionRequest["choice"]
+) {
+  const snapshot = validateTagDeletionResolutionSnapshot(input, actor)
+  if (choice === "adopt_remote") return snapshot.observedTags
+  if (choice !== "retry_delete")
+    throw new Error("Category deletion preview choice is unsupported")
+  return previewDeletion(
+    snapshot,
+    snapshot.incident.entry.operation.operationId,
+    snapshot.incident.entry.createdAt
+  ).tags
+}
 export function availableTagDeletionResolutionChoices(
   input: unknown,
   actor: string

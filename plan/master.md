@@ -1,5 +1,14 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19h4 — Recuperación de borrado visible y probada
+
+Ajustes conecta revisión guardada de tag.delete aislado: captura completa antes de mostrar elecciones, cuenta/época/montaje, UUID estables y cache de la propia cuenta. Diálogo reutiliza ConfirmationDialog y catálogo con color/tombstones; explica restauración y agrupación derivada sin modificar planes/vistas, o nueva solicitud pendiente sin ACK local. Remoto ya eliminado sólo permite adoptar. Preview puro comparte planner; cancelar no escribe y error conserva intención.
+
+Seis pruebas SSR/preview/guardias y scopes estrictos; dieciocho tests focalizados/113aserciones. Once escenarios Next6 UI focalizados pasan con cancelar/reabrir/confirmar ambas elecciones, UUID generados por UI, respuesta perdida tras commit, recarga, ACK remoto único y catálogos/shadows/cursor exactos en dos particiones/Mongo propios. Full32 sigue disponible; no atribuirlo al scope11 ni afirmar Google/nuevos físicos. Fixture visual con CSS real a390px: diálogo358px, scroll390px sin overflowhorizontal; captura /private/tmp/dalis-tag-delete-dialog-mobile.png. UI Next sinCSS sólo acredita interacción. Se corrigió fixture tombstone para que comparación remota coincidiera exactamente con su catálogo; no se relajó guardia.
+
+DoD1022pass/223skip/0fail/12051aserciones, lint957 sinavisos/tipos/Webpack/worker46/diff aprobados. Corregidas líneas vacías finales de docs19h3; comprobación final limpia. Recursos propios retirados yviewport restablecido; main humano preservado. Sin índice/protocolo/DBusuario/producción nuevos. Entrada90%5h/30%7d, reservas10%/1%; siguiente recuperación residual deplacements/cohortes recurrentes/ausencia según dependencias, después accesibilidad/preparación final.
+
+
 ## 19h3 — Recuperación de borrado probada con RPC real
 
 Once escenarios Next6 focalizados (`scope=tag-delete`) aprobados con acción/defaults reales, sesiones BetterAuth persistidas y dos orígenes IndexedDB/Mongo propios. Productores tag.save/tag.delete generan conflicto real; se prueban adopción remota viva, retry_delete y adopción de tombstone posterior. Guardias actor/epoch/stale no escriben; UUID/payload/dependencias/original superseded/outcomes permanecen exactos. Plan asignado y vista siguen intactos; sólo cambia visibilidad derivada de la categoría. Respuesta perdida después de commit, recarga pending/attempt1 y replay del mismo UUID producen ACK real/attempt2 y un único recibo/journal. Catálogos completos, sombras y cursor coinciden con Mongo; replay durable no retrocede estado confirmado.
