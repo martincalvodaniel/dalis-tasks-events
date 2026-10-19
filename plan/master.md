@@ -1,5 +1,19 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19j4a — Prueba integrada focalizada de varias apariciones
+
+Next6 compilado con defaults productivos, dos sesiones BetterAuth persistidas, dos orígenes IndexedDB y Mongo propios aprueba once escenarios focalizados: diez de frontera autenticada/matriz5↔6/readiness/replay y uno nuevo con adopción y reintento de tres intenciones intercaladas entre dos fechas. Usa productores reales, snapshot capturado y feature de cuenta/época. El scope explícito appearance-cohort conserva full34 disponible; no se ha ejecutado full34 ni Google interactivo o nuevos dispositivos físicos.
+
+La adopción conserva remotos conocidos sin crear recibos remotos. El reintento conserva UUID/payload/dependencias de todas las originales y añade la cadena completa con CAS independiente por slot. Pérdida tras primer commit remoto deja mismo UUID pending/attempt1, cero ACK local; recarga conserva backup/cola/decisión, replay recibe ACK real attempt2 y los demás attempt1. Número de recibos y journal aumenta exactamente una vez por reemplazo; ambos orígenes terminan con padre/excepciones/shadows/cursor exactos respecto al journal por serie. Superseded nunca es ACK; no se afirma convergencia global de históricos bloqueados.
+
+Se corrigieron dos supuestos de la prueba, sin relajar el producto: la cola exportada se ordena por secuencia antes de elegir raíz (su orden físico es UUID); updatedAt/completedAt son autoritativos del ejecutor remoto. Se verifica igualdad de todos los demás campos elegidos, presencia de completado coherente y registro remoto completo exacto contra journal/shadows al terminar. Tercera ejecución aprobada; las dos anteriores limpiaron también sus recursos propios. TypeScript detectó el literal choice ensanchado en la fixture del test de schema y se estrechó desde el registro validado.
+
+DoD1103pass/225opt-in skip/0fail/12472aserciones, lint998 sin avisos/tipos/Webpack/worker46/diff aprobados. Docker28.4.0/imagen Mongo pinned amd64 revalidados; tres contenedores/almacenamientos/proyectos Next propios retirados, particiones/sesiones cerradas, sólo pestaña humana conservada. Sin DBusuario/producción/índice/dependencia nuevos. Rutas schema/testnext-sync-test y templates local/device/controller/appearance-cohort-recovery. Entrada28%5h/6%7d, reservas10%/1%, secuencial; cuota durante cierre16%5h/4%7d. No interfaz nueva activada.
+
+Siguiente19j5a: disponibilidad pura por cuenta y comparación revalidada más diálogo conjunto preparado, reutilizando ConfirmationDialog y PlanOccurrenceIncidentVersion por fecha. Mostrar contenido, fecha, progreso, checklist y cancelación elegidos, cantidad total de intenciones/fechas, consecuencias de sustituir toda la cohorte, remoto conocido, envío pendiente y estado intermedio. No prometer que sólo cambia una fecha. Actor/snapshot inválidos sin elecciones; remoto cancelado/eliminado o borrador ausente sólo adopción. Pruebas SSR/puras antes de caller.
+
+Después19j5b: conectar revisión desde PlanOccurrenceIncidentActions sólo para raíz de conflicto multi-slot; leer comparación completa antes de mostrar elecciones, IDs estables y cuenta/época/mounted/cache protegidos. Scope UI propio con ambas elecciones cancelar/reabrir/confirmar, UUID generados por UI, pérdida/recarga/ACK único y convergencia por serie en Next/Mongo/dos orígenes antes de publicar el caller. No inferir interacción de SSR ni reutilizar la promesa del diálogo de una sola aparición. Sigue recuperación residual de grupos mixtos/ausencia y accesibilidad/preparación final según plan.
+
 ## 19j3c — Frontera local de cuenta y notificación
 
 LocalSyncStore y featurecliente exponen comparación/resolución preparatorias multi-slot. Protocolo6, identidad yépoca se verifican antes deabrir, después deabrir ydespués deoperar; la conexión secierrasiempre. No ofrece aún nuevas elecciones UI. La cuenta decontrol está enotraDB: estas guardias son antes/después yno prometen cancelación atómica durante unaTX.

@@ -1,0 +1,108 @@
+"use client"
+
+import type { z } from "zod"
+import { canonical, foldRecurringChanges } from "@fixture/projection"
+import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
+import { planOccurrenceCohortRetryOperationCount } from "@/lib/sync/plan-occurrence-cohort-resolution"
+import { nextSyncDeviceCommandSchema, nextSettingsSyncStateSchema } from "@/schemas/next-sync-test"
+import { planSchema } from "@/schemas/plan-item"
+import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
+import { planOccurrenceCohortComparisonSchema } from "@/schemas/plan-occurrence-cohort-comparison"
+import { planOccurrenceCohortResolutionRecordSchema } from "@/schemas/plan-occurrence-cohort-resolution"
+import type { planOccurrenceCommandSchema } from "@/schemas/plan-occurrence-command"
+import type { LocalRecurringBackup } from "@/types/local-backup"
+import type { LocalPullCursor } from "@/types/local-sync"
+
+type Snapshot = {backup: LocalRecurringBackup; cursor: LocalPullCursor}
+type Ports = {
+  owner: string
+  call(index: number, input: z.infer<typeof nextSyncDeviceCommandSchema>): Promise<unknown>
+  snapshot(index: number): Promise<Snapshot>
+  state(): Promise<z.infer<typeof nextSettingsSyncStateSchema>>
+  reloadSecondary(): Promise<void>
+}
+function assert(value: unknown, message: string): asserts value {if (!value) throw new Error(message)}
+
+export async function proveRemoteAppearanceCohortRecovery({owner,call,snapshot,state,reloadSecondary}: Ports) {
+  for (const choice of ["adopt_remote", "retry_local"] as const) {
+    const loser = choice === "retry_local" ? 1 : 0, winner = 1-loser
+    const itemId=crypto.randomUUID(), stepId=crypto.randomUUID(), now=new Date().toISOString()
+    const first=`${itemId}:2026-10-17`, second=`${itemId}:2026-10-18`
+    await call(winner,{type:"save-plan",request:{mode:"create",itemId,contentOperationId:crypto.randomUUID(),viewOperationId:crypto.randomUUID(),primaryTagId:null,now,input:{kind:"plan",variant:choice==="retry_local"?"note":"event",title:`Cohorte ${choice}`,description:"",status:"not_started",checklist:[{id:stepId,text:"Paso conservado",completed:false}],schedule:{mode:"all_day",startDate:"2026-10-17",endDateExclusive:"2026-10-18"},recurrence:{frequency:"daily",interval:1,anchorDate:"2026-10-17",timeZone:"Europe/Madrid",end:{type:"count",count:3}}}}})
+    await call(winner,{type:"mixed-run"});await call(loser,{type:"mixed-run"})
+    async function commit(index:number, command:z.infer<typeof planOccurrenceCommandSchema>) {
+      const copy=await snapshot(index), series=planSchema.parse(copy.backup.stores.items.find((value)=>value.id===itemId))
+      const stored=copy.backup.stores.occurrences.find((value)=>value.id===command.occurrenceId)
+      const current=editablePlanOccurrence(series,stored?planOccurrenceSchema.parse(stored):null,command,owner).current
+      return call(index,{type:"commit-occurrence",operationId:crypto.randomUUID(),now:new Date().toISOString(),command,expectedItem:series,expectedOccurrence:current})
+    }
+    for (const occurrenceId of [first,second]) {
+      await commit(winner,{type:"plan.set-occurrence-status",itemId,occurrenceId,status:"not_started"})
+      await call(winner,{type:"mixed-run"})
+    }
+    await call(loser,{type:"mixed-run"})
+    await commit(winner,{type:"plan.set-occurrence-status",itemId,occurrenceId:first,status:"completed"})
+    await call(winner,{type:"mixed-run"})
+    await commit(loser,{type:"plan.set-occurrence-status",itemId,occurrenceId:first,status:"in_progress"})
+    await commit(loser,{type:"plan.set-occurrence-status",itemId,occurrenceId:second,status:"completed"})
+    await commit(loser,{type:"plan.set-occurrence-checklist-entry",itemId,occurrenceId:first,entryId:stepId,completed:true})
+    const offline=await snapshot(loser), originals=offline.backup.stores.outbox.filter((entry)=>entry.entityKey===`item:${itemId}`&&entry.state==="pending").toSorted((a,b)=>a.sequence-b.sequence)
+    assert(originals.length===3,"Real multi-slot producer did not preserve three offline intentions")
+    await call(loser,{type:"mixed-run"})
+    const expected=planOccurrenceCohortComparisonSchema.parse(await call(loser,{type:"appearance-cohort-comparison",operationId:originals[0].operation.operationId}))
+    assert(expected.slots.length===2&&expected.operationIds.length===3,"Real multi-slot conflict is incomplete")
+    const request={userId:owner,resolutionId:crypto.randomUUID(),choice,operationIds:choice==="retry_local"?Array.from({length:planOccurrenceCohortRetryOperationCount(expected)},()=>crypto.randomUUID()):[],createdAt:new Date().toISOString(),expected}
+    const before=await snapshot(loser), remoteBefore=await state()
+    const result=await call(loser,{type:"resolve-appearance-cohort",request}) as {status:string;record:unknown}
+    const record=planOccurrenceCohortResolutionRecordSchema.parse(result.record), decided=await snapshot(loser)
+    assert(result.status==="applied"&&canonical(await state())===canonical(remoteBefore),"Local joint decision manufactured a remote ACK")
+    for(const original of expected.source.entries.filter((entry)=>expected.operationIds.includes(entry.operation.operationId))) assert(canonical(decided.backup.stores.outbox.find((entry)=>entry.operation.operationId===original.operation.operationId))===canonical({...original,state:"superseded",lease:null}),"Joint decision rewrote original history")
+    for(const store of ["items","tags","itemViews","taskPlacements","settings","remoteShadows"] as const) assert(canonical(before.backup.stores[store])===canonical(decided.backup.stores[store]),"Joint decision changed unrelated data or observed evidence")
+    const operations=record.replacements.map((replacement)=>replacement.operation)
+    if(choice==="retry_local") {
+      assert(operations.length>=5,"Joint retry omitted slot content, status or checklist")
+      const lost=await call(loser,{type:"lost-plan-response-run"}) as {status:string;uploaded:number}
+      assert(lost.status==="retry_later"&&lost.uploaded===0,"Lost joint response manufactured an ACK")
+      const pending=await snapshot(loser), committed=await state()
+      assert(committed.counts.receipts===remoteBefore.counts.receipts+1&&committed.page.through===remoteBefore.page.through+1,"Joint first command did not commit exactly once")
+      for(const [index,operation] of operations.entries()) {
+        const entry=pending.backup.stores.outbox.find((entry)=>entry.operation.operationId===operation.operationId)
+        assert(entry?.state==="pending"&&entry.attempts===(index?0:1)&&canonical(entry.operation)===canonical(operation),"Lost joint response rewrote or acknowledged the queue")
+      }
+      await reloadSecondary()
+      assert(canonical((await snapshot(loser)).backup.stores)===canonical(pending.backup.stores),"Reload lost joint receipt or pending chain")
+      for(let pass=0;pass<operations.length+2;pass++) {
+        await call(loser,{type:"mixed-run"})
+        const copy=await snapshot(loser)
+        if(operations.every((operation)=>copy.backup.stores.outbox.some((entry)=>entry.operation.operationId===operation.operationId&&entry.state==="acknowledged")))break
+      }
+      const finished=await snapshot(loser), remote=await state()
+      assert(remote.counts.receipts===remoteBefore.counts.receipts+operations.length&&remote.page.through===remoteBefore.page.through+operations.length,"Joint retry duplicated receipts or lost a slot command")
+      for(const [index,operation] of operations.entries()) {
+        const entry=finished.backup.stores.outbox.find((entry)=>entry.operation.operationId===operation.operationId)
+        assert(entry?.state==="acknowledged"&&entry.attempts===(index?1:2)&&entry.lease===null&&canonical(entry.operation)===canonical(operation)&&canonical(entry.dependencies)===canonical(record.replacements[index].dependencies),"Joint retry lacks exact unique ACK evidence")
+      }
+      for(const slot of record.locals) {
+        const finishedSlot=planOccurrenceSchema.parse(finished.backup.stores.occurrences.find((value)=>value.id===slot.occurrenceId))
+        const count=operations.filter((operation)=>operation.command.occurrenceId===slot.occurrenceId).length
+        const chosen={...slot.record,revision:slot.record.revision+count}
+        const different=Object.keys(chosen).filter((key)=>canonical(finishedSlot[key as keyof typeof finishedSlot])!==canonical(chosen[key as keyof typeof chosen]))
+        assert(different.every((key)=>key==="updatedAt"||key==="completedAt")&&Boolean(finishedSlot.completedAt)===Boolean(chosen.completedAt),`Joint retry differs from the chosen exception fields: ${different.join(",")}`)
+      }
+    } else assert(operations.length===0,"Joint adoption created replacements")
+    const later=await snapshot(loser), remoteAfter=await state()
+    assert((await call(loser,{type:"resolve-appearance-cohort",request}) as {status:string}).status==="replayed"&&canonical((await snapshot(loser)).backup.stores)===canonical(later.backup.stores)&&canonical(await state())===canonical(remoteAfter),"Joint replay changed durable work")
+    await call(loser,{type:"mixed-run"});await call(winner,{type:"mixed-run"})
+    const authoritative=await state(), projection=foldRecurringChanges(authoritative.page)
+    for(let index=0;index<2;index++) {
+      const copy=await snapshot(index), own=copy.backup.stores.occurrences.filter((value)=>value.seriesId===itemId)
+      assert(copy.cursor.after===authoritative.page.through&&copy.cursor.through===null&&own.length===2,"Joint recovery lost a slot or remote checkpoint")
+      assert(canonical(copy.backup.stores.items.find((value)=>value.id===itemId))===canonical(projection.items.get(itemId)),"Joint recovery changed its parent")
+      for(const value of own) {
+        const shadow=copy.backup.stores.remoteShadows.find((shadow)=>shadow.entityKey===`plan-occurrence:${value.id}`)
+        assert(canonical(value)===canonical(projection.occurrences.get(value.id))&&shadow&&"kind" in shadow&&shadow.kind==="plan-occurrence"&&canonical(shadow.record)===canonical(value),"Joint partitions, shadows and Mongo projection differ")
+      }
+    }
+  }
+  return {adopted:1,retried:1}
+}

@@ -5,6 +5,7 @@ import { planCategoryResolutionRequestSchema } from "@/schemas/plan-category-res
 import { planCommandSchema } from "@/schemas/plan-command"
 import { planSchema } from "@/schemas/plan-item"
 import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
+import { planOccurrenceCohortResolutionRequestSchema } from "@/schemas/plan-occurrence-cohort-resolution"
 import { planOccurrenceCommandSchema } from "@/schemas/plan-occurrence-command"
 import { planOccurrenceResolutionRequestSchema } from "@/schemas/plan-occurrence-resolution"
 import { planSaveRequestSchema } from "@/schemas/plan-save"
@@ -145,6 +146,7 @@ export const nextSettingsProofScopeSchema = z
   .enum([
     "full",
     "joint-ui",
+    "appearance-cohort",
     "assignment",
     "assignment-series",
     "placement",
@@ -156,6 +158,14 @@ export const nextSettingsProofScopeSchema = z
   ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("appearance-cohort-comparison"),
+    operationId: entityIdSchema,
+  }),
+  z.strictObject({
+    type: z.literal("resolve-appearance-cohort"),
+    request: planOccurrenceCohortResolutionRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("resolve-placement-ui"),
     request: placementResolutionRequestSchema,

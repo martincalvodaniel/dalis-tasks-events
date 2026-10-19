@@ -1,4 +1,5 @@
 "use client"
+import { readPlanOccurrenceCohortComparison, resolvePlanOccurrenceCohort } from "@/features/sync/local-plan-occurrence-cohort-resolution"
 import {provePlacementResolutionUi} from "@fixture/placement-resolution-ui"
 import {moveLocalPlan} from "@/features/plans/local-plans"
 import {readPlacementIncidentComparison,resolvePlacementIncident} from "@/features/sync/local-placement-resolution"
@@ -696,6 +697,10 @@ export async function executeLocalFixtureCommand(
       return proveLocalSettingsResolution(active, command.request)
     case "appearance-retry-local-proof":
       return proveLocalAppearanceRetry(active, command.request)
+    case "appearance-cohort-comparison":
+      return readPlanOccurrenceCohortComparison(active, command.operationId)
+    case "resolve-appearance-cohort":
+      return resolvePlanOccurrenceCohort(active, command.request)
     case "resolve-appearance":
       return resolvePlanOccurrenceIncident(active, command.request)
     case "appearance-resolution-local-proof":

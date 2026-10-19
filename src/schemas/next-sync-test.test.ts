@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test"
+import { planOccurrenceCohortResolutionFixture } from "@/lib/backup/plan-occurrence-cohort-resolution-fixture"
 import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
 import {
   nextRecurringSyncStateSchema,
@@ -400,6 +401,39 @@ test("simple placement fixture scope and producer preserve the explicit movement
     { type: "resolve-placement", request: {} },
     { type: "resolve-placement-ui", request: {} },
     { type: "placement-guard-proof", request: {} },
+  ])
+    expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
+})
+
+test("multi-slot fixture scope and commands preserve the exact reviewed cohort", () => {
+  const fixture = planOccurrenceCohortResolutionFixture()
+  const request = { ...fixture.request, choice: fixture.record.choice }
+  expect(nextSettingsProofScopeSchema.parse("appearance-cohort")).toBe(
+    "appearance-cohort"
+  )
+  expect(
+    nextSyncDeviceCommandSchema.parse({
+      type: "appearance-cohort-comparison",
+      operationId: fixture.source.operationId,
+    })
+  ).toEqual({
+    type: "appearance-cohort-comparison",
+    operationId: fixture.source.operationId,
+  })
+  expect(
+    nextSyncDeviceCommandSchema.parse({
+      type: "resolve-appearance-cohort",
+      request,
+    })
+  ).toEqual({ type: "resolve-appearance-cohort", request })
+  for (const invalid of [
+    { type: "appearance-cohort-comparison" },
+    { type: "resolve-appearance-cohort", request: {} },
+    {
+      type: "appearance-cohort-comparison",
+      operationId: fixture.source.operationId,
+      unsafe: true,
+    },
   ])
     expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
 })

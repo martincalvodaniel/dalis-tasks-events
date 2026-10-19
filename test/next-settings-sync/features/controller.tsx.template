@@ -1,4 +1,5 @@
 "use client"
+import {proveRemoteAppearanceCohortRecovery} from "@fixture/appearance-cohort-recovery"
 import {proveRemotePlacementRecovery} from "@fixture/placement-recovery"
 import { proveRemoteTagDeletionRecovery } from "@fixture/tag-delete-recovery"
 import { proveRemoteTagOrderRecovery } from "@fixture/tag-order-recovery"
@@ -44,7 +45,7 @@ export function FixtureController() {
   const [status, setStatus] = useState("Preparando la prueba aislada de Next")
   const [rows, setRows] = useState<string[]>([])
   const [running, setRunning] = useState(false)
-  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series" | "tag-order" | "tag-order-ui" | "tag-delete" | "tag-delete-ui" | "placement" | "placement-ui">("full")
+  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series" | "tag-order" | "tag-order-ui" | "tag-delete" | "tag-delete-ui" | "placement" | "placement-ui" | "appearance-cohort">("full")
   useEffect(() => {
     void (async () => {
       const query = new URLSearchParams(location.search)
@@ -625,6 +626,17 @@ export function FixtureController() {
           await call(1, { type: "mixed-run" })
         }
       )
+      if(proofScope === "full" || proofScope === "appearance-cohort") await check("Varias apariciones recuperan cadena intercalada con ACK únicos tras recarga",async()=>{
+        const proof=await proveRemoteAppearanceCohortRecovery({owner,call,snapshot,state:()=>state(owner),reloadSecondary:async()=>{
+          const reloaded=new Promise<void>((resolve,reject)=>{
+            const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
+            const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned appearance cohort reload timed out"))},45000);window.addEventListener("message",listener)
+          })
+          await call(1,{type:"reload-local"});await reloaded
+        }})
+        assert(proof.adopted===1&&proof.retried===1,"Appearance cohort proof incomplete")
+      })
+      if(proofScope === "appearance-cohort"){passed=true;return}
       if(proofScope === "full" || proofScope === "placement" || proofScope === "placement-ui") await check("Orden de planes recupera cadena exacta y ACK único tras recarga",async()=>{
         const proof=await proveRemotePlacementRecovery({owner,call,snapshot,interactive:proofScope!=="placement",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
@@ -1581,7 +1593,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            proofScope !== "full" ? "Once escenarios Next6 focalizados correctos; sesiones propias cerradas" : "Treinta y tres escenarios Next6 correctos; sesiones propias cerradas"
+            proofScope !== "full" ? "Once escenarios Next6 focalizados correctos; sesiones propias cerradas" : "Treinta y cuatro escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",
