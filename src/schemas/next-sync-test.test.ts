@@ -336,3 +336,21 @@ test("order fixture uses validated real category move and deletion producers", (
     }).success
   ).toBe(false)
 })
+
+test("category deletion fixture scope and commands reject unreviewed inputs", () => {
+  expect(nextSettingsProofScopeSchema.parse("tag-delete")).toBe("tag-delete")
+  const operationId = crypto.randomUUID()
+  expect(
+    nextSyncDeviceCommandSchema.parse({
+      type: "tag-delete-comparison",
+      operationId,
+    })
+  ).toEqual({ type: "tag-delete-comparison", operationId })
+  for (const invalid of [
+    { type: "tag-delete-comparison", operationId: "invalid" },
+    { type: "tag-delete-comparison", operationId, database: "production" },
+    { type: "resolve-tag-delete", request: {} },
+    { type: "tag-delete-guard-proof", request: {} },
+  ])
+    expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
+})

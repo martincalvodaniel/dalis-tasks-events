@@ -323,3 +323,10 @@ next-settings añade cinco escenarios a los nueve de frontera. Dos particiones r
 ### 18e1b2 — Fallos y proveedor real6
 
 next-settings usaSettingsSyncProvider seleccionado porActiveSyncProvider con releaseprofile6 sólo propio. Hookhost verifica caché6 separada de5, mutación propia, época y listeners. Diecinueve escenarios cubren respuesta perdida/commit en vuelo/cambio cuenta/CASconflict y progreso independiente; entradas intentadas/pending/outcomes se conservan. Incidente es lectura futura readonly y no resolución. Recursos propios y sesiones limpiados. No Google/físicos/DBusuario/activación6.
+
+## 19h3 — Recuperación de borrado probada con RPC real
+
+Once escenarios Next6 focalizados (`scope=tag-delete`) aprobados con acción/defaults reales, sesiones BetterAuth persistidas y dos orígenes IndexedDB/Mongo propios. Productores tag.save/tag.delete generan conflicto real; se prueban adopción remota viva, retry_delete y adopción de tombstone posterior. Guardias actor/epoch/stale no escriben; UUID/payload/dependencias/original superseded/outcomes permanecen exactos. Plan asignado y vista siguen intactos; sólo cambia visibilidad derivada de la categoría. Respuesta perdida después de commit, recarga pending/attempt1 y replay del mismo UUID producen ACK real/attempt2 y un único recibo/journal. Catálogos completos, sombras y cursor coinciden con Mongo; replay durable no retrocede estado confirmado.
+
+DoD:1016pass/223skip/0fail/12004aserciones, lint953 sin avisos, tipos, Webpack, worker46 y diff aprobados. Scope estricto y comandos nuevos validados; full32 disponible, sin atribuirle ejecución completa. Se corrigió antes de compilar una importación de snapshot que sólo se exporta en el schema de catálogo. Recursos propios limpios; evidencia `/private/tmp/dalis-tag-delete-next.png`. Sin Google interactivo ni nuevos dispositivos físicos, DB del usuario, protocolo, índice o callerUI. Siguiente19h4: diálogo/caller de borrado, cancelar/reabrir/confirmar ambas elecciones con UI real antes de publicar.
+

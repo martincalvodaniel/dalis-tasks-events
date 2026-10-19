@@ -1,4 +1,5 @@
 "use client"
+import { readTagDeletionIncidentComparison,resolveTagDeletionIncident } from "@/features/sync/local-tag-delete-resolution"
 import { proveTagOrderResolutionUi } from "@fixture/tag-order-resolution-ui"
 import { readTagOrderIncidentComparison,resolveTagOrderIncident } from "@/features/sync/local-tag-order-resolution"
 import { proveItemViewResolutionUi } from "@fixture/item-view-resolution-ui"
@@ -578,6 +579,19 @@ export async function executeLocalFixtureCommand(
       return proveSettingsResolutionUi(active, command.request)
     case "resolve-assignment-ui":
       return proveItemViewResolutionUi(active,command.request)
+    case "tag-delete-comparison":return readTagDeletionIncidentComparison(active,command.operationId)
+    case "resolve-tag-delete":return resolveTagDeletionIncident(active,command.request)
+    case "tag-delete-guard-proof": {
+      const before=JSON.stringify((await readFixtureBackup(active)).stores)
+      const expected=structuredClone(command.request.expected);expected.observedTags[0].position+=1
+      let checks=0
+      for(const work of [()=>resolveTagDeletionIncident({...active,epoch:crypto.randomUUID()},command.request),()=>resolveTagDeletionIncident(active,{...command.request,userId:"owned-foreign-deletion"}),()=>resolveTagDeletionIncident(active,{...command.request,expected})]){
+        let failed=false;try{await work()}catch{failed=true}
+        if(!failed || before!==JSON.stringify((await readFixtureBackup(active)).stores))throw new Error("Deletion feature guard changed durable state")
+        checks++
+      }
+      return {checks}
+    }
     case "resolve-tag-order-ui":return proveTagOrderResolutionUi(active,command.request)
     case "tag-order-comparison":return readTagOrderIncidentComparison(active,command.operationId)
     case "resolve-tag-order":return resolveTagOrderIncident(active,command.request)

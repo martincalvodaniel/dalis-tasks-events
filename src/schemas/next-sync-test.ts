@@ -25,6 +25,7 @@ import { settingsResolutionRequestSchema } from "@/schemas/settings-resolution"
 import { syncCommandSchema } from "@/schemas/sync"
 import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
 import { syncResolutionRequestSchema } from "@/schemas/sync-resolution"
+import { tagDeletionResolutionRequestSchema } from "@/schemas/tag-delete-resolution"
 import { tagOrderResolutionRequestSchema } from "@/schemas/tag-order-resolution"
 import { tagResolutionRequestSchema } from "@/schemas/tag-resolution"
 
@@ -145,11 +146,24 @@ export const nextSettingsProofScopeSchema = z
     "joint-ui",
     "assignment",
     "assignment-series",
+    "tag-delete",
     "tag-order",
     "tag-order-ui",
   ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("tag-delete-comparison"),
+    operationId: entityIdSchema,
+  }),
+  z.strictObject({
+    type: z.literal("resolve-tag-delete"),
+    request: tagDeletionResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("tag-delete-guard-proof"),
+    request: tagDeletionResolutionRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("resolve-tag-order-ui"),
     request: tagOrderResolutionRequestSchema,

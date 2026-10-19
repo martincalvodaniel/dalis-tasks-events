@@ -1,4 +1,5 @@
 "use client"
+import { proveRemoteTagDeletionRecovery } from "@fixture/tag-delete-recovery"
 import { proveRemoteTagOrderRecovery } from "@fixture/tag-order-recovery"
 import { proveRemoteItemViewRecovery } from "@fixture/item-view-recovery"
 import { proveRemotePlanCategoryRecovery } from "@fixture/plan-category-recovery"
@@ -42,7 +43,7 @@ export function FixtureController() {
   const [status, setStatus] = useState("Preparando la prueba aislada de Next")
   const [rows, setRows] = useState<string[]>([])
   const [running, setRunning] = useState(false)
-  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series" | "tag-order" | "tag-order-ui">("full")
+  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series" | "tag-order" | "tag-order-ui" | "tag-delete">("full")
   useEffect(() => {
     void (async () => {
       const query = new URLSearchParams(location.search)
@@ -623,6 +624,17 @@ export function FixtureController() {
           await call(1, { type: "mixed-run" })
         }
       )
+      if(proofScope === "full" || proofScope === "tag-delete") await check("Borrado de categoría recupera adopción, tombstone y ACK único tras recarga",async()=>{
+        const proof=await proveRemoteTagDeletionRecovery({owner,call,snapshot,state:()=>state(owner),reloadSecondary:async()=>{
+          const reloaded=new Promise<void>((resolve,reject)=>{
+            const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
+            const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned deletion reload timed out"))},45000);window.addEventListener("message",listener)
+          })
+          await call(1,{type:"reload-local"});await reloaded
+        }})
+        assert(proof.adopted===2&&proof.retried===1&&proof.lostReplies===1,"Deletion proof incomplete")
+      })
+      if(proofScope === "tag-delete"){passed=true;return}
       if(proofScope === "full" || proofScope === "tag-order" || proofScope === "tag-order-ui") await check("Orden de categorías recupera multiefectos, tombstones y ACK único tras recarga",async()=>{
         const proof=await proveRemoteTagOrderRecovery({owner,call,snapshot,interactive:proofScope!=="tag-order",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
@@ -1557,7 +1569,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            proofScope !== "full" ? "Once escenarios Next6 focalizados correctos; sesiones propias cerradas" : "Treinta y un escenarios Next6 correctos; sesiones propias cerradas"
+            proofScope !== "full" ? "Once escenarios Next6 focalizados correctos; sesiones propias cerradas" : "Treinta y dos escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

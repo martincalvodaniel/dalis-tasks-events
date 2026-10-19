@@ -1,5 +1,12 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19h3 — Recuperación de borrado probada con RPC real
+
+Once escenarios Next6 focalizados (`scope=tag-delete`) aprobados con acción/defaults reales, sesiones BetterAuth persistidas y dos orígenes IndexedDB/Mongo propios. Productores tag.save/tag.delete generan conflicto real; se prueban adopción remota viva, retry_delete y adopción de tombstone posterior. Guardias actor/epoch/stale no escriben; UUID/payload/dependencias/original superseded/outcomes permanecen exactos. Plan asignado y vista siguen intactos; sólo cambia visibilidad derivada de la categoría. Respuesta perdida después de commit, recarga pending/attempt1 y replay del mismo UUID producen ACK real/attempt2 y un único recibo/journal. Catálogos completos, sombras y cursor coinciden con Mongo; replay durable no retrocede estado confirmado.
+
+DoD:1016pass/223skip/0fail/12004aserciones, lint953 sin avisos, tipos, Webpack, worker46 y diff aprobados. Scope estricto y comandos nuevos validados; full32 disponible, sin atribuirle ejecución completa. Se corrigió antes de compilar una importación de snapshot que sólo se exporta en el schema de catálogo. Recursos propios limpios; evidencia `/private/tmp/dalis-tag-delete-next.png`. Sin Google interactivo ni nuevos dispositivos físicos, DB del usuario, protocolo, índice o callerUI. Siguiente19h4: diálogo/caller de borrado, cancelar/reabrir/confirmar ambas elecciones con UI real antes de publicar.
+
+
 ## 19z10 — Cierre del lote22:24 y continuación19oct03:25
 
 Doce cortes de código publicados enint conHEADremoto verificado ycuotas tras cadaentrega:7b37727/b24e25d/a8a380b/2ba5139/9761353/c9911e0/a4212bc/646af39/fb8cabd/7d9bbc4/9bad58b/da4ac47. Home queda Atrasadas/Hoy/Próximas yrecuperación deorden aislado visible enAjustes. Recuperacióndeborrado tienecontrato/captura/TX/backup cerrados con10checksIndexedDB; todavía sinpruebaremota/callerUI.1015pass/223skip/0fail/11998aserciones, lint953sinavisos/tipos/Webpack/worker46. Next6 deorden11backend+11UI focalizados aprobados; full31 disponible,noejecucióncompleta atribuida.
