@@ -1,5 +1,16 @@
 # Registro de iteraciones
 
+## 19j2 — Decisión conjunta de varias apariciones
+
+Planner puro permite adoptar todos los remotos revisados, sin reemplazos, o reconstruir todos los borradores como una sola cadena nueva de comandos existentes. Cada slot calcula su CAS desde su revisión remota, no desde el índice global; la siguiente fecha depende de la última operación de la anterior. Las originales y sus dependencias permanecen exactas en la evidencia; la supersesión sólo se declara, sin escrituras ni ACK.
+
+IDs nuevos y distintos contra toda la cola capturada, comparación/cuenta exactas, post-capacidad de outbox y revisiones seguras protegidos. Si falta un borrador o el remoto está cancelado/eliminado, sólo puede planificarse adopción conjunta. El registro tiene límite de bytes y se revalida reconstruyendo operaciones, proyecciones y dependencias. La capacidad completa de metadata y sus colisiones quedan obligatoriamente para la futura transacción.
+
+Ocho tests nuevos/42 aserciones: adopción íntegra, CAS9/10 y2/3, cadena global, planner remoto puro acepta cada comando y reproduce cada excepción exacta, stale/actor/IDs/cantidad, borradores/remotos protegidos, overflow por slot, registros alterados y cola llena de10000 entradas con historia intacta. DoD1092pass/225opt-in skip/0fail/12424aserciones; lint991 sin avisos/tipos/Webpack/worker46/diff aprobados. No nuevas pruebas Mongo/Next ni inferencia de ACK/convergencia real.
+
+Entrada56%5h/10%7d, reservas10%/1%, secuencial. Rutas nuevas schemas/types/lib/sync de plan-occurrence-cohort-resolution y sus tests; sin caller, writer o codec de backup todavía. Siguiente19j3: evidencia portable3 y contrato de captura transaccional antes de persistir decisiones, conservando originales/outcomes/prerrequisitos y reemplazos exactos; después IndexedDB/Mongo/Next/UI según dependencias y margen.
+
+
 ## 19j1b — Comparación exacta de varias apariciones
 
 Contrato puro y revalidable de la cohorte completa: conserva el catálogo de origen, el orden global, las dependencias entre fechas y el padre actual/congelado. Cada slot retiene su borrador y la versión remota conocida más reciente con revisión independiente. Sombras contradictorias o anteriores a la evidencia durable, cuenta/padre incorrectos, catálogos duplicados y ausencia remota desconocida siguen protegidos. Los prerrequisitos transitivos requieren outcomes aplicados exactos; un DTO de ACK no basta. Cancelación/tombstone remotos se conservan sin revivir nada.
