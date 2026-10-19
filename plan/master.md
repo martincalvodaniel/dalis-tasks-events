@@ -1,5 +1,14 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19j1a — Clasificación estructural de varias apariciones
+
+Núcleo puro identifica cohorte completa item:seriesId conraíz conflict ycola posterior pending0 sinlease,≥2slots actuales válidos deparent propio vivo/recurrente/confirmado. Conserva orden global, comandos, UUID ydependencias cruzadas entre slots intercalados; agruparlos no los vuelve entidades aisladas. Otras operaciones delparent/dependientes externos/colas parciales oinciertas bloquean; clausura ACK transitiva sóloDTO, sin acreditarrecibos remotos.
+
+Seis tests/30aserciones: slots intercalados/historiainmutable, casoúnico conservaresolveranterior, firstroot/partial/duplicate/disconnected/attempts/foreign, parent externo/dependientes, ACKtransitivo, parent/slot inválidos ylímite/strict. Unaaserción esperaba unerror demasiado específico: elprerequisito quepasabaa pending esdelmismoparent yse rechaza antes como primerconflicto incorrecto; se conserva rechazo sinrelajar guardia. DoD1067pass/223skip/0fail/12320aserciones, lint978 sinavisos/tipos/Webpack/worker46/diff aprobados.
+
+Entrada21%5h/19%7d, reservas10%/1%, secuencial. Ningún caller/elección/TX/backup nuevo: clasificación noautoriza superseder ni recuperarslots. Siguiente19j1b: contrato de comparación exacta deparent/cada slot/local/remoto/outcome yclausura; sólo después decisión/portable/TX/Mongo/Next/UI. Este lote cierra sin abrir ese bloque mayor ni nueva programación.
+
+
 ## 19i7 — Elecciones de orden limitadas por evidencia durable
 
 Disponibilidad ypreview deorden comprueban ahora elrecibo completo con elmismo constructor puro queelwriter. Un snapshot por debajode5MiB no basta si al añadir placements/intención/recibo se supera eltope: enesecaso no se ofrecen elecciones imposibles deguardar. IDs conocidos se usan sólo como placeholders demedida, nuncasepersisten nienvían; la decisión real mantiene IDs nuevos/distintos ysnapshot exacto. Esto no afirma espacio físico disponible: capacidad postwrite, ACKs yguardias siguenacreditándose enTX.
