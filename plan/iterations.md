@@ -1,5 +1,18 @@
 # Iteraciones de implementación
 
+## 19i2 — Decisión de orden preparada sin caller
+
+Contrato puro permite adoptar catálogo observado de placements o reaplicar sólo el último task.move exacto de la cadena revisada. Nuevo UUID y CAS de primaria observado; planner remoto común calcula reranking multirregistro/revisiones independientes, mientras proyección optimista conserva revisión conocida o0 si crea un rank nuevo. Rechaza efectos en vistas/otro grupo, primarias eliminadas, vecinos obsoletos y desbordamientos; en esos casos sólo adopción del catálogo conocido. No envía todo orden local ni inventa ACK. Recibo5MiB replanificable conserva toda cadena y decisión explícita, identidades/snapshot/cuenta exactos.
+
+Nueve tests nuevos/73aserciones;22focalizados/141aserciones. DoD1044pass/223skip/0fail/12192aserciones, lint964 sin avisos/tipos/Webpack/worker46/diff aprobados. Fixture reranking corregida para elegir vecinos según su orden real por UUID cuando posiciones empatan; una aserción TS estrechada sin cambiar producto. Cuatro variantes/day/overdue, adopción/retry/tombstone/revisión agotada/vecinos/reranking/stale/IDs/registro corrupto aprobados. Entrada73%5h/27%7d, reservas10%/1%, secuencial. Sin IO, backup/writer/UI, índice o protocolo nuevos. Siguiente19i3 evidencia portable; después TX9stores con ACKs acreditados, pruebas remotas y UI antes de ofrecer elecciones.
+
+
+## 19i2 — Delimitación de decisión pura de orden de planes
+
+- Objetivo: decisión replanificable de adoptar placements observados o reaplicar sólo último movimiento dentro del grupo revisado. target_paths: schemas/types/placement-resolution.ts, lib/sync/placement-decision{,.test}.ts yplan/**. Dependencias19i1/06aeed5 cerrado;73%5h/27%7d, reservas10%/1%, secuencial.
+- Aceptación: UUID nuevo/distinto y CAS de primaria observado; comando original exacto del último hijo, no enviar todo catálogo local. Planner común remoto calcula efectos/reranking y revisiones independientes; proyección optimista conserva revisión observada o0 para nueva identidad, sin ACK. Sólo placements y grupo revisado; no modificación implícita de vistas. Adopción acepta tombstone conocido, retry no resucita. Catálogo/snapshot/recibo acotados, replay validable sin IO.
+- Validación: cuatro variantes/day/overdue, adopción/retry/IDs/stale/foreign, vecinos obsoletos/tombstones/revisión agotada, reranking y efectos multirregistro comparados con planner real. DoD completo, plan/registro mismo commit/push/HEAD/cuotas. Después portable y TX con outcomes de ACK reales antes de UI/prueba remota; sin caller/índice/protocolo nuevos.
+
 ## 19i1 — Captura pura de orden de planes simples
 
 Contrato de catálogo local/observado canónico para cadena task.move de misma primaria, scope, fecha civil y categoría. Cuatro variantes propias simples con contenido/categorías/vistas confirmados exactos; placement local optimista puede diferir sólo dentro del grupo revisado. Revisión positiva y conjunto de identidades conocido en ambos lados evita inferir ausencia o borrar rangos locales sin evidencia. Remoto tombstone primario puede conservarse como observación, nunca restauración automática de vecinos. Otro pending, cambio de categoría, serie, slot, catálogo parcial/ajeno/duplicado y revisión desconocida siguen protegidos.

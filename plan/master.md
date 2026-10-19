@@ -1,5 +1,12 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19i2 — Decisión de orden preparada sin caller
+
+Contrato puro permite adoptar catálogo observado de placements o reaplicar sólo el último task.move exacto de la cadena revisada. Nuevo UUID y CAS de primaria observado; planner remoto común calcula reranking multirregistro/revisiones independientes, mientras proyección optimista conserva revisión conocida o0 si crea un rank nuevo. Rechaza efectos en vistas/otro grupo, primarias eliminadas, vecinos obsoletos y desbordamientos; en esos casos sólo adopción del catálogo conocido. No envía todo orden local ni inventa ACK. Recibo5MiB replanificable conserva toda cadena y decisión explícita, identidades/snapshot/cuenta exactos.
+
+Nueve tests nuevos/73aserciones;22focalizados/141aserciones. DoD1044pass/223skip/0fail/12192aserciones, lint964 sin avisos/tipos/Webpack/worker46/diff aprobados. Fixture reranking corregida para elegir vecinos según su orden real por UUID cuando posiciones empatan; una aserción TS estrechada sin cambiar producto. Cuatro variantes/day/overdue, adopción/retry/tombstone/revisión agotada/vecinos/reranking/stale/IDs/registro corrupto aprobados. Entrada73%5h/27%7d, reservas10%/1%, secuencial. Sin IO, backup/writer/UI, índice o protocolo nuevos. Siguiente19i3 evidencia portable; después TX9stores con ACKs acreditados, pruebas remotas y UI antes de ofrecer elecciones.
+
+
 ## 19i1 — Captura pura de orden de planes simples
 
 Contrato de catálogo local/observado canónico para cadena task.move de misma primaria, scope, fecha civil y categoría. Cuatro variantes propias simples con contenido/categorías/vistas confirmados exactos; placement local optimista puede diferir sólo dentro del grupo revisado. Revisión positiva y conjunto de identidades conocido en ambos lados evita inferir ausencia o borrar rangos locales sin evidencia. Remoto tombstone primario puede conservarse como observación, nunca restauración automática de vecinos. Otro pending, cambio de categoría, serie, slot, catálogo parcial/ajeno/duplicado y revisión desconocida siguen protegidos.
