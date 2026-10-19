@@ -1,5 +1,16 @@
 # Registro de iteraciones
 
+## 19j1b — Comparación exacta de varias apariciones
+
+Contrato puro y revalidable de la cohorte completa: conserva el catálogo de origen, el orden global, las dependencias entre fechas y el padre actual/congelado. Cada slot retiene su borrador y la versión remota conocida más reciente con revisión independiente. Sombras contradictorias o anteriores a la evidencia durable, cuenta/padre incorrectos, catálogos duplicados y ausencia remota desconocida siguen protegidos. Los prerrequisitos transitivos requieren outcomes aplicados exactos; un DTO de ACK no basta. Cancelación/tombstone remotos se conservan sin revivir nada.
+
+Rutas: schemas/types y lib/sync/plan-occurrence-cohort-comparison, fixture propia plan-occurrence-cohort-fixture y pruebas. Snapshot con límite conservador de 5 MiB y catálogos de 10000 registros; serialización se reconstruye y compara con su fuente. No IO, writer, supersesión, elección visible ni nueva rama de backup. La captura futura debe releer todos los datos en una única transacción: el DTO no autoriza escrituras.
+
+Diez tests nuevos y 40 aserciones: múltiples slots intercalados, revisiones 9/2 independientes, historia inmutable, remoto ausente/local ausente, evidencia posterior y replay antiguo, contradicción/stale, actor/padre/intención, duplicados/corrupción, tombstone/cancelación, ACK transitivos de dos slots y límites estrictos. Se corrigió la fixture para separar comandos locales de CAS remoto, añadir la secuencia del outcome aplicado y asociar cada snapshot al slot correcto; no se relajó validación del producto. DoD:1084 pass/225 opt-in skip/0 fail/12382 aserciones; lint987 sin avisos, tipos, Webpack/worker46 y diff aprobados. Sin Mongo/Next/Google nuevos ni DB del usuario.
+
+Entrada66%5h/12%7d, reservas10%/1%, secuencial, int desdee50fcd3. Siguiente19j2: decisión pura de adoptar los remotos de todos los slots o reconstruir los borradores en una sola cadena nueva, con CAS independiente por aparición, IDs/capacidad/evidencia protegidos. Después TX/evidencia/Next-Mongo/UI según dependencias, sin ofrecer elecciones prematuras.
+
+
 ## 16c14 — Secciones plegables y días completos
 
 Objetivo y rutas: Atrasadas/Hoy/Próximas plegables con recuentos, en plan-agenda/plan-list y la nueva cabecera extraída. La lista conserva detalles abiertos al plegarse porque mantiene su contenido montado. Los recuentos incompletos usan «+» y una explicación accesible; no anuncian cero mientras se está cargando. «Ver más» y «Ampliar 30 días» pasan a controles secundarios de 32 px sin borde.

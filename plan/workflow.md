@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## Reanudación del plan principal — 19 de octubre
+
+El usuario solicita retomar el plan completo tras e50fcd3. Se continúa secuencialmente desde 19j1b, sin reabrir agenda/índices ni bloques aceptados. Cuotas reales 66% de 5h y 12% semanal; reservas 10%/1%. Cada corte con pruebas, plan/log, commit/push int, HEAD remoto y lectura directa de ambas cuotas. Sin nuevas automatizaciones, producción, borrados o créditos. Cumpleaños aparcado y Gmail fuera.
+
 ## Intercalada de agenda — 19 de octubre
 
 Se entrega únicamente la petición de secciones plegables, recuentos y días completos, incluida la ampliación humana al día del calendario. Sin retomar 19j1b ni automatizaciones. Validación local y móvil propia; commit/push a int con la identidad personal previamente autorizada, sin cambiar la configuración global, verificación remota y lectura de ambas cuotas. Reservas 10%/1%.
