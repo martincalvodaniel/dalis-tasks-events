@@ -1,5 +1,14 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19i1 — Captura pura de orden de planes simples
+
+Contrato de catálogo local/observado canónico para cadena task.move de misma primaria, scope, fecha civil y categoría. Cuatro variantes propias simples con contenido/categorías/vistas confirmados exactos; placement local optimista puede diferir sólo dentro del grupo revisado. Revisión positiva y conjunto de identidades conocido en ambos lados evita inferir ausencia o borrar rangos locales sin evidencia. Remoto tombstone primario puede conservarse como observación, nunca restauración automática de vecinos. Otro pending, cambio de categoría, serie, slot, catálogo parcial/ajeno/duplicado y revisión desconocida siguen protegidos.
+
+Raíz conflict/attempted sinlease e hijos pending0 conectados conservan UUID/payload/dependencias. Captura clausura ACK transitiva; su DTO no sustituye futura acreditación con outcomes aplicados. Outcome frozen, local/remote primarios y frescura remota exactos; observación posterior no se llama ancestro. Scope overdue usa fecha civil declarada y sentinel durable; sin reloj remoto.
+
+Trece tests/68aserciones y DoD1035pass/223skip/0fail/12119aserciones, lint962 sin avisos/tipos/Webpack/worker46/diff aprobados. Se corrigieron estrechamiento de tipo de efectos y una entrada deliberadamente inválida del test para que el rechazo ocurriera dentro del capture; no relajación de guardias. Sin IO, backup, writer, elecciones o UI nuevos; sin DBusuario/índices/protocolo. Entrada79%5h/28%7d, reservas10%/1%, secuencial. Siguiente19i2 decisión pura de adoptar catálogo de placements conocido o reaplicar último movimiento con CAS primario fresco y multiefectos; luego evidencia/TX/prueba remota/UI según dependencias.
+
+
 ## 19h4 — Recuperación de borrado visible y probada
 
 Ajustes conecta revisión guardada de tag.delete aislado: captura completa antes de mostrar elecciones, cuenta/época/montaje, UUID estables y cache de la propia cuenta. Diálogo reutiliza ConfirmationDialog y catálogo con color/tombstones; explica restauración y agrupación derivada sin modificar planes/vistas, o nueva solicitud pendiente sin ACK local. Remoto ya eliminado sólo permite adoptar. Preview puro comparte planner; cancelar no escribe y error conserva intención.
