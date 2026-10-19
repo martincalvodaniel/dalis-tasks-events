@@ -1,5 +1,16 @@
 # Registro de iteraciones
 
+## 19p1 — Índices automáticos independientes del despliegue
+
+Objetivo y autorización: aplicar todos los índices registrados al arrancar, con el mismo comportamiento al promover `int` a `main`. La instrucción humana del 19 de octubre de 2026 sustituye las restricciones anteriores de preview/int. Dependencias: registro central y singleton existentes; sin índices nuevos, migraciones ni wipe.
+
+Rutas: `src/lib/db/{client,ensure-indexes,AGENTS.md}`, `src/config/env`, pruebas de bootstrap/readiness/operadores, `scripts/ensure-indexes.ts`, su comando en `package.json` y documentación de provisión. Aceptación: 15 definiciones exactas en cualquier rama y entorno; creación idempotente; datos intactos y fallo sin reparación ante duplicados o definiciones incompatibles; reintento posterior posible. Los operadores mantienen su guardia de destino y reflejan que el bootstrap completo precede al diagnóstico por ámbito. El comando público carga los módulos de servidor y no imprime errores Mongo con datos.
+
+Validación: 1067 tests aprobados, 225 opt-in omitidos, cero fallos y 12317 aserciones. Mongo propio: 10 tests de arranque/comando/matriz, 3 del operador personal, 3 de placements, 2 de provisión y 140 de repositorios/transacciones: 158 tests y 2277 aserciones, sin fallos. La matriz usa NODE_ENV real de producción/desarrollo/test y combinaciones de Vercel/rama; cubre arranque desde cero, repetición, actualización con documentos existentes, duplicados, definiciones incompatibles y destinos rechazados sin conexión. Lint de 978 archivos, tipos, Webpack y worker de 46 recursos aprobados. El primer build sin configuración falló por GOOGLE_CLIENT_ID ausente; repetido con valores ficticios y una URI loopback no operativa, sin credenciales del usuario, pasó.
+
+Código validado y confirmado en `int`; publicación pendiente. GitHub rechazó el push con la identidad SSH activa sin permisos de escritura. La revisión automática bloqueó seleccionar otra clave privada local sin autorización humana explícita; no se ha reintentado por otra vía. `origin/int` y `origin/main` siguen en d4d33a9; el checkout humano de `main` se conserva. No se ha conectado ni modificado directamente ninguna base del usuario, ni desplegado producción. Al promover y desplegar este cambio, el primer acceso a MongoDB de cada proceso aplica el registro completo. No transforma datos antiguos ni resuelve sus conflictos automáticamente. Entrada: 98% de 5h y 17% semanal; reservas 10%/1%. La petición está cerrada; el próximo corte general sigue siendo 19j1b, sin abrirlo en esta iteración.
+
+
 ## 19g1a — Captura de orden preparada
 
 Doce pruebas puras delimitan una cadena aislada de tag.move de la misma categoría primaria. Se conservan catálogo local completo, todas las categorías observadas (incluidas altas y tombstones), raíz/outcome exactos, hijos no intentados y clausura transitiva de prerrequisitos ACK. Otros cambios personales pendientes, dependencias externas, catálogos parciales, registros ajenos/duplicados y envíos inciertos quedan protegidos. Si el conflicto conoce una revisión posterior a la sombra hay que actualizar antes de revisar. Una sombra posterior no se usa como ancestro y el catálogo observado no se presenta como estado actual garantizado del servidor.

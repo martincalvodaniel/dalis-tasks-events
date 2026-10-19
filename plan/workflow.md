@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## Política vigente de índices — 19 de octubre
+
+Por instrucción humana, todos los índices registrados se aplican automáticamente con independencia de rama y entorno. Se elimina la excepción histórica preview/int. Promover código también promueve su bootstrap completo al primer acceso a MongoDB de cada proceso; no equivale a copiar o migrar datos ni a modificar índices incompatibles. Ajuste validado y entregado en int, sin push a main ni wipe. Mantener commit/push a int, verificación de HEAD remoto y consulta directa de ambas cuotas por entrega.
+
 ## Continuación puntual del 18 de octubre a las 22:24
 
 Renovación verificada:100% de5h y45% semanal; nuevo reset publicado1792373057. Reservas10%/1%, secuencial, sin créditos/reinicios ni otra cadena. Partidae6f6f2c enint/origin exactos ymain humano limpio. Las dependencias fijadas faltaban en el destino del enlace node_modules; se retiró sólo el enlace del worktree y se ejecutó bun install --frozen-lockfile enint. Node_modules propio restaurado, sin editar main, lockfile o dependencias declaradas. Guía Next instalada leída. Cada corte cierra pruebas, plan/log, commit/pushint/HEAD y consulta de ambas cuotas.

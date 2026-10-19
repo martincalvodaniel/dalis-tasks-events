@@ -65,9 +65,6 @@ export function getDatabaseEnv() {
   return {
     databaseName: process.env.MONGODB_DB?.trim() || "dalis-tasks-events",
     isDevelopment: process.env.NODE_ENV === "development",
-    isIntegrationPreview:
-      process.env.VERCEL_ENV === "preview" &&
-      process.env.VERCEL_GIT_COMMIT_REF === "int",
     uri: getRequiredEnv("MONGODB_URI"),
   }
 }

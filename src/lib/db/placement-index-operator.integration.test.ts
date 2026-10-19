@@ -26,7 +26,6 @@ import {
   type IndexSpec,
 } from "@/lib/db/ensure-indexes"
 import { readPlacementSyncIndexReadiness } from "@/lib/db/mixed-sync-index-readiness"
-import { selectPlacementSyncIndexSpecs } from "@/lib/db/mixed-sync-index-specs"
 import {
   placementSyncIndexNameSchema,
   placementSyncIndexNames,
@@ -252,13 +251,13 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
     await ownedDatabase()
     for (const collection of Object.values(COLLECTION_NAMES))
       expect(await (await getCollection(collection)).countDocuments({})).toBe(0)
-    expect(automaticIndexSpecs()).toHaveLength(9)
+    expect(automaticIndexSpecs()).toHaveLength(15)
     expect(await inspectIndexes()).toEqual(
       expectedIndexes(automaticIndexSpecs())
     )
     expect(await readPlacementSyncIndexReadiness()).toEqual({
-      ready: false,
-      missing: [...placementSyncIndexNames],
+      ready: true,
+      missing: [],
       incompatible: [],
     })
     freshDatabaseVerified = true
@@ -269,7 +268,7 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
     if (!freshDatabaseVerified)
       throw new Error("Operator test requires fresh ownership proof")
     await cleanOwnedRecords()
-    await dropTracked(selectPlacementSyncIndexSpecs())
+    await dropTracked(INDEX_SPECS)
   }, 30000)
 
   afterAll(async () => {
@@ -339,7 +338,7 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
     }
   }, 45000)
 
-  test("the real default CLI bootstraps exactly automatic and four personal definitions, then becomes a no-op", async () => {
+  test("the real CLI bootstraps the full registry before its scoped no-op inspection", async () => {
     await dropTracked(automaticIndexSpecs())
     const first = await runCli()
     expect(first).toEqual({
@@ -350,19 +349,14 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
         connection: "closed",
         provisioning: {
           status: "ready",
-          created: [...placementSyncIndexNames],
+          created: [],
           readiness: { ready: true, missing: [], incompatible: [] },
           error: null,
         },
       },
     })
     const baseline = await inspectIndexes()
-    expect(baseline).toEqual(
-      expectedIndexes([
-        ...automaticIndexSpecs(),
-        ...selectPlacementSyncIndexSpecs(),
-      ])
-    )
+    expect(baseline).toEqual(expectedIndexes(INDEX_SPECS))
     expect(await runCli()).toEqual({
       exitCode: 0,
       receipt: {
@@ -382,7 +376,7 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
       expect(await (await getCollection(collection)).countDocuments({})).toBe(0)
   }, 45000)
 
-  test("duplicate data preserves the real successful prefix and records, and explicit fixture removal retries only the missing index", async () => {
+  test("bootstrap failure preserves duplicate records and retries after explicit owned fixture removal", async () => {
     const collection = await getCollection<PlacementDocument>(
       COLLECTION_NAMES.taskPlacements
     )
@@ -397,20 +391,13 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
       .find({ userId: actor })
       .sort({ _id: 1 })
       .toArray()
-    const prefix = placementSyncIndexNames.slice(0, 3)
-    const placement = placementSyncIndexNames[3]
     expect(await runCli()).toEqual({
       exitCode: 1,
       receipt: {
         status: "failed",
-        phase: "provision",
+        phase: "bootstrap",
         connection: "closed",
-        provisioning: {
-          status: "creation_failed",
-          created: prefix,
-          readiness: { ready: false, missing: [placement], incompatible: [] },
-          error: "duplicate_data",
-        },
+        provisioning: null,
       },
     })
     expect(
@@ -418,7 +405,7 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
     ).toEqual(before)
     expect(await readPlacementSyncIndexReadiness()).toEqual({
       ready: false,
-      missing: [placement],
+      missing: [...placementSyncIndexNames],
       incompatible: [],
     })
     expect(
@@ -433,7 +420,7 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
         connection: "closed",
         provisioning: {
           status: "ready",
-          created: [placement],
+          created: [],
           readiness: { ready: true, missing: [], incompatible: [] },
           error: null,
         },
@@ -442,11 +429,6 @@ describe.skipIf(!config)("owned placement index operator CLI", () => {
     expect(await collection.find({ userId: actor }).toArray()).toEqual([
       records[0],
     ])
-    expect(await inspectIndexes()).toEqual(
-      expectedIndexes([
-        ...automaticIndexSpecs(),
-        ...selectPlacementSyncIndexSpecs(),
-      ])
-    )
+    expect(await inspectIndexes()).toEqual(expectedIndexes(INDEX_SPECS))
   }, 45000)
 })

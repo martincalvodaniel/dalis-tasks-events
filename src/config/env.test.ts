@@ -15,18 +15,21 @@ afterEach(() => {
   }
 })
 
-test("appearance bootstrap requires both trusted Preview and integration branch metadata", () => {
+test("database configuration is independent of deployment environment and branch", () => {
   process.env.MONGODB_URI = "mongodb://127.0.0.1:27017"
-  for (const [environment, branch, allowed] of [
-    ["preview", "int", true],
-    ["production", "int", false],
-    ["development", "int", false],
-    ["preview", "main", false],
-    ["preview", "", false],
-    ["", "int", false],
+  const expected = getDatabaseEnv()
+  for (const [environment, branch] of [
+    ["preview", "int"],
+    ["production", "main"],
+    ["production", "int"],
+    ["development", "int"],
+    ["preview", "main"],
+    ["preview", ""],
+    ["", "int"],
+    ["", ""],
   ] as const) {
     process.env.VERCEL_ENV = environment
     process.env.VERCEL_GIT_COMMIT_REF = branch
-    expect(getDatabaseEnv().isIntegrationPreview).toBe(allowed)
+    expect(getDatabaseEnv()).toEqual(expected)
   }
 })

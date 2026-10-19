@@ -7,7 +7,6 @@ import { COLLECTION_NAMES } from "@/lib/db/collections"
 import type { IndexSpec } from "./ensure-indexes"
 import {
   automaticIndexSpecs,
-  databaseBootstrapIndexSpecs,
   ensureIndexes,
   INDEX_SPECS,
   type IndexDatabase,
@@ -15,7 +14,7 @@ import {
 } from "./ensure-indexes"
 
 describe("MongoDB index specifications", () => {
-  test("stages one private settings record per actor with authorized integration Preview bootstrap only", () => {
+  test("registers one private settings record per actor for every deployment", () => {
     const settings = INDEX_SPECS.filter(
       (spec) => spec.collection === COLLECTION_NAMES.userSettings
     )
@@ -27,38 +26,38 @@ describe("MongoDB index specifications", () => {
         provisioning: "explicit",
       },
     ])
-    expect(databaseBootstrapIndexSpecs(true)).toContain(settings[0])
-    expect(databaseBootstrapIndexSpecs(false)).not.toContain(settings[0])
-    expect(automaticIndexSpecs()).not.toContain(settings[0])
+    expect(automaticIndexSpecs()).toContain(settings[0])
   })
-  test("only integration Preview adds the authorized appearance and settings indexes to database bootstrap", async () => {
-    expect(databaseBootstrapIndexSpecs(false)).toEqual(automaticIndexSpecs())
-    const preview = databaseBootstrapIndexSpecs(true)
-    expect(preview).toHaveLength(11)
-    expect(preview.filter((spec) => spec.provisioning === "explicit")).toEqual([
-      INDEX_SPECS[0],
-      INDEX_SPECS[1],
-    ])
-    const calls: string[] = []
-    await ensureIndexes(
-      {
-        collection: () => ({
-          createIndex: async (_keys, options) => {
-            calls.push(options?.name ?? "")
-            return options?.name ?? ""
-          },
-        }),
-      },
-      preview
+  test("startup includes every registered index, including all six sync definitions", async () => {
+    const calls: Array<{
+      collection: string
+      keys: unknown
+      options: unknown
+    }> = []
+    const before = structuredClone(INDEX_SPECS)
+    const database: IndexDatabase = {
+      collection: (collection) => ({
+        createIndex: async (keys, options) => {
+          calls.push({ collection, keys, options })
+          return options?.name ?? ""
+        },
+      }),
+    }
+    await ensureIndexes(database)
+    expect(calls).toEqual(
+      INDEX_SPECS.map(({ collection, keys, options }) => ({
+        collection,
+        keys,
+        options,
+      }))
     )
-    expect(calls).toContain("plan_occurrences_user_series_slot_uidx")
-    expect(calls).toContain("user_settings_user_uidx")
-    expect(calls).not.toContain("tags_user_id_uidx")
-    expect(calls).not.toContain(
-      "task_placements_user_scope_date_occurrence_uidx"
-    )
+    expect(calls).toHaveLength(15)
+    expect(
+      automaticIndexSpecs().filter((spec) => spec.provisioning === "explicit")
+    ).toHaveLength(6)
+    expect(INDEX_SPECS).toEqual(before)
   })
-  test("stages appearance slot uniqueness and sorted series catalogs without automatic provisioning", () => {
+  test("registers appearance slot uniqueness for automatic provisioning", () => {
     expect(
       INDEX_SPECS.filter(
         (spec) => spec.collection === COLLECTION_NAMES.planOccurrences
@@ -78,9 +77,9 @@ describe("MongoDB index specifications", () => {
       automaticIndexSpecs().some(
         (spec) => spec.collection === COLLECTION_NAMES.planOccurrences
       )
-    ).toBe(false)
+    ).toBe(true)
   })
-  test("keeps the current bootstrap automatic selection unchanged", async () => {
+  test("uses the complete registry as the automatic selection", async () => {
     const calls: string[] = []
     const database: IndexDatabase = {
       collection: (collection) => ({
@@ -94,22 +93,14 @@ describe("MongoDB index specifications", () => {
       automaticIndexSpecs().some(
         (spec) => spec.collection === COLLECTION_NAMES.tags
       )
-    ).toBe(false)
+    ).toBe(true)
     await ensureIndexes(database)
-    expect(calls).toEqual([
-      "sync_operations.sync_operations_actor_operation_uidx",
-      "sync_changes.sync_changes_recipient_sequence_uidx",
-      "items.items_owner_id_idx",
-      "users.users_email_uidx",
-      "sessions.sessions_token_uidx",
-      "sessions.sessions_userId_idx",
-      "accounts.accounts_userId_idx",
-      "accounts.accounts_providerId_accountId_uidx",
-      "verifications.verifications_identifier_idx",
-    ])
+    expect(calls).toEqual(
+      INDEX_SPECS.map((spec) => `${spec.collection}.${spec.options.name}`)
+    )
   })
 
-  test("stages actor-scoped category identity and active name uniqueness", () => {
+  test("registers actor-scoped category identity and active name uniqueness", () => {
     expect(
       INDEX_SPECS.filter((spec) => spec.collection === COLLECTION_NAMES.tags)
     ).toEqual([
@@ -132,7 +123,7 @@ describe("MongoDB index specifications", () => {
     ])
   })
 
-  test("stages private item view identity without activating its collection", () => {
+  test("registers private item view identity for automatic startup", () => {
     expect(
       INDEX_SPECS.filter(
         (spec) => spec.collection === COLLECTION_NAMES.itemViews
@@ -149,10 +140,10 @@ describe("MongoDB index specifications", () => {
       automaticIndexSpecs().some(
         (spec) => spec.collection === COLLECTION_NAMES.itemViews
       )
-    ).toBe(false)
+    ).toBe(true)
   })
 
-  test("stages one private placement index for canonical identity and complete actor catalog", () => {
+  test("registers one private placement index for canonical identity and complete actor catalog", () => {
     expect(
       INDEX_SPECS.filter(
         (spec) => spec.collection === COLLECTION_NAMES.taskPlacements
@@ -172,10 +163,10 @@ describe("MongoDB index specifications", () => {
       automaticIndexSpecs().some(
         (spec) => spec.collection === COLLECTION_NAMES.taskPlacements
       )
-    ).toBe(false)
+    ).toBe(true)
   })
 
-  test("omits staged indexes automatically but provisions an explicit selection", async () => {
+  test("includes operator-scoped indexes automatically and still accepts explicit subsets", async () => {
     const calls: Array<{
       collection: string
       keys: unknown
@@ -203,7 +194,7 @@ describe("MongoDB index specifications", () => {
     const catalog = [automatic, staged]
     const before = structuredClone(catalog)
     const selection = automaticIndexSpecs(catalog)
-    expect(selection).toEqual([automatic])
+    expect(selection).toEqual(catalog)
     await ensureIndexes(database, selection)
     expect(calls).toEqual([
       {
@@ -211,9 +202,14 @@ describe("MongoDB index specifications", () => {
         keys: automatic.keys,
         options: automatic.options,
       },
+      {
+        collection: staged.collection,
+        keys: staged.keys,
+        options: staged.options,
+      },
     ])
     await ensureIndexes(database, [staged])
-    expect(calls[1]).toEqual({
+    expect(calls[2]).toEqual({
       collection: staged.collection,
       keys: staged.keys,
       options: staged.options,
@@ -221,7 +217,7 @@ describe("MongoDB index specifications", () => {
     expect(catalog).toEqual(before)
   })
 
-  test("validates staged entries before filtering and writes nothing for an invalid list", async () => {
+  test("validates the entire registry before writing and rejects invalid lists", async () => {
     let writes = 0
     const database: IndexDatabase = {
       collection: () => ({

@@ -26,7 +26,6 @@ import {
   type IndexSpec,
 } from "@/lib/db/ensure-indexes"
 import { readMixedSyncIndexReadiness } from "@/lib/db/mixed-sync-index-readiness"
-import { selectMixedSyncIndexSpecs } from "@/lib/db/mixed-sync-index-specs"
 import {
   mixedSyncIndexNameSchema,
   mixedSyncIndexNames,
@@ -250,13 +249,13 @@ describe.skipIf(!config)("owned personal index operator CLI", () => {
     await ownedDatabase()
     for (const collection of Object.values(COLLECTION_NAMES))
       expect(await (await getCollection(collection)).countDocuments({})).toBe(0)
-    expect(automaticIndexSpecs()).toHaveLength(9)
+    expect(automaticIndexSpecs()).toHaveLength(15)
     expect(await inspectIndexes()).toEqual(
       expectedIndexes(automaticIndexSpecs())
     )
     expect(await readMixedSyncIndexReadiness()).toEqual({
-      ready: false,
-      missing: [...mixedSyncIndexNames],
+      ready: true,
+      missing: [],
       incompatible: [],
     })
     freshDatabaseVerified = true
@@ -267,7 +266,7 @@ describe.skipIf(!config)("owned personal index operator CLI", () => {
     if (!freshDatabaseVerified)
       throw new Error("Operator test requires fresh ownership proof")
     await cleanOwnedRecords()
-    await dropTracked(selectMixedSyncIndexSpecs())
+    await dropTracked(INDEX_SPECS)
   }, 30000)
 
   afterAll(async () => {
@@ -327,7 +326,7 @@ describe.skipIf(!config)("owned personal index operator CLI", () => {
     }
   }, 45000)
 
-  test("the real default CLI bootstraps exactly automatic and personal definitions, then becomes a no-op", async () => {
+  test("the real CLI bootstraps the full registry before its scoped no-op inspection", async () => {
     await dropTracked(automaticIndexSpecs())
     const first = await runCli()
     expect(first).toEqual({
@@ -338,19 +337,14 @@ describe.skipIf(!config)("owned personal index operator CLI", () => {
         connection: "closed",
         provisioning: {
           status: "ready",
-          created: [...mixedSyncIndexNames],
+          created: [],
           readiness: { ready: true, missing: [], incompatible: [] },
           error: null,
         },
       },
     })
     const baseline = await inspectIndexes()
-    expect(baseline).toEqual(
-      expectedIndexes([
-        ...automaticIndexSpecs(),
-        ...selectMixedSyncIndexSpecs(),
-      ])
-    )
+    expect(baseline).toEqual(expectedIndexes(INDEX_SPECS))
     expect(await runCli()).toEqual({
       exitCode: 0,
       receipt: {
@@ -370,7 +364,7 @@ describe.skipIf(!config)("owned personal index operator CLI", () => {
       expect(await (await getCollection(collection)).countDocuments({})).toBe(0)
   }, 45000)
 
-  test("duplicate data preserves the real successful prefix and records, and explicit fixture removal retries only the missing index", async () => {
+  test("bootstrap failure preserves duplicate records and retries after explicit owned fixture removal", async () => {
     const collection = await getCollection<TagDocument>(COLLECTION_NAMES.tags)
     const records = [duplicateCategory(), duplicateCategory()]
     for (const record of records) ownedRecords.add(record._id)
@@ -379,19 +373,14 @@ describe.skipIf(!config)("owned personal index operator CLI", () => {
       .find({ userId: actor })
       .sort({ _id: 1 })
       .toArray()
-    const [view, identity, active] = mixedSyncIndexNames
+    const active = mixedSyncIndexNames[2]
     expect(await runCli()).toEqual({
       exitCode: 1,
       receipt: {
         status: "failed",
-        phase: "provision",
+        phase: "bootstrap",
         connection: "closed",
-        provisioning: {
-          status: "creation_failed",
-          created: [view, identity],
-          readiness: { ready: false, missing: [active], incompatible: [] },
-          error: "duplicate_data",
-        },
+        provisioning: null,
       },
     })
     expect(
@@ -414,7 +403,7 @@ describe.skipIf(!config)("owned personal index operator CLI", () => {
         connection: "closed",
         provisioning: {
           status: "ready",
-          created: [active],
+          created: [],
           readiness: { ready: true, missing: [], incompatible: [] },
           error: null,
         },
@@ -423,11 +412,6 @@ describe.skipIf(!config)("owned personal index operator CLI", () => {
     expect(await collection.find({ userId: actor }).toArray()).toEqual([
       records[0],
     ])
-    expect(await inspectIndexes()).toEqual(
-      expectedIndexes([
-        ...automaticIndexSpecs(),
-        ...selectMixedSyncIndexSpecs(),
-      ])
-    )
+    expect(await inspectIndexes()).toEqual(expectedIndexes(INDEX_SPECS))
   }, 45000)
 })

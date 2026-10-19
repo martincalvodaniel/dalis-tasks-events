@@ -83,10 +83,10 @@ describe("explicit mixed sync index provisioning ports", () => {
     expect(selected.some((spec) => spec.collection === "task_placements")).toBe(
       false
     )
-    expect(automaticIndexSpecs()).toHaveLength(9)
+    expect(automaticIndexSpecs()).toEqual(INDEX_SPECS)
     expect(
       automaticIndexSpecs().some((spec) => spec.provisioning === "explicit")
-    ).toBe(false)
+    ).toBe(true)
   })
 
   test("plans only registered missing definitions and rejects incoherent or arbitrary snapshots", () => {

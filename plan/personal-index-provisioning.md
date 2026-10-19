@@ -1,5 +1,11 @@
 # Provisión personal de entorno
 
+## Política vigente — 19 de octubre de 2026
+
+La instrucción humana de 19p1 sustituye las restricciones históricas de entorno de este documento: `getDatabase()` y `db:ensure-indexes` aplican el registro completo en cualquier rama y entorno, incluida producción. Los operadores conservan la validación de destino y el diagnóstico por ámbito, pero su bootstrap previo también aplica los 15 índices actuales. Una creación durante bootstrap no se atribuye después a `provisioning.created`.
+
+Los duplicados o una definición incompatible pueden causar un fallo en fase `bootstrap`, con `provisioning: null`, sin reparar datos ni sustituir índices. No ejecutar un wipe ni asumir que este código migra datos locales o remotos. Las secciones siguientes conservan el procedimiento y la autorización históricos; no restaurar las restricciones de preview/int.
+
 Estado: CLI separado y defaults privados entregados en11c4a8e2b; prueba integrada propia11c4a8t cerrada; pendiente ejecución preproductiva con destino verificado. `bun --no-env-file run db:preview-personal-indexes` no conecta y muestra el registro. El comando online no tiene caller productivo ni implica categorías activadas.
 
 ## Destino y autorización

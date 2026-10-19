@@ -22,13 +22,11 @@ import {
 } from "@/lib/db/collections"
 import {
   automaticIndexSpecs,
-  databaseBootstrapIndexSpecs,
   ensureIndexes,
   INDEX_SPECS,
   type IndexSpec,
 } from "@/lib/db/ensure-indexes"
 import { readRecurringSyncIndexReadiness } from "@/lib/db/mixed-sync-index-readiness"
-import { selectRecurringSyncIndexSpecs } from "@/lib/db/mixed-sync-index-specs"
 import {
   recurringSyncIndexNameSchema,
   recurringSyncIndexNames,
@@ -259,6 +257,12 @@ async function runWebBootstrap(environment: string, branch: string) {
       cwd: root,
       env: {
         ...syncTestProcessEnvironment(config),
+        NODE_ENV:
+          environment === "development"
+            ? "development"
+            : environment
+              ? "production"
+              : "test",
         VERCEL_ENV: environment,
         VERCEL_GIT_COMMIT_REF: branch,
       },
@@ -319,13 +323,13 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     await ownedDatabase()
     for (const collection of Object.values(COLLECTION_NAMES))
       expect(await (await getCollection(collection)).countDocuments({})).toBe(0)
-    expect(automaticIndexSpecs()).toHaveLength(9)
+    expect(automaticIndexSpecs()).toHaveLength(15)
     expect(await inspectIndexes()).toEqual(
       expectedIndexes(automaticIndexSpecs())
     )
     expect(await readRecurringSyncIndexReadiness()).toEqual({
-      ready: false,
-      missing: [...recurringSyncIndexNames],
+      ready: true,
+      missing: [],
       incompatible: [],
     })
     freshDatabaseVerified = true
@@ -336,7 +340,7 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     if (!freshDatabaseVerified)
       throw new Error("Operator test requires fresh ownership proof")
     await cleanOwnedRecords()
-    await dropTracked([...selectRecurringSyncIndexSpecs(), INDEX_SPECS[1]])
+    await dropTracked(INDEX_SPECS)
   }, 30000)
 
   afterAll(async () => {
@@ -351,34 +355,30 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     }
   }, 30000)
 
-  test("web startup creates appearance and settings uniqueness only for integration Preview and retries idempotently", async () => {
+  test("every web environment and branch creates the complete registry from scratch and retries idempotently", async () => {
+    const expected = expectedIndexes(INDEX_SPECS)
     for (const [environment, branch] of [
+      ["production", "main"],
       ["production", "int"],
       ["preview", "main"],
+      ["preview", "int"],
+      ["development", "feature"],
       ["", ""],
     ]) {
+      await dropTracked(INDEX_SPECS)
       expect(await runWebBootstrap(environment, branch)).toEqual({
         ready: true,
         closed: true,
         code: null,
       })
-      expect(await inspectIndexes()).toEqual(
-        expectedIndexes(automaticIndexSpecs())
-      )
+      expect(await inspectIndexes()).toEqual(expected)
+      expect(await runWebBootstrap(environment, branch)).toEqual({
+        ready: true,
+        closed: true,
+        code: null,
+      })
+      expect(await inspectIndexes()).toEqual(expected)
     }
-    expect(await runWebBootstrap("preview", "int")).toEqual({
-      ready: true,
-      closed: true,
-      code: null,
-    })
-    const expected = expectedIndexes(databaseBootstrapIndexSpecs(true))
-    expect(await inspectIndexes()).toEqual(expected)
-    expect(await runWebBootstrap("preview", "int")).toEqual({
-      ready: true,
-      closed: true,
-      code: null,
-    })
-    expect(await inspectIndexes()).toEqual(expected)
     const collection = await getCollection<RecurringDocument>(
       COLLECTION_NAMES.planOccurrences
     )
@@ -392,7 +392,82 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     expect(await collection.find({ userId: actor }).toArray()).toEqual([first])
   }, 45000)
 
-  test("settings duplicates stop Preview bootstrap without deleting or correcting records", async () => {
+  test("production upgrades a populated base registry without changing existing documents", async () => {
+    const database = await ownedDatabase()
+    await ensureIndexes(
+      database,
+      INDEX_SPECS.filter((spec) => spec.provisioning !== "explicit")
+    )
+    await trackObservedIndexes()
+    const occurrence = duplicateRecurring(crypto.randomUUID())
+    const settings = {
+      _id: crypto.randomUUID(),
+      userId: actor,
+      timeZone: "Europe/Madrid",
+    }
+    ownedRecords.add(occurrence._id)
+    ownedRecords.add(settings._id)
+    const occurrences = await getCollection<RecurringDocument>(
+      COLLECTION_NAMES.planOccurrences
+    )
+    const preferences = await getCollection<typeof settings>(
+      COLLECTION_NAMES.userSettings
+    )
+    await occurrences.insertOne(occurrence)
+    await preferences.insertOne(settings)
+    expect(await runWebBootstrap("production", "main")).toEqual({
+      ready: true,
+      closed: true,
+      code: null,
+    })
+    expect(await inspectIndexes()).toEqual(expectedIndexes(INDEX_SPECS))
+    expect(await occurrences.find({ userId: actor }).toArray()).toEqual([
+      occurrence,
+    ])
+    expect(await preferences.find({ userId: actor }).toArray()).toEqual([
+      settings,
+    ])
+    expect(await runWebBootstrap("production", "main")).toEqual({
+      ready: true,
+      closed: true,
+      code: null,
+    })
+    expect(await occurrences.find({ userId: actor }).toArray()).toEqual([
+      occurrence,
+    ])
+    expect(await preferences.find({ userId: actor }).toArray()).toEqual([
+      settings,
+    ])
+  }, 30000)
+
+  test("the public ensure-indexes command uses the same complete bootstrap", async () => {
+    if (!config) throw new Error("Owned test configuration is required")
+    const child = Bun.spawn(
+      [process.execPath, "--no-env-file", "run", "db:ensure-indexes"],
+      {
+        cwd: root,
+        env: syncTestProcessEnvironment(config),
+        stdout: "pipe",
+        stderr: "pipe",
+      }
+    )
+    const timeout = setTimeout(() => child.kill(), 15000)
+    try {
+      const [exitCode, stdout] = await Promise.all([
+        child.exited,
+        new Response(child.stdout).text(),
+        new Response(child.stderr).text(),
+      ])
+      expect(exitCode).toBe(0)
+      expect(stdout.trim()).toBe("Database indexes ensured.")
+      await trackObservedIndexes()
+      expect(await inspectIndexes()).toEqual(expectedIndexes(INDEX_SPECS))
+    } finally {
+      clearTimeout(timeout)
+    }
+  }, 30000)
+
+  test("settings duplicates stop production bootstrap without deleting or correcting records", async () => {
     const collection = await getCollection<{
       _id: string
       userId: string
@@ -408,7 +483,7 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
       .find({ userId: actor })
       .sort({ _id: 1 })
       .toArray()
-    expect(await runWebBootstrap("preview", "int")).toEqual({
+    expect(await runWebBootstrap("production", "main")).toEqual({
       ready: false,
       closed: true,
       code: 11000,
@@ -416,9 +491,7 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     expect(
       await collection.find({ userId: actor }).sort({ _id: 1 }).toArray()
     ).toEqual(before)
-    expect(await inspectIndexes()).toEqual(
-      expectedIndexes([...automaticIndexSpecs(), INDEX_SPECS[0]])
-    )
+    expect(await inspectIndexes()).toEqual(expectedIndexes([INDEX_SPECS[0]]))
   }, 30000)
 
   test("settings incompatible definition is preserved after earlier bootstrap indexes", async () => {
@@ -426,20 +499,16 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
       spec = INDEX_SPECS[1]
     await ensureIndexes(database, [{ ...spec, keys: { timeZone: 1 } }])
     await trackObservedIndexes()
-    const result = await runWebBootstrap("preview", "int")
+    const result = await runWebBootstrap("production", "main")
     expect(result.ready).toBe(false)
     expect(result.closed).toBe(true)
     expect(result.code !== null && [85, 86].includes(result.code)).toBe(true)
     expect(await inspectIndexes()).toEqual(
-      expectedIndexes([
-        ...automaticIndexSpecs(),
-        INDEX_SPECS[0],
-        { ...spec, keys: { timeZone: 1 } },
-      ])
+      expectedIndexes([INDEX_SPECS[0], { ...spec, keys: { timeZone: 1 } }])
     )
   }, 30000)
 
-  test("web startup preserves duplicate records and stops without repairing data", async () => {
+  test("production startup preserves duplicate records and stops without repairing data", async () => {
     const collection = await getCollection<RecurringDocument>(
       COLLECTION_NAMES.planOccurrences
     )
@@ -451,7 +520,7 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
       .find({ userId: actor })
       .sort({ _id: 1 })
       .toArray()
-    expect(await runWebBootstrap("preview", "int")).toEqual({
+    expect(await runWebBootstrap("production", "main")).toEqual({
       ready: false,
       closed: true,
       code: 11000,
@@ -459,18 +528,16 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     expect(
       await collection.find({ userId: actor }).sort({ _id: 1 }).toArray()
     ).toEqual(before)
-    expect(await inspectIndexes()).toEqual(
-      expectedIndexes(automaticIndexSpecs())
-    )
+    expect(await inspectIndexes()).toEqual(expectedIndexes([]))
   }, 30000)
 
-  test("web startup refuses an incompatible registered name without replacing it", async () => {
+  test("production startup refuses an incompatible registered name without replacing it", async () => {
     const database = await ownedDatabase()
     const spec = INDEX_SPECS[0]
     await ensureIndexes(database, [{ ...spec, keys: { userId: 1 } }])
     await trackObservedIndexes()
     const before = await inspectIndexes()
-    const result = await runWebBootstrap("preview", "int")
+    const result = await runWebBootstrap("production", "main")
     expect(result.ready).toBe(false)
     expect(result.closed).toBe(true)
     expect(result.code !== null && [85, 86].includes(result.code)).toBe(true)
@@ -537,7 +604,7 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     }
   }, 45000)
 
-  test("the real default CLI bootstraps exactly automatic and five personal definitions, then becomes a no-op", async () => {
+  test("the real CLI bootstraps the full registry before its scoped no-op inspection", async () => {
     await dropTracked(automaticIndexSpecs())
     const first = await runCli()
     expect(first).toEqual({
@@ -548,19 +615,14 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
         connection: "closed",
         provisioning: {
           status: "ready",
-          created: [...recurringSyncIndexNames],
+          created: [],
           readiness: { ready: true, missing: [], incompatible: [] },
           error: null,
         },
       },
     })
     const baseline = await inspectIndexes()
-    expect(baseline).toEqual(
-      expectedIndexes([
-        ...automaticIndexSpecs(),
-        ...selectRecurringSyncIndexSpecs(),
-      ])
-    )
+    expect(baseline).toEqual(expectedIndexes(INDEX_SPECS))
     expect(await runCli()).toEqual({
       exitCode: 0,
       receipt: {
@@ -580,7 +642,7 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
       expect(await (await getCollection(collection)).countDocuments({})).toBe(0)
   }, 45000)
 
-  test("duplicate data preserves the real successful prefix and records, and explicit fixture removal retries only the missing index", async () => {
+  test("bootstrap failure preserves duplicate records and retries after explicit owned fixture removal", async () => {
     const collection = await getCollection<RecurringDocument>(
       COLLECTION_NAMES.planOccurrences
     )
@@ -595,20 +657,13 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
       .find({ userId: actor })
       .sort({ _id: 1 })
       .toArray()
-    const prefix = recurringSyncIndexNames.slice(0, 4)
-    const recurring = recurringSyncIndexNames[4]
     expect(await runCli()).toEqual({
       exitCode: 1,
       receipt: {
         status: "failed",
-        phase: "provision",
+        phase: "bootstrap",
         connection: "closed",
-        provisioning: {
-          status: "creation_failed",
-          created: prefix,
-          readiness: { ready: false, missing: [recurring], incompatible: [] },
-          error: "duplicate_data",
-        },
+        provisioning: null,
       },
     })
     expect(
@@ -616,7 +671,7 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     ).toEqual(before)
     expect(await readRecurringSyncIndexReadiness()).toEqual({
       ready: false,
-      missing: [recurring],
+      missing: [...recurringSyncIndexNames],
       incompatible: [],
     })
     expect(
@@ -631,7 +686,7 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
         connection: "closed",
         provisioning: {
           status: "ready",
-          created: [recurring],
+          created: [],
           readiness: { ready: true, missing: [], incompatible: [] },
           error: null,
         },
@@ -640,11 +695,6 @@ describe.skipIf(!config)("owned recurring index operator CLI", () => {
     expect(await collection.find({ userId: actor }).toArray()).toEqual([
       records[0],
     ])
-    expect(await inspectIndexes()).toEqual(
-      expectedIndexes([
-        ...automaticIndexSpecs(),
-        ...selectRecurringSyncIndexSpecs(),
-      ])
-    )
+    expect(await inspectIndexes()).toEqual(expectedIndexes(INDEX_SPECS))
   }, 45000)
 })

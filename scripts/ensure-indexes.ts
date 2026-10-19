@@ -7,7 +7,7 @@ async function main(): Promise<void> {
 
 main()
   .finally(closeDatabaseConnection)
-  .catch((error: unknown) => {
-    console.error(`Database index bootstrap failed: ${String(error)}`)
+  .catch(() => {
+    console.error("Database index bootstrap failed.")
     process.exitCode = 1
   })

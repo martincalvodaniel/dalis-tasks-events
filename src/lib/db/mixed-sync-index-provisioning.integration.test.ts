@@ -99,13 +99,20 @@ function duplicateCategory(id: string): TagDocument {
 describe.skipIf(!config)("owned mixed sync index provisioning", () => {
   beforeAll(async () => {
     await ownedDatabase()
-    await assertMissingIndexes()
+    expect(await readMixedSyncIndexReadiness()).toEqual({
+      ready: true,
+      missing: [],
+      incompatible: [],
+    })
     for (const collection of [
       COLLECTION_NAMES.tags,
       COLLECTION_NAMES.itemViews,
     ])
       expect(await (await getCollection(collection)).countDocuments({})).toBe(0)
     freshDatabaseVerified = true
+    // Deliberately remove only this fresh fixture's scoped indexes before testing the operator.
+    for (const spec of selectMixedSyncIndexSpecs())
+      ownedIndexes.set(spec.options.name, spec)
   }, 30000)
 
   beforeEach(async () => {

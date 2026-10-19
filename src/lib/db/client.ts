@@ -2,10 +2,7 @@ import "server-only"
 
 import { type Db, MongoClient } from "mongodb"
 import { getDatabaseEnv } from "@/config/env"
-import {
-  databaseBootstrapIndexSpecs,
-  ensureIndexes,
-} from "@/lib/db/ensure-indexes"
+import { ensureIndexes } from "@/lib/db/ensure-indexes"
 
 interface MongoGlobal {
   dalisMongoClientPromise?: Promise<MongoClient>
@@ -52,10 +49,7 @@ let indexesPromise: Promise<void> | undefined
 
 async function ensureIndexesOnce(database: Db): Promise<void> {
   if (!indexesPromise) {
-    indexesPromise = ensureIndexes(
-      database,
-      databaseBootstrapIndexSpecs(getDatabaseEnv().isIntegrationPreview)
-    ).catch((error: unknown) => {
+    indexesPromise = ensureIndexes(database).catch((error: unknown) => {
       indexesPromise = undefined
       throw error
     })

@@ -15,6 +15,7 @@ export interface IndexSpec {
   collection: string
   keys: IndexSpecification
   options: CreateIndexesOptions & { name: string }
+  // Classifies sync indexes for scoped operator diagnostics, never for startup exclusion.
   provisioning?: "explicit"
 }
 
@@ -138,26 +139,9 @@ export function validateIndexSpecs(specs: readonly IndexSpec[]): void {
 export function automaticIndexSpecs(
   catalog: readonly IndexSpec[] = INDEX_SPECS
 ): readonly IndexSpec[] {
-  // Validate staged entries too, before excluding them from automatic writes.
   validateIndexSpecs(catalog)
-  return catalog.filter((spec) => spec.provisioning !== "explicit")
-}
-
-export function databaseBootstrapIndexSpecs(
-  isIntegrationPreview: boolean,
-  catalog: readonly IndexSpec[] = INDEX_SPECS
-): readonly IndexSpec[] {
-  validateIndexSpecs(catalog)
-  // The user authorized appearance and personal-settings uniqueness only in the integration Preview.
-  return catalog.filter(
-    (spec) =>
-      spec.provisioning !== "explicit" ||
-      (isIntegrationPreview &&
-        ((spec.collection === "plan_occurrences" &&
-          spec.options.name === "plan_occurrences_user_series_slot_uidx") ||
-          (spec.collection === "user_settings" &&
-            spec.options.name === "user_settings_user_uidx")))
-  )
+  // Every registered index is required on every deployment, regardless of branch or environment.
+  return [...catalog]
 }
 
 export async function ensureIndexes(

@@ -76,7 +76,7 @@ test("placement selection adds one detached registered identity definition while
   expect(selectMixedSyncIndexSpecs()).toEqual(mixed)
   expect(automaticIndexSpecs()).toEqual(automatic)
   expect(automatic.some((spec) => spec.options.name === placementName)).toBe(
-    false
+    true
   )
   const placement = before.find((spec) => spec.options.name === placementName)
   if (!placement) throw new Error("Expected central placement definition")
