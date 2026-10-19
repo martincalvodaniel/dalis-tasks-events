@@ -361,6 +361,9 @@ test("category deletion fixture scope and commands reject unreviewed inputs", ()
 
 test("simple placement fixture scope and producer preserve the explicit movement boundary", () => {
   expect(nextSettingsProofScopeSchema.parse("placement")).toBe("placement")
+  expect(nextSettingsProofScopeSchema.parse("placement-ui")).toBe(
+    "placement-ui"
+  )
   const operationId = crypto.randomUUID(),
     itemId = crypto.randomUUID(),
     command = {
@@ -395,6 +398,7 @@ test("simple placement fixture scope and producer preserve the explicit movement
     { type: "placement-comparison", operationId: "invalid" },
     { type: "placement-comparison", operationId, database: "production" },
     { type: "resolve-placement", request: {} },
+    { type: "resolve-placement-ui", request: {} },
     { type: "placement-guard-proof", request: {} },
   ])
     expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)

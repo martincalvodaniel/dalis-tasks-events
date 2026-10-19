@@ -132,6 +132,7 @@ async function execute(
     [
       "resolve-tag-delete-ui",
       "commit-simple-move",
+      "resolve-placement-ui",
       "placement-comparison",
       "resolve-placement",
       "placement-guard-proof",

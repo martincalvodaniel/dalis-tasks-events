@@ -1,5 +1,20 @@
 # Iteraciones de implementación
 
+## 19i6 — Recuperación de orden simple visible
+
+Ajustes conecta revisión de cadena task.move simple con cuenta/época/montaje/cache propios yUUID estables. Diálogo compacto muestra grupo/categoría/color/fecha civil, orden actual yresultado, títulos conocidos, primaria yposición eliminada sin afirmar que se borró elplan. Adopción noreenvía; retry sóloúltimomovimiento, con vecinos revisados yposible reranking delgrupo, pending hastaACK. No cambia fechas/contenido/asignaciones. Mezclas conseries, cambiosdegrupo, ausencia yotros pendientes siguenprotegidos. Cancelar sinwrites yerror conservaintención.
+
+SeisSSR/guardias/versiones yschemas estrictos,19focalizados/123aserciones. OnceNext6 UI focalizados pasan: cancelar/reabrir/confirmar ambas decisiones conUUID generados porUI; cuatrovariantes/day/overdue,3pérdidastrascommit/recarga/mismoUUID→ACKreal único, catálogos/shadows/cursor exactos en dosorígenesIndexedDB/Mongo propios. Full33 disponible sinatribuirle ejecución completa; noGoogle/físicos nuevos. Fixture CSSfinal a390px muestra diálogo358px yscroll390px, sinoverflow; captura /private/tmp/dalis-placement-dialog-mobile.png. UI Next sinCSS prueba interacción, no QAvisual.
+
+DoD1060pass/223skip/0fail/12283aserciones, lint975 sinavisos/tipos/Webpack/worker46/diff aprobados. Recursospropios retirados/viewportrestablecido, mainhumano preservado. Entrada38%5h/22%7d, reservas10%/1%, secuencial. Siníndice/protocolo/DBusuario nuevos. Siguiente segúnmargen: guardias residuales de capacidad/presentación, después cohortes recurrentes/múltiples slots oausencia/copy yaccesibilidad/preparación final; no ampliar elecciones sincontrato/ejecutor/evidencia probados.
+
+
+## 19i6 — Delimitación de recuperación de orden visible
+
+- Objetivo: comparación compacta ycaller guardado paraorden simple ya probado. target_paths: features/sync/components/{placement-incident-actions,placement-incident-resolution-dialog,placement-resolution-version,placement-incident-ui.test,personal-incident-card}.*, schemas/next-sync-test{,.test}.ts, templates Next placement/local/device/controller, fixturevisual/servidor yplan/**. Dependencia19i5/79638f4 publicado;38%5h/22%7d, reservas10%/1%, secuencial.
+- Aceptación: captura completa antes de elecciones, rango/categoría/fecha civil visibles, orden actual yresultante connuombres conocidos/colores, primariaytombstones distinguidos. Adoptar noreenvía; retry sóloúltimomovimiento, puede rerank peers delgrupo yqueda pending. No cambiafechas/contenido/asignaciones; mezcla recurrente sigue protegida. Cuenta/época/montaje/cache/UUIDestables, cancelarsinwrites.
+- Validación: SSR/guardias/preview, scope placement-ui estricto; onceNext6 focalizados conambas elecciones UIreal cancelar/reabrir/confirmar, UUIDUI/pérdida/recarga/ACKúnico/convergencia porcatálogo. CSSreal móvil sinDB; cleanup yDoDcompleto. No ofrecer antes deaceptación, sinnuevoíndice/protocolo/DBusuario.
+
 ## 19i5 — Orden simple probado con productor real y RPC6
 
 Once escenarios Next6 focalizados (`placement`) pasan con acción/defaults reales, sesiones BetterAuth persistidas y dos orígenes IndexedDB/Mongo propios. moveLocalPlan productivo crea la cadena exacta conflict+hijo; cuatro variantes/day/overdue con adopción y3retry conservan UUID/payload/dependencias, producen pérdida después decommit/recarga/mismoUUIDpendingattempt1→ACKrealattempt2 único. Catálogos completos deplacements, sombras ycursor exactos frente aMongo, otrasfamilias intactas yreplay durable sinretroceso. Scopevalidado, full33 disponible sinatribuir ejecucióncompleta; noGoogle/físicos nuevos.

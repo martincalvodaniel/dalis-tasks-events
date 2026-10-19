@@ -148,6 +148,7 @@ export const nextSettingsProofScopeSchema = z
     "assignment",
     "assignment-series",
     "placement",
+    "placement-ui",
     "tag-delete",
     "tag-delete-ui",
     "tag-order",
@@ -155,6 +156,10 @@ export const nextSettingsProofScopeSchema = z
   ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("resolve-placement-ui"),
+    request: placementResolutionRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("placement-comparison"),
     operationId: entityIdSchema,

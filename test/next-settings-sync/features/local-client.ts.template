@@ -1,4 +1,5 @@
 "use client"
+import {provePlacementResolutionUi} from "@fixture/placement-resolution-ui"
 import {moveLocalPlan} from "@/features/plans/local-plans"
 import {readPlacementIncidentComparison,resolvePlacementIncident} from "@/features/sync/local-placement-resolution"
 import { proveTagDeletionResolutionUi } from "@fixture/tag-delete-resolution-ui"
@@ -590,6 +591,7 @@ export async function executeLocalFixtureCommand(
       if(!entry)throw new Error("Real simple movement producer lost its intention")
       return entry
     }
+    case "resolve-placement-ui":return provePlacementResolutionUi(active,command.request)
     case "placement-comparison":return readPlacementIncidentComparison(active,command.operationId)
     case "resolve-placement":return resolvePlacementIncident(active,command.request)
     case "placement-guard-proof": {

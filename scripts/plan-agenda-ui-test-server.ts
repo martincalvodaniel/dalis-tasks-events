@@ -4,17 +4,20 @@ const mode = process.argv[2] ?? "agenda"
 if (
   mode !== "agenda" &&
   mode !== "tag-order-review" &&
-  mode !== "tag-delete-review"
+  mode !== "tag-delete-review" &&
+  mode !== "placement-review"
 )
   throw new Error("Unknown plan UI fixture mode")
 const build = await Bun.build({
   entrypoints: [
     resolve(
-      mode === "tag-delete-review"
-        ? "test/browser/tag-delete-review.tsx"
-        : mode === "tag-order-review"
-          ? "test/browser/tag-order-review.tsx"
-          : "test/browser/plan-agenda-ui.tsx"
+      mode === "placement-review"
+        ? "test/browser/placement-review.tsx"
+        : mode === "tag-delete-review"
+          ? "test/browser/tag-delete-review.tsx"
+          : mode === "tag-order-review"
+            ? "test/browser/tag-order-review.tsx"
+            : "test/browser/plan-agenda-ui.tsx"
     ),
   ],
   target: "browser",
