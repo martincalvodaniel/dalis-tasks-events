@@ -20,16 +20,19 @@ export function PlanAgenda({ account }: { account: LocalAccount }) {
   return (
     <>
       <PlanList
+        collapsible
         account={account}
         selection={{ kind: "overdue", date: today }}
         heading="Atrasadas"
       />
       <PlanList
+        collapsible
         account={account}
         selection={{ kind: "day", date: today }}
         heading="Hoy"
       />
       <PlanList
+        collapsible
         account={account}
         selection={{ kind: "upcoming", date: today, excludeDate: today }}
         heading="Próximas"

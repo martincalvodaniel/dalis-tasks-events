@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useId, useMemo, useRef, useState } from "react"
 import { DelayedStatus } from "@/components/ui/delayed-status"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { LongPressOrder } from "@/components/ui/long-press-order"
@@ -9,6 +9,7 @@ import { CancelPlanOccurrenceDialog } from "@/features/plans/components/cancel-p
 import { DeletePlanDialog } from "@/features/plans/components/delete-plan-dialog"
 import { PlanCard } from "@/features/plans/components/plan-card"
 import { PlanComposer } from "@/features/plans/components/plan-composer"
+import { PlanListHeading } from "@/features/plans/components/plan-list-heading"
 import { useLocalPlans } from "@/features/plans/hooks/use-local-plans"
 import { usePlanAppearances } from "@/features/plans/hooks/use-plan-appearances"
 import { usePlanOccurrenceProgress } from "@/features/plans/hooks/use-plan-occurrence-progress"
@@ -53,12 +54,16 @@ export function PlanList({
   selection = allPlansSelection,
   heading = "Tus planes",
   calendarDropScope,
+  collapsible = false,
 }: {
   account: LocalAccount
   selection?: PlanAgendaSelection
   calendarDropScope?: string
   heading?: string
+  collapsible?: boolean
 }) {
+  const contentId = useId()
+  const [collapsed, setCollapsed] = useState(false)
   const { data, error, isLoading, mutate } = useLocalPlans(account)
   const { refresh } = useLocalAccount()
   const { mutate: refreshTags } = useLocalTags(account)
@@ -187,344 +192,373 @@ export function PlanList({
       }
       className="mt-4 space-y-2 sm:mt-6"
     >
-      <h2 className="text-base font-semibold first-letter:uppercase sm:text-xl">
-        {heading}
-      </h2>
-      {rescheduling.error ? (
-        <ErrorBanner>
-          No se pudo mover el plan. Puede haber cambiado o la hora no existir
-          ese día por el cambio de horario; revisa su fecha en el editor.
-        </ErrorBanner>
-      ) : null}
-      {progress.error || occurrenceProgress.error ? (
-        <ErrorBanner>
-          No se pudo cambiar el progreso. Vuelve a intentarlo; si el plan cambió
-          en otra pestaña, comprueba su contenido actualizado.
-        </ErrorBanner>
-      ) : null}
-      {placementReadError ||
-      ordering.error ||
-      category.error ||
-      groupOrdering.error ? (
-        <ErrorBanner>
-          No se pudo leer o guardar el orden o la categoría. Vuelve a
-          intentarlo; tus planes se conservan.
-        </ErrorBanner>
-      ) : null}
-      {busy ? (
-        <p role="status" className="text-xs">
-          Guardando…
-        </p>
-      ) : null}
-      {pendingCancel?.occurrence ? (
-        <CancelPlanOccurrenceDialog
-          plan={pendingCancel.plan}
-          busy={deleting}
-          onClose={() => setPendingCancel(null)}
-          onConfirm={async (operationId) => {
-            if (!pendingCancel.occurrence) return
-            setDeleting(true)
-            try {
-              await changeLocalPlanOccurrence(
-                account,
-                {
-                  type: "plan.cancel-occurrence",
-                  itemId: pendingCancel.series.id,
-                  occurrenceId: pendingCancel.occurrence.id,
-                },
-                {
-                  operationId,
-                  expectedItem: pendingCancel.series,
-                  expectedOccurrence: pendingCancel.occurrence,
-                }
-              )
-              await mutate()
-              setPendingCancel(null)
-            } finally {
-              setDeleting(false)
-            }
-          }}
-        />
-      ) : null}
-      {pendingDelete ? (
-        <DeletePlanDialog
-          plan={pendingDelete}
-          busy={deleting}
-          onClose={() => setPendingDelete(null)}
-          onConfirm={(operationId) => remove(pendingDelete, operationId)}
-        />
-      ) : null}
-      {editing ? (
-        <PlanComposer
-          key={editing.plan.id}
-          account={account}
-          initialPlan={editing.plan}
-          initialView={editing.view}
-          onClose={() => setEditing(null)}
-          onSaved={() => {
-            void refresh()
-          }}
-        />
-      ) : null}
-      {error ? (
-        <ErrorBanner>
-          No se pudieron leer los planes locales. Vuelve a abrir este espacio;
-          tus cambios se conservan.
-        </ErrorBanner>
-      ) : isLoading ? (
-        <DelayedStatus>Cargando planes…</DelayedStatus>
-      ) : rows.length ? (
-        <div data-order-list className="space-y-3">
-          {groups.map((group) => (
-            <TaskGroup
-              key={group.id}
-              title={group.title}
-              color={group.color}
-              orderId={group.id}
-              orderControl={
-                visibleTagIds.length > 1 && visibleTagIds.includes(group.id) ? (
-                  <LongPressOrder
-                    itemId={group.id}
-                    label={`grupo ${group.title}`}
-                    peers={tagIds}
-                    busy={busy}
-                    onDrop={(neighbors) => {
-                      void groupOrdering.change({
-                        type: "tag.move",
-                        tagId: group.id,
-                        ...neighbors,
-                      })
-                    }}
-                  />
-                ) : undefined
+      <PlanListHeading
+        heading={heading}
+        contentId={contentId}
+        expanded={!collapsed}
+        count={data ? rows.length : null}
+        partial={
+          Boolean(appearances.nextCursor) ||
+          (selection.kind === "upcoming" &&
+            horizonEnd < "9999-12-31" &&
+            Boolean(
+              data?.plans.some((plan) => plan.recurrence && !plan.deletedAt)
+            ))
+        }
+        onToggle={
+          collapsible ? () => setCollapsed((current) => !current) : undefined
+        }
+      />
+      <div
+        id={contentId}
+        hidden={collapsible && collapsed}
+        className="space-y-2"
+      >
+        {rescheduling.error ? (
+          <ErrorBanner>
+            No se pudo mover el plan. Puede haber cambiado o la hora no existir
+            ese día por el cambio de horario; revisa su fecha en el editor.
+          </ErrorBanner>
+        ) : null}
+        {progress.error || occurrenceProgress.error ? (
+          <ErrorBanner>
+            No se pudo cambiar el progreso. Vuelve a intentarlo; si el plan
+            cambió en otra pestaña, comprueba su contenido actualizado.
+          </ErrorBanner>
+        ) : null}
+        {placementReadError ||
+        ordering.error ||
+        category.error ||
+        groupOrdering.error ? (
+          <ErrorBanner>
+            No se pudo leer o guardar el orden o la categoría. Vuelve a
+            intentarlo; tus planes se conservan.
+          </ErrorBanner>
+        ) : null}
+        {busy ? (
+          <p role="status" className="text-xs">
+            Guardando…
+          </p>
+        ) : null}
+        {pendingCancel?.occurrence ? (
+          <CancelPlanOccurrenceDialog
+            plan={pendingCancel.plan}
+            busy={deleting}
+            onClose={() => setPendingCancel(null)}
+            onConfirm={async (operationId) => {
+              if (!pendingCancel.occurrence) return
+              setDeleting(true)
+              try {
+                await changeLocalPlanOccurrence(
+                  account,
+                  {
+                    type: "plan.cancel-occurrence",
+                    itemId: pendingCancel.series.id,
+                    occurrenceId: pendingCancel.occurrence.id,
+                  },
+                  {
+                    operationId,
+                    expectedItem: pendingCancel.series,
+                    expectedOccurrence: pendingCancel.occurrence,
+                  }
+                )
+                await mutate()
+                setPendingCancel(null)
+              } finally {
+                setDeleting(false)
               }
-            >
-              {group.rows.map((row) => (
-                <li
-                  key={row.key}
-                  data-order-item={row.key}
-                  data-order-label={row.plan.title}
-                >
-                  <PlanCard
-                    plan={row.plan}
-                    categoryColor={group.color}
-                    busy={busy}
-                    expanded={expandedIds.has(row.key)}
-                    onExpandedChange={(expanded) =>
-                      setExpandedIds((current) => {
-                        if (current.has(row.key) === expanded) return current
-                        const next = new Set(current)
-                        if (expanded) next.add(row.key)
-                        else next.delete(row.key)
-                        return next
-                      })
-                    }
-                    onEdit={() =>
-                      setEditing({
-                        plan: row.series,
-                        view:
-                          data?.views.find(
-                            (view) => view.itemId === row.series.id
-                          ) ?? null,
-                      })
-                    }
-                    editLabel={
-                      row.occurrence || row.series.recurrence
-                        ? "Editar serie"
-                        : "Editar"
-                    }
-                    deleteLabel={
-                      row.occurrence
-                        ? "Cancelar aparición"
-                        : row.series.recurrence
-                          ? "Eliminar serie"
-                          : "Eliminar"
-                    }
-                    contextLabel={
-                      row.occurrence
-                        ? "El progreso afecta sólo a esta aparición; la categoría y la edición afectan a la serie."
-                        : undefined
-                    }
-                    onDelete={() =>
-                      row.occurrence
-                        ? setPendingCancel(row)
-                        : setPendingDelete(row.series)
-                    }
-                    onStatusChange={
-                      row.plan.recurrence
-                        ? undefined
-                        : (status) => {
-                            if (row.occurrence)
-                              void occurrenceProgress.change({
-                                command: {
-                                  type: "plan.set-occurrence-status",
+            }}
+          />
+        ) : null}
+        {pendingDelete ? (
+          <DeletePlanDialog
+            plan={pendingDelete}
+            busy={deleting}
+            onClose={() => setPendingDelete(null)}
+            onConfirm={(operationId) => remove(pendingDelete, operationId)}
+          />
+        ) : null}
+        {editing ? (
+          <PlanComposer
+            key={editing.plan.id}
+            account={account}
+            initialPlan={editing.plan}
+            initialView={editing.view}
+            onClose={() => setEditing(null)}
+            onSaved={() => {
+              void refresh()
+            }}
+          />
+        ) : null}
+        {error ? (
+          <ErrorBanner>
+            No se pudieron leer los planes locales. Vuelve a abrir este espacio;
+            tus cambios se conservan.
+          </ErrorBanner>
+        ) : isLoading ? (
+          <DelayedStatus>Cargando planes…</DelayedStatus>
+        ) : rows.length ? (
+          <div data-order-list className="space-y-3">
+            {groups.map((group) => (
+              <TaskGroup
+                key={group.id}
+                title={group.title}
+                color={group.color}
+                orderId={group.id}
+                orderControl={
+                  visibleTagIds.length > 1 &&
+                  visibleTagIds.includes(group.id) ? (
+                    <LongPressOrder
+                      itemId={group.id}
+                      label={`grupo ${group.title}`}
+                      peers={tagIds}
+                      busy={busy}
+                      onDrop={(neighbors) => {
+                        void groupOrdering.change({
+                          type: "tag.move",
+                          tagId: group.id,
+                          ...neighbors,
+                        })
+                      }}
+                    />
+                  ) : undefined
+                }
+              >
+                {group.rows.map((row) => (
+                  <li
+                    key={row.key}
+                    data-order-item={row.key}
+                    data-order-label={row.plan.title}
+                  >
+                    <PlanCard
+                      plan={row.plan}
+                      categoryColor={group.color}
+                      busy={busy}
+                      expanded={expandedIds.has(row.key)}
+                      onExpandedChange={(expanded) =>
+                        setExpandedIds((current) => {
+                          if (current.has(row.key) === expanded) return current
+                          const next = new Set(current)
+                          if (expanded) next.add(row.key)
+                          else next.delete(row.key)
+                          return next
+                        })
+                      }
+                      onEdit={() =>
+                        setEditing({
+                          plan: row.series,
+                          view:
+                            data?.views.find(
+                              (view) => view.itemId === row.series.id
+                            ) ?? null,
+                        })
+                      }
+                      editLabel={
+                        row.occurrence || row.series.recurrence
+                          ? "Editar serie"
+                          : "Editar"
+                      }
+                      deleteLabel={
+                        row.occurrence
+                          ? "Cancelar aparición"
+                          : row.series.recurrence
+                            ? "Eliminar serie"
+                            : "Eliminar"
+                      }
+                      contextLabel={
+                        row.occurrence
+                          ? "El progreso afecta sólo a esta aparición; la categoría y la edición afectan a la serie."
+                          : undefined
+                      }
+                      onDelete={() =>
+                        row.occurrence
+                          ? setPendingCancel(row)
+                          : setPendingDelete(row.series)
+                      }
+                      onStatusChange={
+                        row.plan.recurrence
+                          ? undefined
+                          : (status) => {
+                              if (row.occurrence)
+                                void occurrenceProgress.change({
+                                  command: {
+                                    type: "plan.set-occurrence-status",
+                                    itemId: row.series.id,
+                                    occurrenceId: row.occurrence.id,
+                                    status,
+                                  },
+                                  expectedItem: row.series,
+                                  expectedOccurrence: row.occurrence,
+                                })
+                              else
+                                void progress.change({
+                                  type: "plan.set-status",
                                   itemId: row.series.id,
-                                  occurrenceId: row.occurrence.id,
                                   status,
-                                },
-                                expectedItem: row.series,
-                                expectedOccurrence: row.occurrence,
-                              })
-                            else
-                              void progress.change({
-                                type: "plan.set-status",
-                                itemId: row.series.id,
-                                status,
-                              })
-                          }
-                    }
-                    onChecklistChange={
-                      row.plan.recurrence
-                        ? undefined
-                        : (entryId, completed) => {
-                            if (row.occurrence)
-                              void occurrenceProgress.change({
-                                command: {
-                                  type: "plan.set-occurrence-checklist-entry",
+                                })
+                            }
+                      }
+                      onChecklistChange={
+                        row.plan.recurrence
+                          ? undefined
+                          : (entryId, completed) => {
+                              if (row.occurrence)
+                                void occurrenceProgress.change({
+                                  command: {
+                                    type: "plan.set-occurrence-checklist-entry",
+                                    itemId: row.series.id,
+                                    occurrenceId: row.occurrence.id,
+                                    entryId,
+                                    completed,
+                                  },
+                                  expectedItem: row.series,
+                                  expectedOccurrence: row.occurrence,
+                                })
+                              else
+                                void progress.change({
+                                  type: "plan.set-checklist-entry",
                                   itemId: row.series.id,
-                                  occurrenceId: row.occurrence.id,
                                   entryId,
                                   completed,
-                                },
-                                expectedItem: row.series,
-                                expectedOccurrence: row.occurrence,
-                              })
-                            else
-                              void progress.change({
-                                type: "plan.set-checklist-entry",
-                                itemId: row.series.id,
-                                entryId,
-                                completed,
-                              })
-                          }
-                    }
-                    categoryControl={
-                      data ? (
-                        <ItemCategorySelect
-                          compact
-                          title={row.plan.title}
-                          itemId={row.series.id}
-                          tags={data.tags}
-                          selectedId={
-                            group.id === "uncategorized" ? null : group.id
-                          }
-                          busy={busy}
-                          onChange={(tagId) => {
-                            const currentTagId =
+                                })
+                            }
+                      }
+                      categoryControl={
+                        data ? (
+                          <ItemCategorySelect
+                            compact
+                            title={row.plan.title}
+                            itemId={row.series.id}
+                            tags={data.tags}
+                            selectedId={
                               group.id === "uncategorized" ? null : group.id
-                            if (tagId === currentTagId) return
-                            categoryFocus.current = row.series.id
-                            void category.change({
-                              itemId: row.series.id,
-                              tagId,
-                            })
-                          }}
-                        />
-                      ) : undefined
-                    }
-                    orderControl={
-                      (calendarDropScope && !row.plan.recurrence) ||
-                      (canOrderRows &&
-                        planRowOrderPeers(group.rows, selection, row).length >
-                          1) ? (
-                        <LongPressOrder
-                          itemId={row.key}
-                          dropScope={calendarDropScope}
-                          version={
-                            calendarDropScope ? JSON.stringify(row) : undefined
-                          }
-                          onDateDrop={
-                            calendarDropScope
-                              ? (date) => {
-                                  void rescheduling.change({ row, date })
-                                }
-                              : undefined
-                          }
-                          label={`plan ${row.plan.title}`}
-                          peers={
-                            canOrderRows &&
-                            planRowOrderPeers(group.rows, selection, row)
-                              .length > 1
-                              ? planRowOrderPeers(
-                                  group.rows,
-                                  selection,
-                                  row
-                                ).map((record) => record.id)
-                              : [row.key]
-                          }
-                          busy={busy}
-                          onDrop={(neighbors) => {
-                            void ordering.change({
-                              type: "task.move",
-                              itemId: row.series.id,
-                              occurrenceId: null,
-                              tagId:
-                                group.id === "uncategorized" ? null : group.id,
-                              ...planOrderContext(selection, row.series),
-                              ...neighbors,
-                            })
-                          }}
-                        />
-                      ) : undefined
-                    }
-                  />
-                </li>
-              ))}
-            </TaskGroup>
-          ))}
-        </div>
-      ) : (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-3 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
-          {selection.kind === "day"
-            ? "No hay planes para este día. Pulsa + para añadir uno."
-            : selection.kind === "overdue"
-              ? "No tienes planes atrasados."
-              : selection.kind === "upcoming"
-                ? selection.excludeDate
-                  ? "No hay planes para próximas fechas. Pulsa + para añadir uno."
-                  : "No hay planes para hoy o próximas fechas. Pulsa + para añadir uno."
-                : "Pulsa + para añadir tu primer plan."}
-        </p>
-      )}
+                            }
+                            busy={busy}
+                            onChange={(tagId) => {
+                              const currentTagId =
+                                group.id === "uncategorized" ? null : group.id
+                              if (tagId === currentTagId) return
+                              categoryFocus.current = row.series.id
+                              void category.change({
+                                itemId: row.series.id,
+                                tagId,
+                              })
+                            }}
+                          />
+                        ) : undefined
+                      }
+                      orderControl={
+                        (calendarDropScope && !row.plan.recurrence) ||
+                        (canOrderRows &&
+                          planRowOrderPeers(group.rows, selection, row).length >
+                            1) ? (
+                          <LongPressOrder
+                            itemId={row.key}
+                            dropScope={calendarDropScope}
+                            version={
+                              calendarDropScope
+                                ? JSON.stringify(row)
+                                : undefined
+                            }
+                            onDateDrop={
+                              calendarDropScope
+                                ? (date) => {
+                                    void rescheduling.change({ row, date })
+                                  }
+                                : undefined
+                            }
+                            label={`plan ${row.plan.title}`}
+                            peers={
+                              canOrderRows &&
+                              planRowOrderPeers(group.rows, selection, row)
+                                .length > 1
+                                ? planRowOrderPeers(
+                                    group.rows,
+                                    selection,
+                                    row
+                                  ).map((record) => record.id)
+                                : [row.key]
+                            }
+                            busy={busy}
+                            onDrop={(neighbors) => {
+                              void ordering.change({
+                                type: "task.move",
+                                itemId: row.series.id,
+                                occurrenceId: null,
+                                tagId:
+                                  group.id === "uncategorized"
+                                    ? null
+                                    : group.id,
+                                ...planOrderContext(selection, row.series),
+                                ...neighbors,
+                              })
+                            }}
+                          />
+                        ) : undefined
+                      }
+                    />
+                  </li>
+                ))}
+              </TaskGroup>
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-xl border border-dashed border-zinc-300 p-3 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+            {selection.kind === "day"
+              ? "No hay planes para este día. Pulsa + para añadir uno."
+              : selection.kind === "overdue"
+                ? "No tienes planes atrasados."
+                : selection.kind === "upcoming"
+                  ? selection.excludeDate
+                    ? "No hay planes para próximas fechas. Pulsa + para añadir uno."
+                    : "No hay planes para hoy o próximas fechas. Pulsa + para añadir uno."
+                  : "Pulsa + para añadir tu primer plan."}
+          </p>
+        )}
 
-      {appearances.issues.length ? (
-        <p role="status" className="text-xs text-amber-700 dark:text-amber-300">
-          Hay apariciones con una hora no válida por el cambio de horario.
-          Revisa la fecha y la zona de la serie.
-        </p>
-      ) : null}
-      {appearances.canLoadMore ? (
-        <button
-          type="button"
-          disabled={busy}
-          onClick={appearances.loadMore}
-          className="min-h-11 rounded-lg border px-3 text-sm"
-        >
-          Cargar más apariciones
-        </button>
-      ) : null}
-      {appearances.limited ? (
-        <p role="status" className="text-xs text-zinc-500">
-          Quedan apariciones fuera de esta página. Abre un día concreto en el
-          calendario para limitar el intervalo.
-        </p>
-      ) : null}
-      {selection.kind === "upcoming" &&
-      data?.plans.some((plan) => plan.recurrence) ? (
-        <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
-          <span>Repeticiones hasta {horizonEnd}</span>
-          {horizonEnd < "9999-12-31" ? (
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => setHorizonDays((days) => days + 30)}
-              className="min-h-11 rounded-lg border px-3 text-sm"
-            >
-              Ampliar 30 días
-            </button>
-          ) : null}
-        </div>
-      ) : null}
+        {appearances.issues.length ? (
+          <p
+            role="status"
+            className="text-xs text-amber-700 dark:text-amber-300"
+          >
+            Hay apariciones con una hora no válida por el cambio de horario.
+            Revisa la fecha y la zona de la serie.
+          </p>
+        ) : null}
+        {appearances.canLoadMore ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={appearances.loadMore}
+            aria-label={`Cargar más apariciones de ${heading}`}
+            className="min-h-8 rounded px-2 text-xs font-medium text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 focus-visible:outline-2 focus-visible:outline-emerald-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+          >
+            Ver más
+          </button>
+        ) : null}
+        {appearances.limited ? (
+          <p role="status" className="text-xs text-zinc-500">
+            Quedan apariciones fuera de esta página. Abre un día concreto en el
+            calendario para limitar el intervalo.
+          </p>
+        ) : null}
+        {selection.kind === "upcoming" &&
+        data?.plans.some((plan) => plan.recurrence) ? (
+          <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+            <span>Repeticiones hasta {horizonEnd}</span>
+            {horizonEnd < "9999-12-31" ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setHorizonDays((days) => days + 30)}
+                className="min-h-8 rounded px-2 text-xs hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-emerald-600 dark:hover:bg-zinc-800"
+              >
+                Ampliar 30 días
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
     </section>
   )
 }

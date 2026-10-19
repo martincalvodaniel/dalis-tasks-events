@@ -3,13 +3,8 @@
 import { useMemo, useState } from "react"
 import type { z } from "zod"
 import type { readLocalPlans } from "@/features/plans/local-plans"
-import type { OccurrenceScheduleIssue } from "@/lib/calendar/occurrences"
-import { readPlanAppearancePage } from "@/lib/calendar/plan-appearance-page"
-import type { PlanOccurrenceView } from "@/lib/calendar/plan-occurrence-selection"
-import type {
-  PlanAppearanceCursor,
-  planAppearanceQuerySchema,
-} from "@/schemas/plan-appearance-query"
+import { readPlanAppearanceSelection } from "@/lib/calendar/plan-appearance-selection"
+import type { planAppearanceQuerySchema } from "@/schemas/plan-appearance-query"
 
 const maximumPages = 50
 
@@ -22,26 +17,19 @@ export function usePlanAppearances(
   const key = JSON.stringify([userId, epoch, query])
   const [request, setRequest] = useState({ key, pages: 1 })
   const pages = request.key === key ? request.pages : 1
-  const selection = useMemo(() => {
-    const views: PlanOccurrenceView[] = []
-    const issues: OccurrenceScheduleIssue[] = []
-    let nextCursor: PlanAppearanceCursor | null = null
-    if (!data || !query) return { views, issues, nextCursor }
-    for (let page = 0; page < pages; page++) {
-      const result = readPlanAppearancePage(
-        data.plans,
-        data.occurrences,
-        userId,
-        query,
-        nextCursor
-      )
-      views.push(...result.views)
-      issues.push(...result.issues)
-      nextCursor = result.nextCursor
-      if (!nextCursor) break
-    }
-    return { views, issues, nextCursor }
-  }, [data, userId, query, pages])
+  const selection = useMemo(
+    () =>
+      data && query
+        ? readPlanAppearanceSelection(
+            data.plans,
+            data.occurrences,
+            userId,
+            query,
+            pages
+          )
+        : { views: [], issues: [], nextCursor: null },
+    [data, userId, query, pages]
+  )
   return {
     ...selection,
     limited: selection.nextCursor !== null && pages >= maximumPages,

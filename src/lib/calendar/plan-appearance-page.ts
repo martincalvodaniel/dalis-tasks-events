@@ -56,17 +56,13 @@ function intersects(
   return start <= endDate && due >= startDate
 }
 
-// A call reads exception pagination and at most one bounded generation page.
-export function readPlanAppearancePage(
+// Prepare the validated catalog once when reading multiple pages from the same snapshot.
+export function createPlanAppearanceReader(
   plansInput: readonly Plan[],
   exceptionsInput: readonly PlanOccurrence[],
-  userId: string,
-  queryInput: z.input<typeof planAppearanceQuerySchema>,
-  cursorInput: PlanAppearanceCursor | null = null
-): PlanAppearancePage {
+  userId: string
+) {
   const actor = userIdSchema.parse(userId)
-  const query = planAppearanceQuerySchema.parse(queryInput)
-  const cursor = planAppearanceCursorSchema.nullable().parse(cursorInput)
   const plans = plansSchema.parse(plansInput)
   const index = createPlanOccurrenceIndex(plans, exceptionsInput, actor)
   const parents = new Map(
@@ -77,61 +73,86 @@ export function readPlanAppearancePage(
       )
       .map((parent) => [parent.id, parent])
   )
-  let seriesId = index.seriesIds[0]
-  let afterDate: string | null = null
-  const views: PlanOccurrenceView[] = []
-  if (cursor?.phase === "generated") {
-    if (!parents.has(cursor.seriesId))
-      throw new Error("Plan appearance cursor references an unavailable series")
-    seriesId = cursor.seriesId
-    afterDate = cursor.afterDate
-  } else {
-    const page = index.exceptionsPage({
-      ...query,
-      after: cursor?.after ?? null,
-    })
-    views.push(...page.views)
-    if (page.nextCursor)
-      return {
-        views,
-        issues: [],
-        nextCursor: { phase: "exceptions", after: page.nextCursor },
-      }
+  return (
+    queryInput: z.input<typeof planAppearanceQuerySchema>,
+    cursorInput: PlanAppearanceCursor | null = null
+  ): PlanAppearancePage => {
+    const query = planAppearanceQuerySchema.parse(queryInput)
+    const cursor = planAppearanceCursorSchema.nullable().parse(cursorInput)
+    let seriesId = index.seriesIds[0]
+    let afterDate: string | null = null
+    const views: PlanOccurrenceView[] = []
+    if (cursor?.phase === "generated") {
+      if (!parents.has(cursor.seriesId))
+        throw new Error(
+          "Plan appearance cursor references an unavailable series"
+        )
+      seriesId = cursor.seriesId
+      afterDate = cursor.afterDate
+    } else {
+      const page = index.exceptionsPage({
+        ...query,
+        after: cursor?.after ?? null,
+      })
+      views.push(...page.views)
+      if (page.nextCursor)
+        return {
+          views,
+          issues: [],
+          nextCursor: { phase: "exceptions", after: page.nextCursor },
+        }
+      if (!seriesId) return { views, issues: [], nextCursor: null }
+      if (views.length === query.limit)
+        return {
+          views,
+          issues: [],
+          nextCursor: { phase: "generated", seriesId, afterDate: null },
+        }
+    }
     if (!seriesId) return { views, issues: [], nextCursor: null }
-    if (views.length === query.limit)
+    const parent = parents.get(seriesId)
+    if (!parent)
+      throw new Error("Prepared plan appearance series is unavailable")
+    const page = index.generatedPage(seriesId, {
+      startDate: lookbackStart(parent, query.startDate),
+      endDate: query.endDate,
+      limit: query.limit - views.length,
+      includeCompleted: query.includeCompleted,
+      afterDate,
+    })
+    views.push(
+      ...page.views.filter((view) =>
+        intersects(view, query.startDate, query.endDate)
+      )
+    )
+    if (page.nextAfter)
       return {
         views,
-        issues: [],
-        nextCursor: { phase: "generated", seriesId, afterDate: null },
+        issues: page.issues,
+        nextCursor: { phase: "generated", seriesId, afterDate: page.nextAfter },
       }
-  }
-  if (!seriesId) return { views, issues: [], nextCursor: null }
-  const parent = parents.get(seriesId)
-  if (!parent) throw new Error("Prepared plan appearance series is unavailable")
-  const page = index.generatedPage(seriesId, {
-    startDate: lookbackStart(parent, query.startDate),
-    endDate: query.endDate,
-    limit: query.limit - views.length,
-    includeCompleted: query.includeCompleted,
-    afterDate,
-  })
-  views.push(
-    ...page.views.filter((view) =>
-      intersects(view, query.startDate, query.endDate)
-    )
-  )
-  if (page.nextAfter)
+    const nextSeriesId = index.seriesIds[index.seriesIds.indexOf(seriesId) + 1]
     return {
       views,
       issues: page.issues,
-      nextCursor: { phase: "generated", seriesId, afterDate: page.nextAfter },
+      nextCursor: nextSeriesId
+        ? { phase: "generated", seriesId: nextSeriesId, afterDate: null }
+        : null,
     }
-  const nextSeriesId = index.seriesIds[index.seriesIds.indexOf(seriesId) + 1]
-  return {
-    views,
-    issues: page.issues,
-    nextCursor: nextSeriesId
-      ? { phase: "generated", seriesId: nextSeriesId, afterDate: null }
-      : null,
   }
+}
+
+// A call reads exception pagination and at most one bounded generation page.
+export function readPlanAppearancePage(
+  plansInput: readonly Plan[],
+  exceptionsInput: readonly PlanOccurrence[],
+  userId: string,
+  queryInput: z.input<typeof planAppearanceQuerySchema>,
+  cursorInput: PlanAppearanceCursor | null = null
+): PlanAppearancePage {
+  return createPlanAppearanceReader(
+    plansInput,
+    exceptionsInput,
+    userId
+  )(queryInput, cursorInput)
 }

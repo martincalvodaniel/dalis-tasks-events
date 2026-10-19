@@ -194,6 +194,38 @@ if (!reload) {
   } finally {
     outbox.close()
   }
+  if (query.get("many") === "1") {
+    for (let index = 0; index < 52; index++) {
+      await saveLocalPlan(account, {
+        mode: "create",
+        itemId: uuid(1000 + index),
+        contentOperationId: crypto.randomUUID(),
+        viewOperationId: crypto.randomUUID(),
+        primaryTagId: null,
+        now: new Date().toISOString(),
+        input: {
+          kind: "plan",
+          variant: "task",
+          title: `Serie extra ${index + 1}`,
+          description: "",
+          status: "not_started",
+          checklist: [],
+          schedule: {
+            mode: "all_day",
+            startDate: date,
+            endDateExclusive: addCivilDays(date, 1),
+          },
+          recurrence: {
+            frequency: "daily",
+            anchorDate: date,
+            interval: 1,
+            timeZone: "Europe/Madrid",
+            end: { type: "count", count: 1 },
+          },
+        },
+      })
+    }
+  }
   const repository = await LocalRepository.open(userId)
   try {
     sessionStorage.setItem(
@@ -247,9 +279,12 @@ root.render(
     )}
   </SWRConfig>
 )
-status.textContent = reload
-  ? "Prueba recargada; comprueba el progreso guardado."
-  : "Preparado: carga más apariciones hasta ver ocho filas."
+status.textContent =
+  query.get("many") === "1"
+    ? "Prueba de días completos con más de cincuenta series; no usar las verificaciones de progreso del escenario base."
+    : reload
+      ? "Prueba recargada; comprueba el progreso guardado."
+      : "Preparado: todos los planes del día se cargan sin paginación."
 const verify = document.createElement("button")
 verify.textContent = "Verificar cambios"
 verify.className = "min-h-11 rounded border px-3 text-sm"

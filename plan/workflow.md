@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## Intercalada de agenda — 19 de octubre
+
+Se entrega únicamente la petición de secciones plegables, recuentos y días completos, incluida la ampliación humana al día del calendario. Sin retomar 19j1b ni automatizaciones. Validación local y móvil propia; commit/push a int con la identidad personal previamente autorizada, sin cambiar la configuración global, verificación remota y lectura de ambas cuotas. Reservas 10%/1%.
+
 ## Política vigente de índices — 19 de octubre
 
 Por instrucción humana, todos los índices registrados se aplican automáticamente con independencia de rama y entorno. Se elimina la excepción histórica preview/int. Promover código también promueve su bootstrap completo al primer acceso a MongoDB de cada proceso; no equivale a copiar o migrar datos ni a modificar índices incompatibles. Ajuste validado y entregado en int, sin push a main ni wipe. Mantener commit/push a int, verificación de HEAD remoto y consulta directa de ambas cuotas por entrega.

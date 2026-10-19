@@ -1,5 +1,16 @@
 # Registro de iteraciones
 
+## 16c14 — Secciones plegables y días completos
+
+Objetivo y rutas: Atrasadas/Hoy/Próximas plegables con recuentos, en plan-agenda/plan-list y la nueva cabecera extraída. La lista conserva detalles abiertos al plegarse porque mantiene su contenido montado. Los recuentos incompletos usan «+» y una explicación accesible; no anuncian cero mientras se está cargando. «Ver más» y «Ampliar 30 días» pasan a controles secundarios de 32 px sin borde.
+
+Hoy y el día seleccionado del calendario cargan todas las páginas locales automáticamente. El lector preparado valida e indexa el catálogo una vez por snapshot, reutilizándolo entre páginas, y detecta cursores que no avanzan. Los intervalos de Atrasadas/Próximas y el recuento mensual mantienen su paginación. No se cambia la selección civil ni se alteran apariciones, UUID, progreso, datos o sincronización. Sin consultas Mongo nuevas ni necesidad de índices.
+
+Aceptación: siete pruebas nuevas de lectura diaria y cabecera, además de las nueve regresiones del lector paginado, pasan. Incluyen 61 series en un día, excepciones/cancelaciones/traslados/solapamientos, intervalos paginados y recuentos/aria. Interacción real en fixture propia a 390 px: Hoy muestra 62 filas y ningún botón de carga; plegar/reabrir con Enter conserva los detalles abiertos. Las tres secciones se pliegan y «Ver más» de Próximas pasa de 2 a 3 filas. La lista diaria compartida con calendario muestra 60 filas, cero botones de carga, 4 al cambiar de día y 60 al volver. Ancho de documento/viewport 390 px, sin desbordamiento. Captura: /private/tmp/dalis-agenda-sections-mobile.png. Bases/particiones/pestaña/servidor de prueba limpiados y viewport restablecido; ningún dispositivo o dato del usuario modificado.
+
+Validación final: 1074 tests aprobados, 225 opt-in omitidos, cero fallos y 12342 aserciones; lint de 982 archivos sin avisos, tipos, Webpack y worker de 46 recursos aprobados. Guía Next instalada y skill vercel-react-best-practices aplicadas. Entrada: 81% de 5h y 14% semanal; reservas 10%/1%. Entrega en int con commit/push, HEAD remoto y consulta de ambas cuotas; sin promoción a main ni continuación de otros bloques.
+
+
 ## 19p1 — Índices automáticos independientes del despliegue
 
 Objetivo y autorización: aplicar todos los índices registrados al arrancar, con el mismo comportamiento al promover `int` a `main`. La instrucción humana del 19 de octubre de 2026 sustituye las restricciones anteriores de preview/int. Dependencias: registro central y singleton existentes; sin índices nuevos, migraciones ni wipe.
@@ -8,7 +19,7 @@ Rutas: `src/lib/db/{client,ensure-indexes,AGENTS.md}`, `src/config/env`, pruebas
 
 Validación: 1067 tests aprobados, 225 opt-in omitidos, cero fallos y 12317 aserciones. Mongo propio: 10 tests de arranque/comando/matriz, 3 del operador personal, 3 de placements, 2 de provisión y 140 de repositorios/transacciones: 158 tests y 2277 aserciones, sin fallos. La matriz usa NODE_ENV real de producción/desarrollo/test y combinaciones de Vercel/rama; cubre arranque desde cero, repetición, actualización con documentos existentes, duplicados, definiciones incompatibles y destinos rechazados sin conexión. Lint de 978 archivos, tipos, Webpack y worker de 46 recursos aprobados. El primer build sin configuración falló por GOOGLE_CLIENT_ID ausente; repetido con valores ficticios y una URI loopback no operativa, sin credenciales del usuario, pasó.
 
-Código validado y confirmado en `int`; publicación pendiente. GitHub rechazó el push con la identidad SSH activa sin permisos de escritura. La revisión automática bloqueó seleccionar otra clave privada local sin autorización humana explícita; no se ha reintentado por otra vía. `origin/int` y `origin/main` siguen en d4d33a9; el checkout humano de `main` se conserva. No se ha conectado ni modificado directamente ninguna base del usuario, ni desplegado producción. Al promover y desplegar este cambio, el primer acceso a MongoDB de cada proceso aplica el registro completo. No transforma datos antiguos ni resuelve sus conflictos automáticamente. Entrada: 98% de 5h y 17% semanal; reservas 10%/1%. La petición está cerrada; el próximo corte general sigue siendo 19j1b, sin abrirlo en esta iteración.
+Publicación cerrada: el usuario autorizó expresamente la clave SSH personal existente y se publicó 383f2c3 en origin/int, con HEAD remoto verificado y sin cambiar la configuración global. El primer rechazo de credenciales quedó resuelto; main se conservó en d4d33a9 durante esa entrega. No se ha conectado ni modificado directamente ninguna base del usuario, ni desplegado producción. Al promover y desplegar este cambio, el primer acceso a MongoDB de cada proceso aplica el registro completo. No transforma datos antiguos ni resuelve sus conflictos automáticamente. Entrada: 98% de 5h y 17% semanal; reservas 10%/1%. La petición está cerrada; el próximo corte general sigue siendo 19j1b, sin abrirlo en esta iteración.
 
 
 ## 19g1a — Captura de orden preparada
