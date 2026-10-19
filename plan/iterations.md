@@ -1,5 +1,18 @@
 # Iteraciones de implementación
 
+## 19i3 — Orden de planes con evidencia portable
+
+Backup3 admite decisiones de orden con rama expected.incident propia: valida catálogo/decisión replanificados, originales superseded exactos, outcome frozen intacto y clausura de ACKs contra resultados aplicados y operaciones reales conservados. Reemplazo0/1 mantiene usuario/entidad/fecha/secuencia posterior/comando/depsvacías exactos; IDs globales centrales rechazan colisiones. No exige retroceder proyección actual ni convierte superseded en ACK.
+
+Ocho tests/35aserciones: roundtrip ambas elecciones, pendientes intentados/lateredits, ausencia oalteración deoriginal/outcome/reemplazo/recibo/catálogos/revisiones, prerequisitosDTO sin outcome yIDs. DoD1052pass/223skip/0fail/12227aserciones, lint966 sin avisos/tipos/Webpack/worker46/diff aprobados. Entrada69%5h/27%7d, reservas10%/1%, secuencial. Sin IO/writer/UI nuevos, DBusuario, índice o protocolo. Siguiente19i4 capturaTX9stores ywriter atómico con capacidad/counter/tail/IDs/replay/rollback nativo antes deNext/UI.
+
+
+## 19i3 — Delimitación de evidencia portable de orden de planes
+
+- Objetivo: backup3 íntegro de decisiones de orden antes de writer. target_paths: schemas/local-recurring-backup.ts, lib/backup/{placement-resolution-evidence,placement-resolution-backup.test,local-backup}.ts yplan/**. Dependencia19i2/30f9b1f publicado;69%5h/27%7d, reservas10%/1%, secuencial.
+- Aceptación: originales superseded exactos, outcome frozen y clausura de prerrequisitos con ACKs aplicados reales,0/1reemplazos exactos/sequence posterior/depsvacías. Catálogo completo replanificado, IDs globales centrales y evidencia actual distinta del snapshot histórico sin retroceder cambios posteriores. Superseded noACK y DTO ACK no prueba resultado.
+- Validación: roundtrip ambas elecciones, truncado/corrupción/catálogos/reemplazo/outcomes/prerrequisitos/IDs globales, pendingintentado tras respuesta perdida yediciones posteriores; DoD completo, commit/push/HEAD/cuotas. Sin IO/writer/UI/protocolo/índice nuevos; después TXcaptura9stores acreditada ypruebas IndexedDB reales.
+
 ## 19i2 — Decisión de orden preparada sin caller
 
 Contrato puro permite adoptar catálogo observado de placements o reaplicar sólo el último task.move exacto de la cadena revisada. Nuevo UUID y CAS de primaria observado; planner remoto común calcula reranking multirregistro/revisiones independientes, mientras proyección optimista conserva revisión conocida o0 si crea un rank nuevo. Rechaza efectos en vistas/otro grupo, primarias eliminadas, vecinos obsoletos y desbordamientos; en esos casos sólo adopción del catálogo conocido. No envía todo orden local ni inventa ACK. Recibo5MiB replanificable conserva toda cadena y decisión explícita, identidades/snapshot/cuenta exactos.

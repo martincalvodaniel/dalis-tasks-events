@@ -1,6 +1,7 @@
 import { assertBackupOwnership } from "@/lib/backup/backup-ownership"
 import { validateBackupImportEvidence } from "@/lib/backup/import-record"
 import { validateItemViewResolutionEvidence } from "@/lib/backup/item-view-resolution-evidence"
+import { validatePlacementResolutionEvidence } from "@/lib/backup/placement-resolution-evidence"
 import { validatePlanCategoryResolutionEvidence } from "@/lib/backup/plan-category-resolution-evidence"
 import { validateTagDeletionResolutionEvidence } from "@/lib/backup/tag-delete-resolution-evidence"
 import { validateTagOrderResolutionEvidence } from "@/lib/backup/tag-order-resolution-evidence"
@@ -219,6 +220,8 @@ function validateBackup(
   )
   const superseded = new Set<string>()
   for (const record of s.syncMetadata) {
+    if (record.key.startsWith("placement-resolution:"))
+      validatePlacementResolutionEvidence(record, actor, entries, outcomes)
     if (record.key.startsWith("tag-delete-resolution:"))
       validateTagDeletionResolutionEvidence(record, actor, entries, outcomes)
     if (record.key.startsWith("tag-order-resolution:"))
