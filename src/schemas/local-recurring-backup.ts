@@ -13,6 +13,7 @@ import {
 import { remoteShadowSchema } from "@/schemas/local-sync"
 import { placementResolutionRecordSchema } from "@/schemas/placement-resolution"
 import { planCategoryResolutionRecordSchema } from "@/schemas/plan-category-resolution"
+import { planOccurrenceCohortResolutionRecordSchema } from "@/schemas/plan-occurrence-cohort-resolution"
 import { planOccurrenceResolutionRecordSchema } from "@/schemas/plan-occurrence-resolution"
 import { settingsResolutionRecordSchema } from "@/schemas/settings-resolution"
 import { tagDeletionResolutionRecordSchema } from "@/schemas/tag-delete-resolution"
@@ -39,6 +40,7 @@ export const localRecurringBackupV3Schema = localBackupV2Schema.extend({
           tagDeletionResolutionRecordSchema,
           planCategoryResolutionRecordSchema,
           planOccurrenceResolutionRecordSchema,
+          planOccurrenceCohortResolutionRecordSchema,
         ])
       )
       .max(10000),

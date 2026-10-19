@@ -1,5 +1,13 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19j3a — Evidencia portable de recuperación conjunta
+
+Backup3 admite la decisión multi-slot y valida contra historia durable: originales superseded exactos, outcomes citados y prerrequisitos aplicados reales, cadena nueva completa con payload/usuario/fecha/secuencias/dependencias exactos. Un snapshot de ACK no sustituye el outcome. Las decisiones no pueden compartir originales ni reutilizar identidades; la guardia de propiedad exclusiva también protege las familias anteriores.
+
+Diez tests nuevos/42 aserciones: adopción/reintento, roundtrip, pending intentado sin ACK, ediciones posteriores permitidas, evidencia truncada/alterada, prerrequisitos y decisiones duplicadas. Cada resultado aplicado producido por los planners remotos/locales existentes conserva un backup válido durante toda la cadena de cuatro comandos, con tres originales superseded. Esto prueba codec y proyección pura; no añade IO ni acredita nuevos recibos Mongo/Next. Se corrigió el estrechamiento de tipo de la fixture de aparición común tras detectar tsc el acceso a content en una unión.
+
+DoD1102pass/225opt-in skip/0fail/12466aserciones, lint994 sin avisos/tipos/Webpack/worker46/diff aprobados. Entrada50%5h/9%7d, reservas10%/1%, secuencial. Rutas schemas/local-recurring-backup.ts y lib/backup, sin writer/caller/UI/protocolo/índice nuevos. Siguiente19j3b: captura y escritura atómicas en IndexedDB con relectura completa, IDs/capacidad/counter/replay y rollback nativos; después prueba Mongo/Next y UI según dependencias.
+
 ## 19j2 — Decisión conjunta de varias apariciones
 
 Planner puro permite adoptar todos los remotos revisados, sin reemplazos, o reconstruir todos los borradores como una sola cadena nueva de comandos existentes. Cada slot calcula su CAS desde su revisión remota, no desde el índice global; la siguiente fecha depende de la última operación de la anterior. Las originales y sus dependencias permanecen exactas en la evidencia; la supersesión sólo se declara, sin escrituras ni ACK.

@@ -3,6 +3,7 @@ import { validateBackupImportEvidence } from "@/lib/backup/import-record"
 import { validateItemViewResolutionEvidence } from "@/lib/backup/item-view-resolution-evidence"
 import { validatePlacementResolutionEvidence } from "@/lib/backup/placement-resolution-evidence"
 import { validatePlanCategoryResolutionEvidence } from "@/lib/backup/plan-category-resolution-evidence"
+import { validatePlanOccurrenceCohortResolutionEvidence } from "@/lib/backup/plan-occurrence-cohort-resolution-evidence"
 import { validateTagDeletionResolutionEvidence } from "@/lib/backup/tag-delete-resolution-evidence"
 import { validateTagOrderResolutionEvidence } from "@/lib/backup/tag-order-resolution-evidence"
 import { decodeLocalOperationOutcome } from "@/lib/sync/local-operation-outcome-v2"
@@ -220,6 +221,22 @@ function validateBackup(
   )
   const superseded = new Set<string>()
   for (const record of s.syncMetadata) {
+    if ("replacements" in record) {
+      const decision = validatePlanOccurrenceCohortResolutionEvidence(
+        record,
+        actor,
+        entries,
+        outcomes
+      )
+      for (const id of decision.supersededOperationIds) {
+        if (superseded.has(id))
+          throw new Error(
+            "Backup intention belongs to multiple recovery decisions"
+          )
+        superseded.add(id)
+      }
+      continue
+    }
     if (record.key.startsWith("placement-resolution:"))
       validatePlacementResolutionEvidence(record, actor, entries, outcomes)
     if (record.key.startsWith("tag-delete-resolution:"))
@@ -339,6 +356,10 @@ function validateBackup(
               )))
         )
           throw new Error("Backup decision is missing its original outcome")
+        if (superseded.has(id))
+          throw new Error(
+            "Backup intention belongs to multiple recovery decisions"
+          )
         superseded.add(id)
       }
       if (
