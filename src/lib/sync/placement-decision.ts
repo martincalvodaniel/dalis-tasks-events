@@ -1,4 +1,4 @@
-import { planRemoteTaskPlacementOperation } from "@/lib/preferences/remote-task-placement-plan"
+import { planRemoteRecurringTaskPlacementOperation } from "@/lib/preferences/remote-recurring-task-placement-plan"
 import { validatePlacementResolutionSnapshot } from "@/lib/sync/placement-resolution"
 import { taskPlacementEntityKey } from "@/schemas/ordering"
 import {
@@ -37,14 +37,14 @@ function previewLatestMovement(
       baseRevision: primary.revision,
       command,
     }),
-    planned = planRemoteTaskPlacementOperation(
+    planned = planRemoteRecurringTaskPlacementOperation(
       {
         userId: snapshot.incident.entry.userId,
         timestamp,
         operation: replacement,
         ...snapshot.observed,
       },
-      true
+      false
     )
   if (
     planned.status !== "changes" ||

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test"
 import { placementResolutionFixture } from "@/lib/backup/placement-resolution-fixture"
-import { planRemoteTaskPlacementOperation } from "@/lib/preferences/remote-task-placement-plan"
+import { planRemoteRecurringTaskPlacementOperation } from "@/lib/preferences/remote-recurring-task-placement-plan"
 import {
   availablePlacementResolutionChoices,
   planPlacementIncidentResolution,
@@ -80,14 +80,14 @@ test("overdue retry preserves the exact declared civil date, not a new wall cloc
   expect(record.placements.every((value) => value.date === "0001-01-01")).toBe(
     true
   )
-  const remote = planRemoteTaskPlacementOperation(
+  const remote = planRemoteRecurringTaskPlacementOperation(
     {
       userId: f.actor,
       timestamp: "2030-01-01T00:00:00.000Z",
       operation: record.replacement,
       ...f.observed,
     },
-    true
+    false
   )
   expect(remote.status).toBe("changes")
 })
@@ -172,14 +172,14 @@ test("reranking uses multiple independent remote effects and retains acknowledge
       incident: { ...f.capture.incident, intentions: [f.entry, child] },
     }),
     record = planPlacementIncidentResolution(request(snapshot), snapshot),
-    remote = planRemoteTaskPlacementOperation(
+    remote = planRemoteRecurringTaskPlacementOperation(
       {
         userId: f.actor,
         timestamp: record.createdAt,
         operation: record.replacement,
         ...snapshot.observed,
       },
-      true
+      false
     )
   expect(remote.status).toBe("changes")
   if (remote.status !== "changes") throw new Error("Expected reranking effects")

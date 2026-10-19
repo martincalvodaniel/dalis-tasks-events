@@ -1,4 +1,4 @@
-import { planRemoteTaskPlacementOperation } from "@/lib/preferences/remote-task-placement-plan"
+import { planRemoteRecurringTaskPlacementOperation } from "@/lib/preferences/remote-recurring-task-placement-plan"
 import { capturePlacementResolutionSnapshot } from "@/lib/sync/placement-resolution"
 import { projectRecurringSettingsSyncIncidentOverview } from "@/lib/sync/recurring-incident-snapshot"
 import { localPreferenceOutcomeV2Schema } from "@/schemas/local-preference-outcome-v2"
@@ -99,8 +99,8 @@ export function placementResolutionFixture(
         command: { ...command, beforeId: null, afterId: items[2].id },
       },
     }),
-    base = { items, tags: [], views, placements: original },
-    observedPlan = planRemoteTaskPlacementOperation(
+    base = { items, occurrences: [], tags: [], views, placements: original },
+    observedPlan = planRemoteRecurringTaskPlacementOperation(
       {
         userId: actor,
         timestamp: now,
@@ -111,11 +111,11 @@ export function placementResolutionFixture(
           command: { ...command, beforeId: items[2].id, afterId: items[1].id },
         },
       },
-      true
+      false
     ),
-    localPlan = planRemoteTaskPlacementOperation(
+    localPlan = planRemoteRecurringTaskPlacementOperation(
       { userId: actor, timestamp: now, ...base, operation: child.operation },
-      true
+      false
     )
   if (observedPlan.status !== "changes" || localPlan.status !== "changes")
     throw new Error("Placement fixture planner failed")

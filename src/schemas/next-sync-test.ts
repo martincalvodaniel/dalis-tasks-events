@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { itemViewResolutionRequestSchema } from "@/schemas/item-view-resolution"
+import { placementResolutionRequestSchema } from "@/schemas/placement-resolution"
 import { planCategoryResolutionRequestSchema } from "@/schemas/plan-category-resolution"
 import { planCommandSchema } from "@/schemas/plan-command"
 import { planSchema } from "@/schemas/plan-item"
@@ -146,6 +147,7 @@ export const nextSettingsProofScopeSchema = z
     "joint-ui",
     "assignment",
     "assignment-series",
+    "placement",
     "tag-delete",
     "tag-delete-ui",
     "tag-order",
@@ -153,6 +155,27 @@ export const nextSettingsProofScopeSchema = z
   ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("placement-comparison"),
+    operationId: entityIdSchema,
+  }),
+  z.strictObject({
+    type: z.literal("resolve-placement"),
+    request: placementResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("placement-guard-proof"),
+    request: placementResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("commit-simple-move"),
+    operationId: entityIdSchema,
+    command: syncCommandSchema.refine(
+      (command) =>
+        command.type === "task.move" && command.occurrenceId === null,
+      "Simple movement fixture excludes appearances"
+    ),
+  }),
   z.strictObject({
     type: z.literal("resolve-tag-delete-ui"),
     request: tagDeletionResolutionRequestSchema,

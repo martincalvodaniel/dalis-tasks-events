@@ -1,4 +1,6 @@
 "use client"
+import {moveLocalPlan} from "@/features/plans/local-plans"
+import {readPlacementIncidentComparison,resolvePlacementIncident} from "@/features/sync/local-placement-resolution"
 import { proveTagDeletionResolutionUi } from "@fixture/tag-delete-resolution-ui"
 import { readTagDeletionIncidentComparison,resolveTagDeletionIncident } from "@/features/sync/local-tag-delete-resolution"
 import { proveTagOrderResolutionUi } from "@fixture/tag-order-resolution-ui"
@@ -581,6 +583,25 @@ export async function executeLocalFixtureCommand(
     case "resolve-assignment-ui":
       return proveItemViewResolutionUi(active,command.request)
     case "resolve-tag-delete-ui":return proveTagDeletionResolutionUi(active,command.request)
+    case "commit-simple-move": {
+      if(command.command.type!=="task.move"||command.command.occurrenceId!==null)throw new Error("Simple movement fixture command changed")
+      await moveLocalPlan({...active,itemCount:0,offlineReady:false},command.command,command.operationId)
+      const entry=(await readFixtureBackup(active)).stores.outbox.find(entry=>entry.operation.operationId===command.operationId)
+      if(!entry)throw new Error("Real simple movement producer lost its intention")
+      return entry
+    }
+    case "placement-comparison":return readPlacementIncidentComparison(active,command.operationId)
+    case "resolve-placement":return resolvePlacementIncident(active,command.request)
+    case "placement-guard-proof": {
+      const before=JSON.stringify((await readFixtureBackup(active)).stores),expected=structuredClone(command.request.expected);expected.local.placements[0].position++
+      let checks=0
+      for(const work of [()=>resolvePlacementIncident({...active,epoch:crypto.randomUUID()},command.request),()=>resolvePlacementIncident(active,{...command.request,userId:"owned-foreign-placement"}),()=>resolvePlacementIncident(active,{...command.request,expected})]){
+        let failed=false;try{await work()}catch{failed=true}
+        if(!failed||before!==JSON.stringify((await readFixtureBackup(active)).stores))throw new Error("Placement feature guard changed durable state")
+        checks++
+      }
+      return {checks}
+    }
     case "tag-delete-comparison":return readTagDeletionIncidentComparison(active,command.operationId)
     case "resolve-tag-delete":return resolveTagDeletionIncident(active,command.request)
     case "tag-delete-guard-proof": {

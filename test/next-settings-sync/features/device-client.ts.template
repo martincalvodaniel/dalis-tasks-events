@@ -131,6 +131,10 @@ async function execute(
   if (
     [
       "resolve-tag-delete-ui",
+      "commit-simple-move",
+      "placement-comparison",
+      "resolve-placement",
+      "placement-guard-proof",
       "tag-delete-comparison",
       "resolve-tag-delete",
       "tag-delete-guard-proof",

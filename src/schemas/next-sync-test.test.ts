@@ -358,3 +358,44 @@ test("category deletion fixture scope and commands reject unreviewed inputs", ()
   ])
     expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
 })
+
+test("simple placement fixture scope and producer preserve the explicit movement boundary", () => {
+  expect(nextSettingsProofScopeSchema.parse("placement")).toBe("placement")
+  const operationId = crypto.randomUUID(),
+    itemId = crypto.randomUUID(),
+    command = {
+      type: "task.move",
+      itemId,
+      occurrenceId: null,
+      scope: "day",
+      date: "2026-10-19",
+      tagId: null,
+      beforeId: null,
+      afterId: null,
+    } as const
+  expect(
+    nextSyncDeviceCommandSchema.parse({
+      type: "commit-simple-move",
+      operationId,
+      command,
+    })
+  ).toEqual({ type: "commit-simple-move", operationId, command })
+  expect(
+    nextSyncDeviceCommandSchema.parse({
+      type: "placement-comparison",
+      operationId,
+    })
+  ).toEqual({ type: "placement-comparison", operationId })
+  for (const invalid of [
+    {
+      type: "commit-simple-move",
+      operationId,
+      command: { ...command, occurrenceId: `${itemId}:2026-10-19` },
+    },
+    { type: "placement-comparison", operationId: "invalid" },
+    { type: "placement-comparison", operationId, database: "production" },
+    { type: "resolve-placement", request: {} },
+    { type: "placement-guard-proof", request: {} },
+  ])
+    expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
+})

@@ -1,5 +1,24 @@
 # Iteraciones de implementación
 
+## 19i5 — Orden simple probado con productor real y RPC6
+
+Once escenarios Next6 focalizados (`placement`) pasan con acción/defaults reales, sesiones BetterAuth persistidas y dos orígenes IndexedDB/Mongo propios. moveLocalPlan productivo crea la cadena exacta conflict+hijo; cuatro variantes/day/overdue con adopción y3retry conservan UUID/payload/dependencias, producen pérdida después decommit/recarga/mismoUUIDpendingattempt1→ACKrealattempt2 único. Catálogos completos deplacements, sombras ycursor exactos frente aMongo, otrasfamilias intactas yreplay durable sinretroceso. Scopevalidado, full33 disponible sinatribuir ejecucióncompleta; noGoogle/físicos nuevos.
+
+La primera ejecución reveló vecinos recurrentes engrupo sincategoría delbaseline. Se incorpora contexto deapariciones local/observado íntegro yreutiliza planner recurrente6 activo; guardia explícita bloquea grupo revisado quecontenga serie viva. Fixture usa categoría propia yconserva serie ajena enotrogrupo. Regresión pura depeer recurrente y31tests focalizados/177aserciones aprobados; nuevechecks IndexedDB repetidos pasan trasajuste decaptura. No relajar vecinos ni reinterpretar cola paraaprobar. Cambios sólo preparatorios; no existían recibosdeorden deusuario que migrar. Se corrigió además estrechamiento literal delcomando deltest yun reemplazo deformato quehabía cambiado unaaserción, conservando suvalor correcto.
+
+DoD1054pass/223skip/0fail/12236aserciones, lint970 sinavisos/tipos/Webpack/worker46/diff aprobados. Recursospropios limpios; capturas /private/tmp/dalis-placement-recovery-next.png y /private/tmp/dalis-placement-recovery-context.png. Siníndice/protocolo/DBusuario/UI. Entrada56%5h/25%7d, reservas10%/1%, secuencial; siguiente19i6 diálogo/caller guardado yambas elecciones conUI real antes depublicar, segúnmargen trascuotas.
+
+
+### Ajuste comprobado durante19i5
+
+La primera ejecución real llegó al catálogo mixto del productor6 y detectó vecinos recurrentes enelgrupo sin categoría. No se relaja validación de vecinos: elcontrato preparatorio incorpora apariciones locales/observadas exactas y reutiliza planner recurrente6 activo, con guardia explícita contra series vivas dentro del grupo revisado. La fixture separa sus planes en categoría propia, conservando la serie ajena del baseline enotra categoría. Se añade regresión pura depeer recurrente enelgrupo. Rutas adicionales justificadas: schemas/placement-resolution.ts, lib/sync/{placement-resolution,placement-decision}{,.test}.ts, lib/backup/placement-resolution-fixture.ts, lib/local-db/placement-resolution-capture.ts. Repetir IndexedDB9 yDoD después deNext; seguir sincallerUI hastaaceptación. No migración: registros preparados deorden sólo existieron enDBs de prueba ya limpiadas.
+
+## 19i5 — Delimitación de prueba remota de orden recuperado
+
+- Objetivo: demostrar recuperación de orden simple con productor real moveLocalPlan y RPCNext6/defaults/BetterAuth/dos particionesIndexedDB/Mongo propios antes de UI. target_paths: schemas/next-sync-test{,.test}.ts, templates Next {placement-recovery,local-client,device-client,controller} yplan/**. Dependencias19i4/dff14ef cerrado;56%5h/25%7d, reservas10%/1%, secuencial.
+- Aceptación: cuatro variantes, day yoverdue, cadena originalconflict+hijo exactos, CAS concurrente, actor/epoch/stale sinwrites; adopción oúltimomovimiento sólo delgrupo. Replaytrasrespuesta perdida/recarga mismoUUID→ACK real único; vecinos/revisiones/proyecciones/cursor exactos yotrasfamilias intactas. Scope estricto placement/full33 disponible. Productor fixture commit-local usa legacytaskmove: añadir comando explícito simple que invoque moveLocalPlan productivo, no relajar legado.
+- Validación: schema/matriz, Docker/imagenpinned revalidados, runnerNext6 real focalizado11, cleanup yDoD raíz después de borrar proyectoNexttemporal. SinGoogle/físicos nuevos niíndice/protocolo/callerUI.
+
 ## 19i4 — Orden simple con decisión local atómica
 
 CapturaTX9stores reconstruye todos los catálogos locales/sombras, cola y resultado congelado, y acredita prerrequisitos ACK con outcomes aplicados antes de comparar o escribir. Writer guarda placements elegidos, cadena original superseded exacta,0/1reemplazo pending, counter/tail/recibo en una única TX. Guardias de partición/cuenta/época/snapshot, IDs globales/capacidad/counter/tail antes de writes; replay previo valida recibo y no retrocede ediciones posteriores ni notifica. No altera contenido/vistas/categorías/apariciones/settings/outcomes/sombras.

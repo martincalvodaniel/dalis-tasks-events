@@ -46,6 +46,7 @@ export function queueLocalPlacementResolutionCapture(
       )
         throw new Error("Placement incident is no longer unresolved")
       const names = [
+          "occurrences",
           "items",
           "tags",
           "itemViews",
@@ -68,10 +69,19 @@ export function queueLocalPlacementResolutionCapture(
             tags: unknown[]
             views: unknown[]
             placements: unknown[]
-          } = { items: [], tags: [], views: [], placements: [] }
-          for (const raw of reads[4].result) {
+            occurrences: unknown[]
+          } = {
+            items: [],
+            tags: [],
+            views: [],
+            placements: [],
+            occurrences: [],
+          }
+          for (const raw of reads[5].result) {
             const shadow = decodeRemoteRecurringShadow(raw, userId)
-            if (shadow.kind === "item") observed.items.push(shadow.record)
+            if (shadow.kind === "plan-occurrence")
+              observed.occurrences.push(shadow.record)
+            else if (shadow.kind === "item") observed.items.push(shadow.record)
             else if (shadow.kind === "preference") {
               if (shadow.record.store === "tags")
                 observed.tags.push(shadow.record.record)
@@ -86,10 +96,11 @@ export function queueLocalPlacementResolutionCapture(
               incident: found.incident,
               entries,
               local: {
-                items: reads[0].result,
-                tags: reads[1].result,
-                views: reads[2].result,
-                placements: reads[3].result,
+                occurrences: reads[0].result,
+                items: reads[1].result,
+                tags: reads[2].result,
+                views: reads[3].result,
+                placements: reads[4].result,
               },
               observed,
             }),

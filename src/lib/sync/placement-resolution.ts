@@ -7,7 +7,7 @@ import {
   placementResolutionCaptureSchema,
   placementResolutionSnapshotSchema,
 } from "@/schemas/placement-resolution"
-import { remoteTaskPlacementPlanningInputSchema } from "@/schemas/remote-task-placement-planning"
+import { remoteRecurringTaskPlacementPlanningInputSchema } from "@/schemas/recurring-task-placement-planning"
 import type { OutboxEntry } from "@/types/local-sync"
 import type {
   PlacementResolutionCatalog,
@@ -22,6 +22,7 @@ function canonicalCatalog(
   input: PlacementResolutionCatalog
 ): PlacementResolutionCatalog {
   return {
+    occurrences: input.occurrences.toSorted((a, b) => a.id.localeCompare(b.id)),
     items: input.items.toSorted((a, b) => a.id.localeCompare(b.id)),
     tags: input.tags.toSorted((a, b) => a.id.localeCompare(b.id)),
     views: input.views.toSorted((a, b) => a.itemId.localeCompare(b.itemId)),
@@ -128,13 +129,13 @@ export function validatePlacementResolutionSnapshot(
       "Placement comparison identities or catalog order are inconsistent"
     )
   for (const catalog of [local, observed])
-    remoteTaskPlacementPlanningInputSchema.parse({
+    remoteRecurringTaskPlacementPlanningInputSchema.parse({
       userId: actor,
       timestamp: incident.entry.createdAt,
       operation: incident.entry.operation,
       ...catalog,
     })
-  for (const field of ["items", "tags", "views"] as const)
+  for (const field of ["items", "tags", "views", "occurrences"] as const)
     if (!same(local[field], observed[field]))
       throw new Error(
         "Placement recovery cannot replace content, categories or assignments"
@@ -167,6 +168,25 @@ export function validatePlacementResolutionSnapshot(
   )
     throw new Error(
       "Placement recovery cannot change its reviewed category group"
+    )
+  if (
+    observed.items.some(
+      (item) =>
+        item.kind === "plan" &&
+        item.recurrence &&
+        !item.deletedAt &&
+        (() => {
+          const view = observed.views.find((view) => view.itemId === item.id)
+          return (
+            (view?.primaryTagId && activeTags.has(view.primaryTagId)
+              ? view.primaryTagId
+              : null) === command.tagId
+          )
+        })()
+    )
+  )
+    throw new Error(
+      "Placement recovery cannot replace a group containing recurring plans"
     )
   const localByKey = new Map(
       local.placements.map((record) => [placementKey(record), record])

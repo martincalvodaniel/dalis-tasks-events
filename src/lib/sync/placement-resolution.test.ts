@@ -372,3 +372,28 @@ test("placement comparison refuses over-budget snapshots before any future persi
     )
   ).toThrow("byte limit")
 })
+
+test("a simple primary cannot recover a group containing a recurring peer", () => {
+  const f = placementResolutionFixture(),
+    items = f.items.map((item, index) =>
+      index === 1
+        ? {
+            ...item,
+            recurrence: {
+              frequency: "daily",
+              interval: 1,
+              anchorDate: "2026-10-18",
+              timeZone: "Europe/Madrid",
+              end: { type: "never" },
+            },
+          }
+        : item
+    )
+  expect(() =>
+    capturePlacementResolutionSnapshot({
+      ...f.capture,
+      local: { ...f.local, items },
+      observed: { ...f.observed, items },
+    })
+  ).toThrow("group containing recurring")
+})

@@ -6,11 +6,13 @@ import {
   timestampSchema,
   userIdSchema,
 } from "@/schemas/primitives"
+import { recurringTaskPlacementPlanningInputSchema } from "@/schemas/recurring-task-placement-planning"
 import { taskPlacementPlanningInputSchema } from "@/schemas/remote-task-placement-planning"
 import { settingsIncidentSnapshotSchema } from "@/schemas/settings-resolution"
 import { syncOperationSchema } from "@/schemas/sync"
 
 export const placementResolutionCatalogSchema = z.strictObject({
+  occurrences: recurringTaskPlacementPlanningInputSchema.shape.occurrences,
   items: taskPlacementPlanningInputSchema.shape.items,
   tags: taskPlacementPlanningInputSchema.shape.tags,
   views: taskPlacementPlanningInputSchema.shape.views,
