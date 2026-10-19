@@ -1,5 +1,13 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19j3c — Frontera local de cuenta y notificación
+
+LocalSyncStore y featurecliente exponen comparación/resolución preparatorias multi-slot. Protocolo6, identidad yépoca se verifican antes deabrir, después deabrir ydespués deoperar; la conexión secierrasiempre. No ofrece aún nuevas elecciones UI. La cuenta decontrol está enotraDB: estas guardias son antes/después yno prometen cancelación atómica durante unaTX.
+
+Sólo unresultado aplicado tras oncomplete emite elaviso local deoutbox; replay/error noemiten. Quince checksIndexedDB nativos aprobados (treceanteriores más dosdelafrontera): actor/epochincorrectos yepochcambiada duranteopen noescriben niavisan, lectura readonly, fallo tardío sinaviso, commitdurable observado desdeelsuscriptor yunúnicoeventolocal, replay sinwrites/evento. BroadcastChannelpuedeentregar además elaviso deotrorreceptor: laprueba distingue esa entrega delúnicoeventolocal, sinintroducir deduplicación ajena. Partición ycontrol propios eliminados, pestaña yservidor propios cerrados.
+
+DoD1102pass/225opt-in skip/0fail/12466aserciones, lint998 sinavisos/tipos/Webpack/worker46/diff aprobados. Tras ajustar sólo lafixture deavisos serepitieron pruebanativa/lint/tipos; bundleproductivo sin cambiosadicionales. Entrada32%5h/6%7d, reservas10%/1%, secuencial. Rutas sync-store.ts, features/sync/local-plan-occurrence-cohort-resolution.ts, browserproof yplan. Sin nuevotransporte, protocolo, índice, UI odependencia. Siguiente19j4: productoresreales yRPCNext6/Mongo/dosparticiones para conflictos multi-slot, respuesta perdida/recarga/replay/ACKúnico yproyeccionesexactas; después19j5UI revisable.
+
 ## 19j3b — Persistencia atómica de recuperación multi-slot
 
 Captura readonly y writer preparatorio en una TX9stores. Relee padre actual, excepciones de la serie, cola completa ordenada porsecuencia, sombras youtcomes; la decisión requiere comparación exacta, prerrequisitos conoutcomes yclausura ya probados. Unslot conIDdelparent pero seriesIdcorrupto no se oculta como borrador ausente. La escritura conserva todas las originales, supersede sólo lacohorte y guarda0/Nreemplazos, todas las excepciones elegidas, contador yrecibo enel mismo commit IndexedDB.

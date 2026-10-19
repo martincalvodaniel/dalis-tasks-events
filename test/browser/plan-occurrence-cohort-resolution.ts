@@ -1,8 +1,19 @@
+import {
+  readPlanOccurrenceCohortComparison,
+  resolvePlanOccurrenceCohort,
+} from "@/features/sync/local-plan-occurrence-cohort-resolution"
 import { planOccurrenceCohortResolutionFixture } from "@/lib/backup/plan-occurrence-cohort-resolution-fixture"
+import {
+  ACCOUNT_CONTROL_DATABASE,
+  activatePreparedAccount,
+  readAccountControl,
+} from "@/lib/local-db/account-control"
 import { readLocalRecurringBackup } from "@/lib/local-db/backup"
 import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
 import { readLocalPlanOccurrenceCohortComparison } from "@/lib/local-db/plan-occurrence-cohort-capture"
 import { resolveLocalPlanOccurrenceCohort } from "@/lib/local-db/plan-occurrence-cohort-resolution"
+import { subscribeLocalOutboxChanges } from "@/lib/local-db/sync-notifications"
+import { LocalSyncStore } from "@/lib/local-db/sync-store"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import { planOccurrenceCohortRetryOperationCount } from "@/lib/sync/plan-occurrence-cohort-resolution"
 import { entityIdSchema } from "@/schemas/primitives"
@@ -29,7 +40,9 @@ async function run() {
   let database = await openLocalDatabase(actor)
   const f = planOccurrenceCohortResolutionFixture(true, false, actor)
   const stores = [...database.objectStoreNames]
-  let checks = 0
+  let checks = 0,
+    notices = 0
+  const unsubscribe = subscribeLocalOutboxChanges(actor, () => notices++)
   async function seed(source = f.source) {
     await runLocalTransaction(database, stores, "readwrite", (context) => {
       for (const key of stores) context.transaction.objectStore(key).clear()
@@ -102,7 +115,8 @@ async function run() {
     }
   }
   async function rejected(work: () => Promise<unknown>) {
-    const before = await raw()
+    const before = await raw(),
+      beforeNotices = notices
     let failed = false
     try {
       await work()
@@ -110,7 +124,7 @@ async function run() {
       failed = true
     }
     assert(
-      failed && before === (await raw()),
+      failed && before === (await raw()) && beforeNotices === notices,
       "Rejected cohort operation mutated its partition"
     )
   }
@@ -121,6 +135,20 @@ async function run() {
     const row = document.createElement("li")
     row.textContent = `Correcto: ${label}`
     document.getElementById("results")?.append(row)
+  }
+  async function clearOwnedControl() {
+    const control = await readAccountControl()
+    assert(
+      control.userId === null || control.userId === actor,
+      "Control belongs to another identity"
+    )
+    await new Promise<void>((resolve, reject) => {
+      const deletion = indexedDB.deleteDatabase(ACCOUNT_CONTROL_DATABASE)
+      deletion.onsuccess = () => resolve()
+      deletion.onerror = () => reject(deletion.error)
+      deletion.onblocked = () =>
+        reject(new Error("Owned control cleanup blocked"))
+    })
   }
   try {
     await check(
@@ -477,8 +505,141 @@ async function run() {
         )
       }
     )
+    await check(
+      "Cuenta y época antes y después de apertura protegen lectura y decisión",
+      async () => {
+        await clearOwnedControl()
+        const prior = await readAccountControl(),
+          control = await activatePreparedAccount(
+            actor,
+            f.request.createdAt,
+            prior.epoch
+          )
+        const account = { userId: actor, epoch: control.epoch },
+          input = await request()
+        const before = await raw()
+        await readPlanOccurrenceCohortComparison(account, f.source.operationId)
+        assert(before === (await raw()), "Feature comparison mutated storage")
+        await rejected(() =>
+          readPlanOccurrenceCohortComparison(
+            { ...account, epoch: crypto.randomUUID() },
+            f.source.operationId
+          )
+        )
+        await rejected(() =>
+          resolvePlanOccurrenceCohort(
+            { ...account, epoch: crypto.randomUUID() },
+            input
+          )
+        )
+        await rejected(() =>
+          resolvePlanOccurrenceCohort(account, { ...input, userId: "foreign" })
+        )
+        const open = LocalSyncStore.open
+        LocalSyncStore.open = async (id: string) => {
+          const store = await open(id),
+            current = await readAccountControl()
+          await activatePreparedAccount(
+            actor,
+            f.request.createdAt,
+            current.epoch
+          )
+          return store
+        }
+        try {
+          await rejected(() =>
+            readPlanOccurrenceCohortComparison(account, f.source.operationId)
+          )
+          const current = await readAccountControl()
+          await rejected(() =>
+            resolvePlanOccurrenceCohort(
+              { userId: actor, epoch: current.epoch },
+              input
+            )
+          )
+        } finally {
+          LocalSyncStore.open = open
+        }
+      }
+    )
+    await check(
+      "Commit durable emite un aviso local; fallo y replay no emiten",
+      async () => {
+        const control = await readAccountControl(),
+          account = { userId: actor, epoch: control.epoch },
+          input = await request()
+        const add = IDBObjectStore.prototype.add
+        IDBObjectStore.prototype.add = function (
+          value: unknown,
+          key?: IDBValidKey
+        ) {
+          if (
+            this.transaction.db.name === name &&
+            this.name === "syncMetadata" &&
+            value &&
+            typeof value === "object" &&
+            "key" in value &&
+            String(value.key).startsWith("appearance-cohort-resolution:")
+          )
+            throw new Error("Owned feature rollback")
+          return add.call(this, value, key)
+        }
+        try {
+          await rejected(() => resolvePlanOccurrenceCohort(account, input))
+        } finally {
+          IDBObjectStore.prototype.add = add
+        }
+        let localNotices = 0
+        const localNotice = (event: Event) => {
+          if (event instanceof CustomEvent && event.detail?.userId === actor)
+            localNotices++
+        }
+        window.addEventListener("dalis:outbox-changed", localNotice)
+        const count = notices,
+          observed: Promise<boolean>[] = []
+        const stop = subscribeLocalOutboxChanges(actor, () => {
+          observed.push(
+            readLocalRecurringBackup(database, actor, f.request.createdAt).then(
+              (backup) =>
+                backup.stores.syncMetadata.some(
+                  (value) =>
+                    value.key ===
+                    `appearance-cohort-resolution:${input.resolutionId}`
+                )
+            )
+          )
+        })
+        try {
+          assert(
+            (await resolvePlanOccurrenceCohort(account, input)).status ===
+              "applied" &&
+              localNotices === 1 &&
+              notices > count,
+            "Commit notification missing or duplicated"
+          )
+          assert(
+            observed.length >= 1 &&
+              (await Promise.all(observed)).every(Boolean),
+            "Notification preceded durable decision"
+          )
+          const later = await raw()
+          assert(
+            (await resolvePlanOccurrenceCohort(account, input)).status ===
+              "replayed" &&
+              localNotices === 1 &&
+              later === (await raw()),
+            "Replay wrote or notified"
+          )
+        } finally {
+          window.removeEventListener("dalis:outbox-changed", localNotice)
+          stop()
+        }
+      }
+    )
   } finally {
+    unsubscribe()
     database.close()
+    await clearOwnedControl()
     await new Promise<void>((resolve, reject) => {
       const deletion = indexedDB.deleteDatabase(name)
       deletion.onsuccess = () => resolve()
@@ -487,7 +648,7 @@ async function run() {
         reject(new Error("Owned cohort cleanup blocked"))
     })
   }
-  status.textContent = `${checks} pruebas correctas; partición propia eliminada`
+  status.textContent = `${checks} pruebas correctas; partición y control propios eliminados`
 }
 run().catch((error) => {
   status.textContent = error instanceof Error ? error.message : String(error)

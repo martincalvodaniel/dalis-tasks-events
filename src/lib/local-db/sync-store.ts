@@ -7,6 +7,8 @@ import { resolveLocalPlacementIncident } from "@/lib/local-db/placement-resoluti
 import { readLocalPlacementResolutionSnapshot } from "@/lib/local-db/placement-resolution-capture"
 import { resolveLocalPlanCategoryIncident } from "@/lib/local-db/plan-category-resolution"
 import { readLocalPlanCategoryResolutionSnapshot } from "@/lib/local-db/plan-category-resolution-capture"
+import { readLocalPlanOccurrenceCohortComparison } from "@/lib/local-db/plan-occurrence-cohort-capture"
+import { resolveLocalPlanOccurrenceCohort } from "@/lib/local-db/plan-occurrence-cohort-resolution"
 import { resolveLocalPlanOccurrenceIncident } from "@/lib/local-db/plan-occurrence-resolution"
 import { applyLocalChangesPage } from "@/lib/local-db/pull-changes"
 import { readLocalSyncQueueSummary } from "@/lib/local-db/queue-summary"
@@ -114,6 +116,25 @@ export class LocalSyncStore {
       recurring,
       allowSettings,
       allowPlans
+    ).then((result) => {
+      if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+      return result
+    })
+  }
+
+  readPlanOccurrenceCohortComparison(operationId: string) {
+    return readLocalPlanOccurrenceCohortComparison(
+      this.database,
+      this.userId,
+      operationId
+    )
+  }
+
+  resolvePlanOccurrenceCohort(input: unknown) {
+    return resolveLocalPlanOccurrenceCohort(
+      this.database,
+      this.userId,
+      input
     ).then((result) => {
       if (result.status === "applied") notifyLocalOutboxChange(this.userId)
       return result
