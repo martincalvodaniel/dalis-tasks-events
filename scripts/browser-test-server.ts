@@ -21,6 +21,7 @@ if (
   suite !== "tag-resolution" &&
   suite !== "tag-order-resolution" &&
   suite !== "tag-delete-resolution" &&
+  suite !== "placement-resolution" &&
   suite !== "item-view-resolution" &&
   suite !== "resolution-capacity" &&
   suite !== "plan-category-capture" &&

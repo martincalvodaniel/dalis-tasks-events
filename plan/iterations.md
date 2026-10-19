@@ -1,5 +1,20 @@
 # Iteraciones de implementación
 
+## 19i4 — Orden simple con decisión local atómica
+
+CapturaTX9stores reconstruye todos los catálogos locales/sombras, cola y resultado congelado, y acredita prerrequisitos ACK con outcomes aplicados antes de comparar o escribir. Writer guarda placements elegidos, cadena original superseded exacta,0/1reemplazo pending, counter/tail/recibo en una única TX. Guardias de partición/cuenta/época/snapshot, IDs globales/capacidad/counter/tail antes de writes; replay previo valida recibo y no retrocede ediciones posteriores ni notifica. No altera contenido/vistas/categorías/apariciones/settings/outcomes/sombras.
+
+Nueve checks IndexedDB propios aprobados: readonly/reapertura, actor/stale/sombra ausente, rollback tardío de todos los stores, otro pending protegido, IDs/overflow/tail/capacidad contando tail ausente, ACKDTOvsoutcome aplicado, retry sinACK/replay posterior y adopción sin nuevo contador. Backup3 válido en resultados; evidencia /private/tmp/dalis-placement-recovery-native.png. Fixture corregida para liberar primero las secuencias antes de insertar ACKancestro, y no asumir una sola entrega de aviso cuando existen evento local y BroadcastChannel. No se modificó producto para ocultar esos fallos del test. Partición/pestaña/servidor propios retirados.
+
+DoD1052pass/223skip/0fail/12227aserciones, lint970 sin avisos/tipos/Webpack/worker46/diff aprobados; lint/tipos repetidos tras ajuste final de aserción nativa, build y suite productiva sin cambio semántico adicional. Entrada65%5h/26%7d, reservas10%/1%, secuencial. Sin nuevo índice/protocolo/DBusuario/UI. Siguiente19i5: productores task.move reales y Next6/Mongo/dos particiones con CAS, pérdida/replay/ACK único y catálogo exacto, luego19i6 UI revisada.
+
+
+## 19i4 — Delimitación de transacción local de orden de planes
+
+- Objetivo: captura readonly ydecisión durable deorden simple enTX9stores antes deNext/UI. target_paths: lib/local-db/{placement-resolution-capture,placement-resolution,sync-store}.ts, features/sync/local-placement-resolution.ts, scripts/browser-test-server.ts, test/browser/placement-resolution.ts yplan/**. Dependencia19i3/e9a6f9a cerrado;65%5h/26%7d, reservas10%/1%, secuencial.
+- Aceptación: reconstruir catálogos/cola/outcomes/sombras yacreditar ACKs enmismaTX; guardias partición/cuenta/época. Catálogo elegido, originales superseded exactos,0/1reemplazo pending, counter/tail/recibo atómicos; capacidad postwrite, IDs globales ymetadatos antes deescribir. Replay previo no reescribe cambios posteriores ni notifica. Conservar otras familias, asignaciones youtcomes; ausencia no permiso.
+- Validación: IndexedDB propio para readonly/reapertura/stale/foreign/missing, rollbacktardío incluyendo peers/counter/recibo, ACKDTOvsoutcome, capacidad/IDs/tail/overflow yreplay/ambas decisiones/backup. DoDcompleto ycleanupown, commit/push/HEAD/cuotas. Sin UI/índice/protocolo/DBusuario.
+
 ## 19i3 — Orden de planes con evidencia portable
 
 Backup3 admite decisiones de orden con rama expected.incident propia: valida catálogo/decisión replanificados, originales superseded exactos, outcome frozen intacto y clausura de ACKs contra resultados aplicados y operaciones reales conservados. Reemplazo0/1 mantiene usuario/entidad/fecha/secuencia posterior/comando/depsvacías exactos; IDs globales centrales rechazan colisiones. No exige retroceder proyección actual ni convierte superseded en ACK.

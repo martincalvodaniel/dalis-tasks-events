@@ -3,6 +3,8 @@
 import { openLocalDatabase } from "@/lib/local-db/client"
 import { resolveLocalItemViewIncident } from "@/lib/local-db/item-view-resolution"
 import { readLocalItemViewResolutionSnapshot } from "@/lib/local-db/item-view-resolution-capture"
+import { resolveLocalPlacementIncident } from "@/lib/local-db/placement-resolution"
+import { readLocalPlacementResolutionSnapshot } from "@/lib/local-db/placement-resolution-capture"
 import { resolveLocalPlanCategoryIncident } from "@/lib/local-db/plan-category-resolution"
 import { readLocalPlanCategoryResolutionSnapshot } from "@/lib/local-db/plan-category-resolution-capture"
 import { resolveLocalPlanOccurrenceIncident } from "@/lib/local-db/plan-occurrence-resolution"
@@ -147,6 +149,23 @@ export class LocalSyncStore {
     )
   }
 
+  readPlacementIncidentSnapshot(operationId: string) {
+    return readLocalPlacementResolutionSnapshot(
+      this.database,
+      this.userId,
+      operationId
+    )
+  }
+  resolvePlacementIncident(input: unknown) {
+    return resolveLocalPlacementIncident(
+      this.database,
+      this.userId,
+      input
+    ).then((result) => {
+      if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+      return result
+    })
+  }
   readTagDeletionIncidentSnapshot(operationId: string) {
     return readLocalTagDeletionResolutionSnapshot(
       this.database,
