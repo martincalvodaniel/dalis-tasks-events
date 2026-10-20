@@ -1,5 +1,16 @@
 # Recuperación explícita de conflictos
 
+## 19k6b2 — Decisión pura de categoría yorden preparada
+
+Familia category_movement separada conserva snapshot canónico decatálogos/raízconflict/cola/outcome congelado/clausura deACKs. Reutiliza guardias deplacement conpolítica privada adicional, sinampliar APIs simples/mixed_group/recurring_primary. Contenido/apariciones/categorías yotrasvistas exactos; review nuevo acredita vista delpadre ygrupos. Cadenas intentadas/desconectadas/otrosdestinos/externos/identidadesausentes protegenhistoria. PrerrequisitosACK sonestructura todavía: portable/writer deberán acreditarlos conoutcomes aplicados reales.
+
+Adoptar conserva vista yposiciones observadas sinoperación; retry reconstruye últimocomando absoluto exacto conUUIDnuevo/CASprimario conocido. Planner productivo justifica efectosdevista/posiciones únicamente yoptimismo conserva cada revisión observada. Rechaza retry si exige posición noobservada; tombstone primario sólo adopción. Record incluye vista elegida ycatálogo deposiciones conIDs/bytes/replanificación estrictos, sin fabricarACK.
+
+16tests/213aserciones: simple/moved/implicit×day/overdue×dosdecisiones, oráculo multiefecto conCASindependientes, familiasprevias siguenstrict, incapacidadretry porpeer desconocido, tombstoneadoptable, stale/foreign/cadena/frozen/IDs/registrocorrupto. Fixture lastmove ajustado a vecino válidodeldestino; preview usa timestamp representativo ysecompara orden sin exigir fecharreal deconfirmación. Suite detectó8regresiones sólo demensaje deerror existente: sepreservó eltexto original enfamiliasvigentes, sinrelajar guardias. DoD1248pass/225skip/0fail/13976aserciones, lint1043sinavisos/tipos/Webpack/worker46/diff aprobados.
+
+Entrada69%5h/68%7d, reservas10%/1%, secuencial. SinIO/portable/writer/caller nuevos; categoría+orden recuperable aún noofrecido enUI. Siguiente19k6c portable3 conoriginales/outcomes/prerequisitos yambosdominios, luegoTX/capacidad/replay/rollback/Mongo/Next/UI. Siníndice/protocolo/dependencia/DBusuario nuevos.
+
+
 ## 19k6b1 — Grupos entre categorías comparados por núcleo puro
 
 Nuevo reviewCategoryPlacementGroups compara origen/destino con catálogos propios completos yacotados. Sólo vista delpadre puede diferir; contenido/reglas/apariciones/categorías yotrasvistas exactos. Distingue categoría efectiva local/observada delpadre ycategoría histórica deposición, sinocultar elplan porunrank deotrogrupo. Parent_all_dates declaraalcance deasignación sobre todoelplan, mientras primaryId conserva slotexacto yparentVisibleIds sushermanos delámbito. Orden porgrupo usa oráculo productivo yposiciones conocidas deambosestados; otrasfechas/otrosgrupos/intenciones desconocidas nodeben reinterpretarse.

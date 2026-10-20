@@ -1,4 +1,5 @@
 import { isPlanOverdue, planIncludesDate } from "@/lib/calendar/plan-selection"
+import { reviewCategoryPlacementGroups } from "@/lib/sync/category-placement-review"
 import { validateLocalPreferenceOutcomeV2 } from "@/lib/sync/local-operation-outcome-v2"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import {
@@ -81,7 +82,16 @@ export function captureRecurringPlacementResolutionSnapshot(
 ): PlacementResolutionSnapshot {
   return captureSnapshot(input, "recurring_primary")
 }
-type PlacementRecoveryScope = "simple" | "mixed_simple" | "recurring_primary"
+export function captureCategoryPlacementResolutionSnapshot(
+  input: unknown
+): PlacementResolutionSnapshot {
+  return captureSnapshot(input, "category_movement")
+}
+type PlacementRecoveryScope =
+  | "simple"
+  | "mixed_simple"
+  | "recurring_primary"
+  | "category_movement"
 function captureSnapshot(
   input: unknown,
   scope: PlacementRecoveryScope
@@ -134,6 +144,12 @@ export function validateRecurringPlacementResolutionSnapshot(
 ): PlacementResolutionSnapshot {
   return validateSnapshot(input, actor, "recurring_primary")
 }
+export function validateCategoryPlacementResolutionSnapshot(
+  input: unknown,
+  actor: string
+): PlacementResolutionSnapshot {
+  return validateSnapshot(input, actor, "category_movement")
+}
 function validateSnapshot(
   input: unknown,
   actor: string,
@@ -144,9 +160,10 @@ function validateSnapshot(
     command = incident.entry.operation.command
   if (
     command.type !== "task.move" ||
-    (scope === "recurring_primary"
-      ? command.occurrenceId === null
-      : command.occurrenceId !== null) ||
+    (scope !== "category_movement" &&
+      (scope === "recurring_primary"
+        ? command.occurrenceId === null
+        : command.occurrenceId !== null)) ||
     incident.entry.userId !== actor ||
     incident.reason !== "conflict" ||
     incident.entry.state !== "conflict" ||
@@ -155,7 +172,9 @@ function validateSnapshot(
     incident.blockedByRelatedIntentions
   )
     throw new Error(
-      "Placement recovery requires its own isolated simple movement conflict"
+      scope === "category_movement"
+        ? "Category movement recovery requires its own isolated conflict"
+        : "Placement recovery requires its own isolated simple movement conflict"
     )
   const key = taskPlacementEntityKey(
     command.occurrenceId ?? command.itemId,
@@ -178,7 +197,10 @@ function validateSnapshot(
       ...catalog,
     })
   for (const field of ["items", "tags", "views", "occurrences"] as const)
-    if (!same(local[field], observed[field]))
+    if (
+      (scope !== "category_movement" || field !== "views") &&
+      !same(local[field], observed[field])
+    )
       throw new Error(
         "Placement recovery cannot replace content, categories or assignments"
       )
@@ -186,8 +208,12 @@ function validateSnapshot(
   if (
     parent?.kind !== "plan" ||
     parent.deletedAt ||
-    Boolean(parent.recurrence) !== (scope === "recurring_primary") ||
+    Boolean(parent.recurrence) !==
+      (scope === "category_movement"
+        ? command.occurrenceId !== null
+        : scope === "recurring_primary") ||
     (scope !== "recurring_primary" &&
+      scope !== "category_movement" &&
       (command.scope === "day"
         ? !planIncludesDate(parent, command.date)
         : !isPlanOverdue(parent, command.date)))
@@ -206,7 +232,7 @@ function validateSnapshot(
   if (
     !view ||
     view.deletedAt ||
-    effective !== command.tagId ||
+    (scope !== "category_movement" && effective !== command.tagId) ||
     (command.tagId !== null && !activeTags.has(command.tagId))
   )
     throw new Error(
@@ -252,10 +278,17 @@ function validateSnapshot(
     !remote ||
     primary.deletedAt ||
     primary.tagId !== command.tagId ||
-    remote.tagId !== command.tagId
+    (scope !== "category_movement" && remote.tagId !== command.tagId)
   )
     throw new Error("Placement primary is absent or belongs to another group")
-  if (scope !== "simple") {
+  if (scope === "category_movement") {
+    reviewCategoryPlacementGroups({
+      userId: actor,
+      operation: incident.entry.operation,
+      local,
+      observed,
+    })
+  } else if (scope !== "simple") {
     const review = (
       scope === "recurring_primary"
         ? reviewRecurringPlacementGroup
