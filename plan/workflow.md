@@ -1,5 +1,14 @@
 # Flujo de trabajo con Codex
 
+## 19k6b1 — Grupos entre categorías comparados por núcleo puro
+
+Nuevo reviewCategoryPlacementGroups compara origen/destino con catálogos propios completos yacotados. Sólo vista delpadre puede diferir; contenido/reglas/apariciones/categorías yotrasvistas exactos. Distingue categoría efectiva local/observada delpadre ycategoría histórica deposición, sinocultar elplan porunrank deotrogrupo. Parent_all_dates declaraalcance deasignación sobre todoelplan, mientras primaryId conserva slotexacto yparentVisibleIds sushermanos delámbito. Orden porgrupo usa oráculo productivo yposiciones conocidas deambosestados; otrasfechas/otrosgrupos/intenciones desconocidas nodeben reinterpretarse.
+
+32tests/480aserciones: primaria simple/moved/implicit×day/overdue×cuatrovariantes, sincategoría explícita, categoría histórica distintadevista, hermanos conranks independientes, otrasfechas preservadas, catálogos parciales/extra/duplicados/foreign/stale/deleted/otrasvistas/contenido rechazados. Planner remoto productivo acredita efectos sobre vista yposiciones únicamente; noes unACKni pruebaMongo. Ambas APIs antiguas siguenrechazando cross-category. Fixtures corregidas trasreferencia equivocada ainputproyectado envez decapture, narrowing TS, snapshotsindependientes yvecino deldestino; schemas productivos estrictos detectaron unaedición inicial enrankenvez decomando yse corrigió sólofixture. Non-nullassertions sustituidas porguard de fixture, sinavisos.
+
+DoD1232pass/225skip/0fail/13763aserciones, lint1038sinavisos/tipos/Webpack/worker46/diff aprobados. Entrada76%5h/69%7d, reservas10%/1%, secuencial. target_paths nuevos schemas/types/category-placement-review ysync review/fixture/tests; sincaller/decisiones/portable/writer/IO/índice/dependencia nuevos. Siguiente19k6b2: snapshot decadena/outcome/ACKprerequisitos ydecisiónconjunta conservadora conCASprimario yvistaindependientes; después portable/TX/Next/UI antes ofrecer nuevasopciones.
+
+
 ## 19k5f2 — Recuperación de orden recurrente visible en Ajustes
 
 Lectura adaptativa conserva unúnico LocalSyncStore yrevalida cuenta/época antes/después de cada familia simple/mixed_group/recurring_primary. Acción deAjustes sólo ofrece alternativas trascomparación completa validada yelige schema/writer explícitos; UUIDs estables encada confirmación, caché sólo decuenta/época propia. Revisión señala elslotexacto, vecinos/fechas implícitas yoriginales reprogramadas; no cambia contenido/categoría/fechas ni fabricaACK. Cancelar sinwrites, dependencias externas ygrupos desconocidos conservan protección.
