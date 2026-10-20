@@ -1,6 +1,11 @@
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog"
+import { MixedPlacementResolutionVersion } from "@/features/sync/components/mixed-placement-resolution-version"
 import { PlacementResolutionVersion } from "@/features/sync/components/placement-resolution-version"
 import { civilDateToUtc } from "@/lib/calendar/civil-date"
+import {
+  availableMixedPlacementResolutionChoices,
+  previewMixedPlacementResolutionChoice,
+} from "@/lib/sync/mixed-placement-decision"
 import {
   availablePlacementResolutionChoices,
   previewPlacementResolutionChoice,
@@ -16,6 +21,7 @@ const dayFormatter = new Intl.DateTimeFormat("es-ES", {
 })
 export function PlacementIncidentResolutionDialog({
   snapshot,
+  reviewKind,
   actor,
   choice,
   busy,
@@ -24,6 +30,7 @@ export function PlacementIncidentResolutionDialog({
   onClose,
 }: {
   snapshot: PlacementResolutionSnapshot
+  reviewKind?: "mixed_group"
   actor: string
   choice: PlacementResolutionRequest["choice"]
   busy: boolean
@@ -31,12 +38,17 @@ export function PlacementIncidentResolutionDialog({
   onConfirm(resolutionId: string): Promise<void>
   onClose(): void
 }) {
-  const choices = availablePlacementResolutionChoices(snapshot, actor)
+  const mixed = reviewKind === "mixed_group"
+  const choices = mixed
+    ? availableMixedPlacementResolutionChoices(snapshot, actor)
+    : availablePlacementResolutionChoices(snapshot, actor)
   if (!choices.includes(choice)) return null
   const command = snapshot.incident.entry.operation.command
   if (command.type !== "task.move") return null
   const adopt = choice === "adopt_remote",
-    chosen = previewPlacementResolutionChoice(snapshot, actor, choice),
+    chosen = mixed
+      ? previewMixedPlacementResolutionChoice(snapshot, actor, choice)
+      : previewPlacementResolutionChoice(snapshot, actor, choice),
     tag = snapshot.observed.tags.find((tag) => tag.id === command.tagId)
   return (
     <ConfirmationDialog
@@ -88,19 +100,44 @@ export function PlacementIncidentResolutionDialog({
           </label>
         ) : null}
       </fieldset>
-      <div className="mt-2 grid min-w-0 gap-2 sm:grid-cols-2">
-        <PlacementResolutionVersion
-          label="Tu orden actual"
-          snapshot={snapshot}
-          placements={snapshot.local.placements}
-        />
-        <PlacementResolutionVersion
-          label={adopt ? "Orden que usarás" : "Orden que guardarás para enviar"}
-          snapshot={snapshot}
-          placements={chosen}
-        />
-      </div>
+      {mixed ? (
+        <div className="mt-2 grid min-w-0 gap-2 sm:grid-cols-2">
+          <MixedPlacementResolutionVersion
+            label="Tu orden actual"
+            snapshot={snapshot}
+            placements={snapshot.local.placements}
+          />
+          <MixedPlacementResolutionVersion
+            label={
+              adopt ? "Orden que usarás" : "Orden que guardarás para enviar"
+            }
+            snapshot={snapshot}
+            placements={chosen}
+          />
+        </div>
+      ) : (
+        <div className="mt-2 grid min-w-0 gap-2 sm:grid-cols-2">
+          <PlacementResolutionVersion
+            label="Tu orden actual"
+            snapshot={snapshot}
+            placements={snapshot.local.placements}
+          />
+          <PlacementResolutionVersion
+            label={
+              adopt ? "Orden que usarás" : "Orden que guardarás para enviar"
+            }
+            snapshot={snapshot}
+            placements={chosen}
+          />
+        </div>
+      )}
       <div className="mt-2 space-y-2 text-xs">
+        {mixed ? (
+          <p>
+            Este grupo incluye fechas de planes repetidos. Cada fecha conserva
+            su contenido y su estado; sólo se revisa su posición.
+          </p>
+        ) : null}
         <p>
           Esta elección sustituye {snapshot.incident.intentions.length}{" "}
           movimientos pendientes. El historial se conserva. No cambia fechas,

@@ -1,5 +1,14 @@
 # Recuperación explícita de conflictos
 
+## 19k4a — Representación completa de grupos mixtos preparada
+
+Diálogo de orden añade variante explícita mixed_group sin cambiar el caller simple. Revalida opciones mediante el planner mixto y muestra todos los vecinos visibles con el mismo orden productivo, incluidas fechas implícitas sin posición y excepciones con título propio. Fecha original reprogramada y efectiva diferenciadas; una posición tombstone vuelve al orden automático sin tachar ni eliminar el plan. Explica alcance recurrente, conservación de contenido/estado/historial, envío pendiente y última observación conocida. No hay caller mixto activo todavía.
+
+Siete tests nuevos SSR/88 aserciones y regresión simple aprobados: día/atrasadas, ambas elecciones, orden exacto con miembro implícito, título de excepción, tombstone sin borrado de plan, cuenta/contexto/familia/ocupado e inmutabilidad. Dos fixtures corregidas tras detectar referencia primaria incorrecta y parámetro default ambiguo; producto mantuvo schemas estrictos. SSR no prueba interacción ni Mongo. DoD1146pass/225skip/0fail/12800aserciones, lint1019 sin avisos/tipos/Webpack/worker46/diff aprobados.
+
+Entrada38%5h/90%7d, reservas10%/1%, secuencial. Rutas placement-incident-resolution-dialog y nuevos mixed-placement-resolution-version/ui.test. Sin índice/protocolo/dependencias/DBusuario nuevos. Siguiente19k4b1: prueba remota focalizada con productores reales y posiciones de vecinos comprometidas antes de activar; después19k4b2 conexión/UI con cancelar/reabrir/confirmar y UUID propios. Separación por presupuesto, sin retirar guardias simples.
+
+
 ## 19k3 — Persistencia y frontera local de orden mixto
 
 Captura y writer mixtos separados reutilizan el ejecutor de placements con política privada y resultados tipados; las APIs simples mantienen schemas/guardias anteriores. Una TX9stores relee catálogo completo y evidencia, valida familia/replay/identidades/contador ycapacidad posterior incluyendo tail faltante más recibo. Guarda posiciones elegidas, supersesión exacta,0/1reemplazo pendiente, tail/counter ydecisión atómicamente. Replay primero no reescribe trabajo posterior ni añade espacio. Posiciones locales sin remoto conocido y otras intenciones continúan protegidas.
