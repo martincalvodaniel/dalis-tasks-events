@@ -132,6 +132,9 @@ async function execute(
     [
       "resolve-tag-delete-ui",
       "commit-recurring-move-entry",
+      "category-placement-comparison",
+      "resolve-category-placement",
+      "category-placement-guard-proof",
       "recurring-placement-comparison",
       "resolve-recurring-placement",
       "recurring-placement-guard-proof",

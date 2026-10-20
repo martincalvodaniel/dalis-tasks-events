@@ -1,4 +1,5 @@
 "use client"
+import {readCategoryPlacementIncidentComparison,resolveCategoryPlacementIncident} from "@/features/sync/local-category-placement-resolution"
 import {proveRecurringPlacementResolutionUi} from "@fixture/recurring-placement-resolution-ui"
 import {readRecurringPlacementIncidentComparison,resolveRecurringPlacementIncident} from "@/features/sync/local-recurring-placement-resolution"
 import {proveMixedPlacementResolutionUi} from "@fixture/mixed-placement-resolution-ui"
@@ -606,6 +607,18 @@ export async function executeLocalFixtureCommand(
     }
     case "resolve-recurring-placement-ui":return proveRecurringPlacementResolutionUi(active,command.request)
     case "resolve-mixed-placement-ui":return proveMixedPlacementResolutionUi(active,command.request)
+    case "category-placement-comparison":return readCategoryPlacementIncidentComparison(active,command.operationId)
+    case "resolve-category-placement":return resolveCategoryPlacementIncident(active,command.request)
+    case "category-placement-guard-proof": {
+      const before=JSON.stringify((await readFixtureBackup(active)).stores),expected=structuredClone(command.request.expected);expected.local.views[0].revision++
+      let checks=0
+      for(const work of [()=>resolveCategoryPlacementIncident({...active,epoch:crypto.randomUUID()},command.request),()=>resolveCategoryPlacementIncident(active,{...command.request,userId:"owned-foreign-category-placement"}),()=>resolveCategoryPlacementIncident(active,{...command.request,expected})]){
+        let failed=false;try{await work()}catch{failed=true}
+        if(!failed||before!==JSON.stringify((await readFixtureBackup(active)).stores))throw new Error("Category placement guard changed durable state")
+        checks++
+      }
+      return {checks}
+    }
     case "recurring-placement-comparison":return readRecurringPlacementIncidentComparison(active,command.operationId)
     case "resolve-recurring-placement":return resolveRecurringPlacementIncident(active,command.request)
     case "recurring-placement-guard-proof": {

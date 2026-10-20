@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { planOccurrenceCohortResolutionFixture } from "@/lib/backup/plan-occurrence-cohort-resolution-fixture"
 import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
+import { categoryPlacementResolutionFixture } from "@/lib/sync/category-placement-resolution-fixture"
 import { mixedPlacementDecisionFixture } from "@/lib/sync/mixed-placement-decision-fixture"
 import { recurringPlacementResolutionFixture } from "@/lib/sync/recurring-placement-resolution-fixture"
 import {
@@ -551,5 +552,36 @@ test("recurring placement fixture accepts only its explicit family and appearanc
   )
   expect(() =>
     nextSettingsProofScopeSchema.parse("recurring-placement-unsafe")
+  ).toThrow()
+})
+
+test("category movement fixture uses a distinct strict decision family and scope", () => {
+  const f = categoryPlacementResolutionFixture()
+  expect(nextSettingsProofScopeSchema.parse("category-placement")).toBe(
+    "category-placement"
+  )
+  for (const type of [
+    "resolve-category-placement",
+    "category-placement-guard-proof",
+  ] as const) {
+    expect(
+      nextSyncDeviceCommandSchema.parse({ type, request: f.request })
+    ).toEqual({ type, request: f.request })
+    expect(() =>
+      nextSyncDeviceCommandSchema.parse({
+        type,
+        request: { ...f.request, reviewKind: "recurring_primary" },
+      })
+    ).toThrow()
+  }
+  expect(() =>
+    nextSettingsProofScopeSchema.parse("category-placement-ui")
+  ).toThrow()
+  expect(() =>
+    nextSyncDeviceCommandSchema.parse({
+      type: "category-placement-comparison",
+      operationId: f.entry.operation.operationId,
+      database: "production",
+    })
   ).toThrow()
 })

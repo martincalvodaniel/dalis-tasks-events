@@ -1,5 +1,14 @@
 # Recuperación explícita de conflictos
 
+## 19k6e — Categoría yorden probados conRPC6/Mongo
+
+Once escenariosNext6 focalizados (`category-placement`) aprobados conacciones/defaults reales, sesionesBetterAuth persistidas ydosorígenesIndexedDB/Mongo propios. Seiscasos simple/moved/implicit×adopt/retry usan productores reales, grupos origen/destino yposiciones comprometidas incluidaotrafecha. Competidor cambiaCASprimario sinrecategorizar remoto; colaoffline conserva comandos/UUID/dependencias exactos. Guardias actor/época/stale sinwrites; adopción0ops yretryúltimocomando conCASactual/vista independiente. Tres pérdidastrascommit mantienen pendingattempt1, recarga yreplay mismoUUID→ACKrealattempt2 único/unjournal.
+
+Ambosorígenes terminan concatálogos completos devistas/posiciones, shadows ycursor exactos contraMongo. Parent category se mueve conjunto, posiciones deotrasfechas/contenido/reglas/apariciones/categorías/settings intactos. Replay durable no retrocede estado. Scopefull37 disponible, no ejecutado completo niUI/Google/físicos. Primerlauncher propio detenido antesdeloscasos trasrevisar vecino delorigen; sucontenedor37f31051 ausente confirmado pornombre exacto. Run83bf3c96-25a2-4664-aaa3-114485cebf69 exit0/cleanup propio confirmado. Captura /private/tmp/dalis-1843-category-next.png; pestañas/servidores/Next temporal propios cerrados ytabhumana preservada.
+
+Schema/matrizdecomandos estrictos con7aserciones nuevas. DoD1268pass/225skip/0fail/14079aserciones, lint1047sinavisos/tipos/Webpack/worker46/diff aprobados. Entrada48%5h/64%7d, reservas10%/1%, secuencial. Siníndice/protocolo/dependencia/DBusuario nuevos. Siguiente19k6f: diálogo compacto conorigen/destino/colores/slot yadvertencia todaslasfechas/posicionesfuturas preservadas, calleradaptativo, ambasdecisionesUIreales cancelar/reabrir/confirmar/IDsUI antes depublicar. Backend noofrece aún nuevasopciones alusuario.
+
+
 ## 19k6d — Categoría yorden guardados atómicamente en local
 
 Familia category_movement usa captura propia sobreTX9stores ywriter compartido tipado; APIs previas siguenstrict. Relee contexto/cola/frozen/sombras/prerequisitosACK conoutcomes aplicados reales antes deescribir. Guarda vista delpadre+posiciones, originales superseded exactos,0/1reemplazo, counter/tail/recibo enuncommit. Replay primero no retrocede trabajo posterior; límitescompletos/IDs/counter/tail/capacidad posterior antes deescrituras. Feature/store conprotocolo6/cuenta/época antes-después yfinallyclose; aviso sólo trasaplicado, noreplay/fallo. SincallerUI nuevo.

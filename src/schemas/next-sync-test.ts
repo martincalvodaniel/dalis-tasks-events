@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { categoryPlacementResolutionRequestSchema } from "@/schemas/category-placement-resolution"
 import { itemViewResolutionRequestSchema } from "@/schemas/item-view-resolution"
 import { mixedPlacementResolutionRequestSchema } from "@/schemas/mixed-placement-resolution"
 import { placementResolutionRequestSchema } from "@/schemas/placement-resolution"
@@ -156,6 +157,7 @@ export const nextSettingsProofScopeSchema = z
     "placement-ui",
     "mixed-placement",
     "mixed-placement-ui",
+    "category-placement",
     "recurring-placement",
     "recurring-placement-ui",
     "tag-delete",
@@ -165,6 +167,18 @@ export const nextSettingsProofScopeSchema = z
   ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("category-placement-comparison"),
+    operationId: entityIdSchema,
+  }),
+  z.strictObject({
+    type: z.literal("resolve-category-placement"),
+    request: categoryPlacementResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("category-placement-guard-proof"),
+    request: categoryPlacementResolutionRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("resolve-recurring-placement-ui"),
     request: recurringPlacementResolutionRequestSchema,
