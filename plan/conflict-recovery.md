@@ -1,5 +1,12 @@
 # Recuperación explícita de conflictos
 
+## 19k5a — Contrato de primaria recurrente preparado
+
+Revisión/snapshot nuevos y puros para cadena aislada de movimientos de la misma aparición, día civil y categoría. Kernel compartido distingue políticas simple/mixed_simple/recurring_primary sin ampliar las APIs actuales. La clave primaria usa el slot completo; padre, aparición, vista y posiciones mantienen revisiones independientes. Slot implícito se deriva sólo para comparar, sin crear excepción durable. Variantes timed conservan timestamp original aunque se reprograme. Ausencia/cancelación/cambio de regla/asignación incierta, otras fechas/intenciones/slots y catálogos incompletos siguen protegidos. Cadenas, outcome congelado y prerrequisitos exactos preservados; sin ACK ni writes.
+
+Quince tests nuevos/136aserciones más regresión simple: cuatro variantes moved/implicit, overdueas-of/sentinel, timed, actor/grafo/incertidumbre, fuera de fecha, contexto y compactación multiefecto con CAS porposición. DoD1163pass/225skip/0fail/12950aserciones, lint1021sinavisos/tipos/Webpack/worker46/diff aprobados. Entrada100%5h/86%7d, reservas10%/1%; renovación real/reset1792514544 registrados enworkflow. Guía Next instalada leída. Sin protocolo/índice/dependencia/IO/caller nuevo.19k5b siguiente: decisión explícita marcada recurring_primary, adopción o replay del último movimiento con CASactual; portable/TX/Next/UI después antes de activarse. Cross-category queda19k6 por necesitar asignación padre yefectos sobreotrasfechas.
+
+
 ## 19k4b2 — Recuperación de orden mixto disponible en Ajustes
 
 La revisión de orden captura primero el caso simple y, si no es válido, relee el contrato mixto completo en el mismo LocalSyncStore, con cuenta/época antes/después. Cada opción se ofrece sólo tras validar la familia; la UI genera IDs estables y elige explícitamente writer simple o marcado mixed_group. Mantiene isolation por cuenta/época/raíz, mounted y caché propia. Writers simples siguen strict. El diálogo completo incluye todos los vecinos simples y fechas recurrentes, posición implícita, títulos de excepciones y fechas originales/movidas; no cambia contenido ni asignaciones.

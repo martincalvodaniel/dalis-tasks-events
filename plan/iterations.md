@@ -1,5 +1,12 @@
 # Iteraciones de implementación
 
+## 19k5a — Contrato de recuperación con aparición como primaria
+
+Completado:15tests/136aserciones; DoD1163pass/225skip/0fail, lint1021/tipos/Webpack/worker46 aprobados. Sin caller nuevo.
+
+Objetivo: revisión y snapshot puros de una cadena aislada de movimientos de la misma aparición/día/categoría, incluidos slots implícitos/reprogramados y vecinos simples/recurrentes. target_paths: schemas/placement-group-review, sync/placement-group-review yplacement-resolution, nueva fixture/tests recurring-placement-resolution; plan/workflow. Dependencias19k4 cerrado, entrada100%5h/86%7d, reservas10%/1%; nuevo resetreal1792514544, continuación puntual13:42 autorizada ysecuencial. Aceptación: identidad primaria de slot exacta, padre/asignación/contenido comprometidos sin cambios, catálogo completo y CAS porposición; guardias vigentes simples intactas. Sin otras intenciones/otros slots ni cross-category, ausencia/cancelación/posición desconocida protegidas. Snapshot conserva originales/outcomes/prerrequisitos sin ACK ficticio. Sin writer/portable/caller nuevo todavía. Validación pura de variantes/civil/implícito/timed/stale/actor/catálogo/grafo/outcome/reranking; DoD/lint/tipos/Webpack/worker/commit/push/HEAD/cuotas.19k5b posterior decisión preparada, luego persistencia/evidencia/Next/UI antesactivar. Cross-category separado19k6 para incluir asignación padre yefectos sobreotrasfechas.
+
+
 ## 19k4b2 — Recuperación de orden mixto disponible en Ajustes
 
 La revisión de orden captura primero el caso simple y, si no es válido, relee el contrato mixto completo en el mismo LocalSyncStore, con cuenta/época antes/después. Cada opción se ofrece sólo tras validar la familia; la UI genera IDs estables y elige explícitamente writer simple o marcado mixed_group. Mantiene isolation por cuenta/época/raíz, mounted y caché propia. Writers simples siguen strict. El diálogo completo incluye todos los vecinos simples y fechas recurrentes, posición implícita, títulos de excepciones y fechas originales/movidas; no cambia contenido ni asignaciones.

@@ -32,9 +32,25 @@ function orderedContext(catalog: PlacementResolutionCatalog) {
 
 // Observed catalogs describe known state. They do not prove current server completeness or authorize a write.
 export function reviewPlacementGroup(input: unknown): PlacementGroupReview {
+  return reviewGroup(input, "simple")
+}
+export function reviewRecurringPlacementGroup(
+  input: unknown
+): PlacementGroupReview {
+  return reviewGroup(input, "appearance")
+}
+function reviewGroup(
+  input: unknown,
+  primaryKind: "simple" | "appearance"
+): PlacementGroupReview {
   const value = placementGroupReviewInputSchema.parse(input),
     command = value.operation.command
-  if (command.type !== "task.move" || command.occurrenceId !== null)
+  if (
+    command.type !== "task.move" ||
+    (primaryKind === "simple"
+      ? command.occurrenceId !== null
+      : command.occurrenceId === null)
+  )
     throw new Error("Mixed group review requires a simple primary movement")
   for (const catalog of [value.local, value.observed])
     remoteRecurringTaskPlacementPlanningInputSchema.parse({
@@ -48,10 +64,17 @@ export function reviewPlacementGroup(input: unknown): PlacementGroupReview {
       "Mixed group review cannot replace content, appearances, categories or assignments"
     )
   const parent = value.observed.items.find((item) => item.id === command.itemId)
-  if (parent?.kind !== "plan" || parent.recurrence || parent.deletedAt)
+  if (
+    parent?.kind !== "plan" ||
+    Boolean(parent.recurrence) !== (primaryKind === "appearance") ||
+    parent.deletedAt ||
+    (command.occurrenceId !== null &&
+      !command.occurrenceId.startsWith(`${parent.id}:`))
+  )
     throw new Error(
       "Mixed group review requires its living common simple primary"
     )
+  const targetId = command.occurrenceId ?? parent.id
   const views = new Map(value.observed.views.map((view) => [view.itemId, view]))
   const activeTags = new Set(
     value.observed.tags.filter((tag) => !tag.deletedAt).map((tag) => tag.id)
@@ -80,7 +103,7 @@ export function reviewPlacementGroup(input: unknown): PlacementGroupReview {
     (member) => effectiveTag(member.parent.id) === command.tagId
   )
   const byId = new Map(group.map((member) => [member.id, member]))
-  if (!byId.has(parent.id))
+  if (!byId.has(targetId))
     throw new Error("Mixed group primary is outside its declared civil scope")
   const local = new Map(
       value.local.placements.map((record) => [key(record), record])
@@ -96,7 +119,7 @@ export function reviewPlacementGroup(input: unknown): PlacementGroupReview {
       "Mixed group cannot infer missing or uncommitted placement identities"
     )
   const primaryKey = taskPlacementEntityKey(
-      parent.id,
+      targetId,
       command.scope,
       command.date
     ),
@@ -124,7 +147,7 @@ export function reviewPlacementGroup(input: unknown): PlacementGroupReview {
       record.tagId !== command.tagId ||
       other.tagId !== command.tagId ||
       record.deletedAt ||
-      (other.deletedAt && record.occurrenceId !== parent.id) ||
+      (other.deletedAt && record.occurrenceId !== targetId) ||
       record.revision > other.revision ||
       record.createdAt !== other.createdAt ||
       !byId.has(record.occurrenceId)
@@ -145,7 +168,7 @@ export function reviewPlacementGroup(input: unknown): PlacementGroupReview {
     ).map((member) => member.id)
   return placementGroupReviewSchema.parse({
     userId: value.userId,
-    primaryId: parent.id,
+    primaryId: targetId,
     scope: command.scope,
     declaredDate: command.date,
     placementDate: date,

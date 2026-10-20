@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 19k5a — Contrato de primaria recurrente preparado
+
+Revisión/snapshot nuevos y puros para cadena aislada de movimientos de la misma aparición, día civil y categoría. Kernel compartido distingue políticas simple/mixed_simple/recurring_primary sin ampliar las APIs actuales. La clave primaria usa el slot completo; padre, aparición, vista y posiciones mantienen revisiones independientes. Slot implícito se deriva sólo para comparar, sin crear excepción durable. Variantes timed conservan timestamp original aunque se reprograme. Ausencia/cancelación/cambio de regla/asignación incierta, otras fechas/intenciones/slots y catálogos incompletos siguen protegidos. Cadenas, outcome congelado y prerrequisitos exactos preservados; sin ACK ni writes.
+
+Quince tests nuevos/136aserciones más regresión simple: cuatro variantes moved/implicit, overdueas-of/sentinel, timed, actor/grafo/incertidumbre, fuera de fecha, contexto y compactación multiefecto con CAS porposición. DoD1163pass/225skip/0fail/12950aserciones, lint1021sinavisos/tipos/Webpack/worker46/diff aprobados. Entrada100%5h/86%7d, reservas10%/1%; renovación real/reset1792514544 registrados enworkflow. Guía Next instalada leída. Sin protocolo/índice/dependencia/IO/caller nuevo.19k5b siguiente: decisión explícita marcada recurring_primary, adopción o replay del último movimiento con CASactual; portable/TX/Next/UI después antes de activarse. Cross-category queda19k6 por necesitar asignación padre yefectos sobreotrasfechas.
+
+
 ## Continuación puntual programada — 20 de octubre a las 13:42
 
 Por petición humana se actualiza el heartbeat existente continuar-el-plan-a-las-21-19 mediante automation_update: nombre «Continuar el plan a las13:42», ACTIVE, una ejecución hoy20oct2026/13:42 Europe/Madrid, mismochat ypolítica failed_runs_only conservados. Configuración guardada verificada; sin duplicados, TOML manual ni nueva cadena. OpenAI Docs/documentación oficial de tareas programadas consultada para esta actuación.

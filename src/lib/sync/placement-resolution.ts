@@ -1,7 +1,10 @@
 import { isPlanOverdue, planIncludesDate } from "@/lib/calendar/plan-selection"
 import { validateLocalPreferenceOutcomeV2 } from "@/lib/sync/local-operation-outcome-v2"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
-import { reviewPlacementGroup } from "@/lib/sync/placement-group-review"
+import {
+  reviewPlacementGroup,
+  reviewRecurringPlacementGroup,
+} from "@/lib/sync/placement-group-review"
 import { placementDate, taskPlacementEntityKey } from "@/schemas/ordering"
 import { personalQueueDiagnosticsInputSchema } from "@/schemas/personal-queue-diagnostics"
 import {
@@ -66,16 +69,22 @@ function prerequisites(chain: OutboxEntry[], entries: OutboxEntry[]) {
 export function capturePlacementResolutionSnapshot(
   input: unknown
 ): PlacementResolutionSnapshot {
-  return captureSnapshot(input, false)
+  return captureSnapshot(input, "simple")
 }
 export function captureMixedPlacementResolutionSnapshot(
   input: unknown
 ): PlacementResolutionSnapshot {
-  return captureSnapshot(input, true)
+  return captureSnapshot(input, "mixed_simple")
 }
+export function captureRecurringPlacementResolutionSnapshot(
+  input: unknown
+): PlacementResolutionSnapshot {
+  return captureSnapshot(input, "recurring_primary")
+}
+type PlacementRecoveryScope = "simple" | "mixed_simple" | "recurring_primary"
 function captureSnapshot(
   input: unknown,
-  mixedGroup: boolean
+  scope: PlacementRecoveryScope
 ): PlacementResolutionSnapshot {
   const value = placementResolutionCaptureSchema.parse(input),
     { incident, entries, userId } = value
@@ -105,31 +114,39 @@ function captureSnapshot(
     observed: canonicalCatalog(value.observed),
     acknowledgedDependencies: prerequisites(chain, entries),
   }
-  return validateSnapshot(snapshot, userId, mixedGroup)
+  return validateSnapshot(snapshot, userId, scope)
 }
 export function validatePlacementResolutionSnapshot(
   input: unknown,
   actor: string
 ): PlacementResolutionSnapshot {
-  return validateSnapshot(input, actor, false)
+  return validateSnapshot(input, actor, "simple")
 }
 export function validateMixedPlacementResolutionSnapshot(
   input: unknown,
   actor: string
 ): PlacementResolutionSnapshot {
-  return validateSnapshot(input, actor, true)
+  return validateSnapshot(input, actor, "mixed_simple")
+}
+export function validateRecurringPlacementResolutionSnapshot(
+  input: unknown,
+  actor: string
+): PlacementResolutionSnapshot {
+  return validateSnapshot(input, actor, "recurring_primary")
 }
 function validateSnapshot(
   input: unknown,
   actor: string,
-  mixedGroup: boolean
+  scope: PlacementRecoveryScope
 ): PlacementResolutionSnapshot {
   const value = placementResolutionSnapshotSchema.parse(input),
     { incident, local, observed } = value,
     command = incident.entry.operation.command
   if (
     command.type !== "task.move" ||
-    command.occurrenceId !== null ||
+    (scope === "recurring_primary"
+      ? command.occurrenceId === null
+      : command.occurrenceId !== null) ||
     incident.entry.userId !== actor ||
     incident.reason !== "conflict" ||
     incident.entry.state !== "conflict" ||
@@ -141,7 +158,7 @@ function validateSnapshot(
       "Placement recovery requires its own isolated simple movement conflict"
     )
   const key = taskPlacementEntityKey(
-    command.itemId,
+    command.occurrenceId ?? command.itemId,
     command.scope,
     command.date
   )
@@ -169,10 +186,11 @@ function validateSnapshot(
   if (
     parent?.kind !== "plan" ||
     parent.deletedAt ||
-    parent.recurrence ||
-    (command.scope === "day"
-      ? !planIncludesDate(parent, command.date)
-      : !isPlanOverdue(parent, command.date))
+    Boolean(parent.recurrence) !== (scope === "recurring_primary") ||
+    (scope !== "recurring_primary" &&
+      (command.scope === "day"
+        ? !planIncludesDate(parent, command.date)
+        : !isPlanOverdue(parent, command.date)))
   )
     throw new Error(
       "Placement recovery requires its living simple plan in the declared civil scope"
@@ -195,7 +213,7 @@ function validateSnapshot(
       "Placement recovery cannot change its reviewed category group"
     )
   if (
-    !mixedGroup &&
+    scope === "simple" &&
     observed.items.some(
       (item) =>
         item.kind === "plan" &&
@@ -237,8 +255,12 @@ function validateSnapshot(
     remote.tagId !== command.tagId
   )
     throw new Error("Placement primary is absent or belongs to another group")
-  if (mixedGroup) {
-    const review = reviewPlacementGroup({
+  if (scope !== "simple") {
+    const review = (
+      scope === "recurring_primary"
+        ? reviewRecurringPlacementGroup
+        : reviewPlacementGroup
+    )({
       userId: actor,
       operation: incident.entry.operation,
       local,
@@ -344,7 +366,7 @@ function validateSnapshot(
       entry.entityKey !== key ||
       next.type !== "task.move" ||
       next.itemId !== parent.id ||
-      next.occurrenceId !== null ||
+      next.occurrenceId !== command.occurrenceId ||
       next.scope !== command.scope ||
       next.date !== command.date ||
       next.tagId !== command.tagId ||

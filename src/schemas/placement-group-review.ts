@@ -29,7 +29,7 @@ export const placementGroupReviewInputSchema = z
 
 export const placementGroupReviewSchema = z.strictObject({
   userId: userIdSchema,
-  primaryId: entityIdSchema,
+  primaryId: taskReferenceIdSchema,
   scope: z.enum(["day", "overdue"]),
   declaredDate: civilDateSchema,
   placementDate: civilDateSchema,
