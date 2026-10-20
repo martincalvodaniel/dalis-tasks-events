@@ -1,5 +1,19 @@
 # Flujo de trabajo con Codex
 
+## 19k5e — Recuperación recurrente acreditada contra Next y Mongo
+
+Once escenarios Next6 focalizados (`recurring-placement`) aprobados con acción/defaults reales, sesiones BetterAuth persistidas y dosorígenesIndexedDB/Mongo propios. Cuatrocasos moved/implicit×adopt/retry acreditan productores reales, cadena UUID/payload/dependencias intactos, guardias actor/epoch/stale sinwrites, adopción0ops yretry conCASprimario observado. Dos pérdidas trascommit conservan pendingattempt1 sinACK, recarga yreplay delmismoUUID→ACKrealattempt2 conunrecibo/journal único. Catálogos completos/shadows/cursor exactos contraMongo, contenido/vistas/categorías/apariciones/settings intactos yreplay durable sinretroceso. Scopefull36 disponible, no ejecutado completo ni atribuido aGoogle/físicos.
+
+Run1638b6d4-01e6-416a-af88-424ac611f3b6 exit0 yrecibo de retirada decontenedor/almacenamiento propios. Servidores/Next temporal/sesiones/particiones ytabs propios cerrados, pestaña humana preservada. Docker28.4.0/imagenpinned amd64 revalidados; recurso residual anterior5eff retirado trasidentidad exacta. Captura /private/tmp/dalis-1843-recurring-next.png. Sin cambios decódigo desdeDoD1198pass/225skip/0fail/lint1033/tipos/Webpack/worker46 previamente aprobada; compilación Next real nueva aprobada. Validación documental/consistencia/diff; commit/pushint/HEAD/cuotas. Entrada100%5h/72%7d, reset1792532603/reservas10%/1%, continuación18:43 puntualsecuencial. Siguiente19k5f2: caller/familia adaptativa yambas decisiones UI real cancelar/reabrir/confirmar/IDsUI antes depublicaractivación. No se anuncia UI recurrente activa todavía.
+
+
+## Reanudación puntual del 20 de octubre, 18:43 — 19k5e
+
+Renovación real confirmada100%5h/72%7d; reset5h1792532603, reservas10%/1%, secuencial. HEAD4285514 yorigin/int exactos, sin cambios ajenos. El usuario ha reiniciado Colima y confirma operativo: Docker28.4.0 eimagen pinned amd64 comprobados. Recurso residual5effb543-bfc0-45de-bd6e-57037c00cc6d identificado por nombre/label/imagen yretirado conrecibo; no se atribuye limpieza deotros recursos. No reinicio adicional ni permisos nuevos.
+
+Objetivo19k5e: acreditar scope recurring-placement preparado conNext6 compilado/defaults/sesionesBetterAuth persistidas/dosorígenesIndexedDB/Mongo propios. target_paths: fixtures Next settings yschemas sólo si fallos reales lo requieren; plan/master,iterations,workflow,conflict-recovery,iteration-log para evidencia/estado. Dependencias19k5a–d/f1 completas. Aceptación: moved/implicit×adopt/retry, UUID/payload/dependencias exactos, CAS/guardias/pérdida trascommit/recarga/replay/ACKúnico/catálogos/shadows/cursor ydominios ajenos intactos. UI todavía sincaller nuevo. Validación focalizada real, suite/lint/tipos/Webpack/worker si haycódigo, referencias/diff, commit/pushint/HEAD/cuotas. Revisión puntual18:43 autorizada; finalizarla sin cadena nueva al cerrar. Después19k5f2 interacción/caller con pruebas reales antes deactivación;19k6b posterior.
+
+
 ## Cierre de la continuación puntual del 20 de octubre, 13:42
 
 Siete entregas publicadas y HEAD remoto verificado: c23ead2 (contrato primaria recurrente), e61a810 (decisión), ad6c440 (portable), e975835 (TX/cuenta/IndexedDB),12b8b27 (prueba remota preparada y diagnóstico),4c9d9a6 (revisión visual preparada),bd0df37 (contrato documental entre categorías). No se ha activado recuperación recurrente ni entre categorías:19k5e/19k5f2 siguen pendientes.

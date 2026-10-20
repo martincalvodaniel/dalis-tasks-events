@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 19k5e — Recuperación recurrente acreditada contra Next y Mongo
+
+Once escenarios Next6 focalizados (`recurring-placement`) aprobados con acción/defaults reales, sesiones BetterAuth persistidas y dosorígenesIndexedDB/Mongo propios. Cuatrocasos moved/implicit×adopt/retry acreditan productores reales, cadena UUID/payload/dependencias intactos, guardias actor/epoch/stale sinwrites, adopción0ops yretry conCASprimario observado. Dos pérdidas trascommit conservan pendingattempt1 sinACK, recarga yreplay delmismoUUID→ACKrealattempt2 conunrecibo/journal único. Catálogos completos/shadows/cursor exactos contraMongo, contenido/vistas/categorías/apariciones/settings intactos yreplay durable sinretroceso. Scopefull36 disponible, no ejecutado completo ni atribuido aGoogle/físicos.
+
+Run1638b6d4-01e6-416a-af88-424ac611f3b6 exit0 yrecibo de retirada decontenedor/almacenamiento propios. Servidores/Next temporal/sesiones/particiones ytabs propios cerrados, pestaña humana preservada. Docker28.4.0/imagenpinned amd64 revalidados; recurso residual anterior5eff retirado trasidentidad exacta. Captura /private/tmp/dalis-1843-recurring-next.png. Sin cambios decódigo desdeDoD1198pass/225skip/0fail/lint1033/tipos/Webpack/worker46 previamente aprobada; compilación Next real nueva aprobada. Validación documental/consistencia/diff; commit/pushint/HEAD/cuotas. Entrada100%5h/72%7d, reset1792532603/reservas10%/1%, continuación18:43 puntualsecuencial. Siguiente19k5f2: caller/familia adaptativa yambas decisiones UI real cancelar/reabrir/confirmar/IDsUI antes depublicaractivación. No se anuncia UI recurrente activa todavía.
+
+
 ## Cierre de la continuación puntual del 20 de octubre, 13:42
 
 Siete entregas publicadas y HEAD remoto verificado: c23ead2 (contrato primaria recurrente), e61a810 (decisión), ad6c440 (portable), e975835 (TX/cuenta/IndexedDB),12b8b27 (prueba remota preparada y diagnóstico),4c9d9a6 (revisión visual preparada),bd0df37 (contrato documental entre categorías). No se ha activado recuperación recurrente ni entre categorías:19k5e/19k5f2 siguen pendientes.
