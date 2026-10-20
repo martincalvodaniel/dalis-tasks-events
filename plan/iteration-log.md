@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## 19k5c — Evidencia portable de primaria recurrente
+
+Backup3 admite recurring_primary y selecciona su validador específico antes de reutilizar las guardias comunes de placements. Conserva originales superseded exactos, outcome congelado, prerrequisitos acreditados por operaciones/outcomes aplicados coincidentes y reemplazo exacto de la misma aparición. IDs globales y propiedad exclusiva de cada intención siguen protegidos. Quitar la marca no convierte la decisión en recuperación simple válida; pending intentado y ediciones posteriores son portables, sin inventar ACK.
+
+Catorce tests nuevos/72 aserciones: moved/implicit × día/atrasadas × adopción/retry, roundtrip y formato2 rechazado, truncaciones/corrupción de historia/reemplazo/familia, intento sinrespuesta, proyección multiefecto por planners productivos puros, ACK previo con evidencia real y exclusividad/IDs. La fixture de prerrequisito se corrigió para usar la clave y el efecto de la aparición, sin relajar schemas. DoD1184pass/225skip/0fail/13098aserciones, lint1027 sin avisos/tipos/Webpack/worker46/diff aprobados. Entrada86%5h/84%7d, reservas10%/1%, secuencial. Sin IO ni caller nuevo; la prueba de resultado aplicada es un modelo puro, no un recibo Mongo nuevo. Siguiente19k5d: TX local/captura/feature y prueba IndexedDB nativa de replay/capacidad/rollback/cuenta, antes de Next/UI.
+
+
 ## 19k5b — Decisión de primaria recurrente preparada
 
 Familia explícita recurring_primary en request/record, separada de mixed_group y del camino simple. Permite adoptar posiciones conocidas sin operaciones o reconstruir únicamente el último movimiento exacto con UUID nuevo y CAS actual del slot. Reutiliza el planner remoto y conserva revisiones observadas en optimismo; sólo un recibo remoto podrá avanzarlas. Validación reconstruye toda la decisión y protege identidad, snapshot obsoleto, originales y efectos. Vecinos obsoletos o tombstone de posición mantienen sólo adopción. Sin portable, persistencia ni caller nuevo todavía.

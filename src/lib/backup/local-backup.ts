@@ -4,6 +4,7 @@ import { validateItemViewResolutionEvidence } from "@/lib/backup/item-view-resol
 import {
   validateMixedPlacementResolutionEvidence,
   validatePlacementResolutionEvidence,
+  validateRecurringPlacementResolutionEvidence,
 } from "@/lib/backup/placement-resolution-evidence"
 import { validatePlanCategoryResolutionEvidence } from "@/lib/backup/plan-category-resolution-evidence"
 import { validatePlanOccurrenceCohortResolutionEvidence } from "@/lib/backup/plan-occurrence-cohort-resolution-evidence"
@@ -241,7 +242,14 @@ function validateBackup(
       continue
     }
     if (record.key.startsWith("placement-resolution:")) {
-      if ("reviewKind" in record)
+      if ("reviewKind" in record && record.reviewKind === "recurring_primary")
+        validateRecurringPlacementResolutionEvidence(
+          record,
+          actor,
+          entries,
+          outcomes
+        )
+      else if ("reviewKind" in record)
         validateMixedPlacementResolutionEvidence(
           record,
           actor,

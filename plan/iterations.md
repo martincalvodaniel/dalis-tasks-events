@@ -1,5 +1,11 @@
 # Iteraciones de implementación
 
+## 19k5c — Evidencia portable de primaria recurrente
+
+Completado:14 tests/72 aserciones, DoD1184pass/225skip/0fail, lint1027/tipos/Webpack/worker46 aprobados.
+
+Objetivo: incluir familia recurring_primary en backup3 con evidencia exacta y conservar rechazo de otros formatos/familias. target_paths: schemas/local-recurring-backup, backup/local-backup/placement-resolution-evidence y nueva fixture/tests recurrentes; plan. Dependencias19k5b, entrada86%5h/84%7d, reservas10%/1%, secuencial. Aceptación: originales/outcome raíz/ACK previos acreditados/reemplazo exacto, IDs globales y exclusividad; pending intentado tras respuesta perdida portable, nunca ACK sólo por DTO; slots/padre/shadows preservados. Casos adopt/retry/implicit/overdue/ediciones posteriores, corrupción/truncación/familia/IDs/ACK contra planners productivos puros; DoD/commit/push/HEAD/cuotas. Writer/UI posteriores, sin IO nuevo.
+
 ## 19k5b — Decisión preparada para primaria recurrente
 
 Completado:7 tests/76 aserciones, DoD1170pass/225skip/0fail, lint1025/tipos/Webpack/worker46 aprobados. Portable/writer/UI posteriores.
