@@ -1,5 +1,16 @@
 # Recuperación explícita de conflictos
 
+## 19k1b — Decisión preparatoria de orden mixto
+
+Captura y validación mixtas reutilizan las guardias de cadena, outcome congelado, primaria, catálogos canónicos y prerrequisitos del resolver de placements. Una política privada separa ambos caminos: las funciones vigentes siguen rechazando grupos recurrentes; sólo las nuevas funciones preparatorias admiten vecinos visibles recurrentes tras reviewPlacementGroup. La primaria sigue siendo un plan común simple y la categoría no cambia.
+
+La decisión explícita reviewKind=mixed_group conserva la forma existente y clave placement-resolution. Adoptar conserva posiciones remotas conocidas sin operación; retry_latest_move reutiliza el planner existente con nuevo UUID/CAS de primaria, sólo si los vecinos siguen válidos y todos los efectos son posiciones de ese grupo. Cada efecto optimista conserva la revisión observada (0 para una nueva posición derivada), sin ACK local. IDs/bytes/actor/stale y evidencia íntegra protegidos; snapshot/record se reconstruyen al validar. No se registra aún en backup ni se persiste por un writer/caller.
+
+Seis tests nuevos/47 aserciones más regresiones simples y de contexto: día/atrasadas, adopción, último comando exacto/CAS2, varias fechas y vecinos implícitos, guardias/IDs/efectos alterados, tombstone/vecinos obsoletos sólo adopción y protección externa. La fixture stale se corrigió para cambiar un vecino manteniendo la primaria exacta; sin relajar validación. DoD1131pass/225opt-in skip/0fail/12670aserciones, lint1013 sin avisos/tipos/Webpack/worker46/diff aprobados.
+
+Entrada64%5h/94%7d, reservas10%/1%, secuencial. Rutas placement-resolution/placement-decision, schemas/types/mixed-placement-resolution, mixed-placement-decision/fixture/tests y fixture de grupo con actor. Sin IO/protocolo/índice/dependencia/UI/DBusuario nuevos. Catálogos con posiciones locales no observadas, otro contenido/asignación pendiente, primaria recurrente o cross-category siguen bloqueados. Siguiente19k2: evidencia portable3 de la familia marcada, usando historia/outcomes/ACK reales y reemplazo exacto, sin mezclar el validador simple; después TX/cuenta/Next/UI. No activar retirando una guardia aisladamente.
+
+
 ## 19k1a — Contexto puro de orden en grupos mixtos
 
 Contrato preparatorio de revisión para un plan principal simple con vecinos simples/recurrentes en la misma categoría. Valida catálogos acotados propios y comprometidos, igualdad de contenido/apariciones/categorías/vistas entre local y observado, asignaciones conocidas de cada padre visible y pertenencia civil explícita. Materializa sólo para comparar: conserva identidad de slots originales, fecha efectiva, orden local/observado y claves de posiciones cambiadas. Un slot implícito no se convierte en excepción o posición durable.

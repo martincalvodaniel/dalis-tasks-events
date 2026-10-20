@@ -1,6 +1,7 @@
 import { isPlanOverdue, planIncludesDate } from "@/lib/calendar/plan-selection"
 import { validateLocalPreferenceOutcomeV2 } from "@/lib/sync/local-operation-outcome-v2"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
+import { reviewPlacementGroup } from "@/lib/sync/placement-group-review"
 import { placementDate, taskPlacementEntityKey } from "@/schemas/ordering"
 import { personalQueueDiagnosticsInputSchema } from "@/schemas/personal-queue-diagnostics"
 import {
@@ -65,6 +66,17 @@ function prerequisites(chain: OutboxEntry[], entries: OutboxEntry[]) {
 export function capturePlacementResolutionSnapshot(
   input: unknown
 ): PlacementResolutionSnapshot {
+  return captureSnapshot(input, false)
+}
+export function captureMixedPlacementResolutionSnapshot(
+  input: unknown
+): PlacementResolutionSnapshot {
+  return captureSnapshot(input, true)
+}
+function captureSnapshot(
+  input: unknown,
+  mixedGroup: boolean
+): PlacementResolutionSnapshot {
   const value = placementResolutionCaptureSchema.parse(input),
     { incident, entries, userId } = value
   personalQueueDiagnosticsInputSchema.parse({
@@ -93,11 +105,24 @@ export function capturePlacementResolutionSnapshot(
     observed: canonicalCatalog(value.observed),
     acknowledgedDependencies: prerequisites(chain, entries),
   }
-  return validatePlacementResolutionSnapshot(snapshot, userId)
+  return validateSnapshot(snapshot, userId, mixedGroup)
 }
 export function validatePlacementResolutionSnapshot(
   input: unknown,
   actor: string
+): PlacementResolutionSnapshot {
+  return validateSnapshot(input, actor, false)
+}
+export function validateMixedPlacementResolutionSnapshot(
+  input: unknown,
+  actor: string
+): PlacementResolutionSnapshot {
+  return validateSnapshot(input, actor, true)
+}
+function validateSnapshot(
+  input: unknown,
+  actor: string,
+  mixedGroup: boolean
 ): PlacementResolutionSnapshot {
   const value = placementResolutionSnapshotSchema.parse(input),
     { incident, local, observed } = value,
@@ -170,6 +195,7 @@ export function validatePlacementResolutionSnapshot(
       "Placement recovery cannot change its reviewed category group"
     )
   if (
+    !mixedGroup &&
     observed.items.some(
       (item) =>
         item.kind === "plan" &&
@@ -211,39 +237,54 @@ export function validatePlacementResolutionSnapshot(
     remote.tagId !== command.tagId
   )
     throw new Error("Placement primary is absent or belongs to another group")
-  for (const record of local.placements) {
-    const other = remoteByKey.get(placementKey(record))
-    if (!other) throw new Error("Placement observation is missing")
-    if (same(record, other)) continue
-    const item = observed.items.find((item) => item.id === record.occurrenceId)
-    const peerView = observed.views.find(
-        (view) => view.itemId === record.occurrenceId
-      ),
-      peerTag =
-        peerView?.primaryTagId && activeTags.has(peerView.primaryTagId)
-          ? peerView.primaryTagId
-          : null
-    if (
-      record.scope !== command.scope ||
-      record.date !== placementDate(command.scope, command.date) ||
-      record.tagId !== command.tagId ||
-      other.tagId !== command.tagId ||
-      record.deletedAt ||
-      (other.deletedAt && record.occurrenceId !== parent.id) ||
-      record.revision > other.revision ||
-      record.createdAt !== other.createdAt ||
-      item?.kind !== "plan" ||
-      item.deletedAt ||
-      item.recurrence ||
-      peerView?.deletedAt ||
-      peerTag !== command.tagId ||
-      (command.scope === "day"
-        ? !planIncludesDate(item, command.date)
-        : !isPlanOverdue(item, command.date))
-    )
+  if (mixedGroup) {
+    const review = reviewPlacementGroup({
+      userId: actor,
+      operation: incident.entry.operation,
+      local,
+      observed,
+    })
+    if (!review.includesRecurringPeers)
       throw new Error(
-        "Placement comparison contains changes outside its reviewed simple group"
+        "Mixed placement decision requires a visible recurring peer"
       )
+  } else {
+    for (const record of local.placements) {
+      const other = remoteByKey.get(placementKey(record))
+      if (!other) throw new Error("Placement observation is missing")
+      if (same(record, other)) continue
+      const item = observed.items.find(
+        (item) => item.id === record.occurrenceId
+      )
+      const peerView = observed.views.find(
+          (view) => view.itemId === record.occurrenceId
+        ),
+        peerTag =
+          peerView?.primaryTagId && activeTags.has(peerView.primaryTagId)
+            ? peerView.primaryTagId
+            : null
+      if (
+        record.scope !== command.scope ||
+        record.date !== placementDate(command.scope, command.date) ||
+        record.tagId !== command.tagId ||
+        other.tagId !== command.tagId ||
+        record.deletedAt ||
+        (other.deletedAt && record.occurrenceId !== parent.id) ||
+        record.revision > other.revision ||
+        record.createdAt !== other.createdAt ||
+        item?.kind !== "plan" ||
+        item.deletedAt ||
+        item.recurrence ||
+        peerView?.deletedAt ||
+        peerTag !== command.tagId ||
+        (command.scope === "day"
+          ? !planIncludesDate(item, command.date)
+          : !isPlanOverdue(item, command.date))
+      )
+        throw new Error(
+          "Placement comparison contains changes outside its reviewed simple group"
+        )
+    }
   }
   const outcome = validateLocalPreferenceOutcomeV2(incident.outcome, actor)
   if (

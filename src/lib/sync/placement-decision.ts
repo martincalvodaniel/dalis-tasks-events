@@ -16,7 +16,7 @@ import type { TaskPlacement } from "@/types/preferences"
 function key(record: TaskPlacement) {
   return taskPlacementEntityKey(record.occurrenceId, record.scope, record.date)
 }
-function previewLatestMovement(
+export function previewPlacementLatestMovement(
   snapshot: PlacementResolutionSnapshot,
   operationId: string,
   timestamp: string
@@ -79,7 +79,7 @@ function buildRecord(
 ): PlacementResolutionRecord {
   const planned =
     request.choice === "retry_latest_move" && request.operationId
-      ? previewLatestMovement(
+      ? previewPlacementLatestMovement(
           request.expected,
           request.operationId,
           request.createdAt

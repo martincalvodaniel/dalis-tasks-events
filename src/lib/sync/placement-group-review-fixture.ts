@@ -6,9 +6,10 @@ import type { PlanVariant } from "@/types/plan-item"
 
 export function placementGroupReviewFixture(
   scope: "day" | "overdue" = "day",
-  variant: PlanVariant = "task"
+  variant: PlanVariant = "task",
+  actor?: string
 ) {
-  const simple = placementResolutionFixture(undefined, variant, scope)
+  const simple = placementResolutionFixture(actor, variant, scope)
   const series = planSchema.parse({
     ...simple.items[1],
     id: crypto.randomUUID(),
