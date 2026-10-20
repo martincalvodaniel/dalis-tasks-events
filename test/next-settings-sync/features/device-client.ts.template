@@ -137,6 +137,7 @@ async function execute(
       "recurring-placement-guard-proof",
       "commit-simple-move",
       "resolve-placement-ui",
+      "resolve-recurring-placement-ui",
       "resolve-mixed-placement-ui",
       "mixed-placement-comparison",
       "resolve-mixed-placement",

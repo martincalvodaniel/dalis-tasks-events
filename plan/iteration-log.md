@@ -1,5 +1,14 @@
 # Registro de iteraciones
 
+## 19k5f2 — Recuperación de orden recurrente visible en Ajustes
+
+Lectura adaptativa conserva unúnico LocalSyncStore yrevalida cuenta/época antes/después de cada familia simple/mixed_group/recurring_primary. Acción deAjustes sólo ofrece alternativas trascomparación completa validada yelige schema/writer explícitos; UUIDs estables encada confirmación, caché sólo decuenta/época propia. Revisión señala elslotexacto, vecinos/fechas implícitas yoriginales reprogramadas; no cambia contenido/categoría/fechas ni fabricaACK. Cancelar sinwrites, dependencias externas ygrupos desconocidos conservan protección.
+
+Once escenariosNext6 focalizados UI pasan con dosorígenesIndexedDB/sesionesBetterAuth persistidas/Mongo propios: moved/implicit×adopt/retry, cancelar/reabrir/confirmar reales, IDsgeneradosporUI diferentes delpreliminar, dos pérdidas después decommit/recarga/replay/mismoUUID→ACKreal único, catálogos/shadows/cursor exactos ydominios ajenos intactos. Scope backend mantenido, full36 disponible sinatribuir ejecucióncompleta/Google/físicos. Run5fcc72a4-1deb-4f2b-8634-34d1727228e2 exit0/cleanup propio confirmado; pestaña humana intacta. Captura /private/tmp/dalis-1843-recurring-ui-next.png. FixtureUI reutiliza harness deinteracción yaexistente con familia específica. Unaaserción SSR usaba motivo rechazado inexistente: corregida ainvalid_command antes detipos, sinrelajar contrato.
+
+Dos SSR nuevos decandidatura/guardias yschemaUI estricto. DoD1200pass/225skip/0fail/13283aserciones, lint1033sinavisos/tipos/Webpack/worker46/diff aprobados. Entrada91%5h/71%7d, reservas10%/1%, secuencial. Siníndice/protocolo/dependencia/DBusuario nuevos.19k5 cerrado para primaria recurrente aislada same-category/posiciones conocidas; movimientos entrecategorías/ausencia/cadenas externas siguen protegidos. Siguiente19k6b1: oráculo puro de grupos entrecategorías con asignación padre/efectos otrasfechas yCASindependientes según category-movement-recovery.md, antes decontrato/portable/TX/Next/UI posteriores.
+
+
 ## 19k5e — Recuperación recurrente acreditada contra Next y Mongo
 
 Once escenarios Next6 focalizados (`recurring-placement`) aprobados con acción/defaults reales, sesiones BetterAuth persistidas y dosorígenesIndexedDB/Mongo propios. Cuatrocasos moved/implicit×adopt/retry acreditan productores reales, cadena UUID/payload/dependencias intactos, guardias actor/epoch/stale sinwrites, adopción0ops yretry conCASprimario observado. Dos pérdidas trascommit conservan pendingattempt1 sinACK, recarga yreplay delmismoUUID→ACKrealattempt2 conunrecibo/journal único. Catálogos completos/shadows/cursor exactos contraMongo, contenido/vistas/categorías/apariciones/settings intactos yreplay durable sinretroceso. Scopefull36 disponible, no ejecutado completo ni atribuido aGoogle/físicos.

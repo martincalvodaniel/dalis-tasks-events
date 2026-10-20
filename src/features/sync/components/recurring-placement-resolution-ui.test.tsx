@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test"
 import { renderToStaticMarkup } from "react-dom/server"
+import { PersonalIncidentCard } from "@/features/sync/components/personal-incident-card"
 import { PlacementIncidentResolutionDialog } from "@/features/sync/components/placement-incident-resolution-dialog"
 import { captureRecurringPlacementResolutionSnapshot } from "@/lib/sync/placement-resolution"
 import { recurringPlacementResolutionFixture } from "@/lib/sync/recurring-placement-resolution-fixture"
@@ -116,3 +117,32 @@ test("a timed appearance review distinguishes its original hour from the new hou
   expect(html).toContain("11:30")
   expect(html.match(/En revisión/g)?.length).toBe(2)
 })
+
+for (const slot of ["moved", "implicit"] as const)
+  test(`recurring ${slot} order opens a review entry without offering unvalidated choices`, () => {
+    const f = recurringPlacementResolutionFixture(slot),
+      account = { userId: f.simple.actor, epoch: crypto.randomUUID() }
+    const html = renderToStaticMarkup(
+      <PersonalIncidentCard account={account} incident={f.snapshot.incident} />
+    )
+    expect(html).toContain("Revisar orden de planes")
+    expect(html).not.toContain("Resolver orden de planes")
+    for (const incident of [
+      { ...f.snapshot.incident, blockedByRelatedIntentions: true },
+      { ...f.snapshot.incident, reason: "invalid_command" as const },
+    ]) {
+      expect(
+        renderToStaticMarkup(
+          <PersonalIncidentCard account={account} incident={incident} />
+        )
+      ).not.toContain("Revisar orden de planes")
+    }
+    expect(
+      renderToStaticMarkup(
+        <PersonalIncidentCard
+          account={{ ...account, userId: "foreign" }}
+          incident={f.snapshot.incident}
+        />
+      )
+    ).not.toContain("Revisar orden de planes")
+  })

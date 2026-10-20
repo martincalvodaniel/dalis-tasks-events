@@ -24,7 +24,12 @@ export async function readPlacementIncidentComparison(
       result = await store.readPlacementIncidentSnapshot(operationId)
     } catch {
       await requireActiveAccount(account)
-      result = await store.readMixedPlacementIncidentSnapshot(operationId)
+      try {
+        result = await store.readMixedPlacementIncidentSnapshot(operationId)
+      } catch {
+        await requireActiveAccount(account)
+        result = await store.readRecurringPlacementIncidentSnapshot(operationId)
+      }
     }
     await requireActiveAccount(account)
     return result

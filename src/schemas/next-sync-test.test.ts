@@ -512,6 +512,7 @@ test("recurring placement fixture accepts only its explicit family and appearanc
   ).toMatchObject({ operationId, command: { occurrenceId: f.targetId } })
   for (const type of [
     "resolve-recurring-placement",
+    "resolve-recurring-placement-ui",
     "recurring-placement-guard-proof",
   ] as const) {
     expect(
@@ -545,7 +546,10 @@ test("recurring placement fixture accepts only its explicit family and appearanc
       database: "production",
     })
   ).toThrow()
+  expect(nextSettingsProofScopeSchema.parse("recurring-placement-ui")).toBe(
+    "recurring-placement-ui"
+  )
   expect(() =>
-    nextSettingsProofScopeSchema.parse("recurring-placement-ui")
+    nextSettingsProofScopeSchema.parse("recurring-placement-unsafe")
   ).toThrow()
 })
