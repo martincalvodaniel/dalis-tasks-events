@@ -1,5 +1,16 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19k4b1 — Recuperación mixta probada contra Next/Mongo
+
+Nuevo scope explícito mixed-placement mantiene full35 disponible. Once escenarios focalizados Next6 compilado/defaults/sesiones BetterAuth persistidas/dos orígenes IndexedDB/Mongo propios aprobados: adopción y retry con productores reales, tres planes simples y serie con dos fechas visibles en el mismo día (una movida y otra implícita). Antes del conflicto todas las posiciones de vecinos se confirman y sus revisiones independientes quedan conocidas; el slot implícito no se convierte en excepción. Guardias actor/epoch/snapshot obsoleto conservan todos los stores.
+
+Se conserva la cadena original exacta de dos movimientos; elección local no crea historia remota ni cambia contenido/vistas/categorías/apariciones/settings/shadows. Adopción0ops o retry del último comando con UUIDnuevo/CAS2. Pérdida tras commit→pendingattempt1sinlease; recarga conserva UUID ypayload, replay→ACKrealattempt2 con un solo recibo y entrada de journal. Ambos orígenes terminan con catálogo completo de posiciones, shadows ycursor exactamente iguales a Mongo; replay durable no retrocede el estado. Convergencia por grupo revisado, no global de históricos protegidos. No UI interactiva/Google/físicos nuevos. Captura /private/tmp/dalis-mixed-placement-next-proof.png.
+
+El primer build de fixture detectó unión legacy de apariciones: se filtró explícitamente kind=plan antes del catálogo recurrente, sin cambiar producto. Segundo run aprobado; recursos propios de ambos runs retirados, pestaña cerrada. Contrato nuevo valida marcador mixed_group, scope ycomandos estrictos, rechaza destinoextra/familia simple/selectorUI aún no implementado. DoD1147pass/225skip/0fail/12810aserciones, lint1019 sin avisos/tipos/Webpack/worker46/diff aprobados. Entrada33%5h/90%7d, reservas10%/1%, secuencial. Sin protocolo/índice/dependencia/DBusuario/caller mixto activo nuevos.
+
+Siguiente19k4b2: lectura adaptativa propia y familia explícita, conexión a Ajustes con UUID estable/caché cuenta/época, ambas elecciones UI reales con cancelar/reabrir/confirmar y repetir pérdida/recarga/replay antes de publicar caller. Los scopes backend permanecen disponibles sin atribuirles interacción. Primaria recurrente, cross-category y posiciones locales no comprometidas conservan protección.
+
+
 ## 19k4a — Representación completa de grupos mixtos preparada
 
 Diálogo de orden añade variante explícita mixed_group sin cambiar el caller simple. Revalida opciones mediante el planner mixto y muestra todos los vecinos visibles con el mismo orden productivo, incluidas fechas implícitas sin posición y excepciones con título propio. Fecha original reprogramada y efectiva diferenciadas; una posición tombstone vuelve al orden automático sin tachar ni eliminar el plan. Explica alcance recurrente, conservación de contenido/estado/historial, envío pendiente y última observación conocida. No hay caller mixto activo todavía.

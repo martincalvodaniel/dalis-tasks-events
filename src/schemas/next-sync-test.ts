@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { itemViewResolutionRequestSchema } from "@/schemas/item-view-resolution"
+import { mixedPlacementResolutionRequestSchema } from "@/schemas/mixed-placement-resolution"
 import { placementResolutionRequestSchema } from "@/schemas/placement-resolution"
 import { planCategoryResolutionRequestSchema } from "@/schemas/plan-category-resolution"
 import { planCommandSchema } from "@/schemas/plan-command"
@@ -152,6 +153,7 @@ export const nextSettingsProofScopeSchema = z
     "assignment-series",
     "placement",
     "placement-ui",
+    "mixed-placement",
     "tag-delete",
     "tag-delete-ui",
     "tag-order",
@@ -159,6 +161,18 @@ export const nextSettingsProofScopeSchema = z
   ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("mixed-placement-comparison"),
+    operationId: entityIdSchema,
+  }),
+  z.strictObject({
+    type: z.literal("resolve-mixed-placement"),
+    request: mixedPlacementResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("mixed-placement-guard-proof"),
+    request: mixedPlacementResolutionRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("resolve-appearance-cohort-ui"),
     request: planOccurrenceCohortResolutionRequestSchema,

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { planOccurrenceCohortResolutionFixture } from "@/lib/backup/plan-occurrence-cohort-resolution-fixture"
 import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
+import { mixedPlacementDecisionFixture } from "@/lib/sync/mixed-placement-decision-fixture"
 import {
   nextRecurringSyncStateSchema,
   nextSettingsProofScopeSchema,
@@ -455,4 +456,42 @@ test("multi-slot UI fixture requires a full review without widening other comman
     { type: "resolve-appearance-cohort-ui", request, unsafe: true },
   ])
     expect(nextSyncDeviceCommandSchema.safeParse(input).success).toBe(false)
+})
+
+test("mixed placement proof scope preserves the marked family and strict command boundary", () => {
+  const { request } = mixedPlacementDecisionFixture()
+  expect(nextSettingsProofScopeSchema.parse("mixed-placement")).toBe(
+    "mixed-placement"
+  )
+  for (const type of [
+    "resolve-mixed-placement",
+    "mixed-placement-guard-proof",
+  ] as const) {
+    expect(nextSyncDeviceCommandSchema.parse({ type, request })).toEqual({
+      type,
+      request,
+    })
+    const { reviewKind, ...simple } = request
+    expect(reviewKind).toBe("mixed_group")
+    expect(() =>
+      nextSyncDeviceCommandSchema.parse({ type, request: simple })
+    ).toThrow()
+  }
+  const operationId = request.expected.incident.entry.operation.operationId
+  expect(
+    nextSyncDeviceCommandSchema.parse({
+      type: "mixed-placement-comparison",
+      operationId,
+    })
+  ).toEqual({ type: "mixed-placement-comparison", operationId })
+  expect(() =>
+    nextSyncDeviceCommandSchema.parse({
+      type: "mixed-placement-comparison",
+      operationId,
+      database: "production",
+    })
+  ).toThrow()
+  expect(() =>
+    nextSettingsProofScopeSchema.parse("mixed-placement-ui")
+  ).toThrow()
 })

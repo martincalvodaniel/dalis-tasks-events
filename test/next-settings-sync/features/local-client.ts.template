@@ -1,4 +1,5 @@
 "use client"
+import {readMixedPlacementIncidentComparison,resolveMixedPlacementIncident} from "@/features/sync/local-mixed-placement-resolution"
 import { proveAppearanceCohortResolutionUi } from "@fixture/appearance-cohort-resolution-ui"
 import { readPlanOccurrenceCohortComparison, resolvePlanOccurrenceCohort } from "@/features/sync/local-plan-occurrence-cohort-resolution"
 import {provePlacementResolutionUi} from "@fixture/placement-resolution-ui"
@@ -592,6 +593,18 @@ export async function executeLocalFixtureCommand(
       const entry=(await readFixtureBackup(active)).stores.outbox.find(entry=>entry.operation.operationId===command.operationId)
       if(!entry)throw new Error("Real simple movement producer lost its intention")
       return entry
+    }
+    case "mixed-placement-comparison":return readMixedPlacementIncidentComparison(active,command.operationId)
+    case "resolve-mixed-placement":return resolveMixedPlacementIncident(active,command.request)
+    case "mixed-placement-guard-proof": {
+      const before=JSON.stringify((await readFixtureBackup(active)).stores),expected=structuredClone(command.request.expected);expected.local.placements[0].position++
+      let checks=0
+      for(const work of [()=>resolveMixedPlacementIncident({...active,epoch:crypto.randomUUID()},command.request),()=>resolveMixedPlacementIncident(active,{...command.request,userId:"owned-foreign-mixed-placement"}),()=>resolveMixedPlacementIncident(active,{...command.request,expected})]){
+        let failed=false;try{await work()}catch{failed=true}
+        if(!failed||before!==JSON.stringify((await readFixtureBackup(active)).stores))throw new Error("Mixed placement feature guard changed durable state")
+        checks++
+      }
+      return {checks}
     }
     case "resolve-placement-ui":return provePlacementResolutionUi(active,command.request)
     case "placement-comparison":return readPlacementIncidentComparison(active,command.operationId)
