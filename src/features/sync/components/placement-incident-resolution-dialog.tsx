@@ -10,6 +10,10 @@ import {
   availablePlacementResolutionChoices,
   previewPlacementResolutionChoice,
 } from "@/lib/sync/placement-decision"
+import {
+  availableRecurringPlacementResolutionChoices,
+  previewRecurringPlacementResolutionChoice,
+} from "@/lib/sync/recurring-placement-decision"
 import type {
   PlacementResolutionRequest,
   PlacementResolutionSnapshot,
@@ -30,7 +34,7 @@ export function PlacementIncidentResolutionDialog({
   onClose,
 }: {
   snapshot: PlacementResolutionSnapshot
-  reviewKind?: "mixed_group"
+  reviewKind?: "mixed_group" | "recurring_primary"
   actor: string
   choice: PlacementResolutionRequest["choice"]
   busy: boolean
@@ -38,17 +42,23 @@ export function PlacementIncidentResolutionDialog({
   onConfirm(resolutionId: string): Promise<void>
   onClose(): void
 }) {
-  const mixed = reviewKind === "mixed_group"
-  const choices = mixed
-    ? availableMixedPlacementResolutionChoices(snapshot, actor)
-    : availablePlacementResolutionChoices(snapshot, actor)
+  const grouped = reviewKind !== undefined
+  const choices =
+    reviewKind === "recurring_primary"
+      ? availableRecurringPlacementResolutionChoices(snapshot, actor)
+      : reviewKind === "mixed_group"
+        ? availableMixedPlacementResolutionChoices(snapshot, actor)
+        : availablePlacementResolutionChoices(snapshot, actor)
   if (!choices.includes(choice)) return null
   const command = snapshot.incident.entry.operation.command
   if (command.type !== "task.move") return null
   const adopt = choice === "adopt_remote",
-    chosen = mixed
-      ? previewMixedPlacementResolutionChoice(snapshot, actor, choice)
-      : previewPlacementResolutionChoice(snapshot, actor, choice),
+    chosen =
+      reviewKind === "recurring_primary"
+        ? previewRecurringPlacementResolutionChoice(snapshot, actor, choice)
+        : reviewKind === "mixed_group"
+          ? previewMixedPlacementResolutionChoice(snapshot, actor, choice)
+          : previewPlacementResolutionChoice(snapshot, actor, choice),
     tag = snapshot.observed.tags.find((tag) => tag.id === command.tagId)
   return (
     <ConfirmationDialog
@@ -100,14 +110,16 @@ export function PlacementIncidentResolutionDialog({
           </label>
         ) : null}
       </fieldset>
-      {mixed ? (
+      {grouped ? (
         <div className="mt-2 grid min-w-0 gap-2 sm:grid-cols-2">
           <MixedPlacementResolutionVersion
+            reviewKind={reviewKind}
             label="Tu orden actual"
             snapshot={snapshot}
             placements={snapshot.local.placements}
           />
           <MixedPlacementResolutionVersion
+            reviewKind={reviewKind}
             label={
               adopt ? "Orden que usarás" : "Orden que guardarás para enviar"
             }
@@ -132,7 +144,7 @@ export function PlacementIncidentResolutionDialog({
         </div>
       )}
       <div className="mt-2 space-y-2 text-xs">
-        {mixed ? (
+        {grouped ? (
           <p>
             Este grupo incluye fechas de planes repetidos. Cada fecha conserva
             su contenido y su estado; sólo se revisa su posición.

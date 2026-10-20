@@ -6,21 +6,24 @@ if (
   mode !== "tag-order-review" &&
   mode !== "tag-delete-review" &&
   mode !== "placement-review" &&
+  mode !== "recurring-placement-review" &&
   mode !== "appearance-cohort-review"
 )
   throw new Error("Unknown plan UI fixture mode")
 const build = await Bun.build({
   entrypoints: [
     resolve(
-      mode === "appearance-cohort-review"
-        ? "test/browser/appearance-cohort-review.tsx"
-        : mode === "placement-review"
-          ? "test/browser/placement-review.tsx"
-          : mode === "tag-delete-review"
-            ? "test/browser/tag-delete-review.tsx"
-            : mode === "tag-order-review"
-              ? "test/browser/tag-order-review.tsx"
-              : "test/browser/plan-agenda-ui.tsx"
+      mode === "recurring-placement-review"
+        ? "test/browser/recurring-placement-review.tsx"
+        : mode === "appearance-cohort-review"
+          ? "test/browser/appearance-cohort-review.tsx"
+          : mode === "placement-review"
+            ? "test/browser/placement-review.tsx"
+            : mode === "tag-delete-review"
+              ? "test/browser/tag-delete-review.tsx"
+              : mode === "tag-order-review"
+                ? "test/browser/tag-order-review.tsx"
+                : "test/browser/plan-agenda-ui.tsx"
     ),
   ],
   target: "browser",

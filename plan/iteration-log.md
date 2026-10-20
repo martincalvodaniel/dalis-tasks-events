@@ -1,5 +1,14 @@
 # Registro de iteraciones
 
+## 19k5f1 — Revisión visual recurrente preparada
+
+Se reutiliza el diálogo de orden con política explícita recurring_primary. La versión compartida valida la familia, destaca el slot exacto (no el padre), conserva todos los vecinos e implícitos y diferencia hora/fecha originales de las reprogramadas. Lookup de posiciones por mapa evita búsqueda lineal por cada fila. Los caminos simples/mixed_group conservan comportamiento y guardias; todavía no hay caller recurrente activo en Ajustes.
+
+Diez tests nuevos SSR/151 aserciones: moved/implicit × día/atrasadas × adopción/retry, familia/cuenta/contexto/busy y snapshot timed completo con horario original09:00/efectivo11:30. Corregida la identidad de slot de la fixture timed antes de validarla, sin relajar schemas. Regresión de los otros diálogos aprobada. DoD1198pass/225skip/0fail/13270aserciones, lint1033 sin avisos/tipos/Webpack/worker46/diff aprobados. Skill vercel-react-best-practices y guía Next instalada aplicadas.
+
+QA con CSS del build a390×844: documento390 y diálogo356 sin desbordamiento horizontal; textos largos y controles caben, alternativa cambia previsualización y botones quedan accesibles al desplazar; cancelar cierra sin datos. Captura /private/tmp/dalis-recurring-placement-review-mobile.png. Fixture visual no abre bases, no representa RPC/Google. Pestaña/servidor propios cerrados y viewport restablecido. Entrada36%5h/76%7d, reservas10%/1%, secuencial.19k5e sigue pendiente del Docker no responsivo y respuesta humana; después19k5f2 conecta/probará cancelar/reabrir/confirmar/UUIDUI/Next/Mongo antes de activar. Sin índice/protocolo/dependencia/DBusuario nuevos.
+
+
 ## 19k5e1 — Prueba remota preparada; Docker no responde
 
 Fixtures preparadas para cuatro casos moved/implicit × adopción/retry con productores reales, guardias y comparación exacta de ambos orígenes contra Mongo. Nuevo comando commit-recurring-move-entry devuelve la intención y conserva el comando de fixture existente. El test de schema detectó inicialmente el discriminador duplicado; se corrigió con el nombre independiente. Full36 permanece disponible; NO se ha ejecutado completo ni se da por aprobado19k5e.

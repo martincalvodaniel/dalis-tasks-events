@@ -1,5 +1,11 @@
 # Iteraciones de implementación
 
+## 19k5f1 — Revisión visual recurrente preparada sin caller
+
+Completado:10 SSR/151 aserciones, QA390px sin overflow, DoD1198pass/225skip/0fail, lint1033/tipos/Webpack/worker46. Sin caller activo.
+
+Objetivo independiente del bloqueo Docker: reutilizar diálogo/versión de orden con política explícita recurring_primary, destacar el slot exacto y mostrar hora original si fue reprogramada. target_paths: PlacementIncidentResolutionDialog/MixedPlacementResolutionVersion, nuevos tests SSR y fixture visual/selector; plan. Dependencias de contrato/decisión/portable/TX19k5a–d completas;19k5e remoto pendiente. Entrada36%5h/76%7d, reservas10%/1%, secuencial. Aceptación: sólo opciones revalidadas por familia, todos los vecinos e implícitos, mismo orden productivo, tombstone sin borrarplan y local/remote contenido/fechas/estado preservados. No conectar acciones activas ni ofrecer recuperación nueva antes de Next/UI reales. Tests SSR/guardias/familia/orden/horas y QA móvil con CSS propio sin DB; DoD/commit/push/HEAD/cuotas. Optimización de lookup por mapa en el componente compartido, sin nueva dependencia.
+
 ## 19k5e1 — Prueba preparada y diagnóstico de bloqueo externo
 
 Preparación completada con DoD1188pass/225skip/0fail y lint1031/tipos/Webpack/worker46.19k5e remoto sigue pendiente por Docker no responsivo; pregunta humana abierta.
