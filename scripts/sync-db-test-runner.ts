@@ -4,6 +4,7 @@ import {
   syncTestImage,
   syncTestProcessEnvironment,
 } from "@/config/sync-test-runner"
+import { isConfirmedMissingSyncTestContainer } from "@/lib/sync/sync-test-container-inspection"
 import { syncDatabaseTestConfigSchema } from "@/schemas/sync-database-test"
 
 const runId = crypto.randomUUID()
@@ -24,6 +25,7 @@ if (
 )
   throw new Error("Unknown isolated sync test mode")
 const name = `dalis-sync-test-${runId}`
+console.info(`Owned sync test run: ${runId}`)
 const label = "dalis.sync-test-run"
 let activeChild: ReturnType<typeof Bun.spawn> | undefined
 let interrupted = false
@@ -42,7 +44,7 @@ async function command(args: string[], allowFailure = false) {
   const child = Bun.spawn(args, { stdout: "pipe", stderr: "pipe" })
   activeChild = child
   const timeout = setTimeout(() => child.kill(), 15000)
-  const [exitCode, output] = await Promise.all([
+  const [exitCode, output, errors] = await Promise.all([
     child.exited,
     new Response(child.stdout).text(),
     new Response(child.stderr).text(),
@@ -51,12 +53,17 @@ async function command(args: string[], allowFailure = false) {
   activeChild = undefined
   if (exitCode !== 0 && !allowFailure)
     throw new Error(`Test runner command failed: ${args[0]} ${args[1]}`)
-  return { exitCode, output: output.trim() }
+  return { exitCode, output: output.trim(), errors: errors.trim() }
 }
 
 async function inspectOwnedContainer() {
   const result = await command(["docker", "inspect", name], true)
-  if (result.exitCode !== 0) return null
+  if (result.exitCode !== 0) {
+    if (isConfirmedMissingSyncTestContainer(name, result)) return null
+    throw new Error(
+      "Owned container cleanup cannot be verified while Docker is unavailable"
+    )
+  }
   const [container] = JSON.parse(result.output)
   if (
     container.Name !== `/${name}` ||

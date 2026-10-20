@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19k5e1 — Prueba preparada y diagnóstico de bloqueo externo
+
+Preparación completada con DoD1188pass/225skip/0fail y lint1031/tipos/Webpack/worker46.19k5e remoto sigue pendiente por Docker no responsivo; pregunta humana abierta.
+
+Corte preparatorio: cuatro casos remotos con productor real de intención, fase/clase/código finitos de bootstrap sin PII/credenciales y UUID propio registrado antes de crear contenedor. Incluye clasificación estricta de ausencia: fallo/timeout de Docker no demuestra contenedor inexistente ni limpieza. target_paths: los de19k5e más next-sync-fixture/handler, runner y helper/test sync-test-container-inspection. Aceptación sólo esquemas/compilación/DoD/diagnóstico/ownership;19k5e remoto sigue pendiente, sin UI activa. Detectado MongoServerSelectionError en prepare y ping del socket Colima agotado a3s, aunque VM informa running. Reinicio requiere respuesta humana por afectar contenedores ajenos; no ejecutado. Rutas nuevas de fixture y cambios preparatorios se conservarán coherentes mientras se espera respuesta.
+
+## 19k5e — Evidencia remota de primaria recurrente
+
+Objetivo: Next6 compilado/defaults con productores reales recurrentes y cuatro casos moved/implicit × adopción/retry, antes de activar UI. target_paths: schemas/next-sync-test ytest, templates settings controller/device/local-client y nueva prueba recurring-placement-recovery; diagnóstico finito de fase de bootstrap en next-sync-fixture/handler sin URI/cookies/PII; plan. Dependencias19k5d, entrada70%5h/81%7d, reservas10%/1%, secuencial. Aceptación: commit-recurring-move-entry estricto con UUID conservado, CAS conflictivo, vecinos confirmados, evidencia/familia/actor/epoch/stale protegidos, pérdida trascommit/recarga/replay/ACK único, proyección/shadows/cursor exactos porgrupo en dos orígenes IndexedDB/Mongo/sesiones BetterAuth propios. Scope focalizado explícito/full disponible sin atribuirles UI/Google/físicos. Docker28.4.0/imagenpinned amd64 revalidados; cleanup propio, DoD ycommit/push/HEAD/cuotas. UI y pruebas interactivas posteriores19k5f.
+
 ## 19k5d — Persistencia local de primaria recurrente
 
 Completado:11 checks IndexedDB moved y11 implicit; DoD1184pass/225skip/0fail, lint1029/tipos/Webpack/worker46. Sin caller nuevo.

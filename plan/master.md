@@ -1,5 +1,16 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19k5e1 — Prueba remota preparada; Docker no responde
+
+Fixtures preparadas para cuatro casos moved/implicit × adopción/retry con productores reales, guardias y comparación exacta de ambos orígenes contra Mongo. Nuevo comando commit-recurring-move-entry devuelve la intención y conserva el comando de fixture existente. El test de schema detectó inicialmente el discriminador duplicado; se corrigió con el nombre independiente. Full36 permanece disponible; NO se ha ejecutado completo ni se da por aprobado19k5e.
+
+Next compiló, pero dos runs se detuvieron en el bootstrap de sesión antes de los casos nuevos. Diagnóstico finito identifica HTTP403/prepare/MongoServerSelectionError. Colima informa running, pero el ping de su socket local agotó3s sin recibir datos; docker info/version también quedaron esperando y se interrumpieron sólo los diagnósticos propios. Se pidió reinicio humano o autorización específica: no se ha reiniciado la VM ni alterado recursos ajenos. El helper de bootstrap sólo expone fases/clases/código finitos, sin URI/cookies/PII; no afecta a auth de producto.
+
+El runner registra UUID antes de crear contenedor y ahora diferencia ausencia confirmada de fallo de inspección. Tres tests/11 aserciones rechazan timeout/daemon/permisos/nombre ajeno/mensajes adicionales como prueba de limpieza. Sin respuesta Docker, la limpieza del run5effb543-bfc0-45de-bd6e-57037c00cc6d queda pendiente de verificar por nombre/label/imagen. Un probe temporal falló al crear recurso antes de registrar su UUID; no se afirma ausencia ni se autoriza borrar contenedores por patrón. Retirados procesos TCP/Next/proyectos temporales/pestañas propias; sólo pestaña humana conservada. Otros runs anteriores sí registraron retirada propia.
+
+DoD1188pass/225skip/0fail/13119aserciones, lint1031 sin avisos/tipos/Webpack/worker46/diff aprobados. Esto acredita preparación y diagnósticos, no RPC nuevo/convergencia ni UI recurrente activa. Entrada70%5h/81%7d, reservas10%/1%, secuencial.19k5e pendiente: con Docker operativo verificar residuos propios y repetir scope recurring-placement; después19k5f interacción/UI antes de publicar caller. Mientras se espera, sólo trabajo puro independiente de19k6 según contrato, sin relajar las guardias.
+
+
 ## 19k5d — Persistencia de primaria recurrente probada
 
 La familia recurring_primary tiene captura y writer propios sobre el núcleo compartido de placements; APIs simple y mixed_group conservan sus schemas/guardias. Una TX9stores relee contexto y prerrequisitos acreditados, valida familia/IDs/capacidad/counter/tail, guarda posiciones/supersesión/0–1reemplazo/recibo atómicos y resuelve sólo tras commit. Replay primero no retrocede trabajo posterior. LocalSyncStore y feature comprueban actor/protocolo6/cuenta/época antes-después y cierran siempre; aviso sólo tras commit aplicado, no replay/fallo. Sin nuevo caller UI.

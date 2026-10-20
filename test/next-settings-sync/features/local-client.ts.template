@@ -1,4 +1,5 @@
 "use client"
+import {readRecurringPlacementIncidentComparison,resolveRecurringPlacementIncident} from "@/features/sync/local-recurring-placement-resolution"
 import {proveMixedPlacementResolutionUi} from "@fixture/mixed-placement-resolution-ui"
 import {readMixedPlacementIncidentComparison,resolveMixedPlacementIncident} from "@/features/sync/local-mixed-placement-resolution"
 import { proveAppearanceCohortResolutionUi } from "@fixture/appearance-cohort-resolution-ui"
@@ -588,6 +589,13 @@ export async function executeLocalFixtureCommand(
     case "resolve-assignment-ui":
       return proveItemViewResolutionUi(active,command.request)
     case "resolve-tag-delete-ui":return proveTagDeletionResolutionUi(active,command.request)
+    case "commit-recurring-move-entry": {
+      if(command.command.type!=="task.move"||command.command.occurrenceId===null)throw new Error("Recurring movement fixture command changed")
+      await moveLocalPlan({...active,itemCount:0,offlineReady:false},command.command,command.operationId)
+      const entry=(await readFixtureBackup(active)).stores.outbox.find(entry=>entry.operation.operationId===command.operationId)
+      if(!entry)throw new Error("Real recurring movement producer lost its intention")
+      return entry
+    }
     case "commit-simple-move": {
       if(command.command.type!=="task.move"||command.command.occurrenceId!==null)throw new Error("Simple movement fixture command changed")
       await moveLocalPlan({...active,itemCount:0,offlineReady:false},command.command,command.operationId)
@@ -596,6 +604,18 @@ export async function executeLocalFixtureCommand(
       return entry
     }
     case "resolve-mixed-placement-ui":return proveMixedPlacementResolutionUi(active,command.request)
+    case "recurring-placement-comparison":return readRecurringPlacementIncidentComparison(active,command.operationId)
+    case "resolve-recurring-placement":return resolveRecurringPlacementIncident(active,command.request)
+    case "recurring-placement-guard-proof": {
+      const before=JSON.stringify((await readFixtureBackup(active)).stores),expected=structuredClone(command.request.expected);expected.local.placements[0].position++
+      let checks=0
+      for(const work of [()=>resolveRecurringPlacementIncident({...active,epoch:crypto.randomUUID()},command.request),()=>resolveRecurringPlacementIncident(active,{...command.request,userId:"owned-foreign-recurring-placement"}),()=>resolveRecurringPlacementIncident(active,{...command.request,expected})]){
+        let failed=false;try{await work()}catch{failed=true}
+        if(!failed||before!==JSON.stringify((await readFixtureBackup(active)).stores))throw new Error("Recurring placement feature guard changed durable state")
+        checks++
+      }
+      return {checks}
+    }
     case "mixed-placement-comparison":return readMixedPlacementIncidentComparison(active,command.operationId)
     case "resolve-mixed-placement":return resolveMixedPlacementIncident(active,command.request)
     case "mixed-placement-guard-proof": {

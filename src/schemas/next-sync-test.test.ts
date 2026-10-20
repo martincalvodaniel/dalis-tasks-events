@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { planOccurrenceCohortResolutionFixture } from "@/lib/backup/plan-occurrence-cohort-resolution-fixture"
 import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
 import { mixedPlacementDecisionFixture } from "@/lib/sync/mixed-placement-decision-fixture"
+import { recurringPlacementResolutionFixture } from "@/lib/sync/recurring-placement-resolution-fixture"
 import {
   nextRecurringSyncStateSchema,
   nextSettingsProofScopeSchema,
@@ -494,4 +495,57 @@ test("mixed placement proof scope preserves the marked family and strict command
   expect(nextSettingsProofScopeSchema.parse("mixed-placement-ui")).toBe(
     "mixed-placement-ui"
   )
+})
+
+test("recurring placement fixture accepts only its explicit family and appearance producer", () => {
+  const f = recurringPlacementResolutionFixture(),
+    operationId = crypto.randomUUID()
+  expect(nextSettingsProofScopeSchema.parse("recurring-placement")).toBe(
+    "recurring-placement"
+  )
+  expect(
+    nextSyncDeviceCommandSchema.parse({
+      type: "commit-recurring-move-entry",
+      operationId,
+      command: f.entry.operation.command,
+    })
+  ).toMatchObject({ operationId, command: { occurrenceId: f.targetId } })
+  for (const type of [
+    "resolve-recurring-placement",
+    "recurring-placement-guard-proof",
+  ] as const) {
+    expect(
+      nextSyncDeviceCommandSchema.parse({ type, request: f.request })
+    ).toEqual({ type, request: f.request })
+    expect(() =>
+      nextSyncDeviceCommandSchema.parse({
+        type,
+        request: { ...f.request, reviewKind: "mixed_group" },
+      })
+    ).toThrow()
+  }
+  expect(() =>
+    nextSyncDeviceCommandSchema.parse({
+      type: "commit-recurring-move-entry",
+      operationId,
+      command: { ...f.entry.operation.command, occurrenceId: null },
+    })
+  ).toThrow()
+  expect(() =>
+    nextSyncDeviceCommandSchema.parse({
+      type: "commit-simple-move",
+      operationId,
+      command: f.entry.operation.command,
+    })
+  ).toThrow()
+  expect(() =>
+    nextSyncDeviceCommandSchema.parse({
+      type: "recurring-placement-comparison",
+      operationId,
+      database: "production",
+    })
+  ).toThrow()
+  expect(() =>
+    nextSettingsProofScopeSchema.parse("recurring-placement-ui")
+  ).toThrow()
 })

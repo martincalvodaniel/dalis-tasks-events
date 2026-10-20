@@ -26,6 +26,7 @@ import {
 } from "@fixture/default-api"
 
 export async function handleFixtureRequest(request: Request) {
+  let phase = "request"
   try {
     const url = new URL(request.url)
     const command = url.pathname.split("/").at(-1)
@@ -124,10 +125,12 @@ export async function handleFixtureRequest(request: Request) {
     if (command === "guard" && request.method === "GET")
       return Response.json({ ready: true })
     if (command === "bootstrap" && request.method === "POST") {
+      phase = "prepare"
       await prepareNextSettingsSyncFixture(request)
       const prepared = await bootstrapNextSyncSession(
         request,
-        await request.json()
+        await request.json(),
+        (next) => { phase = next }
       )
       const response = NextResponse.json({ userId: prepared.userId })
       const config = getNextSyncTestConfig()
@@ -179,9 +182,12 @@ export async function handleFixtureRequest(request: Request) {
         )
       )
     return new Response(null, { status: 404 })
-  } catch {
+  } catch (error) {
+    const known = ["Error","MongoServerError","MongoServerSelectionError","MongoNetworkError","MongoNetworkTimeoutError","ZodError","APIError","BetterAuthError"]
+    const kind = error instanceof Error && known.includes(error.name) ? error.name : "unavailable"
+    const code = kind === "MongoServerError" && error && typeof error === "object" && "code" in error && typeof error.code === "number" ? error.code : null
     return Response.json(
-      { error: "The isolated Next fixture was safely blocked" },
+      { error: "The isolated Next fixture was safely blocked", phase, kind, code },
       { status: 403 }
     )
   }

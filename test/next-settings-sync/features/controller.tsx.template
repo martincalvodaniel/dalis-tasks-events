@@ -1,4 +1,5 @@
 "use client"
+import {proveRemoteRecurringPlacementRecovery} from "@fixture/recurring-placement-recovery"
 import {proveRemoteMixedPlacementRecovery} from "@fixture/mixed-placement-recovery"
 import {proveRemoteAppearanceCohortRecovery} from "@fixture/appearance-cohort-recovery"
 import {proveRemotePlacementRecovery} from "@fixture/placement-recovery"
@@ -46,7 +47,7 @@ export function FixtureController() {
   const [status, setStatus] = useState("Preparando la prueba aislada de Next")
   const [rows, setRows] = useState<string[]>([])
   const [running, setRunning] = useState(false)
-  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series" | "tag-order" | "tag-order-ui" | "tag-delete" | "tag-delete-ui" | "placement" | "placement-ui" | "mixed-placement" | "mixed-placement-ui" | "appearance-cohort" | "appearance-cohort-ui">("full")
+  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series" | "tag-order" | "tag-order-ui" | "tag-delete" | "tag-delete-ui" | "placement" | "placement-ui" | "mixed-placement" | "mixed-placement-ui" | "recurring-placement" | "appearance-cohort" | "appearance-cohort-ui">("full")
   useEffect(() => {
     void (async () => {
       const query = new URLSearchParams(location.search)
@@ -214,7 +215,11 @@ export function FixtureController() {
               type: "bootstrap",
               identity: "owner",
             })) as Reply
-            assert(boot.status === 200, "Settings session bootstrap failed")
+            const failure = boot.value && typeof boot.value === "object" ? boot.value as Record<string,unknown> : {}
+            const phase = ["request","prepare","auth_context","find_user","save_user","login","cookie"].includes(String(failure.phase)) ? String(failure.phase) : "unavailable"
+            const kind = ["Error","MongoServerError","MongoServerSelectionError","MongoNetworkError","MongoNetworkTimeoutError","ZodError","APIError","BetterAuthError"].includes(String(failure.kind)) ? String(failure.kind) : "unavailable"
+            const code = typeof failure.code === "number" ? failure.code : "none"
+            assert(boot.status === 200, `Settings session bootstrap failed: HTTP${boot.status}/${phase}/${kind}/${code}`)
             const identity = (await call(index, { type: "identity" })) as Reply
             assert(
               identity.status === 200 &&
@@ -638,6 +643,17 @@ export function FixtureController() {
         assert(proof.adopted===1&&proof.retried===1,"Appearance cohort proof incomplete")
       })
       if(proofScope === "appearance-cohort" || proofScope === "appearance-cohort-ui"){passed=true;return}
+      if(proofScope === "full" || proofScope === "recurring-placement") await check("Aparición primaria recupera orden con ACK único tras recarga",async()=>{
+        const proof=await proveRemoteRecurringPlacementRecovery({owner,call,snapshot,state:()=>state(owner),reloadSecondary:async()=>{
+          const reloaded=new Promise<void>((resolve,reject)=>{
+            const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
+            const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned placement reload timed out"))},45000);window.addEventListener("message",listener)
+          })
+          await call(1,{type:"reload-local"});await reloaded
+        }})
+        assert(proof.adopted===2&&proof.retried===2&&proof.lostReplies===2,"Placement proof incomplete")
+      })
+      if(proofScope === "recurring-placement"){passed=true;return}
       if(proofScope === "full" || proofScope === "mixed-placement" || proofScope === "mixed-placement-ui") await check("Grupo mixto recupera orden y fechas con ACK único tras recarga",async()=>{
         const proof=await proveRemoteMixedPlacementRecovery({owner,call,snapshot,interactive:proofScope!=="mixed-placement",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
@@ -1605,7 +1621,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            proofScope !== "full" ? "Once escenarios Next6 focalizados correctos; sesiones propias cerradas" : "Treinta y cinco escenarios Next6 correctos; sesiones propias cerradas"
+            proofScope !== "full" ? "Once escenarios Next6 focalizados correctos; sesiones propias cerradas" : "Treinta y seis escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

@@ -131,25 +131,34 @@ async function fixture(config: NextSyncPrivateConfig) {
 
 export async function bootstrapNextSyncSession(
   request: Request,
-  input: unknown
+  input: unknown,
+  onPhase: (
+    phase: "auth_context" | "find_user" | "save_user" | "login" | "cookie"
+  ) => void = () => {}
 ) {
   const parsed = nextSyncBootstrapSchema.parse(input)
   const { config } = validateNextSyncFixtureRequest(request, {
     runId: parsed.runId,
   })
+  onPhase("auth_context")
   const context = await fixture(config)
   const email = fixtureEmail(config.runId, parsed.identity)
+  onPhase("find_user")
   const existing = await context.internalAdapter.findUserByEmail(email)
-  const user =
-    existing?.user ??
-    (await context.test.saveUser(
+  let user = existing?.user
+  if (!user) {
+    onPhase("save_user")
+    user = await context.test.saveUser(
       context.test.createUser({
         email,
         emailVerified: parsed.identity !== "unverified",
         name: "Next sync fixture",
       })
-    ))
+    )
+  }
+  onPhase("login")
   const login = await context.test.login({ userId: user.id })
+  onPhase("cookie")
   const ownedSessions = ownedState(config).sessions
   for (const cookie of login.cookies) {
     if (cookie.name !== "better-auth.session_token" || cookie.secure)

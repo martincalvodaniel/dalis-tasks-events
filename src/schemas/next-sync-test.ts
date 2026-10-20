@@ -19,6 +19,7 @@ import {
   timestampSchema,
   userIdSchema,
 } from "@/schemas/primitives"
+import { recurringPlacementResolutionRequestSchema } from "@/schemas/recurring-placement-resolution"
 import { remoteChangesPageV2Schema } from "@/schemas/remote-changes-page-v2"
 import {
   remoteRecurringChangeSchema,
@@ -155,6 +156,7 @@ export const nextSettingsProofScopeSchema = z
     "placement-ui",
     "mixed-placement",
     "mixed-placement-ui",
+    "recurring-placement",
     "tag-delete",
     "tag-delete-ui",
     "tag-order",
@@ -162,6 +164,27 @@ export const nextSettingsProofScopeSchema = z
   ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("recurring-placement-comparison"),
+    operationId: entityIdSchema,
+  }),
+  z.strictObject({
+    type: z.literal("resolve-recurring-placement"),
+    request: recurringPlacementResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("recurring-placement-guard-proof"),
+    request: recurringPlacementResolutionRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("commit-recurring-move-entry"),
+    operationId: entityIdSchema,
+    command: syncCommandSchema.refine(
+      (command) =>
+        command.type === "task.move" && command.occurrenceId !== null,
+      "Recurring movement fixture requires an appearance"
+    ),
+  }),
   z.strictObject({
     type: z.literal("resolve-mixed-placement-ui"),
     request: mixedPlacementResolutionRequestSchema,

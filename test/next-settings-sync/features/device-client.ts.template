@@ -131,6 +131,10 @@ async function execute(
   if (
     [
       "resolve-tag-delete-ui",
+      "commit-recurring-move-entry",
+      "recurring-placement-comparison",
+      "resolve-recurring-placement",
+      "recurring-placement-guard-proof",
       "commit-simple-move",
       "resolve-placement-ui",
       "resolve-mixed-placement-ui",

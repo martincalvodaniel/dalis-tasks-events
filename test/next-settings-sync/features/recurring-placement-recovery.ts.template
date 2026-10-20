@@ -1,0 +1,88 @@
+"use client"
+import { recurringPlacementResolutionRecordSchema } from "@/schemas/recurring-placement-resolution"
+import { orderPlacedTasks } from "@/lib/ordering/task-order"
+import { recurringMovementCatalog,compareRecurringMovementItems } from "@/lib/preferences/recurring-movement-catalog"
+import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
+import { planSchema } from "@/schemas/plan-item"
+import type { z } from "zod"
+import { canonical,ordered,foldRecurringChanges } from "@fixture/projection"
+import { addCivilDays,todayInTimeZone } from "@/lib/calendar/civil-date"
+import { nextSyncDeviceCommandSchema,nextSettingsSyncStateSchema } from "@/schemas/next-sync-test"
+import { outboxEntrySchema } from "@/schemas/local-sync"
+import { placementResolutionSnapshotSchema } from "@/schemas/placement-resolution"
+import { taskPlacementEntityKey } from "@/schemas/ordering"
+import type { LocalRecurringBackup } from "@/types/local-backup"
+import type { LocalPullCursor } from "@/types/local-sync"
+import type { RecurringPlacementResolutionRequest } from "@/types/recurring-placement-resolution"
+type Snapshot={backup:LocalRecurringBackup;cursor:LocalPullCursor}
+type Ports={owner:string;call(index:number,command:z.infer<typeof nextSyncDeviceCommandSchema>):Promise<unknown>;snapshot(index:number):Promise<Snapshot>;state():Promise<z.infer<typeof nextSettingsSyncStateSchema>>;reloadSecondary():Promise<void>}
+function assert(value:unknown,message:string):asserts value{if(!value)throw new Error(message)}
+export async function proveRemoteRecurringPlacementRecovery({owner,call,snapshot,state,reloadSecondary}:Ports){
+ let adopted=0,retried=0,lostReplies=0
+ for(const [index,testCase] of ([{slot:"moved",choice:"adopt_remote"},{slot:"moved",choice:"retry_latest_move"},{slot:"implicit",choice:"adopt_remote"},{slot:"implicit",choice:"retry_latest_move"}] as const).entries()){
+  const variant=index%2?"event" as const:"task" as const,choice=testCase.choice
+  const local=await snapshot(0),settings=local.backup.stores.settings.find(value=>value.userId===owner);assert(settings,"Movement proof settings missing")
+  const now=new Date().toISOString(),today=todayInTimeZone(settings.timeZone),scope="day" as const,date=addCivilDays(today,index+1),start=date,ids=[crypto.randomUUID(),crypto.randomUUID(),crypto.randomUUID()]
+  const tagId=crypto.randomUUID()
+  await call(0,{type:"commit-local",command:{type:"tag.save",tagId,input:{name:`Movement group ${tagId}`,color:"#123456",position:1000+index}}});await call(0,{type:"mixed-run"})
+  for(const itemId of ids){
+   const input={kind:"plan" as const,variant,title:`Order ${variant} ${itemId}`,description:"Preserved order content",schedule:{mode:"all_day" as const,startDate:start,endDateExclusive:addCivilDays(start,1)},status:"in_progress" as const,checklist:[{id:crypto.randomUUID(),text:"Preserved step",completed:true}],recurrence:null}
+   await call(0,{type:"save-plan",request:{mode:"create",itemId,input,primaryTagId:tagId,contentOperationId:crypto.randomUUID(),viewOperationId:crypto.randomUUID(),now}})
+  }
+  const seriesId=crypto.randomUUID(),anchor=addCivilDays(date,-1)
+  await call(0,{type:"save-plan",request:{mode:"create",itemId:seriesId,primaryTagId:tagId,contentOperationId:crypto.randomUUID(),viewOperationId:crypto.randomUUID(),now,input:{kind:"plan",variant:"appointment",title:`Recurring order peer ${seriesId}`,description:"Preserved recurring peer",status:"not_started",checklist:[],schedule:{mode:"all_day",startDate:anchor,endDateExclusive:date},recurrence:{frequency:"daily",interval:1,anchorDate:anchor,timeZone:settings.timeZone,end:{type:"count",count:3}}}}})
+  await call(0,{type:"mixed-run"})
+  const series=planSchema.parse((await snapshot(0)).backup.stores.items.find(value=>value.id===seriesId)),occurrenceId=`${seriesId}:${anchor}`,update={type:"plan.update-occurrence" as const,itemId:seriesId,occurrenceId,input:{title:"Moved recurring peer",description:"Preserved moved slot",checklist:[],schedule:{mode:"all_day" as const,startDate:date,endDateExclusive:addCivilDays(date,1)}}},current=editablePlanOccurrence(series,null,update,owner).current
+  await call(0,{type:"commit-occurrence",operationId:crypto.randomUUID(),now:new Date().toISOString(),command:update,expectedItem:series,expectedOccurrence:current})
+  await call(0,{type:"mixed-run"});await call(1,{type:"mixed-run"})
+  const targetId=testCase.slot==="moved"?occurrenceId:`${seriesId}:${date}`
+  const seed=await snapshot(0),seedCommand={type:"task.move" as const,itemId:seriesId,occurrenceId:targetId,scope,date,tagId,beforeId:null,afterId:null},visible=recurringMovementCatalog(seed.backup.stores.items,seed.backup.stores.occurrences.filter(value=>value.kind==="plan"),owner,seedCommand).filter(value=>seed.backup.stores.itemViews.some(view=>view.itemId===value.parent.id&&view.primaryTagId===tagId)),orderedPeers=orderPlacedTasks(visible,[],tagId,compareRecurringMovementItems).filter(value=>value.id!==targetId).map(value=>value.id)
+  assert(orderedPeers.length===4,"Mixed proof requires three simple peers and another date")
+  const command={type:"task.move" as const,itemId:seriesId,occurrenceId:targetId,scope,date,tagId,beforeId:null as string|null,afterId:orderedPeers.at(-1) as string|null}
+  await call(0,{type:"commit-recurring-move-entry",operationId:crypto.randomUUID(),command});await call(0,{type:"mixed-run"});await call(1,{type:"mixed-run"})
+  const seeded=await snapshot(1)
+  assert(visible.every(member=>seeded.backup.stores.taskPlacements.some(position=>position.occurrenceId===member.id&&position.revision>0)),"Mixed peers must have committed independent placements")
+  assert(seeded.backup.stores.occurrences.some(value=>value.id===occurrenceId)&&!seeded.backup.stores.occurrences.some(value=>value.id===`${seriesId}:${date}`),"Implicit slot must not become an exception")
+  await call(0,{type:"commit-recurring-move-entry",operationId:crypto.randomUUID(),command:{...command,beforeId:orderedPeers[0],afterId:null}});await call(0,{type:"mixed-run"})
+  const original=outboxEntrySchema.parse(await call(1,{type:"commit-recurring-move-entry",operationId:crypto.randomUUID(),command:{...command,beforeId:orderedPeers[1],afterId:orderedPeers[0]}})),latest=outboxEntrySchema.parse(await call(1,{type:"commit-recurring-move-entry",operationId:crypto.randomUUID(),command}))
+  await call(1,{type:"mixed-run"})
+  const expected=placementResolutionSnapshotSchema.parse(await call(1,{type:"recurring-placement-comparison",operationId:original.operation.operationId}))
+  assert(expected.incident.entry.state==="conflict"&&expected.incident.entry.attempts===1&&expected.incident.intentions.length===2,"Real simple movement producer lost conflict chain")
+  assert(canonical(expected.incident.entry.operation)===canonical(original.operation)&&canonical(expected.incident.intentions[1])===canonical(latest),"Movement changed original UUID, payload or dependencies")
+  let request:RecurringPlacementResolutionRequest={reviewKind:"recurring_primary",userId:owner,resolutionId:crypto.randomUUID(),operationId:choice==="retry_latest_move"?crypto.randomUUID():null,choice,createdAt:new Date().toISOString(),expected}
+  const guard=await call(1,{type:"recurring-placement-guard-proof",request}) as {checks:number};assert(guard.checks===3,"Placement feature guards incomplete")
+  const before=await state(),localBefore=await snapshot(1),result=await call(1,{type:"resolve-recurring-placement",request}) as {status:string;record:unknown},record=recurringPlacementResolutionRecordSchema.parse(result.record)
+  request={reviewKind:"recurring_primary",userId:record.userId,resolutionId:record.resolutionId,operationId:record.operationId,choice:record.choice,createdAt:record.createdAt,expected:record.expected}
+  assert(result.status==="applied"&&canonical(await state())===canonical(before),"Local placement choice manufactured remote history")
+  const decided=await snapshot(1)
+  for(const store of ["items","itemViews","tags","occurrences","settings","remoteShadows"] as const)assert(canonical(localBefore.backup.stores[store])===canonical(decided.backup.stores[store]),"Movement recovery changed another domain")
+  for(const old of expected.incident.intentions)assert(canonical(decided.backup.stores.outbox.find(e=>e.operation.operationId===old.operation.operationId))===canonical({...old,state:"superseded",lease:null}),"Movement rewrote original history")
+  for(const old of localBefore.backup.stores.syncMetadata.filter(value=>"result"in value))assert(decided.backup.stores.syncMetadata.some(value=>canonical(value)===canonical(old)),"Movement lost frozen outcome evidence")
+  if(record.replacement){
+   retried++
+   const pending=decided.backup.stores.outbox.find(entry=>entry.operation.operationId===record.operationId)
+   assert(pending?.state==="pending"&&pending.attempts===0&&!pending.dependencies.length&&canonical(record.replacement.command)===canonical(latest.operation.command)&&record.replacement.baseRevision===2,"Movement retry changed exact command or fresh primary CAS")
+   const lost=await call(1,{type:"lost-plan-response-run"}) as {status:string;uploaded:number},committed=await state(),attempted=(await snapshot(1)).backup.stores.outbox.find(entry=>entry.operation.operationId===record.operationId)
+   assert(lost.status==="retry_later"&&lost.uploaded===0&&attempted?.state==="pending"&&attempted.attempts===1&&!attempted.lease,"Lost movement response manufactured ACK")
+   assert(committed.counts.receipts===before.counts.receipts+1&&committed.page.through===before.page.through+1,"Movement did not commit exactly once")
+   await reloadSecondary();assert(canonical((await snapshot(1)).backup.stores.outbox.find(entry=>entry.operation.operationId===record.operationId))===canonical(attempted),"Movement reload changed uncertain intention")
+   await call(1,{type:"mixed-run"});assert(canonical(await state())===canonical(committed),"Movement replay duplicated remote history")
+   const ack=(await snapshot(1)).backup.stores.outbox.find(entry=>entry.operation.operationId===record.operationId)
+   assert(ack?.state==="acknowledged"&&ack.attempts===2&&canonical(ack.operation)===canonical(record.replacement),"Movement same UUID missed real replay ACK")
+   lostReplies++
+  }else adopted++
+  await call(0,{type:"mixed-run"});await call(1,{type:"mixed-run"})
+  const authoritative=await state(),projection=foldRecurringChanges(authoritative.page)
+  assert(authoritative.counts.receipts===before.counts.receipts+Number(Boolean(record.replacement))&&authoritative.page.through===before.page.through+Number(Boolean(record.replacement)),"Movement confirmed wrong remote history count")
+  for(const device of [0,1]){
+   const actual=await snapshot(device),placements=actual.backup.stores.taskPlacements
+   assert(ordered(placements)===ordered([...projection.taskPlacements.values()]),"Full placement catalog differs from Mongo")
+   for(const placement of placements){const shadow=actual.backup.stores.remoteShadows.find(value=>value.entityKey===taskPlacementEntityKey(placement.occurrenceId,placement.scope,placement.date));assert(shadow&&"kind"in shadow&&shadow.kind==="preference"&&shadow.record.store==="taskPlacements"&&canonical(shadow.record.record)===canonical(placement),"Movement shadow differs from Mongo")}
+   assert(actual.cursor.after===authoritative.page.through&&actual.cursor.through===null,"Movement cursor did not finish")
+   for(const store of ["items","itemViews","tags","occurrences","settings"] as const)assert(ordered(actual.backup.stores[store])===ordered(localBefore.backup.stores[store]),"Movement changed protected content or assignments")
+  }
+  const later=await snapshot(1),replay=await call(1,{type:"resolve-recurring-placement",request}) as {status:string}
+  assert(replay.status==="replayed"&&canonical((await snapshot(1)).backup.stores)===canonical(later.backup.stores),"Movement decision replay rewrote confirmed state")
+ }
+ return {adopted,retried,lostReplies}
+}
