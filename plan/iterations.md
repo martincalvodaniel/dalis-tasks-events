@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19k1a — Contexto puro de orden en grupos mixtos
+
+Contrato preparatorio de revisión para un plan principal simple con vecinos simples/recurrentes en la misma categoría. Valida catálogos acotados propios y comprometidos, igualdad de contenido/apariciones/categorías/vistas entre local y observado, asignaciones conocidas de cada padre visible y pertenencia civil explícita. Materializa sólo para comparar: conserva identidad de slots originales, fecha efectiva, orden local/observado y claves de posiciones cambiadas. Un slot implícito no se convierte en excepción o posición durable.
+
+Cambios de posición sólo dentro del grupo visible revisado, sin retroceder revisiones ni cambiar creación/identidad. Ausencias, catálogos duplicados/ajenos/parciales, padres o asignaciones incorrectos, posiciones de vecinos cancelados/externos y contexto divergente bloquean. Primaria recurrente y cambio de categoría requieren contratos distintos. Los catálogos son estado conocido, no prueba de completitud actual del servidor ni autorización para escribir.
+
+Once tests nuevos/80 aserciones: cuatro variantes, slot movido e implícito del mismo padre, día/atrasadas con día de referencia y sentinel permanente, inmutabilidad, guardia activa intacta, cuentas/contexto/límites/cancelaciones y compactación real por planner remoto puro. La compactación incluye vecino implícito con revisión1 y vecinos existentes desde su revisión independiente, sin efecto de vista. Se corrigieron dirección de vecinos y posiciones densas en la fixture, sin relajar el planner.
+
+DoD1125pass/225opt-in skip/0fail/12623aserciones, lint1008 sin avisos/tipos/Webpack/worker46/diff aprobados. Entrada72%5h/96%7d, reservas10%/1%, secuencial. Rutas schemas/types/placement-group-review y lib/sync/placement-group-review{,-fixture,-test}; sin IO/caller/backup/writer/UI/índice/protocolo/dependencia nuevos. El resolver activo todavía rechaza grupos recurrentes. Siguiente19k1b: snapshot y decisión preparatorios para grupos mixtos con evidencia exacta de cadena/prerrequisitos y efectos independientes, conservando el camino simple vigente; después portátil/TX/Next/UI antes de activar. Cross-category requiere además asignación y efectos de serie; no se deduce de este contrato.
+
 ## 19j5b — Recuperación multi-slot disponible en Ajustes
 
 La raíz propia de un conflicto con intenciones de varias fechas muestra «Revisar fechas relacionadas». La candidatura sólo abre revisión; no autoriza ni ofrece decisiones desde el DTO. La feature captura comparación completa en IndexedDB y verifica cuenta/época. El componente queda aislado por cuenta, época y raíz; conserva IDs al reintentar, evita estados después de desmontarse e invalida sólo caché de su cuenta/época. La resolución de una sola aparición conserva su comportamiento.
