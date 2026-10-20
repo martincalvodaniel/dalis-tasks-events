@@ -1,7 +1,10 @@
 import { assertBackupOwnership } from "@/lib/backup/backup-ownership"
 import { validateBackupImportEvidence } from "@/lib/backup/import-record"
 import { validateItemViewResolutionEvidence } from "@/lib/backup/item-view-resolution-evidence"
-import { validatePlacementResolutionEvidence } from "@/lib/backup/placement-resolution-evidence"
+import {
+  validateMixedPlacementResolutionEvidence,
+  validatePlacementResolutionEvidence,
+} from "@/lib/backup/placement-resolution-evidence"
 import { validatePlanCategoryResolutionEvidence } from "@/lib/backup/plan-category-resolution-evidence"
 import { validatePlanOccurrenceCohortResolutionEvidence } from "@/lib/backup/plan-occurrence-cohort-resolution-evidence"
 import { validateTagDeletionResolutionEvidence } from "@/lib/backup/tag-delete-resolution-evidence"
@@ -237,8 +240,16 @@ function validateBackup(
       }
       continue
     }
-    if (record.key.startsWith("placement-resolution:"))
-      validatePlacementResolutionEvidence(record, actor, entries, outcomes)
+    if (record.key.startsWith("placement-resolution:")) {
+      if ("reviewKind" in record)
+        validateMixedPlacementResolutionEvidence(
+          record,
+          actor,
+          entries,
+          outcomes
+        )
+      else validatePlacementResolutionEvidence(record, actor, entries, outcomes)
+    }
     if (record.key.startsWith("tag-delete-resolution:"))
       validateTagDeletionResolutionEvidence(record, actor, entries, outcomes)
     if (record.key.startsWith("tag-order-resolution:"))

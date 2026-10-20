@@ -11,6 +11,7 @@ import {
   remoteRecurringShadowSchema,
 } from "@/schemas/local-plan-occurrence-sync"
 import { remoteShadowSchema } from "@/schemas/local-sync"
+import { mixedPlacementResolutionRecordSchema } from "@/schemas/mixed-placement-resolution"
 import { placementResolutionRecordSchema } from "@/schemas/placement-resolution"
 import { planCategoryResolutionRecordSchema } from "@/schemas/plan-category-resolution"
 import { planOccurrenceCohortResolutionRecordSchema } from "@/schemas/plan-occurrence-cohort-resolution"
@@ -36,6 +37,7 @@ export const localRecurringBackupV3Schema = localBackupV2Schema.extend({
           tagResolutionRecordSchema,
           itemViewResolutionRecordSchema,
           placementResolutionRecordSchema,
+          mixedPlacementResolutionRecordSchema,
           tagOrderResolutionRecordSchema,
           tagDeletionResolutionRecordSchema,
           planCategoryResolutionRecordSchema,

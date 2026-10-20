@@ -1,7 +1,9 @@
 import type { LocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
+import { validateMixedPlacementResolutionRecord } from "@/lib/sync/mixed-placement-decision"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import { validatePlacementResolutionRecord } from "@/lib/sync/placement-decision"
 import type { OutboxEntry } from "@/types/local-sync"
+import type { PlacementResolutionRecord } from "@/types/placement-resolution"
 
 export function validatePlacementResolutionEvidence(
   input: unknown,
@@ -10,6 +12,25 @@ export function validatePlacementResolutionEvidence(
   outcomes: ReadonlyMap<string, LocalRecurringOutcome>
 ) {
   const record = validatePlacementResolutionRecord(input, actor)
+  validateEvidence(record, actor, entries, outcomes)
+  return record
+}
+export function validateMixedPlacementResolutionEvidence(
+  input: unknown,
+  actor: string,
+  entries: ReadonlyMap<string, OutboxEntry>,
+  outcomes: ReadonlyMap<string, LocalRecurringOutcome>
+) {
+  const record = validateMixedPlacementResolutionRecord(input, actor)
+  validateEvidence(record, actor, entries, outcomes)
+  return record
+}
+function validateEvidence(
+  record: PlacementResolutionRecord,
+  actor: string,
+  entries: ReadonlyMap<string, OutboxEntry>,
+  outcomes: ReadonlyMap<string, LocalRecurringOutcome>
+) {
   if (entries.has(record.resolutionId))
     throw new Error("Plan order decision identity collides with an operation")
   for (const reviewed of record.expected.incident.intentions) {

@@ -1,5 +1,16 @@
 # Recuperación explícita de conflictos
 
+## 19k2 — Evidencia portable de orden mixto
+
+Backup3 admite la familia marcada reviewKind=mixed_group. El validador distingue esa marca antes de validar la decisión y reutiliza la evidencia común de placements: originales exactos superseded, outcome congelado, prerrequisitos con operaciones/outcomes aplicados coincidentes y reemplazo exacto por usuario/entidad/payload/fecha/secuencia/dependencias. Superseded no es ACK. La propiedad exclusiva de originales y los IDs globales se conservan; quitar la marca no convierte el caso mixto en una decisión simple válida.
+
+Ocho tests nuevos/42 aserciones: roundtrip adopción/retry con contexto recurrente/posiciones derivadas, formato2 rechazado, pending intentado y ediciones posteriores, truncación/corrupción/familia, operaciones originales y correspondencia de reemplazo, ACK previo real en la historia portable frente a DTO sinoutcome, IDs/supersesión y resultado multiefecto producido por planners productivos puros. Tras esa proyección el backup conserva evidencia y posiciones confirmadas exactas, incluidos vecinos nuevos. Esto no acredita nuevos recibos Mongo/Next ni IO. Se corrigieron entityKey y envoltorio de snapshots en la fixture manteniendo schemas estrictos.
+
+DoD1139pass/225opt-in skip/0fail/12712aserciones, lint1015 sin avisos/tipos/Webpack/worker46/diff aprobados. Entrada59%5h/94%7d, reservas10%/1%, secuencial. Rutas local-recurring-backup, backup/local-backup/placement-resolution-evidence y fixture/test mixed-placement-resolution. Sin writer/caller/UI/índice/protocolo/dependencia/DBusuario nuevos; el resolver simple vigente conserva sus límites.
+
+Siguiente19k3: captura/writer mixtos separados del camino simple, mismaTX9stores y replay primero, contador/capacidad/IDs globales/tail/historia/rollback y puente de cuenta/época/notificación sólo tras commit. Prueba IndexedDB nativa antes de Next/UI19k4. Conservar posiciones locales desconocidas, cambios de asignación/contenido y primarias recurrentes protegidos; no activar retirando una guardia.
+
+
 ## 19k1b — Decisión preparatoria de orden mixto
 
 Captura y validación mixtas reutilizan las guardias de cadena, outcome congelado, primaria, catálogos canónicos y prerrequisitos del resolver de placements. Una política privada separa ambos caminos: las funciones vigentes siguen rechazando grupos recurrentes; sólo las nuevas funciones preparatorias admiten vecinos visibles recurrentes tras reviewPlacementGroup. La primaria sigue siendo un plan común simple y la categoría no cambia.
