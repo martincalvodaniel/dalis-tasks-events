@@ -1,9 +1,12 @@
 import { expect, test } from "bun:test"
 import { renderToStaticMarkup } from "react-dom/server"
 import { PlanOccurrenceCohortResolutionDialog } from "@/features/sync/components/plan-occurrence-cohort-resolution-dialog"
+import { PlanOccurrenceIncidentCard } from "@/features/sync/components/plan-occurrence-incident-card"
 import { capturePlanOccurrenceCohortComparison } from "@/lib/sync/plan-occurrence-cohort-comparison"
 import { planOccurrenceCohortFixture } from "@/lib/sync/plan-occurrence-cohort-fixture"
 import { availablePlanOccurrenceCohortResolutionChoices } from "@/lib/sync/plan-occurrence-cohort-resolution"
+import { canReviewPlanOccurrenceCohort } from "@/lib/sync/plan-occurrence-cohort-review"
+import { projectPlanOccurrenceSyncIncidents } from "@/lib/sync/recurring-incident-snapshot"
 import type { PlanOccurrenceCohortComparison } from "@/types/plan-occurrence-cohort-comparison"
 
 function render(
@@ -157,4 +160,41 @@ test("busy joint review disables choices and both dialog actions", () => {
   expect(html).toContain('<fieldset disabled=""')
   expect((html.match(/<button[^>]*disabled=""/g) ?? []).length).toBe(2)
   expect(html).toContain("Guardando…")
+})
+
+test("only the own first multi-slot conflict offers a fresh review, never unreviewed decisions", () => {
+  const f = planOccurrenceCohortFixture()
+  const incident = projectPlanOccurrenceSyncIncidents({
+    userId: f.userId,
+    items: [f.series],
+    occurrences: f.occurrences,
+    entries: f.entries,
+    shadows: f.shadows,
+    outcomes: f.outcomes,
+  })[0]
+  expect(canReviewPlanOccurrenceCohort(incident, f.userId)).toBe(true)
+  const html = renderToStaticMarkup(
+    <PlanOccurrenceIncidentCard
+      incident={incident}
+      account={{ userId: f.userId, epoch: crypto.randomUUID() }}
+    />
+  )
+  expect(html).toContain("Revisar fechas relacionadas")
+  expect(html).not.toContain("Usar todas las versiones remotas")
+  expect(html).not.toContain("Enviar todos mis borradores")
+  for (const changed of [
+    { ...incident, reason: "unavailable" },
+    {
+      ...incident,
+      entry: { ...incident.entry, operation: f.entries[1].operation },
+    },
+    {
+      ...incident,
+      series: { ...incident.series, deletedAt: f.series.updatedAt },
+    },
+    { ...incident, blockedByRelatedIntentions: false },
+  ])
+    expect(canReviewPlanOccurrenceCohort(changed, f.userId)).toBe(false)
+  expect(canReviewPlanOccurrenceCohort(incident, "foreign")).toBe(false)
+  expect(canReviewPlanOccurrenceCohort({}, f.userId)).toBe(false)
 })

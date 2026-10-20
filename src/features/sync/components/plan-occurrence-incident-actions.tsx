@@ -3,11 +3,13 @@
 import { useRef, useState } from "react"
 import { useSWRConfig } from "swr"
 import { activeProductSyncProtocol } from "@/config/common-plan-release"
+import { PlanOccurrenceCohortIncidentActions } from "@/features/sync/components/plan-occurrence-cohort-incident-actions"
 import { PlanOccurrenceResolutionDialog } from "@/features/sync/components/plan-occurrence-resolution-dialog"
 import { resolvePlanOccurrenceIncident } from "@/features/sync/local-plan-occurrence-resolution"
 import { isAccountSyncCacheKey } from "@/features/sync/manual-sync"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
+import { canReviewPlanOccurrenceCohort } from "@/lib/sync/plan-occurrence-cohort-review"
 import {
   availablePlanOccurrenceResolutionChoices,
   planOccurrenceRetryOperationCount,
@@ -79,6 +81,17 @@ export function PlanOccurrenceIncidentActions({
       setBusy(false)
     }
   }
+  if (
+    activeProductSyncProtocol === 6 &&
+    canReviewPlanOccurrenceCohort(incident, account.userId)
+  )
+    return (
+      <PlanOccurrenceCohortIncidentActions
+        key={`${account.userId}:${account.epoch}:${incident.entry.operation.operationId}`}
+        account={account}
+        operationId={incident.entry.operation.operationId}
+      />
+    )
   return (
     <div>
       {choices.length ? (

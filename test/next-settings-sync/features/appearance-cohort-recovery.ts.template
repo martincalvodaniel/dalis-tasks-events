@@ -16,6 +16,7 @@ import type { LocalPullCursor } from "@/types/local-sync"
 type Snapshot = {backup: LocalRecurringBackup; cursor: LocalPullCursor}
 type Ports = {
   owner: string
+  interactive?: boolean
   call(index: number, input: z.infer<typeof nextSyncDeviceCommandSchema>): Promise<unknown>
   snapshot(index: number): Promise<Snapshot>
   state(): Promise<z.infer<typeof nextSettingsSyncStateSchema>>
@@ -23,7 +24,7 @@ type Ports = {
 }
 function assert(value: unknown, message: string): asserts value {if (!value) throw new Error(message)}
 
-export async function proveRemoteAppearanceCohortRecovery({owner,call,snapshot,state,reloadSecondary}: Ports) {
+export async function proveRemoteAppearanceCohortRecovery({owner,call,snapshot,state,reloadSecondary,interactive=false}: Ports) {
   for (const choice of ["adopt_remote", "retry_local"] as const) {
     const loser = choice === "retry_local" ? 1 : 0, winner = 1-loser
     const itemId=crypto.randomUUID(), stepId=crypto.randomUUID(), now=new Date().toISOString()
@@ -51,10 +52,11 @@ export async function proveRemoteAppearanceCohortRecovery({owner,call,snapshot,s
     await call(loser,{type:"mixed-run"})
     const expected=planOccurrenceCohortComparisonSchema.parse(await call(loser,{type:"appearance-cohort-comparison",operationId:originals[0].operation.operationId}))
     assert(expected.slots.length===2&&expected.operationIds.length===3,"Real multi-slot conflict is incomplete")
-    const request={userId:owner,resolutionId:crypto.randomUUID(),choice,operationIds:choice==="retry_local"?Array.from({length:planOccurrenceCohortRetryOperationCount(expected)},()=>crypto.randomUUID()):[],createdAt:new Date().toISOString(),expected}
+    let request={userId:owner,resolutionId:crypto.randomUUID(),choice,operationIds:choice==="retry_local"?Array.from({length:planOccurrenceCohortRetryOperationCount(expected)},()=>crypto.randomUUID()):[],createdAt:new Date().toISOString(),expected}
     const before=await snapshot(loser), remoteBefore=await state()
-    const result=await call(loser,{type:"resolve-appearance-cohort",request}) as {status:string;record:unknown}
+    const result=await call(loser,{type:interactive?"resolve-appearance-cohort-ui":"resolve-appearance-cohort",request}) as {status:string;record:unknown}
     const record=planOccurrenceCohortResolutionRecordSchema.parse(result.record), decided=await snapshot(loser)
+    request={userId:record.userId,resolutionId:record.resolutionId,choice:record.choice,operationIds:record.operationIds,createdAt:record.createdAt,expected:record.expected}
     assert(result.status==="applied"&&canonical(await state())===canonical(remoteBefore),"Local joint decision manufactured a remote ACK")
     for(const original of expected.source.entries.filter((entry)=>expected.operationIds.includes(entry.operation.operationId))) assert(canonical(decided.backup.stores.outbox.find((entry)=>entry.operation.operationId===original.operation.operationId))===canonical({...original,state:"superseded",lease:null}),"Joint decision rewrote original history")
     for(const store of ["items","tags","itemViews","taskPlacements","settings","remoteShadows"] as const) assert(canonical(before.backup.stores[store])===canonical(decided.backup.stores[store]),"Joint decision changed unrelated data or observed evidence")

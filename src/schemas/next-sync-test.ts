@@ -147,6 +147,7 @@ export const nextSettingsProofScopeSchema = z
     "full",
     "joint-ui",
     "appearance-cohort",
+    "appearance-cohort-ui",
     "assignment",
     "assignment-series",
     "placement",
@@ -158,6 +159,10 @@ export const nextSettingsProofScopeSchema = z
   ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("resolve-appearance-cohort-ui"),
+    request: planOccurrenceCohortResolutionRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("appearance-cohort-comparison"),
     operationId: entityIdSchema,

@@ -1,5 +1,18 @@
 # Recuperación explícita de conflictos
 
+## 19j5b — Recuperación multi-slot disponible en Ajustes
+
+La raíz propia de un conflicto con intenciones de varias fechas muestra «Revisar fechas relacionadas». La candidatura sólo abre revisión; no autoriza ni ofrece decisiones desde el DTO. La feature captura comparación completa en IndexedDB y verifica cuenta/época. El componente queda aislado por cuenta, época y raíz; conserva IDs al reintentar, evita estados después de desmontarse e invalida sólo caché de su cuenta/época. La resolución de una sola aparición conserva su comportamiento.
+
+El diálogo publicado permite adoptar todos los remotos conocidos o enviar todos los borradores completos. Cancelar no escribe y reabrir relee la comparación. Las versiones por fecha se pliegan, muestran contenido/horario/estado/checklist y advierten del alcance conjunto, historial conservado, confirmación pendiente y estados intermedios. Guías Next instalada y vercel-react-best-practices aplicadas; sin nuevas rutas de navegación, índices, protocolos o dependencias.
+
+Once escenarios Next6 focalizados con dos sesiones BetterAuth persistidas, dos orígenes IndexedDB y Mongo propios aprobados: ambas elecciones por UI real con cancelar/reabrir/confirmar, IDs generados por UI, pérdida tras commit, recarga, replay durable con mismo UUID/ACK único y proyecciones/shadows/cursor exactos por serie. No full34 ni Google interactivo o nuevos físicos. La primera ejecución detectó un error de fixture: el replay debía usar el UUID del registro generado por UI y no el preliminar del controlador. Corregido sin relajar producto; segunda ejecución aprobada y ambos recursos propios limpios.
+
+QA con CSS del build y390px: texto largo/pasos caben, documento390/dialog358/scroll356 sin desbordamiento horizontal, secciones plegables y confirmación/cancelación accesibles. Captura /private/tmp/dalis-multi-date-review-mobile.png. Vista previa sin bases; servidor/pestaña propios cerrados y viewport restablecido. Sólo pestaña humana conservada.
+
+DoD1114pass/225opt-in skip/0fail/12543aserciones, lint1003 sin avisos/tipos/Webpack/worker46/diff aprobados tras limpiar Next temporal. Rutas lib/sync/plan-occurrence-cohort-review, componentes de acciones/SSR, schemas de fixture y templates Next, test/browser/appearance-cohort-review y selector visual. Entrada94%5h/99%7d, reservas10%/1%, secuencial. Sin DBusuario/producción. Recuperación multi-slot queda cerrada para las cadenas aisladas contempladas; otras familias/dependencias/ausencias conservan protección. Siguiente19k1: delimitar contratos de recuperación de orden entre categorías y grupos mixtos con catálogos completos, efectos y revisiones independientes; luego persistencia/portable/Next/UI por dependencias. No ampliar automáticamente supersesión a operaciones externas. Después ausencia/copia y accesibilidad/preparación final según el plan.
+
+
 ## 19j5a — Revisión visual conjunta de varias apariciones
 
 Disponibilidad pura revalida comparación completa y actor antes de presentar opciones. Reintento exige todos los borradores y cadenas válidas, revisiones seguras y capacidad de cola; casos con borrador ausente o remoto cancelado/eliminado/agotado conservan adopción. Esto sólo presenta opciones: el writer sigue releyendo todos los datos en su transacción.

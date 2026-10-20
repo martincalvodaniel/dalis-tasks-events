@@ -437,3 +437,22 @@ test("multi-slot fixture scope and commands preserve the exact reviewed cohort",
   ])
     expect(nextSyncDeviceCommandSchema.safeParse(invalid).success).toBe(false)
 })
+
+test("multi-slot UI fixture requires a full review without widening other commands", () => {
+  const f = planOccurrenceCohortResolutionFixture(),
+    request = { ...f.request, choice: f.record.choice }
+  expect(nextSettingsProofScopeSchema.parse("appearance-cohort-ui")).toBe(
+    "appearance-cohort-ui"
+  )
+  expect(
+    nextSyncDeviceCommandSchema.parse({
+      type: "resolve-appearance-cohort-ui",
+      request,
+    })
+  ).toEqual({ type: "resolve-appearance-cohort-ui", request })
+  for (const input of [
+    { type: "resolve-appearance-cohort-ui", request: {} },
+    { type: "resolve-appearance-cohort-ui", request, unsafe: true },
+  ])
+    expect(nextSyncDeviceCommandSchema.safeParse(input).success).toBe(false)
+})
