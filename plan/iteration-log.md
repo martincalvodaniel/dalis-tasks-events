@@ -1,5 +1,14 @@
 # Registro de iteraciones
 
+## Cierre de la continuación interactiva — 20 de octubre
+
+Nueve cortes completos publicados:4e4acf4/9b06674 (revisión yrecuperación multi-slot),071c1b5/637326d/56edbde/65db59f (contexto/decisión/portable/TX deorden mixto),d53982f (representación completa),59cffc3 (prueba remota),2523643 (activación UI). Recuperación multi-slot yorden deplan simple con vecinos recurrentes de misma categoría ya visibles enAjustes; no implica recuperar cualquiercadena o movimiento.
+
+ÚltimaDoD1148pass/225skip/0fail/12814aserciones, lint1019sinavisos/tipos/Webpack/worker46; once escenarios Next6 focalizados backend yonce focalizados UI mixtos con BetterAuth persistido/dosorígenesIndexedDB/Mongo propios, ambas decisiones/cancelar/reabrir/confirmar/UUIDUI/pérdida/recarga/replay/ACKúnico ycatálogos exactos. Multi-slot cerrado anteriormente conotro scope11; no full35 ni nuevoGoogle/físicos. Recursos propios retirados, sólo pestaña humana conservada ymain humano sineditar. Sin DBusuario, producción, dependencias o índices nuevos.
+
+Cuotas reales tras2523643:16%5h/87%7d, reservas10%/1%. Siguiente19k5 requiere contrato de primaria recurrente/cross-category con vistas yefectos enotrasfechas, luego persistencia/portable/prueba/UI. Los seis puntos disponibles sobre reserva no cubren con seguridad una entrega completa yreparaciones: cerrar sinWIP, no abrir contrato apresurado. Después ausencia/copia yaccesibilidad/preparación final por dependencias. Sin nueva programación automática, créditos o reinicios; cumpleaños aparcado yGmail fuera. Cada próxima entrega conserva commit/pushint/HEADremoto yconsulta directa deambas cuotas.
+
+
 ## 19k4b2 — Recuperación de orden mixto disponible en Ajustes
 
 La revisión de orden captura primero el caso simple y, si no es válido, relee el contrato mixto completo en el mismo LocalSyncStore, con cuenta/época antes/después. Cada opción se ofrece sólo tras validar la familia; la UI genera IDs estables y elige explícitamente writer simple o marcado mixed_group. Mantiene isolation por cuenta/época/raíz, mounted y caché propia. Writers simples siguen strict. El diálogo completo incluye todos los vecinos simples y fechas recurrentes, posición implícita, títulos de excepciones y fechas originales/movidas; no cambia contenido ni asignaciones.
