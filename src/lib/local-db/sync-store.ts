@@ -3,8 +3,14 @@
 import { openLocalDatabase } from "@/lib/local-db/client"
 import { resolveLocalItemViewIncident } from "@/lib/local-db/item-view-resolution"
 import { readLocalItemViewResolutionSnapshot } from "@/lib/local-db/item-view-resolution-capture"
-import { resolveLocalPlacementIncident } from "@/lib/local-db/placement-resolution"
-import { readLocalPlacementResolutionSnapshot } from "@/lib/local-db/placement-resolution-capture"
+import {
+  resolveLocalMixedPlacementIncident,
+  resolveLocalPlacementIncident,
+} from "@/lib/local-db/placement-resolution"
+import {
+  readLocalMixedPlacementResolutionSnapshot,
+  readLocalPlacementResolutionSnapshot,
+} from "@/lib/local-db/placement-resolution-capture"
 import { resolveLocalPlanCategoryIncident } from "@/lib/local-db/plan-category-resolution"
 import { readLocalPlanCategoryResolutionSnapshot } from "@/lib/local-db/plan-category-resolution-capture"
 import { readLocalPlanOccurrenceCohortComparison } from "@/lib/local-db/plan-occurrence-cohort-capture"
@@ -170,6 +176,23 @@ export class LocalSyncStore {
     )
   }
 
+  readMixedPlacementIncidentSnapshot(operationId: string) {
+    return readLocalMixedPlacementResolutionSnapshot(
+      this.database,
+      this.userId,
+      operationId
+    )
+  }
+  resolveMixedPlacementIncident(input: unknown) {
+    return resolveLocalMixedPlacementIncident(
+      this.database,
+      this.userId,
+      input
+    ).then((result) => {
+      if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+      return result
+    })
+  }
   readPlacementIncidentSnapshot(operationId: string) {
     return readLocalPlacementResolutionSnapshot(
       this.database,

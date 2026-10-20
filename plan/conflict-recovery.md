@@ -1,5 +1,18 @@
 # Recuperación explícita de conflictos
 
+## 19k3 — Persistencia y frontera local de orden mixto
+
+Captura y writer mixtos separados reutilizan el ejecutor de placements con política privada y resultados tipados; las APIs simples mantienen schemas/guardias anteriores. Una TX9stores relee catálogo completo y evidencia, valida familia/replay/identidades/contador ycapacidad posterior incluyendo tail faltante más recibo. Guarda posiciones elegidas, supersesión exacta,0/1reemplazo pendiente, tail/counter ydecisión atómicamente. Replay primero no reescribe trabajo posterior ni añade espacio. Posiciones locales sin remoto conocido y otras intenciones continúan protegidas.
+
+LocalSyncStore/feature añaden métodos mixtos con actor/protocolo6/cuenta/época antes-después de abrir/operar y cierre siempre. Aviso local sólo tras commit aplicado, nunca fallo/replay. No promete cancelación atómica a través de la DB de control. Aún no hay caller UI mixto.
+
+Once checks IndexedDB reales aprobados: lectura sin writes/camino simple protegido, actor/staleparent/slot/vista, remoto ausente/posición local desconocida, intención externa, rollback tardío de posiciones derivadas/cola/tail/counter/recibo, IDs/overflow, retry+backup/recarga/replay sin retroceso, adopción sin ops/tail, últimos espacios para recibo ytail, epoch cambiada duranteopen y dos confirmaciones simultáneas→uncommit/unreplay/unaviso. Partición ycontrol propios eliminados; pestaña/servidor retirados. No Mongo/Next/Google nuevos.
+
+DoD1139pass/225opt-in skip/0fail/12712aserciones, lint1017 sin avisos/tipos/Webpack/worker46/diff aprobados. Se ajustó sólo el texto de la fixture después de la ejecución nativa. Entrada50%5h/92%7d, reservas10%/1%, secuencial. Rutas placement-resolution{,-capture}, sync-store, feature local-mixed-placement-resolution, test/browser/mixed-placement-resolution yselector. Sin protocolo/índice/dependencia/DBusuario nuevos.
+
+Siguiente19k4: integración conjunta de revisión/adopción/retry mixtos en Ajustes más representación completa de vecinos simples y slots con títulos/fechas conocidas y orden implícito. Lectura adaptativa validada en la misma cuenta, marcador mixto explícito al escribir; no aceptar mezclas en el writer simple. Probar productores reales con posiciones de vecinos ya comprometidas, conflictoCAS, cancelación UI/reabrir/confirmar, UUID UI, pérdida/replay/recarga/ACK único y proyecciones de ambos orígenes contra Mongo antes de publicar caller. Declarar posiciones locales desconocidas/cross-category/primaria recurrente pendientes. La UI no debe listar sólo posiciones materializadas ni confundir borrar posición con borrar plan.
+
+
 ## 19k2 — Evidencia portable de orden mixto
 
 Backup3 admite la familia marcada reviewKind=mixed_group. El validador distingue esa marca antes de validar la decisión y reutiliza la evidencia común de placements: originales exactos superseded, outcome congelado, prerrequisitos con operaciones/outcomes aplicados coincidentes y reemplazo exacto por usuario/entidad/payload/fecha/secuencia/dependencias. Superseded no es ACK. La propiedad exclusiva de originales y los IDs globales se conservan; quitar la marca no convierte el caso mixto en una decisión simple válida.

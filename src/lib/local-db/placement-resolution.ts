@@ -3,35 +3,90 @@
 import { localDatabaseName } from "@/lib/local-db/client"
 import {
   placementResolutionStoreNames,
+  queueLocalMixedPlacementResolutionCapture,
   queueLocalPlacementResolutionCapture,
 } from "@/lib/local-db/placement-resolution-capture"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import {
+  planMixedPlacementIncidentResolution,
+  validateMixedPlacementResolutionRecord,
+} from "@/lib/sync/mixed-placement-decision"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
 import {
   planPlacementIncidentResolution,
   validatePlacementResolutionRecord,
 } from "@/lib/sync/placement-decision"
-import { capturePlacementResolutionSnapshot } from "@/lib/sync/placement-resolution"
+import {
+  captureMixedPlacementResolutionSnapshot,
+  capturePlacementResolutionSnapshot,
+} from "@/lib/sync/placement-resolution"
 import { localResolutionCapacitySchema } from "@/schemas/local-resolution-capacity"
 import {
   outboxEntrySchema,
   outboxSequenceSchema,
   preferenceTailSchema,
 } from "@/schemas/local-sync"
+import { mixedPlacementResolutionRequestSchema } from "@/schemas/mixed-placement-resolution"
 import { placementResolutionRequestSchema } from "@/schemas/placement-resolution"
 import { userIdSchema } from "@/schemas/primitives"
+import type { MixedPlacementResolutionRecord } from "@/types/mixed-placement-resolution"
 import type { PlacementResolutionRecord } from "@/types/placement-resolution"
 
+type PlacementResult<Record> = {
+  status: "applied" | "replayed"
+  record: Record
+}
 export function resolveLocalPlacementIncident(
   database: IDBDatabase,
   userIdInput: string,
   input: unknown
-): Promise<{
-  status: "applied" | "replayed"
-  record: PlacementResolutionRecord
-}> {
+): Promise<PlacementResult<PlacementResolutionRecord>> {
+  return resolvePlacement(database, userIdInput, input, false)
+}
+export function resolveLocalMixedPlacementIncident(
+  database: IDBDatabase,
+  userIdInput: string,
+  input: unknown
+): Promise<PlacementResult<MixedPlacementResolutionRecord>> {
+  return resolvePlacement(database, userIdInput, input, true)
+}
+function resolvePlacement(
+  database: IDBDatabase,
+  userIdInput: string,
+  input: unknown,
+  mixedGroup: false
+): Promise<PlacementResult<PlacementResolutionRecord>>
+function resolvePlacement(
+  database: IDBDatabase,
+  userIdInput: string,
+  input: unknown,
+  mixedGroup: true
+): Promise<PlacementResult<MixedPlacementResolutionRecord>>
+function resolvePlacement(
+  database: IDBDatabase,
+  userIdInput: string,
+  input: unknown,
+  mixedGroup: boolean
+): Promise<
+  PlacementResult<PlacementResolutionRecord | MixedPlacementResolutionRecord>
+> {
+  const parseRequest = mixedGroup
+    ? mixedPlacementResolutionRequestSchema
+    : placementResolutionRequestSchema
+  const validateRecord = mixedGroup
+    ? validateMixedPlacementResolutionRecord
+    : validatePlacementResolutionRecord
+  const captureSnapshot = mixedGroup
+    ? captureMixedPlacementResolutionSnapshot
+    : capturePlacementResolutionSnapshot
+  const planDecision = mixedGroup
+    ? planMixedPlacementIncidentResolution
+    : planPlacementIncidentResolution
+  const queueCapture = mixedGroup
+    ? queueLocalMixedPlacementResolutionCapture
+    : queueLocalPlacementResolutionCapture
   const userId = userIdSchema.parse(userIdInput),
-    request = placementResolutionRequestSchema.parse(input)
+    request = parseRequest.parse(input)
   if (request.userId !== userId || database.name !== localDatabaseName(userId))
     return Promise.reject(
       new Error("Placement decision belongs to another partition")
@@ -46,14 +101,10 @@ export function resolveLocalPlacementIncident(
       replay.onsuccess = () => {
         try {
           if (replay.result !== undefined) {
-            const record = validatePlacementResolutionRecord(
-              replay.result,
-              userId
-            )
+            const record = validateRecord(replay.result, userId)
             if (
-              JSON.stringify(
-                planPlacementIncidentResolution(request, record.expected)
-              ) !== JSON.stringify(record)
+              JSON.stringify(planDecision(request, record.expected)) !==
+              JSON.stringify(record)
             )
               throw new Error(
                 "Placement decision identity was reused with different evidence"
@@ -74,8 +125,8 @@ export function resolveLocalPlacementIncident(
             if (!sequenceReady || !evidenceReady || !snapshot) return
             try {
               const entries = snapshot.entries
-              const current = capturePlacementResolutionSnapshot(snapshot)
-              const record = planPlacementIncidentResolution(request, current),
+              const current = captureSnapshot(snapshot)
+              const record = planDecision(request, current),
                 ids = new Set(record.supersededOperationIds),
                 byId = new Map(
                   entries.map((entry) => [entry.operation.operationId, entry])
@@ -194,7 +245,7 @@ export function resolveLocalPlacementIncident(
             evidenceReady = true
             finish()
           }
-          queueLocalPlacementResolutionCapture(
+          queueCapture(
             context,
             userId,
             request.expected.incident.entry.operation.operationId,

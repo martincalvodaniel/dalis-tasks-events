@@ -1,0 +1,505 @@
+import {
+  readMixedPlacementIncidentComparison,
+  resolveMixedPlacementIncident,
+} from "@/features/sync/local-mixed-placement-resolution"
+import { mixedPlacementResolutionBackupFixture } from "@/lib/backup/mixed-placement-resolution-fixture"
+import {
+  ACCOUNT_CONTROL_DATABASE,
+  activatePreparedAccount,
+  readAccountControl,
+} from "@/lib/local-db/account-control"
+import { readLocalRecurringBackup } from "@/lib/local-db/backup"
+import { localDatabaseName, openLocalDatabase } from "@/lib/local-db/client"
+import {
+  resolveLocalMixedPlacementIncident,
+  resolveLocalPlacementIncident,
+} from "@/lib/local-db/placement-resolution"
+import {
+  readLocalMixedPlacementResolutionSnapshot,
+  readLocalPlacementResolutionSnapshot,
+} from "@/lib/local-db/placement-resolution-capture"
+import { LocalSyncStore } from "@/lib/local-db/sync-store"
+import { runLocalTransaction } from "@/lib/local-db/transaction"
+import { entityIdSchema } from "@/schemas/primitives"
+import type { MixedPlacementResolutionRequest } from "@/types/mixed-placement-resolution"
+
+if (location.hostname !== "127.0.0.1" || location.port !== "4179")
+  throw new Error("Mixed placement proof requires its own loopback origin")
+const runId = entityIdSchema.parse(
+    new URLSearchParams(location.search).get("run")
+  ),
+  actor = `browser-test-${runId}-mixed-placement`,
+  name = localDatabaseName(actor)
+const statusNode = document.getElementById("status")
+if (!statusNode) throw new Error("Mixed placement proof status missing")
+const status = statusNode
+function assert(value: unknown, message: string): asserts value {
+  if (!value) throw new Error(message)
+}
+async function run() {
+  assert(
+    !(await indexedDB.databases()).some((value) => value.name === name),
+    "Owned mixed partition already exists"
+  )
+  let database = await openLocalDatabase(actor)
+  const f = mixedPlacementResolutionBackupFixture(true, actor),
+    stores = [...database.objectStoreNames]
+  let checks = 0,
+    notices = 0
+  const notified = (event: Event) => {
+    if (event instanceof CustomEvent && event.detail?.userId === actor)
+      notices++
+  }
+  window.addEventListener("dalis:outbox-changed", notified)
+  async function seed() {
+    await runLocalTransaction(database, stores, "readwrite", (context) => {
+      for (const key of stores) context.transaction.objectStore(key).clear()
+      for (const [key, records] of Object.entries(f.backup.stores))
+        for (const record of records) {
+          if (
+            key === "outbox" ||
+            key === "syncMetadata" ||
+            key === "taskPlacements"
+          )
+            continue
+          context.transaction.objectStore(key).add(record)
+        }
+      for (const record of f.capture.local.placements)
+        context.transaction.objectStore("taskPlacements").add(record)
+      for (const entry of f.capture.entries)
+        context.transaction.objectStore("outbox").add(entry)
+      context.transaction.objectStore("syncMetadata").add(f.simple.outcome)
+      context.transaction
+        .objectStore("syncMetadata")
+        .add({ key: "outbox-sequence", value: 2 })
+      context.setResult(true)
+    })
+  }
+  async function raw() {
+    return runLocalTransaction<string>(
+      database,
+      stores,
+      "readonly",
+      (context) => {
+        const values: Record<string, unknown> = {}
+        let remaining = stores.length
+        for (const key of stores) {
+          const request = context.transaction.objectStore(key).getAll()
+          request.onsuccess = () => {
+            values[key] = request.result
+            if (!--remaining) context.setResult(JSON.stringify(values))
+          }
+        }
+      }
+    )
+  }
+  async function mutate(store: string, value: unknown) {
+    await runLocalTransaction(database, [store], "readwrite", (context) => {
+      context.transaction.objectStore(store).put(value)
+      context.setResult(true)
+    })
+  }
+  async function remove(store: string, key: IDBValidKey) {
+    await runLocalTransaction(database, [store], "readwrite", (context) => {
+      context.transaction.objectStore(store).delete(key)
+      context.setResult(true)
+    })
+  }
+  async function request(
+    choice: MixedPlacementResolutionRequest["choice"] = "retry_latest_move"
+  ): Promise<MixedPlacementResolutionRequest> {
+    return {
+      ...f.request,
+      resolutionId: crypto.randomUUID(),
+      operationId: choice === "retry_latest_move" ? crypto.randomUUID() : null,
+      choice,
+      expected: await readLocalMixedPlacementResolutionSnapshot(
+        database,
+        actor,
+        f.simple.entry.operation.operationId
+      ),
+    }
+  }
+  async function rejected(work: () => Promise<unknown>) {
+    const before = await raw(),
+      count = notices
+    let failed = false
+    try {
+      await work()
+    } catch {
+      failed = true
+    }
+    assert(
+      failed && before === (await raw()) && count === notices,
+      "Rejected mixed recovery mutated storage or notified"
+    )
+  }
+  async function check(label: string, work: () => Promise<void>) {
+    await seed()
+    await work()
+    checks++
+    const row = document.createElement("li")
+    row.textContent = `Correcto: ${label}`
+    document.getElementById("results")?.append(row)
+  }
+  async function clearOwnedControl() {
+    const control = await readAccountControl()
+    assert(
+      control.userId === null || control.userId === actor,
+      "Account control belongs to another identity"
+    )
+    await new Promise<void>((resolve, reject) => {
+      const deletion = indexedDB.deleteDatabase(ACCOUNT_CONTROL_DATABASE)
+      deletion.onsuccess = () => resolve()
+      deletion.onerror = () => reject(deletion.error)
+      deletion.onblocked = () =>
+        reject(new Error("Owned mixed control cleanup blocked"))
+    })
+  }
+  try {
+    await check(
+      "Captura mixta de solo lectura y camino simple protegido",
+      async () => {
+        const before = await raw(),
+          input = await request()
+        assert(
+          before === (await raw()) &&
+            input.expected.observed.occurrences.length === 1 &&
+            input.expected.observed.items.length === 4,
+          "Mixed capture lost recurring context"
+        )
+        await rejected(() =>
+          readLocalPlacementResolutionSnapshot(
+            database,
+            actor,
+            f.simple.entry.operation.operationId
+          )
+        )
+        await rejected(() =>
+          resolveLocalPlacementIncident(database, actor, input)
+        )
+      }
+    )
+    await check("Cuenta y contexto obsoletos no se reinterpretan", async () => {
+      const input = await request()
+      await rejected(() =>
+        resolveLocalMixedPlacementIncident(database, "foreign", input)
+      )
+      for (const [key, value] of [
+        ["items", { ...f.series, title: "Later parent" }],
+        ["occurrences", { ...f.moved, cancelled: true }],
+        [
+          "itemViews",
+          { ...f.capture.local.views[0], primaryTagId: crypto.randomUUID() },
+        ],
+      ] as const) {
+        await seed()
+        await mutate(key, value)
+        await rejected(() =>
+          resolveLocalMixedPlacementIncident(database, actor, input)
+        )
+      }
+    })
+    await check(
+      "Remotos desconocidos o posiciones locales nuevas permanecen protegidos",
+      async () => {
+        const input = await request()
+        await remove("remoteShadows", `plan-occurrence:${f.moved.id}`)
+        await rejected(() =>
+          resolveLocalMixedPlacementIncident(database, actor, input)
+        )
+        await seed()
+        await mutate("taskPlacements", {
+          ...f.simple.original[0],
+          occurrenceId: f.implicit.id,
+          revision: 0,
+        })
+        await rejected(() =>
+          resolveLocalMixedPlacementIncident(database, actor, input)
+        )
+      }
+    )
+    await check(
+      "Otra intención pendiente preserva la cadena mixta completa",
+      async () => {
+        const input = await request()
+        await mutate("outbox", {
+          ...f.child,
+          sequence: 3,
+          entityKey: `tag:${crypto.randomUUID()}`,
+          dependencies: [],
+          operation: {
+            operationId: crypto.randomUUID(),
+            protocolVersion: 1,
+            baseRevision: 0,
+            command: { type: "tag.delete", tagId: crypto.randomUUID() },
+          },
+        })
+        await rejected(() =>
+          resolveLocalMixedPlacementIncident(database, actor, input)
+        )
+      }
+    )
+    await check(
+      "Fallo tardío revierte posiciones derivadas, cola, tail, contador y recibo",
+      async () => {
+        const input = await request(),
+          add = IDBObjectStore.prototype.add
+        IDBObjectStore.prototype.add = function (
+          value: unknown,
+          key?: IDBValidKey
+        ) {
+          if (
+            this.transaction.db.name === name &&
+            this.name === "syncMetadata" &&
+            value &&
+            typeof value === "object" &&
+            "reviewKind" in value &&
+            value.reviewKind === "mixed_group"
+          )
+            throw new Error("Owned mixed late failure")
+          return add.call(this, value, key)
+        }
+        try {
+          await rejected(() =>
+            resolveLocalMixedPlacementIncident(database, actor, input)
+          )
+        } finally {
+          IDBObjectStore.prototype.add = add
+        }
+      }
+    )
+    await check(
+      "Identidades globales y contador inválido no se reparan",
+      async () => {
+        const input = await request()
+        await rejected(() =>
+          resolveLocalMixedPlacementIncident(database, actor, {
+            ...input,
+            resolutionId: f.simple.entry.operation.operationId,
+          })
+        )
+        await mutate("syncMetadata", {
+          key: "proof-existing",
+          resolutionId: input.operationId,
+        })
+        await rejected(() =>
+          resolveLocalMixedPlacementIncident(database, actor, input)
+        )
+        for (const value of [1, Number.MAX_SAFE_INTEGER]) {
+          await seed()
+          await mutate("syncMetadata", { key: "outbox-sequence", value })
+          await rejected(() =>
+            resolveLocalMixedPlacementIncident(database, actor, input)
+          )
+        }
+      }
+    )
+    await check(
+      "Reintento conserva evidencia portable, proyección y tail y sobrevive recarga",
+      async () => {
+        const input = await request(),
+          result = await resolveLocalMixedPlacementIncident(
+            database,
+            actor,
+            input
+          )
+        const backup = await readLocalRecurringBackup(
+          database,
+          actor,
+          f.simple.now
+        )
+        assert(
+          result.status === "applied" &&
+            result.record.reviewKind === "mixed_group" &&
+            backup.stores.outbox.length === 3 &&
+            backup.stores.outbox[0].state !== "acknowledged" &&
+            backup.stores.taskPlacements.some(
+              (record) =>
+                record.occurrenceId === f.implicit.id && record.revision === 0
+            ),
+          "Mixed retry lost pending projection"
+        )
+        assert(
+          backup.stores.syncMetadata.some(
+            (value) =>
+              value.key === "preference-tail" &&
+              "operationId" in value &&
+              value.operationId === result.record.operationId
+          ),
+          "Mixed retry tail missing"
+        )
+        await mutate("items", { ...f.series, title: "Later edit" })
+        const later = await raw()
+        database.close()
+        database = await openLocalDatabase(actor)
+        assert(
+          (await resolveLocalMixedPlacementIncident(database, actor, input))
+            .status === "replayed" && later === (await raw()),
+          "Mixed replay rewrote later data"
+        )
+        await rejected(() =>
+          resolveLocalMixedPlacementIncident(database, actor, {
+            ...input,
+            createdAt: "2026-10-20T02:00:00.000Z",
+          })
+        )
+      }
+    )
+    await check(
+      "Adopción conserva catálogo remoto sin operaciones ni tail nuevos",
+      async () => {
+        const result = await resolveLocalMixedPlacementIncident(
+            database,
+            actor,
+            await request("adopt_remote")
+          ),
+          backup = await readLocalRecurringBackup(database, actor, f.simple.now)
+        assert(
+          result.record.replacement === null &&
+            backup.stores.outbox.length === 2 &&
+            backup.stores.taskPlacements.length ===
+              f.snapshot.observed.placements.length &&
+            !backup.stores.syncMetadata.some(
+              (value) => value.key === "preference-tail"
+            ),
+          "Mixed adoption created an intention or tail"
+        )
+        assert(
+          JSON.stringify(backup.stores.items) ===
+            JSON.stringify(
+              f.backup.stores.items.toSorted((a, b) => a.id.localeCompare(b.id))
+            ),
+          "Mixed adoption changed parents"
+        )
+      }
+    )
+    await check(
+      "Capacidad posterior reserva tail faltante y recibo, replay no añade registros",
+      async () => {
+        const input = await request()
+        await runLocalTransaction(
+          database,
+          ["syncMetadata"],
+          "readwrite",
+          (context) => {
+            for (let i = 0; i < 9997; i++)
+              context.transaction
+                .objectStore("syncMetadata")
+                .add({ key: `proof-capacity:${i}` })
+            context.setResult(true)
+          }
+        )
+        await rejected(() =>
+          resolveLocalMixedPlacementIncident(database, actor, input)
+        )
+        await remove("syncMetadata", "proof-capacity:0")
+        assert(
+          (await resolveLocalMixedPlacementIncident(database, actor, input))
+            .status === "applied",
+          "Last receipt and tail slots rejected"
+        )
+        const full = await raw()
+        assert(
+          (await resolveLocalMixedPlacementIncident(database, actor, input))
+            .status === "replayed" && full === (await raw()),
+          "Full metadata blocked replay"
+        )
+      }
+    )
+    await check(
+      "Cuenta y época también se validan después de abrir",
+      async () => {
+        await clearOwnedControl()
+        const prior = await readAccountControl(),
+          control = await activatePreparedAccount(
+            actor,
+            f.simple.now,
+            prior.epoch
+          ),
+          account = { userId: actor, epoch: control.epoch },
+          input = await request()
+        await readMixedPlacementIncidentComparison(
+          account,
+          f.simple.entry.operation.operationId
+        )
+        await rejected(() =>
+          resolveMixedPlacementIncident(
+            { ...account, epoch: crypto.randomUUID() },
+            input
+          )
+        )
+        const open = LocalSyncStore.open
+        LocalSyncStore.open = async (id: string) => {
+          const store = await open(id),
+            current = await readAccountControl()
+          await activatePreparedAccount(actor, f.simple.now, current.epoch)
+          return store
+        }
+        try {
+          await rejected(() =>
+            readMixedPlacementIncidentComparison(
+              account,
+              f.simple.entry.operation.operationId
+            )
+          )
+          const current = await readAccountControl()
+          await rejected(() =>
+            resolveMixedPlacementIncident(
+              { userId: actor, epoch: current.epoch },
+              input
+            )
+          )
+        } finally {
+          LocalSyncStore.open = open
+        }
+      }
+    )
+    await check(
+      "Dos confirmaciones simultáneas guardan una decisión y un aviso local",
+      async () => {
+        const current = await readAccountControl(),
+          account = { userId: actor, epoch: current.epoch },
+          input = await request(),
+          count = notices
+        const results = await Promise.all([
+          resolveMixedPlacementIncident(account, input),
+          resolveMixedPlacementIncident(account, input),
+        ])
+        assert(
+          results.filter((value) => value.status === "applied").length === 1 &&
+            results.filter((value) => value.status === "replayed").length ===
+              1 &&
+            notices === count + 1,
+          "Mixed concurrent decision duplicated commit or event"
+        )
+        const backup = await readLocalRecurringBackup(
+          database,
+          actor,
+          f.simple.now
+        )
+        assert(
+          backup.stores.outbox.filter((entry) => entry.state === "pending")
+            .length === 1,
+          "Mixed concurrent decision duplicated replacement"
+        )
+      }
+    )
+  } finally {
+    window.removeEventListener("dalis:outbox-changed", notified)
+    database.close()
+    await clearOwnedControl()
+    await new Promise<void>((resolve, reject) => {
+      const deletion = indexedDB.deleteDatabase(name)
+      deletion.onsuccess = () => resolve()
+      deletion.onerror = () => reject(deletion.error)
+      deletion.onblocked = () =>
+        reject(new Error("Owned mixed cleanup blocked"))
+    })
+  }
+  status.textContent = `${checks} pruebas correctas; partición y control propios eliminados`
+}
+run().catch((error) => {
+  status.textContent = error instanceof Error ? error.message : String(error)
+  console.error(error)
+})

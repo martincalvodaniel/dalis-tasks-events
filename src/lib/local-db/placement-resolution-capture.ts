@@ -8,7 +8,10 @@ import {
 } from "@/lib/local-db/transaction"
 import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
 import { decodeLocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
-import { capturePlacementResolutionSnapshot } from "@/lib/sync/placement-resolution"
+import {
+  captureMixedPlacementResolutionSnapshot,
+  capturePlacementResolutionSnapshot,
+} from "@/lib/sync/placement-resolution"
 import { placementResolutionCaptureSchema } from "@/schemas/placement-resolution"
 import { entityIdSchema, userIdSchema } from "@/schemas/primitives"
 import type { PlacementResolutionSnapshot } from "@/types/placement-resolution"
@@ -28,6 +31,31 @@ export function queueLocalPlacementResolutionCapture(
   userIdInput: string,
   operationIdInput: string,
   onCapture: (capture: z.infer<typeof placementResolutionCaptureSchema>) => void
+) {
+  queuePlacementCapture(
+    context,
+    userIdInput,
+    operationIdInput,
+    onCapture,
+    false
+  )
+}
+export function queueLocalMixedPlacementResolutionCapture(
+  context: Pick<LocalTransactionContext<unknown>, "transaction" | "fail">,
+  userIdInput: string,
+  operationIdInput: string,
+  onCapture: (capture: z.infer<typeof placementResolutionCaptureSchema>) => void
+) {
+  queuePlacementCapture(context, userIdInput, operationIdInput, onCapture, true)
+}
+function queuePlacementCapture(
+  context: Pick<LocalTransactionContext<unknown>, "transaction" | "fail">,
+  userIdInput: string,
+  operationIdInput: string,
+  onCapture: (
+    capture: z.infer<typeof placementResolutionCaptureSchema>
+  ) => void,
+  mixedGroup: boolean
 ) {
   const userId = userIdSchema.parse(userIdInput),
     operationId = entityIdSchema.parse(operationIdInput)
@@ -104,7 +132,11 @@ export function queueLocalPlacementResolutionCapture(
               },
               observed,
             }),
-            snapshot = capturePlacementResolutionSnapshot(capture)
+            snapshot = (
+              mixedGroup
+                ? captureMixedPlacementResolutionSnapshot
+                : capturePlacementResolutionSnapshot
+            )(capture)
           let pending = snapshot.acknowledgedDependencies.length
           if (!pending) onCapture(capture)
           for (const prerequisite of snapshot.acknowledgedDependencies) {
@@ -157,6 +189,26 @@ export function readLocalPlacementResolutionSnapshot(
         operationId,
         (capture) =>
           context.setResult(capturePlacementResolutionSnapshot(capture))
+      )
+  )
+}
+
+export function readLocalMixedPlacementResolutionSnapshot(
+  database: IDBDatabase,
+  userId: string,
+  operationId: string
+) {
+  return runLocalTransaction<PlacementResolutionSnapshot>(
+    database,
+    placementResolutionStoreNames,
+    "readonly",
+    (context) =>
+      queueLocalMixedPlacementResolutionCapture(
+        context,
+        userId,
+        operationId,
+        (capture) =>
+          context.setResult(captureMixedPlacementResolutionSnapshot(capture))
       )
   )
 }
