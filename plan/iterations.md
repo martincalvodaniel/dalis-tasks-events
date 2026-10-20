@@ -1,5 +1,19 @@
 # Iteraciones de implementación
 
+## 19k6c — Evidencia portable conjunta preservada
+
+Backup3 incorpora category_movement antes defamilias previas yreconstruye record completo, incluida vista elegida/posiciones. Reutiliza guardias comunes deoriginales superseded/outcome congelado/prerequisitos conhistoria youtcomes aplicados/reemplazo exacto/exclusividad/IDsglobales. Quitar familia ovista, alterar revisión/categoría/cuenta ohistoria rechaza; superseded noACK. Pending intentado trasrespuesta perdida yedicionesposteriores permanecen portables sinretroceder proyección. Sombras de categorías/vistas/padres/apariciones/posiciones incluidas enfixture.
+
+19tests/96aserciones: simple/moved/implicit×day/overdue×adopt/retry, roundtrip, formatoanterior, truncación/corrupción, prerequisitosDTO sinoutcome aplicado rechazados, reemplazoexacto/IDs/exclusividad. Modelo puro deACKmultiefecto actualiza vista yposiciones conrevisiones independientes usando planners productivos; noesACKMongo nuevo. Recordpuede conservar evidencia aunque proyecciónactual haya cambiado después. Sinrepair/migrador nuevo.
+
+DoD1267pass/225skip/0fail/14072aserciones, lint1045sinavisos/tipos/Webpack/worker46/diff aprobados. Entrada63%5h/67%7d, reservas10%/1%, secuencial. Sinwriter/caller/IO/índice/dependencia/DBusuario nuevos. Siguiente19k6d: captura ywriter conjuntoTX9stores queguarde tambiénvista, acredite prerequisitos reales, capacitépostwrite/IDs/counter/tail/replay/rollback; validaciónIndexedDB nativaantes deNext/Mongo/UI.
+
+
+## 19k6c — Evidencia portable conjunta de categoría yorden
+
+Objetivo: backup3 valida familia category_movement antes defamilias previas yconserva vista/posiciones elegidas con historiaexacta. target_paths: schemas/local-recurring-backup, backup/local-backup/placement-resolution-evidence yfixture/tests categoría; fixture pura añade referencia known paraoráculo. Dependencias19k6b2, entrada63%5h/67%7d, reservas10%/1%, secuencial. Aceptación: replanificar decisión completa, originales/outcome raíz exactos, prerequisitosACK acreditados porhistoria+outcome aplicado coincidentes, reemplazo usuario/entidad/fecha/secuencia/payload/deps exactos, exclusividad/IDsglobales; pending intentado yedicionesposteriores portables sinACK inventado. Modelos deACKpuros no son Mongo. Roundtrip válido/adopt/retry, corrupto/truncado/prerequisitos/familias/IDs/resultado multiefecto, DoD/plan/log/commit/pushint/HEAD/cuotas. Sinwriter/caller aún.
+
+
 ## 19k6b2 — Decisión pura de categoría yorden preparada
 
 Familia category_movement separada conserva snapshot canónico decatálogos/raízconflict/cola/outcome congelado/clausura deACKs. Reutiliza guardias deplacement conpolítica privada adicional, sinampliar APIs simples/mixed_group/recurring_primary. Contenido/apariciones/categorías yotrasvistas exactos; review nuevo acredita vista delpadre ygrupos. Cadenas intentadas/desconectadas/otrosdestinos/externos/identidadesausentes protegenhistoria. PrerrequisitosACK sonestructura todavía: portable/writer deberán acreditarlos conoutcomes aplicados reales.

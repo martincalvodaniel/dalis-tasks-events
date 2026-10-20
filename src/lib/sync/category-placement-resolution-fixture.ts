@@ -142,5 +142,15 @@ export function categoryPlacementResolutionFixture(
       createdAt: f.now,
       expected: snapshot,
     })
-  return { ...f, entry, child, outcome, input, capture, snapshot, request }
+  return {
+    ...f,
+    known,
+    entry,
+    child,
+    outcome,
+    input,
+    capture,
+    snapshot,
+    request,
+  }
 }

@@ -1,3 +1,4 @@
+import { validateCategoryPlacementResolutionRecord } from "@/lib/sync/category-placement-decision"
 import type { LocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
 import { validateMixedPlacementResolutionRecord } from "@/lib/sync/mixed-placement-decision"
 import { isUnresolvedOutboxEntry } from "@/lib/sync/outbox-state"
@@ -33,6 +34,16 @@ export function validateRecurringPlacementResolutionEvidence(
   outcomes: ReadonlyMap<string, LocalRecurringOutcome>
 ) {
   const record = validateRecurringPlacementResolutionRecord(input, actor)
+  validateEvidence(record, actor, entries, outcomes)
+  return record
+}
+export function validateCategoryPlacementResolutionEvidence(
+  input: unknown,
+  actor: string,
+  entries: ReadonlyMap<string, OutboxEntry>,
+  outcomes: ReadonlyMap<string, LocalRecurringOutcome>
+) {
+  const record = validateCategoryPlacementResolutionRecord(input, actor)
   validateEvidence(record, actor, entries, outcomes)
   return record
 }

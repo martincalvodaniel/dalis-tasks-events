@@ -2,6 +2,7 @@ import { assertBackupOwnership } from "@/lib/backup/backup-ownership"
 import { validateBackupImportEvidence } from "@/lib/backup/import-record"
 import { validateItemViewResolutionEvidence } from "@/lib/backup/item-view-resolution-evidence"
 import {
+  validateCategoryPlacementResolutionEvidence,
   validateMixedPlacementResolutionEvidence,
   validatePlacementResolutionEvidence,
   validateRecurringPlacementResolutionEvidence,
@@ -242,7 +243,17 @@ function validateBackup(
       continue
     }
     if (record.key.startsWith("placement-resolution:")) {
-      if ("reviewKind" in record && record.reviewKind === "recurring_primary")
+      if ("reviewKind" in record && record.reviewKind === "category_movement")
+        validateCategoryPlacementResolutionEvidence(
+          record,
+          actor,
+          entries,
+          outcomes
+        )
+      else if (
+        "reviewKind" in record &&
+        record.reviewKind === "recurring_primary"
+      )
         validateRecurringPlacementResolutionEvidence(
           record,
           actor,

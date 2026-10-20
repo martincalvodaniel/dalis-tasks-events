@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { categoryPlacementResolutionRecordSchema } from "@/schemas/category-placement-resolution"
 import { itemViewResolutionRecordSchema } from "@/schemas/item-view-resolution"
 import {
   localBackupMetadataV2Schema,
@@ -40,6 +41,7 @@ export const localRecurringBackupV3Schema = localBackupV2Schema.extend({
           placementResolutionRecordSchema,
           mixedPlacementResolutionRecordSchema,
           recurringPlacementResolutionRecordSchema,
+          categoryPlacementResolutionRecordSchema,
           tagOrderResolutionRecordSchema,
           tagDeletionResolutionRecordSchema,
           planCategoryResolutionRecordSchema,
