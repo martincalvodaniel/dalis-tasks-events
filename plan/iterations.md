@@ -1,5 +1,11 @@
 # Iteraciones de implementación
 
+## 19k6a — Contrato acotado de recuperación entre categorías
+
+Completado como planificación: contrato enlazado y referencias/diff verificados. Sin nueva implementación.
+
+Planificación independiente mientras Docker requiere respuesta humana. Objetivo: especificar captura/decisión/evidencia/TX/UI de movimientos entre categorías usando semántica productiva existente y delimitando posiciones desconocidas. target_paths: nuevo plan/category-movement-recovery.md y enlaces/estado en master/iterations/conflict-recovery/log. Dependencias puras de19k5a–d listas; implementación/activación posteriores a19k5e/f. Entrada22%5h/74%7d, reservas10%/1%, secuencial. Aceptación: fuentes verificables, CAS de posición separado de vista, alcance de categoría en todo el padre, adopción/retry explícitos sin reescribir originales, límites/casos fuera claros. Validación documental de referencias/consistencia/diff, commit/push/HEAD/cuotas; ningún código ni autorización nueva de datos/VM.
+
 ## 19k5f1 — Revisión visual recurrente preparada sin caller
 
 Completado:10 SSR/151 aserciones, QA390px sin overflow, DoD1198pass/225skip/0fail, lint1033/tipos/Webpack/worker46. Sin caller activo.

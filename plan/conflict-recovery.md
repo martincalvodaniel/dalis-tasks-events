@@ -1,5 +1,12 @@
 # Recuperación explícita de conflictos
 
+## 19k6a — Contrato entre categorías delimitado
+
+Nuevo [contrato](category-movement-recovery.md) basado en comando, planner, executor y oráculo productivos. Distingue CAS primario de la vista y explicita que la categoría afecta a todo el padre, incluidas sus fechas. Primera implementación futura acotada a cadena aislada con un destino y posiciones conocidas; adopción conjunta vista/posiciones sin ops o reenvío del último comando absoluto con UUID nuevo. Portable/TX/Next/UI requieren evidencia de ambos dominios antes de ofrecer decisiones. Posiciones nuevas sin remoto, ausencias, varios destinos y dependencias externas siguen protegidos; no se elimina ni reinterpreta historia.
+
+Planificación independiente durante el bloqueo de Docker: referencias de código y límites verificados, sin código, datos o permisos nuevos. Entrada22%5h/74%7d, reservas10%/1%, secuencial; validación documental/consistencia/diff. No acredita recuperación entre categorías implementada. Al restablecer Docker:19k5e y19k5f2 primero; después19k6b captura/decisión según este contrato y pruebas posteriores.
+
+
 ## 19k5f1 — Revisión visual recurrente preparada
 
 Se reutiliza el diálogo de orden con política explícita recurring_primary. La versión compartida valida la familia, destaca el slot exacto (no el padre), conserva todos los vecinos e implícitos y diferencia hora/fecha originales de las reprogramadas. Lookup de posiciones por mapa evita búsqueda lineal por cada fila. Los caminos simples/mixed_group conservan comportamiento y guardias; todavía no hay caller recurrente activo en Ajustes.
