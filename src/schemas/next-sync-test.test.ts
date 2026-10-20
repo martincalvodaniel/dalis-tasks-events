@@ -491,7 +491,7 @@ test("mixed placement proof scope preserves the marked family and strict command
       database: "production",
     })
   ).toThrow()
-  expect(() =>
-    nextSettingsProofScopeSchema.parse("mixed-placement-ui")
-  ).toThrow()
+  expect(nextSettingsProofScopeSchema.parse("mixed-placement-ui")).toBe(
+    "mixed-placement-ui"
+  )
 })

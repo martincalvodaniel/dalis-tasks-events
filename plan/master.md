@@ -1,5 +1,16 @@
 # Dalis Tasks & Events — plan maestro
 
+## 19k4b2 — Recuperación de orden mixto disponible en Ajustes
+
+La revisión de orden captura primero el caso simple y, si no es válido, relee el contrato mixto completo en el mismo LocalSyncStore, con cuenta/época antes/después. Cada opción se ofrece sólo tras validar la familia; la UI genera IDs estables y elige explícitamente writer simple o marcado mixed_group. Mantiene isolation por cuenta/época/raíz, mounted y caché propia. Writers simples siguen strict. El diálogo completo incluye todos los vecinos simples y fechas recurrentes, posición implícita, títulos de excepciones y fechas originales/movidas; no cambia contenido ni asignaciones.
+
+Once escenarios Next6 focalizados UI con dos orígenes IndexedDB, BetterAuth persistido y Mongo propios aprobados. Ambas elecciones realizadas desde PersonalIncidentCard real: abrir/cancelar/reabrir/confirmar, selección de alternativa y UUID generado por UI distinto del preliminar. Cancelar preserva todos los stores; adopción no envía operación. Retry conserva último comando con nuevo UUID/CAS; pérdida tras commit→pendingattempt1, recarga/replay→ACKrealattempt2 único, posiciones/shadows/cursor exactos contra Mongo y todos los dominios ajenos intactos. No extrapolar a full35/Google/físicos. Captura /private/tmp/dalis-mixed-placement-ui-proof.png. Primera compilación detectó alias duplicado en host de fixture; corregido antes de segundo run aprobado, ambos recursos propios retirados. Sólo pestaña humana conservada.
+
+DoD1148pass/225skip/0fail/12814aserciones, lint1019 sin avisos/tipos/Webpack/worker46/diff aprobados. SSR añade candidatura mixta sin decisiones antes de captura. Entrada26%5h/88%7d, reservas10%/1%, secuencial. Rutas feature local-placement-resolution, PlacementIncidentActions, schema/test y templates de fixture mixtos; sin protocolo/índice/dependencias/DBusuario nuevos.
+
+Cierra19k4 para primaria simple en grupo de misma categoría con vecinos recurrentes y posiciones comprometidas conocidas. No cierra primaria recurrente, cambios entre categorías, posiciones locales sin remoto acreditado ni otras intenciones externas. Siguiente19k5: delimitar contrato puro de esos movimientos con asignación de padre/efectos de otras fechas y catálogo completo, antes de permitir decisiones/persistencia/portable/Next/UI. Después ausencia/copia, accesibilidad ypreparación final según dependencias. Preservar historia yguardias; sin migradores ni descarte automático.
+
+
 ## 19k4b1 — Recuperación mixta probada contra Next/Mongo
 
 Nuevo scope explícito mixed-placement mantiene full35 disponible. Once escenarios focalizados Next6 compilado/defaults/sesiones BetterAuth persistidas/dos orígenes IndexedDB/Mongo propios aprobados: adopción y retry con productores reales, tres planes simples y serie con dos fechas visibles en el mismo día (una movida y otra implícita). Antes del conflicto todas las posiciones de vecinos se confirman y sus revisiones independientes quedan conocidas; el slot implícito no se convierte en excepción. Guardias actor/epoch/snapshot obsoleto conservan todos los stores.

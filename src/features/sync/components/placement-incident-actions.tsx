@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useSWRConfig } from "swr"
 import { activeProductSyncProtocol } from "@/config/common-plan-release"
 import { PlacementIncidentResolutionDialog } from "@/features/sync/components/placement-incident-resolution-dialog"
+import { resolveMixedPlacementIncident } from "@/features/sync/local-mixed-placement-resolution"
 import {
   readPlacementIncidentComparison,
   resolvePlacementIncident,
@@ -11,8 +12,11 @@ import {
 import { isAccountSyncCacheKey } from "@/features/sync/manual-sync"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
+import { availableMixedPlacementResolutionChoices } from "@/lib/sync/mixed-placement-decision"
 import { availablePlacementResolutionChoices } from "@/lib/sync/placement-decision"
+import { mixedPlacementResolutionRequestSchema } from "@/schemas/mixed-placement-resolution"
 import { placementResolutionRequestSchema } from "@/schemas/placement-resolution"
+import type { MixedPlacementResolutionRequest } from "@/types/mixed-placement-resolution"
 import type {
   PlacementResolutionRequest,
   PlacementResolutionSnapshot,
@@ -31,11 +35,16 @@ export function PlacementIncidentActions({
   const [snapshot, setSnapshot] = useState<PlacementResolutionSnapshot | null>(
     null
   )
+  const [reviewKind, setReviewKind] = useState<"mixed_group" | undefined>(
+    undefined
+  )
   const [choice, setChoice] =
     useState<PlacementResolutionRequest["choice"]>("adopt_remote")
   const [busy, setBusy] = useState(false),
     [notice, setNotice] = useState("")
-  const intent = useRef<PlacementResolutionRequest | null>(null),
+  const intent = useRef<
+      PlacementResolutionRequest | MixedPlacementResolutionRequest | null
+    >(null),
     mounted = useRef(true)
   useEffect(() => {
     mounted.current = true
@@ -60,9 +69,16 @@ export function PlacementIncidentActions({
         account,
         incident.entry.operation.operationId
       )
-      if (!availablePlacementResolutionChoices(current, account.userId).length)
+      const simple =
+        availablePlacementResolutionChoices(current, account.userId).length > 0
+      if (
+        !simple &&
+        !availableMixedPlacementResolutionChoices(current, account.userId)
+          .length
+      )
         throw new Error("Plan order comparison has no supported choice")
       if (mounted.current) {
+        setReviewKind(simple ? undefined : "mixed_group")
         setChoice("adopt_remote")
         setSnapshot(current)
       }
@@ -77,7 +93,12 @@ export function PlacementIncidentActions({
   }
   async function confirm(resolutionId: string) {
     if (!snapshot) throw new Error("Plan order review is missing")
-    intent.current ??= placementResolutionRequestSchema.parse({
+    intent.current ??= (
+      reviewKind
+        ? mixedPlacementResolutionRequestSchema
+        : placementResolutionRequestSchema
+    ).parse({
+      ...(reviewKind ? { reviewKind } : {}),
       userId: account.userId,
       resolutionId,
       operationId: choice === "retry_latest_move" ? crypto.randomUUID() : null,
@@ -87,7 +108,9 @@ export function PlacementIncidentActions({
     })
     setBusy(true)
     try {
-      await resolvePlacementIncident(account, intent.current)
+      if ("reviewKind" in intent.current)
+        await resolveMixedPlacementIncident(account, intent.current)
+      else await resolvePlacementIncident(account, intent.current)
       if (mounted.current) setSnapshot(null)
       try {
         await requireActiveAccount(account)
@@ -128,6 +151,7 @@ export function PlacementIncidentActions({
       {snapshot ? (
         <PlacementIncidentResolutionDialog
           snapshot={snapshot}
+          reviewKind={reviewKind}
           actor={account.userId}
           choice={choice}
           busy={busy}

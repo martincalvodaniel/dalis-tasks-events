@@ -6,6 +6,7 @@ import { requireActiveAccount } from "@/features/workspace/require-active-accoun
 import { LocalSyncStore } from "@/lib/local-db/sync-store"
 import { placementResolutionRequestSchema } from "@/schemas/placement-resolution"
 import { entityIdSchema } from "@/schemas/primitives"
+import type { PlacementResolutionSnapshot } from "@/types/placement-resolution"
 
 export async function readPlacementIncidentComparison(
   account: Pick<LocalAccount, "userId" | "epoch">,
@@ -18,7 +19,13 @@ export async function readPlacementIncidentComparison(
   const store = await LocalSyncStore.open(account.userId)
   try {
     await requireActiveAccount(account)
-    const result = await store.readPlacementIncidentSnapshot(operationId)
+    let result: PlacementResolutionSnapshot
+    try {
+      result = await store.readPlacementIncidentSnapshot(operationId)
+    } catch {
+      await requireActiveAccount(account)
+      result = await store.readMixedPlacementIncidentSnapshot(operationId)
+    }
     await requireActiveAccount(account)
     return result
   } finally {

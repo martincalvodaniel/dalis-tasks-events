@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test"
 import { renderToStaticMarkup } from "react-dom/server"
 import { MixedPlacementResolutionVersion } from "@/features/sync/components/mixed-placement-resolution-version"
+import { PersonalIncidentCard } from "@/features/sync/components/personal-incident-card"
 import { PlacementIncidentResolutionDialog } from "@/features/sync/components/placement-incident-resolution-dialog"
 import { mixedPlacementDecisionFixture } from "@/lib/sync/mixed-placement-decision-fixture"
 import { reviewPlacementGroup } from "@/lib/sync/placement-group-review"
@@ -153,4 +154,23 @@ test("mixed review validates the family, account and context before displaying c
   expect(render(f.snapshot, f.simple.actor, "adopt_remote", true)).toContain(
     "Guardando…"
   )
+})
+
+test("mixed incident offers review without offering an unvalidated decision", () => {
+  const f = mixedPlacementDecisionFixture(),
+    account = { userId: f.simple.actor, epoch: crypto.randomUUID() }
+  const html = renderToStaticMarkup(
+    <PersonalIncidentCard account={account} incident={f.snapshot.incident} />
+  )
+  expect(html).toContain("Revisar orden de planes")
+  expect(html).not.toContain("Usar orden remoto conocido")
+  expect(html).not.toContain("Guardar movimiento para enviar")
+  expect(
+    renderToStaticMarkup(
+      <PersonalIncidentCard
+        account={{ ...account, userId: "foreign" }}
+        incident={f.snapshot.incident}
+      />
+    )
+  ).not.toContain("Revisar orden de planes")
 })
