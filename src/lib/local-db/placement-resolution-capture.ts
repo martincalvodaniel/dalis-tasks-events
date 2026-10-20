@@ -11,6 +11,7 @@ import { decodeLocalRecurringOutcome } from "@/lib/sync/local-recurring-outcome"
 import {
   captureMixedPlacementResolutionSnapshot,
   capturePlacementResolutionSnapshot,
+  captureRecurringPlacementResolutionSnapshot,
 } from "@/lib/sync/placement-resolution"
 import { placementResolutionCaptureSchema } from "@/schemas/placement-resolution"
 import { entityIdSchema, userIdSchema } from "@/schemas/primitives"
@@ -37,7 +38,7 @@ export function queueLocalPlacementResolutionCapture(
     userIdInput,
     operationIdInput,
     onCapture,
-    false
+    "simple"
   )
 }
 export function queueLocalMixedPlacementResolutionCapture(
@@ -46,7 +47,27 @@ export function queueLocalMixedPlacementResolutionCapture(
   operationIdInput: string,
   onCapture: (capture: z.infer<typeof placementResolutionCaptureSchema>) => void
 ) {
-  queuePlacementCapture(context, userIdInput, operationIdInput, onCapture, true)
+  queuePlacementCapture(
+    context,
+    userIdInput,
+    operationIdInput,
+    onCapture,
+    "mixed_group"
+  )
+}
+export function queueLocalRecurringPlacementResolutionCapture(
+  context: Pick<LocalTransactionContext<unknown>, "transaction" | "fail">,
+  userIdInput: string,
+  operationIdInput: string,
+  onCapture: (capture: z.infer<typeof placementResolutionCaptureSchema>) => void
+) {
+  queuePlacementCapture(
+    context,
+    userIdInput,
+    operationIdInput,
+    onCapture,
+    "recurring_primary"
+  )
 }
 function queuePlacementCapture(
   context: Pick<LocalTransactionContext<unknown>, "transaction" | "fail">,
@@ -55,7 +76,7 @@ function queuePlacementCapture(
   onCapture: (
     capture: z.infer<typeof placementResolutionCaptureSchema>
   ) => void,
-  mixedGroup: boolean
+  scope: "simple" | "mixed_group" | "recurring_primary"
 ) {
   const userId = userIdSchema.parse(userIdInput),
     operationId = entityIdSchema.parse(operationIdInput)
@@ -133,9 +154,11 @@ function queuePlacementCapture(
               observed,
             }),
             snapshot = (
-              mixedGroup
-                ? captureMixedPlacementResolutionSnapshot
-                : capturePlacementResolutionSnapshot
+              scope === "recurring_primary"
+                ? captureRecurringPlacementResolutionSnapshot
+                : scope === "mixed_group"
+                  ? captureMixedPlacementResolutionSnapshot
+                  : capturePlacementResolutionSnapshot
             )(capture)
           let pending = snapshot.acknowledgedDependencies.length
           if (!pending) onCapture(capture)
@@ -209,6 +232,28 @@ export function readLocalMixedPlacementResolutionSnapshot(
         operationId,
         (capture) =>
           context.setResult(captureMixedPlacementResolutionSnapshot(capture))
+      )
+  )
+}
+
+export function readLocalRecurringPlacementResolutionSnapshot(
+  database: IDBDatabase,
+  userId: string,
+  operationId: string
+) {
+  return runLocalTransaction<PlacementResolutionSnapshot>(
+    database,
+    placementResolutionStoreNames,
+    "readonly",
+    (context) =>
+      queueLocalRecurringPlacementResolutionCapture(
+        context,
+        userId,
+        operationId,
+        (capture) =>
+          context.setResult(
+            captureRecurringPlacementResolutionSnapshot(capture)
+          )
       )
   )
 }

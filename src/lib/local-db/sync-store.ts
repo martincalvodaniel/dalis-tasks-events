@@ -6,10 +6,12 @@ import { readLocalItemViewResolutionSnapshot } from "@/lib/local-db/item-view-re
 import {
   resolveLocalMixedPlacementIncident,
   resolveLocalPlacementIncident,
+  resolveLocalRecurringPlacementIncident,
 } from "@/lib/local-db/placement-resolution"
 import {
   readLocalMixedPlacementResolutionSnapshot,
   readLocalPlacementResolutionSnapshot,
+  readLocalRecurringPlacementResolutionSnapshot,
 } from "@/lib/local-db/placement-resolution-capture"
 import { resolveLocalPlanCategoryIncident } from "@/lib/local-db/plan-category-resolution"
 import { readLocalPlanCategoryResolutionSnapshot } from "@/lib/local-db/plan-category-resolution-capture"
@@ -176,6 +178,23 @@ export class LocalSyncStore {
     )
   }
 
+  readRecurringPlacementIncidentSnapshot(operationId: string) {
+    return readLocalRecurringPlacementResolutionSnapshot(
+      this.database,
+      this.userId,
+      operationId
+    )
+  }
+  resolveRecurringPlacementIncident(input: unknown) {
+    return resolveLocalRecurringPlacementIncident(
+      this.database,
+      this.userId,
+      input
+    ).then((result) => {
+      if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+      return result
+    })
+  }
   readMixedPlacementIncidentSnapshot(operationId: string) {
     return readLocalMixedPlacementResolutionSnapshot(
       this.database,

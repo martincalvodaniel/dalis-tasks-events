@@ -1,5 +1,11 @@
 # Iteraciones de implementación
 
+## 19k5d — Persistencia local de primaria recurrente
+
+Completado:11 checks IndexedDB moved y11 implicit; DoD1184pass/225skip/0fail, lint1029/tipos/Webpack/worker46. Sin caller nuevo.
+
+Objetivo: integrar familia recurring_primary en captura y ejecutor de placements sin ampliar APIs simples/mixed_group. target_paths: local-db/placement-resolution{,-capture}, sync-store, nueva feature local-recurring-placement-resolution y fixture browser/selector; plan. Dependencias19k5a–c, entrada83%5h/83%7d, reservas10%/1%, secuencial. Aceptación: TX9stores relee padre/slot/vista/catálogos/cola/ACKs, valida familia/cuenta/epoch/UUID/capacidad/counter/tail y guarda posiciones/historia/0–1reemplazo/recibo atómicos. Replay primero no modifica ediciones posteriores; aviso sólo tras commit aplicado. Native IndexedDB: lectura readonly, stale/foreign/missing/otraintención, rollback tardío, capacidad/tail/IDs/overflow, recarga/replay, epoch/carrera y backup3 exacto. DoD/lint/tipos/Webpack/worker/commit/push/HEAD/cuotas; Next/UI posteriores sin caller activo nuevo.
+
 ## 19k5c — Evidencia portable de primaria recurrente
 
 Completado:14 tests/72 aserciones, DoD1184pass/225skip/0fail, lint1027/tipos/Webpack/worker46 aprobados.

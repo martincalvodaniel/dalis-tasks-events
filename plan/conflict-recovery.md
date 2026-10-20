@@ -1,5 +1,14 @@
 # Recuperación explícita de conflictos
 
+## 19k5d — Persistencia de primaria recurrente probada
+
+La familia recurring_primary tiene captura y writer propios sobre el núcleo compartido de placements; APIs simple y mixed_group conservan sus schemas/guardias. Una TX9stores relee contexto y prerrequisitos acreditados, valida familia/IDs/capacidad/counter/tail, guarda posiciones/supersesión/0–1reemplazo/recibo atómicos y resuelve sólo tras commit. Replay primero no retrocede trabajo posterior. LocalSyncStore y feature comprueban actor/protocolo6/cuenta/época antes-después y cierran siempre; aviso sólo tras commit aplicado, no replay/fallo. Sin nuevo caller UI.
+
+Once comprobaciones IndexedDB nativas aprobadas con primaria reprogramada y otras once con primaria implícita: readonly/caminos previos protegidos, contexto stale/foreign, remotos desconocidos, otra intención, rollback tardío total, IDs/overflow, backup/recarga/replay/tail, adopción sin ops/tail, capacidad posterior, epoch duranteopen y confirmaciones simultáneas→uncommit/unreplay/unaviso. Dos fallos iniciales de fixture detectaron marcador de inyección antiguo y selector que no llegaba al constructor; corregidos sin cambios de guardias del producto. Todas las particiones/control/pestañas/servidores propios retirados. Capturas /private/tmp/dalis-recurring-placement-native-{moved,implicit}.png. El ajuste final del selector fue sólo tipado explícito.
+
+DoD1184pass/225skip/0fail/13098aserciones, lint1029 sin avisos/tipos/Webpack/worker46/diff aprobados. Tras tsc del selector se repitieron lint/tipos/build sin repetir la suite ya aprobada. Entrada83%5h/83%7d, reservas10%/1%, secuencial; sin Mongo/Next nuevos ni índices/protocolo/dependencias/DBusuario. Siguiente19k5e: prueba Next compilado con productores reales recurrentes, conflicto/CAS/recarga/respuesta perdida/ACK único y convergencia porgrupo en dos orígenes/Mongo propios, antes de UI activa.
+
+
 ## 19k5c — Evidencia portable de primaria recurrente
 
 Backup3 admite recurring_primary y selecciona su validador específico antes de reutilizar las guardias comunes de placements. Conserva originales superseded exactos, outcome congelado, prerrequisitos acreditados por operaciones/outcomes aplicados coincidentes y reemplazo exacto de la misma aparición. IDs globales y propiedad exclusiva de cada intención siguen protegidos. Quitar la marca no convierte la decisión en recuperación simple válida; pending intentado y ediciones posteriores son portables, sin inventar ACK.

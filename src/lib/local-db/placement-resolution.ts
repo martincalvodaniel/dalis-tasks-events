@@ -5,6 +5,7 @@ import {
   placementResolutionStoreNames,
   queueLocalMixedPlacementResolutionCapture,
   queueLocalPlacementResolutionCapture,
+  queueLocalRecurringPlacementResolutionCapture,
 } from "@/lib/local-db/placement-resolution-capture"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
 import {
@@ -19,7 +20,12 @@ import {
 import {
   captureMixedPlacementResolutionSnapshot,
   capturePlacementResolutionSnapshot,
+  captureRecurringPlacementResolutionSnapshot,
 } from "@/lib/sync/placement-resolution"
+import {
+  planRecurringPlacementIncidentResolution,
+  validateRecurringPlacementResolutionRecord,
+} from "@/lib/sync/recurring-placement-decision"
 import { localResolutionCapacitySchema } from "@/schemas/local-resolution-capacity"
 import {
   outboxEntrySchema,
@@ -29,8 +35,10 @@ import {
 import { mixedPlacementResolutionRequestSchema } from "@/schemas/mixed-placement-resolution"
 import { placementResolutionRequestSchema } from "@/schemas/placement-resolution"
 import { userIdSchema } from "@/schemas/primitives"
+import { recurringPlacementResolutionRequestSchema } from "@/schemas/recurring-placement-resolution"
 import type { MixedPlacementResolutionRecord } from "@/types/mixed-placement-resolution"
 import type { PlacementResolutionRecord } from "@/types/placement-resolution"
+import type { RecurringPlacementResolutionRecord } from "@/types/recurring-placement-resolution"
 
 type PlacementResult<Record> = {
   status: "applied" | "replayed"
@@ -41,50 +49,82 @@ export function resolveLocalPlacementIncident(
   userIdInput: string,
   input: unknown
 ): Promise<PlacementResult<PlacementResolutionRecord>> {
-  return resolvePlacement(database, userIdInput, input, false)
+  return resolvePlacement(database, userIdInput, input, "simple")
 }
 export function resolveLocalMixedPlacementIncident(
   database: IDBDatabase,
   userIdInput: string,
   input: unknown
 ): Promise<PlacementResult<MixedPlacementResolutionRecord>> {
-  return resolvePlacement(database, userIdInput, input, true)
+  return resolvePlacement(database, userIdInput, input, "mixed_group")
+}
+export function resolveLocalRecurringPlacementIncident(
+  database: IDBDatabase,
+  userIdInput: string,
+  input: unknown
+): Promise<PlacementResult<RecurringPlacementResolutionRecord>> {
+  return resolvePlacement(database, userIdInput, input, "recurring_primary")
 }
 function resolvePlacement(
   database: IDBDatabase,
   userIdInput: string,
   input: unknown,
-  mixedGroup: false
+  scope: "recurring_primary"
+): Promise<PlacementResult<RecurringPlacementResolutionRecord>>
+function resolvePlacement(
+  database: IDBDatabase,
+  userIdInput: string,
+  input: unknown,
+  scope: "simple"
 ): Promise<PlacementResult<PlacementResolutionRecord>>
 function resolvePlacement(
   database: IDBDatabase,
   userIdInput: string,
   input: unknown,
-  mixedGroup: true
+  scope: "mixed_group"
 ): Promise<PlacementResult<MixedPlacementResolutionRecord>>
 function resolvePlacement(
   database: IDBDatabase,
   userIdInput: string,
   input: unknown,
-  mixedGroup: boolean
+  scope: "simple" | "mixed_group" | "recurring_primary"
 ): Promise<
-  PlacementResult<PlacementResolutionRecord | MixedPlacementResolutionRecord>
+  PlacementResult<
+    | PlacementResolutionRecord
+    | MixedPlacementResolutionRecord
+    | RecurringPlacementResolutionRecord
+  >
 > {
-  const parseRequest = mixedGroup
-    ? mixedPlacementResolutionRequestSchema
-    : placementResolutionRequestSchema
-  const validateRecord = mixedGroup
-    ? validateMixedPlacementResolutionRecord
-    : validatePlacementResolutionRecord
-  const captureSnapshot = mixedGroup
-    ? captureMixedPlacementResolutionSnapshot
-    : capturePlacementResolutionSnapshot
-  const planDecision = mixedGroup
-    ? planMixedPlacementIncidentResolution
-    : planPlacementIncidentResolution
-  const queueCapture = mixedGroup
-    ? queueLocalMixedPlacementResolutionCapture
-    : queueLocalPlacementResolutionCapture
+  const parseRequest =
+    scope === "recurring_primary"
+      ? recurringPlacementResolutionRequestSchema
+      : scope === "mixed_group"
+        ? mixedPlacementResolutionRequestSchema
+        : placementResolutionRequestSchema
+  const validateRecord =
+    scope === "recurring_primary"
+      ? validateRecurringPlacementResolutionRecord
+      : scope === "mixed_group"
+        ? validateMixedPlacementResolutionRecord
+        : validatePlacementResolutionRecord
+  const captureSnapshot =
+    scope === "recurring_primary"
+      ? captureRecurringPlacementResolutionSnapshot
+      : scope === "mixed_group"
+        ? captureMixedPlacementResolutionSnapshot
+        : capturePlacementResolutionSnapshot
+  const planDecision =
+    scope === "recurring_primary"
+      ? planRecurringPlacementIncidentResolution
+      : scope === "mixed_group"
+        ? planMixedPlacementIncidentResolution
+        : planPlacementIncidentResolution
+  const queueCapture =
+    scope === "recurring_primary"
+      ? queueLocalRecurringPlacementResolutionCapture
+      : scope === "mixed_group"
+        ? queueLocalMixedPlacementResolutionCapture
+        : queueLocalPlacementResolutionCapture
   const userId = userIdSchema.parse(userIdInput),
     request = parseRequest.parse(input)
   if (request.userId !== userId || database.name !== localDatabaseName(userId))

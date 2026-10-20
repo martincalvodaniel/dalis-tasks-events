@@ -23,6 +23,7 @@ if (
   suite !== "tag-delete-resolution" &&
   suite !== "placement-resolution" &&
   suite !== "mixed-placement-resolution" &&
+  suite !== "recurring-placement-resolution" &&
   suite !== "item-view-resolution" &&
   suite !== "resolution-capacity" &&
   suite !== "plan-category-capture" &&
