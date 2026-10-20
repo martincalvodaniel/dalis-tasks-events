@@ -10,9 +10,16 @@ import { taskPlacementEntityKey } from "@/schemas/ordering"
 export function categoryPlacementResolutionFixture(
   primary: "simple" | "moved" | "implicit" = "simple",
   scope: "day" | "overdue" = "day",
-  knownPositions = true
+  knownPositions = true,
+  actorInput?: string
 ) {
-  const f = categoryPlacementReviewFixture(primary, scope),
+  const f = categoryPlacementReviewFixture(
+      primary,
+      scope,
+      "note",
+      "none",
+      actorInput
+    ),
     local = structuredClone(f.input.local),
     observed = structuredClone(f.input.observed)
   if (knownPositions) {

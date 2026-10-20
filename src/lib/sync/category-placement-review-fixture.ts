@@ -7,12 +7,14 @@ export function categoryPlacementReviewFixture(
   primary: "simple" | "moved" | "implicit" = "simple",
   scope: "day" | "overdue" = "day",
   variant: PlanVariant = "note",
-  uncategorized: "none" | "source" | "destination" = "none"
+  uncategorized: "none" | "source" | "destination" = "none",
+  actorInput?: string
 ) {
   const f = recurringPlacementResolutionFixture(
       primary === "implicit" ? "implicit" : "moved",
       scope,
-      variant
+      variant,
+      actorInput
     ),
     actor = f.simple.actor,
     now = f.simple.now

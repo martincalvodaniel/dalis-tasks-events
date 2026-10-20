@@ -24,6 +24,7 @@ if (
   suite !== "placement-resolution" &&
   suite !== "mixed-placement-resolution" &&
   suite !== "recurring-placement-resolution" &&
+  suite !== "category-placement-resolution" &&
   suite !== "item-view-resolution" &&
   suite !== "resolution-capacity" &&
   suite !== "plan-category-capture" &&

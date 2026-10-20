@@ -7,9 +7,10 @@ import { taskPlacementEntityKey } from "@/schemas/ordering"
 export function categoryPlacementResolutionBackupFixture(
   retry = true,
   slot: "simple" | "moved" | "implicit" = "simple",
-  scope: "day" | "overdue" = "day"
+  scope: "day" | "overdue" = "day",
+  actorInput?: string
 ) {
-  const f = categoryPlacementResolutionFixture(slot, scope),
+  const f = categoryPlacementResolutionFixture(slot, scope, true, actorInput),
     actor = f.actor
   const request = {
     ...f.request,

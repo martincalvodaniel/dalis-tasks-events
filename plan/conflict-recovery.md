@@ -1,5 +1,14 @@
 # Recuperación explícita de conflictos
 
+## 19k6d — Categoría yorden guardados atómicamente en local
+
+Familia category_movement usa captura propia sobreTX9stores ywriter compartido tipado; APIs previas siguenstrict. Relee contexto/cola/frozen/sombras/prerequisitosACK conoutcomes aplicados reales antes deescribir. Guarda vista delpadre+posiciones, originales superseded exactos,0/1reemplazo, counter/tail/recibo enuncommit. Replay primero no retrocede trabajo posterior; límitescompletos/IDs/counter/tail/capacidad posterior antes deescrituras. Feature/store conprotocolo6/cuenta/época antes-después yfinallyclose; aviso sólo trasaplicado, noreplay/fallo. SincallerUI nuevo.
+
+39comprobaciones IndexedDB propias pasan:13cada una simple/moved/implicit. Readonly/familiasprevias protegidas, actor/contexto/foreign/unknownshadows/localrev0/colaexterna, fallo tardío derecibo revierte tambiénvista, IDs/overflow, retry+backup/tail/recarga/replay, adopción sinops que restaura categoría, capacidad contando tail faltante/recibo yreplay lleno, ACKDTO sinoutcome rechazado yACKconoutcome coincidente admitido, época duranteopen ydosconfirmaciones→unaplicado/unreplay/unaviso. Fixturadeactor inyectable sólo para cuentasUUID propias. Se corrigió nombre camelCase delnuevofixture antesejecutar. Particiones/control/tab/server propios retirados; pestaña humana intacta. Capturas /private/tmp/dalis-1843-category-native-{simple,moved,implicit}.png.
+
+DoD1267pass/225skip/0fail/14072aserciones, lint1047sinavisos/tipos/Webpack/worker46/diff aprobados. Entrada58%5h/66%7d, reservas10%/1%, secuencial. Siníndice/protocolo/dependencia/DBusuario/IOremoto nuevos. Siguiente19k6e: productores reales de movimientos entrecategorías conNext6/defaults/sesionespersistidas/dosorígenes/Mongo propios; CASindependientes/vista deparent yotrasfechas, pérdida/recarga/ACKúnico/catálogos/sombras/cursor. Después representación/UI conadvertencia sobre todoelplan antes deofrecer opciones activas.
+
+
 ## 19k6c — Evidencia portable conjunta preservada
 
 Backup3 incorpora category_movement antes defamilias previas yreconstruye record completo, incluida vista elegida/posiciones. Reutiliza guardias comunes deoriginales superseded/outcome congelado/prerequisitos conhistoria youtcomes aplicados/reemplazo exacto/exclusividad/IDsglobales. Quitar familia ovista, alterar revisión/categoría/cuenta ohistoria rechaza; superseded noACK. Pending intentado trasrespuesta perdida yedicionesposteriores permanecen portables sinretroceder proyección. Sombras de categorías/vistas/padres/apariciones/posiciones incluidas enfixture.

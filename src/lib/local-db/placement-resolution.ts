@@ -3,11 +3,16 @@
 import { localDatabaseName } from "@/lib/local-db/client"
 import {
   placementResolutionStoreNames,
+  queueLocalCategoryPlacementResolutionCapture,
   queueLocalMixedPlacementResolutionCapture,
   queueLocalPlacementResolutionCapture,
   queueLocalRecurringPlacementResolutionCapture,
 } from "@/lib/local-db/placement-resolution-capture"
 import { runLocalTransaction } from "@/lib/local-db/transaction"
+import {
+  planCategoryPlacementIncidentResolution,
+  validateCategoryPlacementResolutionRecord,
+} from "@/lib/sync/category-placement-decision"
 import {
   planMixedPlacementIncidentResolution,
   validateMixedPlacementResolutionRecord,
@@ -18,6 +23,7 @@ import {
   validatePlacementResolutionRecord,
 } from "@/lib/sync/placement-decision"
 import {
+  captureCategoryPlacementResolutionSnapshot,
   captureMixedPlacementResolutionSnapshot,
   capturePlacementResolutionSnapshot,
   captureRecurringPlacementResolutionSnapshot,
@@ -26,6 +32,7 @@ import {
   planRecurringPlacementIncidentResolution,
   validateRecurringPlacementResolutionRecord,
 } from "@/lib/sync/recurring-placement-decision"
+import { categoryPlacementResolutionRequestSchema } from "@/schemas/category-placement-resolution"
 import { localResolutionCapacitySchema } from "@/schemas/local-resolution-capacity"
 import {
   outboxEntrySchema,
@@ -36,6 +43,7 @@ import { mixedPlacementResolutionRequestSchema } from "@/schemas/mixed-placement
 import { placementResolutionRequestSchema } from "@/schemas/placement-resolution"
 import { userIdSchema } from "@/schemas/primitives"
 import { recurringPlacementResolutionRequestSchema } from "@/schemas/recurring-placement-resolution"
+import type { CategoryPlacementResolutionRecord } from "@/types/category-placement-resolution"
 import type { MixedPlacementResolutionRecord } from "@/types/mixed-placement-resolution"
 import type { PlacementResolutionRecord } from "@/types/placement-resolution"
 import type { RecurringPlacementResolutionRecord } from "@/types/recurring-placement-resolution"
@@ -65,6 +73,19 @@ export function resolveLocalRecurringPlacementIncident(
 ): Promise<PlacementResult<RecurringPlacementResolutionRecord>> {
   return resolvePlacement(database, userIdInput, input, "recurring_primary")
 }
+export function resolveLocalCategoryPlacementIncident(
+  database: IDBDatabase,
+  userIdInput: string,
+  input: unknown
+): Promise<PlacementResult<CategoryPlacementResolutionRecord>> {
+  return resolvePlacement(database, userIdInput, input, "category_movement")
+}
+function resolvePlacement(
+  database: IDBDatabase,
+  userIdInput: string,
+  input: unknown,
+  scope: "category_movement"
+): Promise<PlacementResult<CategoryPlacementResolutionRecord>>
 function resolvePlacement(
   database: IDBDatabase,
   userIdInput: string,
@@ -87,44 +108,55 @@ function resolvePlacement(
   database: IDBDatabase,
   userIdInput: string,
   input: unknown,
-  scope: "simple" | "mixed_group" | "recurring_primary"
+  scope: "simple" | "mixed_group" | "recurring_primary" | "category_movement"
 ): Promise<
   PlacementResult<
+    | CategoryPlacementResolutionRecord
     | PlacementResolutionRecord
     | MixedPlacementResolutionRecord
     | RecurringPlacementResolutionRecord
   >
 > {
   const parseRequest =
-    scope === "recurring_primary"
-      ? recurringPlacementResolutionRequestSchema
-      : scope === "mixed_group"
-        ? mixedPlacementResolutionRequestSchema
-        : placementResolutionRequestSchema
+    scope === "category_movement"
+      ? categoryPlacementResolutionRequestSchema
+      : scope === "recurring_primary"
+        ? recurringPlacementResolutionRequestSchema
+        : scope === "mixed_group"
+          ? mixedPlacementResolutionRequestSchema
+          : placementResolutionRequestSchema
   const validateRecord =
-    scope === "recurring_primary"
-      ? validateRecurringPlacementResolutionRecord
-      : scope === "mixed_group"
-        ? validateMixedPlacementResolutionRecord
-        : validatePlacementResolutionRecord
+    scope === "category_movement"
+      ? validateCategoryPlacementResolutionRecord
+      : scope === "recurring_primary"
+        ? validateRecurringPlacementResolutionRecord
+        : scope === "mixed_group"
+          ? validateMixedPlacementResolutionRecord
+          : validatePlacementResolutionRecord
   const captureSnapshot =
-    scope === "recurring_primary"
-      ? captureRecurringPlacementResolutionSnapshot
-      : scope === "mixed_group"
-        ? captureMixedPlacementResolutionSnapshot
-        : capturePlacementResolutionSnapshot
+    scope === "category_movement"
+      ? captureCategoryPlacementResolutionSnapshot
+      : scope === "recurring_primary"
+        ? captureRecurringPlacementResolutionSnapshot
+        : scope === "mixed_group"
+          ? captureMixedPlacementResolutionSnapshot
+          : capturePlacementResolutionSnapshot
   const planDecision =
-    scope === "recurring_primary"
-      ? planRecurringPlacementIncidentResolution
-      : scope === "mixed_group"
-        ? planMixedPlacementIncidentResolution
-        : planPlacementIncidentResolution
+    scope === "category_movement"
+      ? planCategoryPlacementIncidentResolution
+      : scope === "recurring_primary"
+        ? planRecurringPlacementIncidentResolution
+        : scope === "mixed_group"
+          ? planMixedPlacementIncidentResolution
+          : planPlacementIncidentResolution
   const queueCapture =
-    scope === "recurring_primary"
-      ? queueLocalRecurringPlacementResolutionCapture
-      : scope === "mixed_group"
-        ? queueLocalMixedPlacementResolutionCapture
-        : queueLocalPlacementResolutionCapture
+    scope === "category_movement"
+      ? queueLocalCategoryPlacementResolutionCapture
+      : scope === "recurring_primary"
+        ? queueLocalRecurringPlacementResolutionCapture
+        : scope === "mixed_group"
+          ? queueLocalMixedPlacementResolutionCapture
+          : queueLocalPlacementResolutionCapture
   const userId = userIdSchema.parse(userIdInput),
     request = parseRequest.parse(input)
   if (request.userId !== userId || database.name !== localDatabaseName(userId))
@@ -247,6 +279,8 @@ function resolvePlacement(
                     lease: null,
                   })
                 )
+              if ("view" in record)
+                context.transaction.objectStore("itemViews").put(record.view)
               for (const placement of record.placements)
                 context.transaction.objectStore("taskPlacements").put(placement)
               if (record.replacement) {
