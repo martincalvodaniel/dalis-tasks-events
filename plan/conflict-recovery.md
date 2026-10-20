@@ -1,5 +1,12 @@
 # Recuperación explícita de conflictos
 
+## 19k5b — Decisión de primaria recurrente preparada
+
+Familia explícita recurring_primary en request/record, separada de mixed_group y del camino simple. Permite adoptar posiciones conocidas sin operaciones o reconstruir únicamente el último movimiento exacto con UUID nuevo y CAS actual del slot. Reutiliza el planner remoto y conserva revisiones observadas en optimismo; sólo un recibo remoto podrá avanzarlas. Validación reconstruye toda la decisión y protege identidad, snapshot obsoleto, originales y efectos. Vecinos obsoletos o tombstone de posición mantienen sólo adopción. Sin portable, persistencia ni caller nuevo todavía.
+
+Siete tests nuevos/76 aserciones: moved/implicit × día/atrasadas, familia estricta, CAS independiente, supersesión exacta, adopción sin ACK, tombstone/vecino obsoleto, actor, IDs y evidencia alterada. Fixtures corregidas para incluir request/snapshot y modificar un vecino en el caso stale, manteniendo exacta la comparación primaria. Se ajustó una aserción de UUID nullable tras tsc; sin relajar schemas. DoD1170pass/225skip/0fail/13026aserciones, lint1025 sin avisos/tipos/Webpack/worker46/diff aprobados. Entrada93%5h/85%7d, reservas10%/1%, secuencial. Siguiente19k5c: familia portable3 con originales/outcomes/ACK previos/reemplazo exactos; después writer local y pruebas reales antes de UI. Sin IO, índices, protocolo o dependencias nuevos.
+
+
 ## 19k5a — Contrato de primaria recurrente preparado
 
 Revisión/snapshot nuevos y puros para cadena aislada de movimientos de la misma aparición, día civil y categoría. Kernel compartido distingue políticas simple/mixed_simple/recurring_primary sin ampliar las APIs actuales. La clave primaria usa el slot completo; padre, aparición, vista y posiciones mantienen revisiones independientes. Slot implícito se deriva sólo para comparar, sin crear excepción durable. Variantes timed conservan timestamp original aunque se reprograme. Ausencia/cancelación/cambio de regla/asignación incierta, otras fechas/intenciones/slots y catálogos incompletos siguen protegidos. Cadenas, outcome congelado y prerrequisitos exactos preservados; sin ACK ni writes.

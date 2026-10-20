@@ -1,8 +1,10 @@
 import { placementGroupReviewFixture } from "@/lib/sync/placement-group-review-fixture"
+import { captureRecurringPlacementResolutionSnapshot } from "@/lib/sync/placement-resolution"
 import { projectRecurringSettingsSyncIncidentOverview } from "@/lib/sync/recurring-incident-snapshot"
 import { localPreferenceOutcomeV2Schema } from "@/schemas/local-preference-outcome-v2"
 import { outboxEntrySchema } from "@/schemas/local-sync"
 import { taskPlacementEntityKey } from "@/schemas/ordering"
+import { recurringPlacementResolutionRequestSchema } from "@/schemas/recurring-placement-resolution"
 import type { PlanVariant } from "@/types/plan-item"
 
 export function recurringPlacementResolutionFixture(
@@ -136,6 +138,16 @@ export function recurringPlacementResolutionFixture(
     local,
     observed,
   }
+  const snapshot = captureRecurringPlacementResolutionSnapshot(capture),
+    request = recurringPlacementResolutionRequestSchema.parse({
+      reviewKind: "recurring_primary",
+      userId: actor,
+      resolutionId: crypto.randomUUID(),
+      operationId: crypto.randomUUID(),
+      choice: "retry_latest_move",
+      createdAt: f.simple.now,
+      expected: snapshot,
+    })
   return {
     ...f,
     series,
@@ -146,5 +158,7 @@ export function recurringPlacementResolutionFixture(
     outcome,
     input,
     capture,
+    snapshot,
+    request,
   }
 }

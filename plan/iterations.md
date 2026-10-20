@@ -1,5 +1,11 @@
 # Iteraciones de implementación
 
+## 19k5b — Decisión preparada para primaria recurrente
+
+Completado:7 tests/76 aserciones, DoD1170pass/225skip/0fail, lint1025/tipos/Webpack/worker46 aprobados. Portable/writer/UI posteriores.
+
+Objetivo: request/record explícitos recurring_primary yplanner puro de adoptar posiciones conocidas o reenviar sólo último movimiento conUUIDnuevo/CAS porposición. target_paths: schemas/types/recurring-placement-resolution, sync/recurring-placement-decision ytests, fixture recurrente; plan. Dependencias19k5a, entrada93%5h/85%7d, reservas10%/1%, secuencial. Aceptación: ninguna ampliación de familias simples/mixed_group, resultado exacto reconstruible yoptimismo sin avanzar revisión; catálogos/supersesión/evidencia inmutables, adopción0ops yguardias de identidad/stale/outcome/cancelación/tombstone/reranking. Portable ywriter posteriores, sin UI/IO todavía. Tests puros/plannerremoto/DoD/commit/push/HEAD/cuotas.
+
 ## 19k5a — Contrato de recuperación con aparición como primaria
 
 Completado:15tests/136aserciones; DoD1163pass/225skip/0fail, lint1021/tipos/Webpack/worker46 aprobados. Sin caller nuevo.
