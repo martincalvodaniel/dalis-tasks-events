@@ -1,5 +1,12 @@
 # Registro de iteraciones
 
+## Continuación puntual programada — 20 de octubre a las 13:42
+
+Por petición humana se actualiza el heartbeat existente continuar-el-plan-a-las-21-19 mediante automation_update: nombre «Continuar el plan a las13:42», ACTIVE, una ejecución hoy20oct2026/13:42 Europe/Madrid, mismochat ypolítica failed_runs_only conservados. Configuración guardada verificada; sin duplicados, TOML manual ni nueva cadena. OpenAI Docs/documentación oficial de tareas programadas consultada para esta actuación.
+
+Reanudar desde2523643/cierre3694318 yesta programación, enworktreeint gestionado preservando main. Candidata19k5: contrato de recuperación de movimientos entrecategorías/primaria recurrente, con efectos sobre padre/otrasfechas, después portable/TX/Next/UI por dependencias; sin reabrir multi-slot/orden mixto aceptados. Luego ausencia/copia, accesibilidad ycierre. Cumpleaños aparcado/Gmail fuera/checklistfísica aprobada. Consulta directa deambas cuotas anteseditar ytras cada commit; commit/pushint/HEADexacto por entrega, reservas10%5h/1%7d. Lectura14%5h/87%7d, resetreal1792496469=13:41:09Madrid: hora solicitada deja51segundos, comprobar renovación real aldespertar. Pausar/finalizar alconcluir, sin reprogramación adicional autorizada ni créditos/reinicios.
+
+
 ## Cierre de la continuación interactiva — 20 de octubre
 
 Nueve cortes completos publicados:4e4acf4/9b06674 (revisión yrecuperación multi-slot),071c1b5/637326d/56edbde/65db59f (contexto/decisión/portable/TX deorden mixto),d53982f (representación completa),59cffc3 (prueba remota),2523643 (activación UI). Recuperación multi-slot yorden deplan simple con vecinos recurrentes de misma categoría ya visibles enAjustes; no implica recuperar cualquiercadena o movimiento.
