@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19j5a — Revisión visual conjunta de varias apariciones
+
+Disponibilidad pura revalida comparación completa y actor antes de presentar opciones. Reintento exige todos los borradores y cadenas válidas, revisiones seguras y capacidad de cola; casos con borrador ausente o remoto cancelado/eliminado/agotado conservan adopción. Esto sólo presenta opciones: el writer sigue releyendo todos los datos en su transacción.
+
+Diálogo preparado reutiliza ConfirmationDialog y PlanOccurrenceIncidentVersion. Cada fecha muestra estado elegido en resumen plegable y ambas versiones completas al expandir; primera fecha abierta, diseño móvil compacto. Indica cantidad de fechas e intenciones, sustitución de toda la cadena, conservación de historial, remoto conocido, envío pendiente y estados intermedios. No promete que cambie una única fecha. Todavía no está conectado a Ajustes.
+
+Nueve pruebas puras/SSR y57 aserciones: cuenta/snapshot alterados sin acciones, fechas/versiones/consecuencias, contenido/horario/checklist/cancelación, adopción protegida y controles ocupados. Se ajustó una expectativa al texto existente «En proceso» y se retiró una fixture sin uso; sin cambiar copias ajenas. DoD1112pass/225opt-in skip/0fail/12529aserciones, lint1000 sin avisos/tipos/Webpack/worker46/diff aprobados. SSR no acredita interacción. Sin IO, índices, protocolo, dependencias ni DB del usuario.
+
+Entrada99%5h/100%7d, reservas10%/1%, secuencial. Rutas lib/sync/plan-occurrence-cohort-resolution.ts y features/sync/components/plan-occurrence-cohort-resolution-{dialog,ui.test}. Guía Next instalada y skill vercel-react-best-practices aplicadas. Siguiente19j5b: conectar revisión a la raíz de conflicto multi-slot con cuenta/época/mounted/IDs estables/cache propios y pruebas UI reales en Next/Mongo/dos orígenes antes de publicar el caller.
+
 ## 19j4a — Prueba integrada focalizada de varias apariciones
 
 Next6 compilado con defaults productivos, dos sesiones BetterAuth persistidas, dos orígenes IndexedDB y Mongo propios aprueba once escenarios focalizados: diez de frontera autenticada/matriz5↔6/readiness/replay y uno nuevo con adopción y reintento de tres intenciones intercaladas entre dos fechas. Usa productores reales, snapshot capturado y feature de cuenta/época. El scope explícito appearance-cohort conserva full34 disponible; no se ha ejecutado full34 ni Google interactivo o nuevos dispositivos físicos.

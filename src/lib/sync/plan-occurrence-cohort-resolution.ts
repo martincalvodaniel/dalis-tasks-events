@@ -8,7 +8,10 @@ import {
 } from "@/schemas/plan-occurrence-cohort-resolution"
 import { remotePlanOccurrenceOperationSchema } from "@/schemas/remote-plan-occurrence-planning"
 import type { PlanOccurrenceCohortComparison } from "@/types/plan-occurrence-cohort-comparison"
-import type { PlanOccurrenceCohortResolutionRecord } from "@/types/plan-occurrence-cohort-resolution"
+import type {
+  PlanOccurrenceCohortResolutionRecord,
+  PlanOccurrenceCohortResolutionRequest,
+} from "@/types/plan-occurrence-cohort-resolution"
 
 function retryChains(comparison: PlanOccurrenceCohortComparison) {
   let count = 0
@@ -144,4 +147,23 @@ export function validatePlanOccurrenceCohortResolutionRecord(
       "Appearance cohort decision contradicts its preserved evidence"
     )
   return value
+}
+
+// Reviewed choices are presentation only; the writer must reread the complete transaction snapshot.
+export function availablePlanOccurrenceCohortResolutionChoices(
+  input: unknown,
+  actor: string
+): PlanOccurrenceCohortResolutionRequest["choice"][] {
+  let comparison: PlanOccurrenceCohortComparison
+  try {
+    comparison = validatePlanOccurrenceCohortComparison(input, actor)
+  } catch {
+    return []
+  }
+  try {
+    retryChains(comparison)
+    return ["adopt_remote", "retry_local"]
+  } catch {
+    return ["adopt_remote"]
+  }
 }
