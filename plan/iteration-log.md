@@ -1,5 +1,18 @@
 # Registro de iteraciones
 
+## Cierre de la continuación puntual del 20 de octubre, 13:42
+
+Siete entregas publicadas y HEAD remoto verificado: c23ead2 (contrato primaria recurrente), e61a810 (decisión), ad6c440 (portable), e975835 (TX/cuenta/IndexedDB),12b8b27 (prueba remota preparada y diagnóstico),4c9d9a6 (revisión visual preparada),bd0df37 (contrato documental entre categorías). No se ha activado recuperación recurrente ni entre categorías:19k5e/19k5f2 siguen pendientes.
+
+Última DoD1198pass/225skip/0fail/13270aserciones, lint1033 sin avisos/tipos/Webpack/worker46;22 checks IndexedDB nativos (moved/implicit), QA móvil390px sin overflow. Next compiló pero falló antes de los casos nuevos en prepare/MongoServerSelectionError. Colima running con socket Docker que agota ping3s sin datos. Pregunta humana pendiente: reiniciarlo personalmente o autorizar reinicio que podría afectar contenedores ajenos. No hay respuesta ni autorización de reinicio todavía; no se reinició la VM. No se anuncian RPC/convergencia nuevos ni limpieza Mongo no acreditada.
+
+Al volver Docker: verificar por nombre/label/imagen el recurso propio del run5effb543-bfc0-45de-bd6e-57037c00cc6d y limpiarlo sólo si ownership coincide. Un probe de creación fallida no registró UUID; no borrar por patrón ni atribuirse otros contenedores. Launchers temporales de diagnóstico eliminados; procesos TCP/Next, proyectos/pestañas/servidores propios retirados y viewport restaurado. Sólo pestaña humana conservada. Sin DBusuario, producción, dependencias o índices nuevos.
+
+Lectura tras bd0df37:19%5h/73%7d, reservas10%/1%. El siguiente corte de runtime/pruebas necesita Docker y/o más margen que nueve puntos con reparación y publicación. Trabajo independiente seguro de preparación visual y contrato ya cerrado, repo sin WIP y main humano preservado. Primero responder al bloqueo; luego scope recurring-placement con Docker saludable,19k5f2 caller+UI real,19k6b captura/decisión entre categorías según category-movement-recovery.md, después ausencia/copia/accesibilidad/cierre. No pedir repetir checklist física aceptada sin cambio/fallo específico; cumpleaños aparcado/Gmail fuera.
+
+La revisión13:42 era puntual y se finaliza eliminando mediante automation_update el heartbeat continuar-el-plan-a-las-21-19; resultado deleted confirmado. Sin cadena nueva, créditos o reinicios de cuota. La pregunta humana permanece pendiente y una respuesta posterior permite retomar lo dependiente; el silencio no es autorización. Cierre documental con referencias (ocho del contrato), coherencia y diff comprobados, commit/pushint/HEAD/cuotas.
+
+
 ## 19k6a — Contrato entre categorías delimitado
 
 Nuevo [contrato](category-movement-recovery.md) basado en comando, planner, executor y oráculo productivos. Distingue CAS primario de la vista y explicita que la categoría afecta a todo el padre, incluidas sus fechas. Primera implementación futura acotada a cadena aislada con un destino y posiciones conocidas; adopción conjunta vista/posiciones sin ops o reenvío del último comando absoluto con UUID nuevo. Portable/TX/Next/UI requieren evidencia de ambos dominios antes de ofrecer decisiones. Posiciones nuevas sin remoto, ausencias, varios destinos y dependencias externas siguen protegidos; no se elimina ni reinterpreta historia.
