@@ -151,6 +151,7 @@ export const nextSettingsProofScopeSchema = z
     "full",
     "joint-ui",
     "appearance-copy",
+    "appearance-copy-ui",
     "appearance-cohort",
     "appearance-cohort-ui",
     "assignment",
@@ -170,6 +171,10 @@ export const nextSettingsProofScopeSchema = z
   ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("resolve-appearance-copy-ui"),
+    request: planOccurrenceCopyRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("resolve-appearance-copy"),
     request: planOccurrenceCopyRequestSchema,

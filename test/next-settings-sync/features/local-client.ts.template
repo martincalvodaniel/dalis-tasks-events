@@ -20,6 +20,7 @@ import { provePlanCategoryResolutionUi } from "@fixture/plan-category-resolution
 import { remotePushInputV2Schema } from "@/schemas/remote-push-v2"
 import { readPlanCategoryIncidentComparison, resolvePlanCategoryIncident } from "@/features/sync/local-plan-category-resolution"
 import { proveLocalAppearanceRetry } from "@fixture/appearance-retry-local-proof"
+import { proveAppearanceCopyResolutionUi } from "@fixture/appearance-copy-resolution-ui"
 import { resolvePlanOccurrenceCopy } from "@/features/sync/local-plan-occurrence-copy"
 import { resolvePlanOccurrenceIncident } from "@/features/sync/local-plan-occurrence-resolution"
 import { proveLocalAppearanceResolution } from "@fixture/appearance-resolution-local-proof"
@@ -757,6 +758,8 @@ export async function executeLocalFixtureCommand(
       return proveAppearanceCohortResolutionUi(active,command.request)
     case "resolve-appearance-cohort":
       return resolvePlanOccurrenceCohort(active, command.request)
+    case "resolve-appearance-copy-ui":
+      return proveAppearanceCopyResolutionUi(active,command.request)
     case "resolve-appearance-copy":
       return resolvePlanOccurrenceCopy(active,command.request)
     case "appearance-copy-guard-proof": {

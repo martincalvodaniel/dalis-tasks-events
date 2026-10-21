@@ -49,7 +49,7 @@ export function FixtureController() {
   const [status, setStatus] = useState("Preparando la prueba aislada de Next")
   const [rows, setRows] = useState<string[]>([])
   const [running, setRunning] = useState(false)
-  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series" | "tag-order" | "tag-order-ui" | "tag-delete" | "tag-delete-ui" | "placement" | "placement-ui" | "mixed-placement" | "mixed-placement-ui" | "category-placement" | "category-placement-ui" | "recurring-placement" | "recurring-placement-ui" | "appearance-cohort" | "appearance-cohort-ui" | "appearance-copy">("full")
+  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series" | "tag-order" | "tag-order-ui" | "tag-delete" | "tag-delete-ui" | "placement" | "placement-ui" | "mixed-placement" | "mixed-placement-ui" | "category-placement" | "category-placement-ui" | "recurring-placement" | "recurring-placement-ui" | "appearance-cohort" | "appearance-cohort-ui" | "appearance-copy" | "appearance-copy-ui">("full")
   useEffect(() => {
     void (async () => {
       const query = new URLSearchParams(location.search)
@@ -118,7 +118,7 @@ export function FixtureController() {
         return await new Promise((resolveReply, reject) => {
           const timer = setTimeout(
             () => reject(new Error("Fixture command timed out")),
-            ["resolve-category-placement-ui","resolve-recurring-placement-ui","resolve-mixed-placement-ui","resolve-appearance-cohort-ui","resolve-assignment-ui","resolve-tag-order-ui","resolve-tag-delete-ui","resolve-placement-ui"].includes(parsed.type) ? 120000 : 45000
+            ["resolve-appearance-copy-ui","resolve-category-placement-ui","resolve-recurring-placement-ui","resolve-mixed-placement-ui","resolve-appearance-cohort-ui","resolve-assignment-ui","resolve-tag-order-ui","resolve-tag-delete-ui","resolve-placement-ui"].includes(parsed.type) ? 120000 : 45000
           )
           channel.port1.onmessage = (event) => {
             clearTimeout(timer)
@@ -634,8 +634,8 @@ export function FixtureController() {
           await call(1, { type: "mixed-run" })
         }
       )
-      if(proofScope === "full" || proofScope === "appearance-copy") await check("Aparición cancelada recupera una sola copia independiente tras recarga",async()=>{
-        const proof=await proveRemoteAppearanceCopy({owner,call,snapshot,state:()=>state(owner),reloadSecondary:async()=>{
+      if(proofScope === "full" || proofScope === "appearance-copy" || proofScope === "appearance-copy-ui") await check("Aparición cancelada recupera una sola copia independiente tras recarga",async()=>{
+        const proof=await proveRemoteAppearanceCopy({owner,call,snapshot,interactive:proofScope!=="appearance-copy",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned copy reload timed out"))},45000);window.addEventListener("message",listener)
@@ -643,7 +643,7 @@ export function FixtureController() {
         }})
         assert(proof.copied===4&&proof.lostReplies===4,"Appearance copy proof incomplete")
       })
-      if(proofScope === "appearance-copy"){passed=true;return}
+      if(proofScope === "appearance-copy" || proofScope === "appearance-copy-ui"){passed=true;return}
       if(proofScope === "full" || proofScope === "appearance-cohort" || proofScope === "appearance-cohort-ui") await check("Varias apariciones recuperan cadena intercalada con ACK únicos tras recarga",async()=>{
         const proof=await proveRemoteAppearanceCohortRecovery({owner,call,snapshot,interactive:proofScope!=="appearance-cohort",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{

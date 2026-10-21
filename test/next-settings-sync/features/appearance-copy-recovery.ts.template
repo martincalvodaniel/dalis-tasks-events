@@ -15,10 +15,10 @@ import type { LocalPullCursor } from "@/types/local-sync"
 import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
 
 type Snapshot={backup:LocalRecurringBackup;cursor:LocalPullCursor}
-type Ports={owner:string;call(index:number,input:z.infer<typeof nextSyncDeviceCommandSchema>):Promise<unknown>;snapshot(index:number):Promise<Snapshot>;state():Promise<z.infer<typeof nextSettingsSyncStateSchema>>;reloadSecondary():Promise<void>}
+type Ports={owner:string;interactive?:boolean;call(index:number,input:z.infer<typeof nextSyncDeviceCommandSchema>):Promise<unknown>;snapshot(index:number):Promise<Snapshot>;state():Promise<z.infer<typeof nextSettingsSyncStateSchema>>;reloadSecondary():Promise<void>}
 function assert(value:unknown,message:string):asserts value{if(!value)throw new Error(message)}
 
-export async function proveRemoteAppearanceCopy({owner,call,snapshot,state,reloadSecondary}:Ports){
+export async function proveRemoteAppearanceCopy({owner,call,snapshot,state,reloadSecondary,interactive=false}:Ports){
  let copied=0,lostReplies=0
  for(const [index,variant] of (["task","event","appointment","note"] as const).entries()){
   const itemId=crypto.randomUUID(),stepId=crypto.randomUUID(),now=new Date().toISOString(),
@@ -47,11 +47,13 @@ export async function proveRemoteAppearanceCopy({owner,call,snapshot,state,reloa
   assert(incident?.kind==="plan-occurrence","Owned copy conflict was not projected")
   const expected=planOccurrenceIncidentSnapshotSchema.parse(incident.incident)
   assert(expected.intentions.length===4&&expected.local?.content?.description==="Edición posterior al resultado"&&expected.local.checklist[0].completed&&expected.remote?.cancelled,"Copy conflict lost its current local draft or known cancellation")
-  const request=planOccurrenceCopyRequestSchema.parse({reviewKind:"occurrence_copy",choice:"copy_local",userId:owner,resolutionId:crypto.randomUUID(),operationId:crypto.randomUUID(),copyItemId:crypto.randomUUID(),createdAt:new Date().toISOString(),expected}),
-   guard=await call(1,{type:"appearance-copy-guard-proof",request}) as {checks:number}
+  let request=planOccurrenceCopyRequestSchema.parse({reviewKind:"occurrence_copy",choice:"copy_local",userId:owner,resolutionId:crypto.randomUUID(),operationId:crypto.randomUUID(),copyItemId:crypto.randomUUID(),createdAt:new Date().toISOString(),expected})
+  const guard=await call(1,{type:"appearance-copy-guard-proof",request}) as {checks:number}
   assert(guard.checks===3,"Appearance copy guards were not checked")
-  const before=await snapshot(1),remoteBefore=await state(),result=await call(1,{type:"resolve-appearance-copy",request}) as {status:string;record:unknown},
+  const before=await snapshot(1),remoteBefore=await state(),result=await call(1,{type:interactive&&index===0?"resolve-appearance-copy-ui":"resolve-appearance-copy",request}) as {status:string;record:unknown},
    record=planOccurrenceCopyRecordSchema.parse(result.record),decided=await snapshot(1)
+  if(interactive&&index===0)assert(record.resolutionId!==request.resolutionId&&record.operationId!==request.operationId&&record.copyItemId!==request.copyItemId,"Copy UI did not generate its own stable identities")
+  request=planOccurrenceCopyRequestSchema.parse({reviewKind:record.reviewKind,choice:record.choice,userId:record.userId,resolutionId:record.resolutionId,operationId:record.operationId,copyItemId:record.copyItemId,createdAt:record.createdAt,expected:record.expected})
   assert(result.status==="applied"&&canonical(await state())===canonical(remoteBefore),"Local appearance copy manufactured a remote ACK")
   assert(record.copy.recurrence===null&&record.copy.variant===variant&&record.copy.title===expected.local.content?.title&&record.copy.description===expected.local.content.description&&record.copy.status===expected.local.status&&canonical(record.copy.schedule)===canonical(expected.local.schedule)&&canonical(record.copy.checklist)===canonical(expected.local.checklist),"Copy did not preserve the exact reviewed fields")
   for(const original of expected.intentions) assert(canonical(decided.backup.stores.outbox.find(entry=>entry.operation.operationId===original.operation.operationId))===canonical({...original,state:"superseded",lease:null}),"Appearance copy rewrote its original chain")

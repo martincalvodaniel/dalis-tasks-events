@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import { useSWRConfig } from "swr"
 import { activeProductSyncProtocol } from "@/config/common-plan-release"
 import { PlanOccurrenceCohortIncidentActions } from "@/features/sync/components/plan-occurrence-cohort-incident-actions"
+import { PlanOccurrenceCopyActions } from "@/features/sync/components/plan-occurrence-copy-actions"
 import { PlanOccurrenceResolutionDialog } from "@/features/sync/components/plan-occurrence-resolution-dialog"
 import { resolvePlanOccurrenceIncident } from "@/features/sync/local-plan-occurrence-resolution"
 import { isAccountSyncCacheKey } from "@/features/sync/manual-sync"
@@ -119,6 +120,11 @@ export function PlanOccurrenceIncidentActions({
           poder elegir.
         </p>
       )}
+      <PlanOccurrenceCopyActions
+        key={`${account.userId}:${account.epoch}:${incident.entry.operation.operationId}`}
+        account={account}
+        incident={incident}
+      />
       {notice ? (
         <p role="status" className="mt-2 text-xs">
           {notice}

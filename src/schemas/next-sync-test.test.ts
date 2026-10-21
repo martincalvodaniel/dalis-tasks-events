@@ -595,6 +595,7 @@ test("appearance copy fixture requires its explicit family and isolated selector
   )
   for (const type of [
     "resolve-appearance-copy",
+    "resolve-appearance-copy-ui",
     "appearance-copy-guard-proof",
   ] as const) {
     expect(
@@ -614,7 +615,7 @@ test("appearance copy fixture requires its explicit family and isolated selector
       })
     ).toThrow()
   }
-  expect(() =>
-    nextSettingsProofScopeSchema.parse("appearance-copy-ui")
-  ).toThrow()
+  expect(nextSettingsProofScopeSchema.parse("appearance-copy-ui")).toBe(
+    "appearance-copy-ui"
+  )
 })

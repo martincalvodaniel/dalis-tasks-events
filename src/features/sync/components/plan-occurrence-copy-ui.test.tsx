@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test"
 import { renderToStaticMarkup } from "react-dom/server"
 import { PlanOccurrenceCopyDialog } from "@/features/sync/components/plan-occurrence-copy-dialog"
+import { PlanOccurrenceIncidentCard } from "@/features/sync/components/plan-occurrence-incident-card"
 import { canCopyPlanOccurrenceIncident } from "@/lib/sync/plan-occurrence-copy"
 import { planOccurrenceCopyFixture } from "@/lib/sync/plan-occurrence-copy-fixture"
 
@@ -75,4 +76,39 @@ test("invalid or foreign copy review cannot render confirmation and busy disable
   )
   expect(markup.match(/disabled=""/g)).toHaveLength(2)
   expect(markup).toContain("Guardando…")
+})
+
+test("appearance copy action is offered only to the owner of a supported single-slot cancellation", () => {
+  const f = planOccurrenceCopyFixture(),
+    account = { userId: f.userId, epoch: crypto.randomUUID() }
+  const html = renderToStaticMarkup(
+    <PlanOccurrenceIncidentCard incident={f.snapshot} account={account} />
+  )
+  expect(html).toContain("Crear copia de este día")
+  expect(html).toContain("Usar aparición remota")
+  expect(html).not.toContain("Enviar mi aparición")
+  expect(
+    renderToStaticMarkup(
+      <PlanOccurrenceIncidentCard
+        incident={f.snapshot}
+        account={{ ...account, userId: "foreign" }}
+      />
+    )
+  ).not.toContain("Crear copia de este día")
+  expect(
+    renderToStaticMarkup(
+      <PlanOccurrenceIncidentCard
+        incident={{ ...f.snapshot, remote: null }}
+        account={account}
+      />
+    )
+  ).not.toContain("Crear copia de este día")
+  expect(
+    renderToStaticMarkup(
+      <PlanOccurrenceIncidentCard
+        incident={{ ...f.snapshot, blockedByRelatedIntentions: true }}
+        account={account}
+      />
+    )
+  ).not.toContain("Crear copia de este día")
 })
