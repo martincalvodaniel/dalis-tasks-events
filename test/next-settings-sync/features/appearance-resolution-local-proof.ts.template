@@ -14,7 +14,8 @@ function assert(value: unknown, message: string): asserts value {
 }
 export async function proveLocalAppearanceResolution(
   account: { userId: string; epoch: string },
-  request: PlanOccurrenceResolutionRequest
+  request: PlanOccurrenceResolutionRequest,
+  interactive = true
 ) {
   const database = await openLocalDatabase(account.userId)
   let notices = 0,
@@ -121,7 +122,7 @@ export async function proveLocalAppearanceResolution(
       same(before, await snapshot()) && notices === count,
       "Appearance rollback left projection, intentions, receipt or notification"
     )
-    const result = await proveAppearanceResolutionUi(account, fresh)
+    const result = await (interactive ? proveAppearanceResolutionUi(account, fresh) : resolvePlanOccurrenceIncident(account, fresh))
     assert(
       result.status === "applied" && notices > count,
       "Appearance adoption did not notify after commit"

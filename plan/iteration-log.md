@@ -1,5 +1,15 @@
 # Registro de iteraciones
 
+## 22c1 — Matriz completa aprobada y cierre de ingeniería
+
+Objetivo/rutas/dependencias/aceptación definidos antes de editar en iterations. Selector full-auto explícito, sin sustituir full ni scopes UI; flags estrictos con default manual para pruebas locales de aparición y editor. Controlador bloquea comandos manuales en full-auto y exige exactamente38 escenarios completos antes de aprobar. El editor automático abre/edita/guarda mediante DOM del componente real, mantiene ausencia de red y exige el ACK único posterior; no sustituye el guardado por un mock.
+
+Primer run202383a7-27bd-4a86-aa4b-f3f8bc528dbb aprobó32 escenarios y falló por Settings editor interaction timed out: quedaba una interacción manual en ese host. Limpieza confirmada, sin regresión de producto acreditada. Se automatizó esa interacción exclusivamente en full-auto, conservando el default manual, y se repitió toda la matriz. Runf7a895f9-b3a8-4ce7-9003-481bacacd0f8 aprobó38/38 en Next6 compilado/defaults/BetterAuth persistido/dosorígenes IndexedDB/Mongo propios: negociación5↔6, sesión/actor/readiness, cuatrovariantes, categorías/asignaciones/orden, apariciones/cohortes/copias, zona/editor, lifecycle, pérdidas/recargas/replay/ACKúnico, rollback y proyecciones exactas. Exit0, sesiones/particiones y peer cerrados; contenedor/almacenamiento/proyecto temporal propios retirados por runner. Pestañas propias cerradas. Sin Google interactivo ni nuevos físicos. [Registro](evidence/22c1-next-full-auto.json) y [captura](evidence/22c1-next-full-auto.png) guardados.
+
+Tres tests nuevos de scope/defaults/flags/request estricto:22tests/151aserciones focalizados. Suite1352pass/225opt-in skip/0fail/14758aserciones y lint1072sinavisos. Tipos detectó choice ensanchado a string en una fixture de test; literal precisado con as const, sin cambio runtime, y focalizados/tipos repetidos. Webpack y worker46 aprobados tras limpiar Next temporal; sin cambiar configuración por Turbopack. No índices/dependencias/protocolo de producto ni DBusuario nuevos.
+
+Entrada100%5h/29%7d; controles90/28,72/25 tras fallo,66/24,62/23,55/22 y51/21 antes de DoD final. Reservas10%/1% preservadas, mismo ConventionalCommit/pushint/HEADremoto y consulta directa de ambas cuotas al cerrar. Desarrollo vigente cerrado: evidencia UI focalizada anterior conservada por familia y checklist física17oct aceptada; no afirmar38 UI manuales. Promoción/smoke de producción separados. Excepcionales pospuestos/cumpleaños/Gmail no se reabren ni se implementan por este margen.
+
 ## 22c0 — Cierre seguro; regresión conjunta todavía pendiente
 
 22a/22b están completos y publicados en9712bf5/5d611c9: foco/títulos/calendario y errores/reflujo del editor. Este corte prepara el cierre operativo, no declara terminado22c. README elimina la política Preview obsoleta: ensureIndexes aplica todo el registro en cualquier rama/entorno. Guía de uso y release-readiness distinguen alcance fijado, recuperación excepcional pospuesta, aceptación física17oct ya cerrada y promoción a main no ejecutada. Capturas propias sin datos personales guardadas en plan/evidence.

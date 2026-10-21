@@ -24,6 +24,7 @@ import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incid
 
 type Snapshot = { backup: LocalRecurringBackup; cursor: LocalPullCursor }
 type Ports = {
+  interactive?: boolean
   owner: string
   call(
     index: number,
@@ -52,6 +53,7 @@ export async function proveRemoteAppearanceRecovery({
   snapshot,
   state,
   owner,
+  interactive = true,
 }: Ports) {
   let adopted = 0
   for (const mode of ["progress", "cancelled", "guarded"] as const) {
@@ -210,7 +212,7 @@ export async function proveRemoteAppearanceRecovery({
     const result = (await call(
       loser,
       mode === "progress"
-        ? { type: "appearance-resolution-local-proof", request }
+        ? { type: "appearance-resolution-local-proof", request, interactive }
         : { type: "resolve-appearance", request }
     )) as { status: string; record: unknown; checks?: number }
     const record = planOccurrenceResolutionRecordSchema.parse(result.record)

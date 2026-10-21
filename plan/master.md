@@ -1,5 +1,13 @@
 # Dalis Tasks & Events — plan maestro
 
+## 22c1 — Versión de alcance vigente validada
+
+El desarrollo y la validación de ingeniería de esta versión quedan cerrados. Los **38 escenarios completos Next6 automáticos** pasan en una sola ejecución, con acciones/defaults reales, sesiones BetterAuth persistidas, dos orígenes IndexedDB y Mongo propios. Run f7a895f9-b3a8-4ce7-9003-481bacacd0f8: exit0 y retirada de recursos propios confirmados. [Checklist de cierre](release-readiness.md), [resultado exacto](evidence/22c1-next-full-auto.json) y [captura](evidence/22c1-next-full-auto.png).
+
+full-auto conserva autorización, negociación, CAS, rollback, respuesta perdida, recarga, UUID/replay/ACK único y proyecciones exactas. Sustituye confirmaciones manuales por las features productivas; el editor de zona sí usa sus controles reales automáticamente. full y los scopes UI mantienen su recorrido manual por defecto. La evidencia de cancelar/reabrir/confirmar y UUID generados por UI sigue registrada por familia; no se atribuyen esas interacciones a los 38 automáticos. La checklist física17oct y el arrastre ya aceptados no se reabren.
+
+DoD1352pass/225opt-in skip/0fail/14758aserciones, lint1072sinavisos, tipos, Webpack y worker46 aprobados. No hay nuevas funcionalidades pendientes dentro del alcance fijado. **Quedan promoción a main y smoke del destino publicado**, actuaciones operativas separadas; no ejecutadas ni autorizadas por este cierre. Padre recurrente eliminado, remoto desconocido, cadenas externas y copia de serie completa siguen pospuestos; cumpleaños aparcado y Gmail fuera. No se presentan como implementados ni se pierden sus guardias/evidencias.
+
 ## 22c0 — Cierre seguro; regresión conjunta todavía pendiente
 
 22a/22b están completos y publicados en9712bf5/5d611c9: foco/títulos/calendario y errores/reflujo del editor. Este corte prepara el cierre operativo, no declara terminado22c. README elimina la política Preview obsoleta: ensureIndexes aplica todo el registro en cualquier rama/entorno. Guía de uso y release-readiness distinguen alcance fijado, recuperación excepcional pospuesta, aceptación física17oct ya cerrada y promoción a main no ejecutada. Capturas propias sin datos personales guardadas en plan/evidence.

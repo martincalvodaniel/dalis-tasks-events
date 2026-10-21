@@ -49,7 +49,9 @@ export function FixtureController() {
   const [status, setStatus] = useState("Preparando la prueba aislada de Next")
   const [rows, setRows] = useState<string[]>([])
   const [running, setRunning] = useState(false)
-  const [proofScope, setProofScope] = useState<"full" | "joint-ui" | "assignment" | "assignment-series" | "tag-order" | "tag-order-ui" | "tag-delete" | "tag-delete-ui" | "placement" | "placement-ui" | "mixed-placement" | "mixed-placement-ui" | "category-placement" | "category-placement-ui" | "recurring-placement" | "recurring-placement-ui" | "appearance-cohort" | "appearance-cohort-ui" | "appearance-copy" | "appearance-copy-ui">("full")
+  const [proofScope, setProofScope] = useState<z.infer<typeof nextSettingsProofScopeSchema>>("full")
+  const fullProof = proofScope === "full" || proofScope === "full-auto"
+  const interactive = proofScope !== "full-auto"
   useEffect(() => {
     void (async () => {
       const query = new URLSearchParams(location.search)
@@ -108,6 +110,7 @@ export function FixtureController() {
       command: z.infer<typeof nextSyncDeviceCommandSchema>
     ): Promise<unknown> => {
       const parsed = nextSyncDeviceCommandSchema.parse(command)
+      assert(interactive || !parsed.type.endsWith("-ui"), "Automatic proof cannot dispatch a manual review")
       if (index === 0) return executeFixtureCommand(fixture.runId, parsed)
       assert(
         secondary && !secondary.closed,
@@ -135,9 +138,11 @@ export function FixtureController() {
         channel.port1.close()
       }
     }
+    let completedChecks = 0
     const check = async (label: string, work: () => Promise<void>) => {
       setStatus(label)
       await work()
+      completedChecks++
       setRows((values) => [...values, `Correcto: ${label}`])
     }
     const state = async (userId: string) => {
@@ -634,8 +639,8 @@ export function FixtureController() {
           await call(1, { type: "mixed-run" })
         }
       )
-      if(proofScope === "full" || proofScope === "appearance-copy" || proofScope === "appearance-copy-ui") await check("Aparición cancelada recupera una sola copia independiente tras recarga",async()=>{
-        const proof=await proveRemoteAppearanceCopy({owner,call,snapshot,interactive:proofScope!=="appearance-copy",state:()=>state(owner),reloadSecondary:async()=>{
+      if(fullProof || proofScope === "appearance-copy" || proofScope === "appearance-copy-ui") await check("Aparición cancelada recupera una sola copia independiente tras recarga",async()=>{
+        const proof=await proveRemoteAppearanceCopy({owner,call,snapshot,interactive:interactive && proofScope!=="appearance-copy",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned copy reload timed out"))},45000);window.addEventListener("message",listener)
@@ -644,8 +649,8 @@ export function FixtureController() {
         assert(proof.copied===4&&proof.lostReplies===4,"Appearance copy proof incomplete")
       })
       if(proofScope === "appearance-copy" || proofScope === "appearance-copy-ui"){passed=true;return}
-      if(proofScope === "full" || proofScope === "appearance-cohort" || proofScope === "appearance-cohort-ui") await check("Varias apariciones recuperan cadena intercalada con ACK únicos tras recarga",async()=>{
-        const proof=await proveRemoteAppearanceCohortRecovery({owner,call,snapshot,interactive:proofScope!=="appearance-cohort",state:()=>state(owner),reloadSecondary:async()=>{
+      if(fullProof || proofScope === "appearance-cohort" || proofScope === "appearance-cohort-ui") await check("Varias apariciones recuperan cadena intercalada con ACK únicos tras recarga",async()=>{
+        const proof=await proveRemoteAppearanceCohortRecovery({owner,call,snapshot,interactive:interactive && proofScope!=="appearance-cohort",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned appearance cohort reload timed out"))},45000);window.addEventListener("message",listener)
@@ -655,8 +660,8 @@ export function FixtureController() {
         assert(proof.adopted===1&&proof.retried===1,"Appearance cohort proof incomplete")
       })
       if(proofScope === "appearance-cohort" || proofScope === "appearance-cohort-ui"){passed=true;return}
-      if(proofScope === "full" || proofScope === "category-placement" || proofScope === "category-placement-ui") await check("Movimiento entre categorías recupera vista y orden con ACK único",async()=>{
-        const proof=await proveRemoteCategoryPlacementRecovery({owner,call,snapshot,interactive:proofScope!=="category-placement",state:()=>state(owner),reloadSecondary:async()=>{
+      if(fullProof || proofScope === "category-placement" || proofScope === "category-placement-ui") await check("Movimiento entre categorías recupera vista y orden con ACK único",async()=>{
+        const proof=await proveRemoteCategoryPlacementRecovery({owner,call,snapshot,interactive:interactive && proofScope!=="category-placement",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned placement reload timed out"))},45000);window.addEventListener("message",listener)
@@ -666,8 +671,8 @@ export function FixtureController() {
         assert(proof.adopted===3&&proof.retried===3&&proof.lostReplies===3,"Placement proof incomplete")
       })
       if(proofScope === "category-placement" || proofScope === "category-placement-ui"){passed=true;return}
-      if(proofScope === "full" || proofScope === "recurring-placement" || proofScope === "recurring-placement-ui") await check("Aparición primaria recupera orden con ACK único tras recarga",async()=>{
-        const proof=await proveRemoteRecurringPlacementRecovery({owner,call,snapshot,interactive:proofScope!=="recurring-placement",state:()=>state(owner),reloadSecondary:async()=>{
+      if(fullProof || proofScope === "recurring-placement" || proofScope === "recurring-placement-ui") await check("Aparición primaria recupera orden con ACK único tras recarga",async()=>{
+        const proof=await proveRemoteRecurringPlacementRecovery({owner,call,snapshot,interactive:interactive && proofScope!=="recurring-placement",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned placement reload timed out"))},45000);window.addEventListener("message",listener)
@@ -677,8 +682,8 @@ export function FixtureController() {
         assert(proof.adopted===2&&proof.retried===2&&proof.lostReplies===2,"Placement proof incomplete")
       })
       if(proofScope === "recurring-placement" || proofScope === "recurring-placement-ui"){passed=true;return}
-      if(proofScope === "full" || proofScope === "mixed-placement" || proofScope === "mixed-placement-ui") await check("Grupo mixto recupera orden y fechas con ACK único tras recarga",async()=>{
-        const proof=await proveRemoteMixedPlacementRecovery({owner,call,snapshot,interactive:proofScope!=="mixed-placement",state:()=>state(owner),reloadSecondary:async()=>{
+      if(fullProof || proofScope === "mixed-placement" || proofScope === "mixed-placement-ui") await check("Grupo mixto recupera orden y fechas con ACK único tras recarga",async()=>{
+        const proof=await proveRemoteMixedPlacementRecovery({owner,call,snapshot,interactive:interactive && proofScope!=="mixed-placement",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned placement reload timed out"))},45000);window.addEventListener("message",listener)
@@ -688,8 +693,8 @@ export function FixtureController() {
         assert(proof.adopted===1&&proof.retried===1&&proof.lostReplies===1,"Placement proof incomplete")
       })
       if(proofScope === "mixed-placement" || proofScope === "mixed-placement-ui"){passed=true;return}
-      if(proofScope === "full" || proofScope === "placement" || proofScope === "placement-ui") await check("Orden de planes recupera cadena exacta y ACK único tras recarga",async()=>{
-        const proof=await proveRemotePlacementRecovery({owner,call,snapshot,interactive:proofScope!=="placement",state:()=>state(owner),reloadSecondary:async()=>{
+      if(fullProof || proofScope === "placement" || proofScope === "placement-ui") await check("Orden de planes recupera cadena exacta y ACK único tras recarga",async()=>{
+        const proof=await proveRemotePlacementRecovery({owner,call,snapshot,interactive:interactive && proofScope!=="placement",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned placement reload timed out"))},45000);window.addEventListener("message",listener)
@@ -699,8 +704,8 @@ export function FixtureController() {
         assert(proof.adopted===1&&proof.retried===3&&proof.lostReplies===3,"Placement proof incomplete")
       })
       if(proofScope === "placement" || proofScope === "placement-ui"){passed=true;return}
-      if(proofScope === "full" || proofScope === "tag-delete" || proofScope === "tag-delete-ui") await check("Borrado de categoría recupera adopción, tombstone y ACK único tras recarga",async()=>{
-        const proof=await proveRemoteTagDeletionRecovery({owner,call,snapshot,interactive:proofScope!=="tag-delete",state:()=>state(owner),reloadSecondary:async()=>{
+      if(fullProof || proofScope === "tag-delete" || proofScope === "tag-delete-ui") await check("Borrado de categoría recupera adopción, tombstone y ACK único tras recarga",async()=>{
+        const proof=await proveRemoteTagDeletionRecovery({owner,call,snapshot,interactive:interactive && proofScope!=="tag-delete",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned deletion reload timed out"))},45000);window.addEventListener("message",listener)
@@ -710,8 +715,8 @@ export function FixtureController() {
         assert(proof.adopted===2&&proof.retried===1&&proof.lostReplies===1,"Deletion proof incomplete")
       })
       if(proofScope === "tag-delete" || proofScope === "tag-delete-ui"){passed=true;return}
-      if(proofScope === "full" || proofScope === "tag-order" || proofScope === "tag-order-ui") await check("Orden de categorías recupera multiefectos, tombstones y ACK único tras recarga",async()=>{
-        const proof=await proveRemoteTagOrderRecovery({owner,call,snapshot,interactive:proofScope!=="tag-order",state:()=>state(owner),reloadSecondary:async()=>{
+      if(fullProof || proofScope === "tag-order" || proofScope === "tag-order-ui") await check("Orden de categorías recupera multiefectos, tombstones y ACK único tras recarga",async()=>{
+        const proof=await proveRemoteTagOrderRecovery({owner,call,snapshot,interactive:interactive && proofScope!=="tag-order",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned order reload timed out"))},45000);window.addEventListener("message",listener)
@@ -722,7 +727,7 @@ export function FixtureController() {
       })
       if(proofScope === "tag-order" || proofScope === "tag-order-ui"){passed=true;return}
       if(proofScope !== "assignment" && proofScope !== "assignment-series") await check("Contenido y categoría recuperados juntos con dos CAS y ACK únicos tras recarga", async () => {
-        const proof = await proveRemotePlanCategoryRecovery({ owner, call, snapshot, state: () => state(owner), reloadSecondary: async () => {
+        const proof = await proveRemotePlanCategoryRecovery({ interactive, owner, call, snapshot, state: () => state(owner), reloadSecondary: async () => {
           const reloaded = new Promise<void>((resolve, reject) => {
             const listener = (event: MessageEvent) => {
               if (event.source !== secondary || event.origin !== fixture.origins[1] || event.data?.runId !== fixture.runId || event.data?.ready !== true) return
@@ -737,7 +742,7 @@ export function FixtureController() {
       })
       if (proofScope === "joint-ui") { passed = true; return }
       await check("Asignaciones aisladas recuperan conflicto y ACK único tras recarga",async()=>{
-        const proof=await proveRemoteItemViewRecovery({owner,call,snapshot,interactive:proofScope!=="assignment-series",state:()=>state(owner),reloadSecondary:async()=>{
+        const proof=await proveRemoteItemViewRecovery({owner,call,snapshot,interactive:interactive && proofScope!=="assignment-series",state:()=>state(owner),reloadSecondary:async()=>{
           const reloaded=new Promise<void>((resolve,reject)=>{
             const listener=(event:MessageEvent)=>{if(event.source!==secondary||event.origin!==fixture.origins[1]||event.data?.runId!==fixture.runId||event.data?.ready!==true)return;clearTimeout(timer);window.removeEventListener("message",listener);resolve()}
             const timer=setTimeout(()=>{window.removeEventListener("message",listener);reject(new Error("Owned assignment reload timed out"))},45000);window.addEventListener("message",listener)
@@ -751,6 +756,7 @@ export function FixtureController() {
         "Cuatro variantes recuperan conflictos reales y convergen sin ACK local",
         async () => {
           const proof = await proveRemoteCommonPlanRecovery({
+            interactive,
             call,
             snapshot,
             state: () => state(owner),
@@ -1449,6 +1455,7 @@ export function FixtureController() {
         "Zona personal se recupera explícitamente con rollback, replay y ACK real",
         async () => {
           const proof = await proveRemoteSettingsRecovery({
+            interactive,
             call,
             snapshot,
             state: () => state(owner),
@@ -1464,12 +1471,13 @@ export function FixtureController() {
         "Editor real guarda zona offline y confirma una vez sin reprogramar planes",
         async () => {
           const before = await state(owner)
-          const proof = (await call(0, { type: "settings-editor-proof" })) as {
+          const proof = (await call(0, { type: "settings-editor-proof", interactive })) as {
             settings: unknown
             networkCalls: number
+            interactive: boolean
           }
           assert(
-            proof.networkCalls === 0 &&
+            proof.interactive === interactive && proof.networkCalls === 0 &&
               userSettingsSchema.parse(proof.settings).timeZone ===
                 "America/Los_Angeles",
             "Offline editor did not save the chosen personal zone"
@@ -1507,6 +1515,7 @@ export function FixtureController() {
         "Apariciones adoptan conflictos reales sin ACK y preservan otros slots con rollback y replay",
         async () => {
           const proof = await proveRemoteAppearanceRecovery({
+            interactive,
             call,
             snapshot,
             state: () => state(owner),
@@ -1522,6 +1531,7 @@ export function FixtureController() {
         "Retry completo de aparición conserva todos los UUID con respuesta perdida, recarga y ACK únicos",
         async () => {
           const proof = await proveRemoteAppearanceRetry({
+            interactive,
             call,
             snapshot,
             state: () => state(owner),
@@ -1557,7 +1567,7 @@ export function FixtureController() {
         }
       )
       await check("Categorías recuperadas con CAS, respuesta perdida, recarga y ACK real único", async () => {
-        const proof = await proveRemoteTagRecovery({ call, snapshot, state: () => state(owner), owner,
+        const proof = await proveRemoteTagRecovery({ interactive, call, snapshot, state: () => state(owner), owner,
           reloadSecondary: async () => {
             const reloaded = new Promise<void>((resolve, reject) => {
               const listener = (event: MessageEvent) => {
@@ -1606,6 +1616,7 @@ export function FixtureController() {
           )
         }
       )
+      if (fullProof) assert(completedChecks === 38, "Complete Next matrix must execute all 38 scenarios")
       passed = true
     })()
       .catch((failure) => {
@@ -1644,7 +1655,7 @@ export function FixtureController() {
         secondary?.close()
         if (passed)
           setStatus(
-            proofScope !== "full" ? "Once escenarios Next6 focalizados correctos; sesiones propias cerradas" : "Treinta y ocho escenarios Next6 correctos; sesiones propias cerradas"
+            proofScope === "full-auto" ? "Treinta y ocho escenarios Next6 automáticos correctos; sesiones propias cerradas" : !fullProof ? "Once escenarios Next6 focalizados correctos; sesiones propias cerradas" : "Treinta y ocho escenarios Next6 correctos; sesiones propias cerradas"
           )
         await fetch("/fixture/finish", {
           method: "POST",

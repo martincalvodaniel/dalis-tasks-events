@@ -565,7 +565,7 @@ export async function executeLocalFixtureCommand(
       }
     }
     case "settings-editor-proof":
-      return proveSettingsEditor(active)
+      return proveSettingsEditor(active, command.interactive)
     case "plan-resolution-proof":
       return provePlanRecovery(active)
     case "delete-plan":
@@ -751,7 +751,7 @@ export async function executeLocalFixtureCommand(
     case "settings-resolution-local-proof":
       return proveLocalSettingsResolution(active, command.request)
     case "appearance-retry-local-proof":
-      return proveLocalAppearanceRetry(active, command.request)
+      return proveLocalAppearanceRetry(active, command.request, command.interactive)
     case "appearance-cohort-comparison":
       return readPlanOccurrenceCohortComparison(active, command.operationId)
     case "resolve-appearance-cohort-ui":
@@ -780,7 +780,7 @@ export async function executeLocalFixtureCommand(
     case "resolve-appearance":
       return resolvePlanOccurrenceIncident(active, command.request)
     case "appearance-resolution-local-proof":
-      return proveLocalAppearanceResolution(active, command.request)
+      return proveLocalAppearanceResolution(active, command.request, command.interactive)
     case "settings-incidents":
       return readSyncIncidents(active)
     case "legacy-root-resolution-proof": {

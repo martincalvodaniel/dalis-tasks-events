@@ -1,5 +1,11 @@
 # Flujo de trabajo con Codex
 
+## 22c1 — Cierre de la versión y reservas respetadas
+
+Matriz completa automática Next6/Mongo38 aprobada y DoD1352pass/225skip/0fail, lint/tipos/Webpack/worker46. Evidencia y límites en [release-readiness](release-readiness.md). Entrada100%5h/29%7d, reset publicado1792633934; controles90/28 antes del primer RPC,72/25 después del timeout del host manual,66/24 y62/23 durante la repetición,55/22 antes del cierre de matriz y51/21 antes de tipos/build. Reservas10%5h/1%7d preservadas; consulta directa tras commit/publicación y sin créditos/reinicios. Secuencial, sin DBusuario/producción ni nueva programación.
+
+El alcance de desarrollo vigente está cerrado; no consumir el margen restante abriendo recuperaciones excepcionales pospuestas. Promoción a main y smoke del despliegue siguen separados y requieren el proceso de publicación autorizado. Mantener full/manual y full-auto como evidencias distintas. No pedir repetir la aceptación física17oct sin regresión concreta.
+
 ## 22c0 — Cierre seguro; regresión conjunta todavía pendiente
 
 22a/22b están completos y publicados en9712bf5/5d611c9: foco/títulos/calendario y errores/reflujo del editor. Este corte prepara el cierre operativo, no declara terminado22c. README elimina la política Preview obsoleta: ensureIndexes aplica todo el registro en cualquier rama/entorno. Guía de uso y release-readiness distinguen alcance fijado, recuperación excepcional pospuesta, aceptación física17oct ya cerrada y promoción a main no ejecutada. Capturas propias sin datos personales guardadas en plan/evidence.

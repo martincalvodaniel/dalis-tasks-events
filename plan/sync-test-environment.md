@@ -1,5 +1,13 @@
 # Entorno de pruebas de sincronización
 
+## 22c1 — Modos explícitos de regresión final
+
+El runner `bun --no-env-file scripts/sync-db-test-runner.ts next-settings` compila Next6 y publica una URL propia. Añadir `&scope=full-auto` a esa URL ejecuta la matriz automática completa mediante las features productivas, con dos orígenes IndexedDB, sesiones BetterAuth persistidas y Mongo del descriptor. Conserva negociación, autorización, CAS, guardias, rollback, respuesta perdida, recarga, replay, UUID y proyecciones exactas. El controlador exige 38 escenarios terminados antes de aprobar y rechaza comandos manuales `*-ui` en ese modo.
+
+`full` sigue siendo el valor por defecto y mantiene los diálogos manuales. Los scopes focalizados `*-ui` conservan abrir/cancelar/reabrir/confirmar y UUID generados por la UI. La modalidad automática no acredita esas interacciones: su evidencia se registra por separado. Las dos pruebas locales de aparición conservan guardias y rollback en ambos modos; sólo cambia el origen de la confirmación. Ninguna modalidad equivale a Google interactivo, dispositivos físicos nuevos o un smoke de producción. El runner usa y limpia exclusivamente recursos propios; no cargar `.env` del usuario.
+
+Resultado22c1: runf7a895f9-b3a8-4ce7-9003-481bacacd0f8 aprobó38/38 en full-auto, exit0 y recursos propios retirados. [Registro exacto](evidence/22c1-next-full-auto.json) y [captura](evidence/22c1-next-full-auto.png). El editor de zona abre/edita/guarda automáticamente sus controles reales sólo en full-auto; su default manual se conserva y el oráculo comprueba la modalidad usada. El intento anterior202383a7 aprobó32 pero agotó la espera del editor aún manual; no es evidencia de regresión productiva ni sustituye la pasada completa aprobada. Suites UI focalizadas anteriores permanecen separadas; full manual no se ejecutó entero en este corte.
+
 Estado: runner y commit/rollback reales entregados en11a1a2. Prioridad: sincronización de tareas/eventos simples antes de continuar repetición y cumpleaños.
 
 Avance11a1a1: [schema del descriptor](../src/schemas/sync-database-test.ts) implementado y [probado](../src/schemas/sync-database-test.test.ts). Exige runId UUID, puerto entero1024–65535, DB exacta `dalis-sync-test-<runId>` y URI exacta `mongodb://127.0.0.1:<port>/?replicaSet=dalis-sync-test&directConnection=true`. Solo se admite esta forma generada por el futuro runner; rechaza localhost alternativo, SRV, multihost, credenciales y parámetros adicionales. Ninguna variable de entorno se lee ni cambia ahora. No hay consumidor/runner todavía; integrar validación antes de cualquier conexión o limpieza y verificar además ownership real del recurso.

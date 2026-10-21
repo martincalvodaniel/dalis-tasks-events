@@ -9,10 +9,10 @@ import type { LocalPullCursor } from "@/types/local-sync"
 import type { PlanCategoryResolutionRequest } from "@/types/plan-category-resolution"
 
 type Snapshot = { backup: LocalRecurringBackup; cursor: LocalPullCursor }
-type Ports = { owner: string; call(index: number, command: z.infer<typeof nextSyncDeviceCommandSchema>): Promise<unknown>;
+type Ports = { interactive?: boolean; owner: string; call(index: number, command: z.infer<typeof nextSyncDeviceCommandSchema>): Promise<unknown>;
   snapshot(index: number): Promise<Snapshot>; state(): Promise<z.infer<typeof nextSettingsSyncStateSchema>>; reloadSecondary(): Promise<void> }
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error(message) }
-export async function proveRemotePlanCategoryRecovery({ owner, call, snapshot, state, reloadSecondary }: Ports) {
+export async function proveRemotePlanCategoryRecovery({ owner, call, snapshot, state, reloadSecondary, interactive = true }: Ports) {
   let adopted = 0, retried = 0, lostReplies = 0
   for (const variant of ["task", "event", "appointment", "note"] as const) {
     const itemId = crypto.randomUUID(), tagId = crypto.randomUUID(), now = new Date().toISOString(), stepId = crypto.randomUUID()
@@ -51,7 +51,7 @@ export async function proveRemotePlanCategoryRecovery({ owner, call, snapshot, s
     const guard = await call(1, { type: "joint-guard-proof", request }) as { checks: number }
     assert(guard.checks === 3, "Joint feature guards were not exercised")
     const before = await state(), localBefore = await snapshot(1)
-    const result = await call(1, { type: variant === "task" || variant === "event" ? "resolve-joint-ui" : "resolve-joint", request }) as { status: string; record: unknown }
+    const result = await call(1, { type: interactive && (variant === "task" || variant === "event") ? "resolve-joint-ui" : "resolve-joint", request }) as { status: string; record: unknown }
     const record = planCategoryResolutionRecordSchema.parse(result.record)
     request = { userId: record.userId, resolutionId: record.resolutionId, operationId: record.operationId,
       viewOperationId: record.viewOperationId, choice: record.choice, createdAt: record.createdAt, expected: record.expected }

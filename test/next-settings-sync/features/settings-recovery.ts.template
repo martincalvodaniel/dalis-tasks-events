@@ -20,6 +20,7 @@ import type {
 
 type Snapshot = { backup: LocalRecurringBackup; cursor: LocalPullCursor }
 type Ports = {
+  interactive?: boolean
   owner: string
   call(
     index: number,
@@ -48,6 +49,7 @@ export async function proveRemoteSettingsRecovery({
   snapshot,
   state,
   owner,
+  interactive = true,
 }: Ports) {
   async function incident(index = 1) {
     const overview = (await call(index, {
@@ -163,7 +165,7 @@ export async function proveRemoteSettingsRecovery({
   const retryBefore = await state(),
     localBefore = await snapshot(0)
   const decision = (await call(0, {
-    type: "resolve-settings-ui",
+    type: interactive ? "resolve-settings-ui" : "resolve-settings",
     request: retry,
   })) as { status: string; record: unknown }
   const record = settingsResolutionRecordSchema.parse(decision.record)

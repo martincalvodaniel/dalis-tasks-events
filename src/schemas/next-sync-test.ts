@@ -149,6 +149,7 @@ export function nextSyncMissingActionId(runIdInput: unknown): string {
 export const nextSettingsProofScopeSchema = z
   .enum([
     "full",
+    "full-auto",
     "joint-ui",
     "appearance-copy",
     "appearance-copy-ui",
@@ -375,6 +376,7 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({
     type: z.literal("appearance-resolution-local-proof"),
     request: planOccurrenceResolutionRequestSchema,
+    interactive: z.boolean().default(true),
   }),
   z.strictObject({
     type: z.literal("resolve-settings"),
@@ -391,8 +393,12 @@ export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({
     type: z.literal("appearance-retry-local-proof"),
     request: planOccurrenceResolutionRequestSchema,
+    interactive: z.boolean().default(true),
   }),
-  z.strictObject({ type: z.literal("settings-editor-proof") }),
+  z.strictObject({
+    type: z.literal("settings-editor-proof"),
+    interactive: z.boolean().default(true),
+  }),
   z.strictObject({ type: z.literal("legacy-root-resolution-proof") }),
   z.strictObject({ type: z.literal("plan-resolution-proof") }),
   z.strictObject({

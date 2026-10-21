@@ -619,3 +619,64 @@ test("appearance copy fixture requires its explicit family and isolated selector
     "appearance-copy-ui"
   )
 })
+
+test("automatic complete proof is explicit and does not replace legacy or UI scopes", () => {
+  expect(nextSettingsProofScopeSchema.parse("full-auto")).toBe("full-auto")
+  expect(nextSettingsProofScopeSchema.parse(undefined)).toBe("full")
+  expect(nextSettingsProofScopeSchema.parse("tag-order-ui")).toBe(
+    "tag-order-ui"
+  )
+  for (const invalid of ["auto", "full-auto-ui", "full-auto-skip-auth"])
+    expect(nextSettingsProofScopeSchema.safeParse(invalid).success).toBe(false)
+})
+
+test("local appearance proofs preserve their strict request while selecting interaction explicitly", () => {
+  const f = planOccurrenceCopyFixture()
+  const request = {
+    userId: f.request.userId,
+    resolutionId: f.request.resolutionId,
+    operationId: null,
+    choice: "adopt_remote" as const,
+    createdAt: f.request.createdAt,
+    expected: f.request.expected,
+  }
+  for (const type of [
+    "appearance-resolution-local-proof",
+    "appearance-retry-local-proof",
+  ] as const) {
+    const legacy = nextSyncDeviceCommandSchema.parse({ type, request })
+    const automatic = nextSyncDeviceCommandSchema.parse({
+      type,
+      request,
+      interactive: false,
+    })
+    expect("interactive" in legacy && legacy.interactive).toBe(true)
+    expect("interactive" in automatic && automatic.interactive).toBe(false)
+    expect("request" in automatic && automatic.request).toEqual(request)
+    expect(() =>
+      nextSyncDeviceCommandSchema.parse({ type, request, interactive: "false" })
+    ).toThrow()
+    expect(() =>
+      nextSyncDeviceCommandSchema.parse({ type, request, skipGuards: true })
+    ).toThrow()
+  }
+})
+
+test("settings editor proof preserves manual default and explicitly selects automatic controls", () => {
+  expect(
+    nextSyncDeviceCommandSchema.parse({ type: "settings-editor-proof" })
+  ).toEqual({ type: "settings-editor-proof", interactive: true })
+  expect(
+    nextSyncDeviceCommandSchema.parse({
+      type: "settings-editor-proof",
+      interactive: false,
+    })
+  ).toEqual({ type: "settings-editor-proof", interactive: false })
+  for (const invalid of [{ interactive: "false" }, { skipEditor: true }])
+    expect(
+      nextSyncDeviceCommandSchema.safeParse({
+        type: "settings-editor-proof",
+        ...invalid,
+      }).success
+    ).toBe(false)
+})

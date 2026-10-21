@@ -9,9 +9,9 @@ import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incid
 import type { TagResolutionRequest } from "@/types/tag-resolution"
 
 type Snapshot = { backup: LocalRecurringBackup; cursor: LocalPullCursor }
-type Ports = { owner: string; call(index: number, input: z.infer<typeof nextSyncDeviceCommandSchema>): Promise<unknown>; snapshot(index: number): Promise<Snapshot>; state(): Promise<z.infer<typeof nextSettingsSyncStateSchema>>; reloadSecondary(): Promise<void> }
+type Ports = { interactive?: boolean; owner: string; call(index: number, input: z.infer<typeof nextSyncDeviceCommandSchema>): Promise<unknown>; snapshot(index: number): Promise<Snapshot>; state(): Promise<z.infer<typeof nextSettingsSyncStateSchema>>; reloadSecondary(): Promise<void> }
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error(message) }
-export async function proveRemoteTagRecovery({ owner, call, snapshot, state, reloadSecondary }: Ports) {
+export async function proveRemoteTagRecovery({ owner, call, snapshot, state, reloadSecondary, interactive = true }: Ports) {
   for (const choice of ["adopt_remote", "retry_local"] as const) {
     const id = crypto.randomUUID()
     async function save(index: number, name: string, color: string, position: number) {
@@ -46,7 +46,7 @@ export async function proveRemoteTagRecovery({ owner, call, snapshot, state, rel
     const guards = await call(1, { type: "tag-resolution-guard-proof", request }) as { checks: number }
     assert(guards.checks === 3, "Category feature guards not exercised")
     const before = await state(), localBefore = await snapshot(1)
-    const result = await call(1, { type: "resolve-tag-ui", request }) as { status: string; record: unknown }
+    const result = await call(1, { type: interactive ? "resolve-tag-ui" : "resolve-tag", request }) as { status: string; record: unknown }
     const record = tagResolutionRecordSchema.parse(result.record)
     const reviewed: TagResolutionRequest = { userId: record.userId, resolutionId: record.resolutionId, operationId: record.operationId, choice: record.choice, createdAt: record.createdAt, expected: record.expected }
     assert(result.status === "applied" && canonical(await state()) === canonical(before), "Local category choice manufactured remote history")

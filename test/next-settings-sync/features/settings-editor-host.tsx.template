@@ -8,7 +8,7 @@ import { readLocalPersonalSettings } from "@/features/workspace/local-personal-s
 export async function proveSettingsEditor(account: {
   userId: string
   epoch: string
-}) {
+}, interactive = true) {
   const container = document.createElement("aside")
   container.setAttribute("aria-label", "Ajustes de prueba")
   document.body.append(container)
@@ -26,13 +26,38 @@ export async function proveSettingsEditor(account: {
       </SWRConfig>
     )
     await new Promise<void>((resolve, reject) => {
-      const observer = new MutationObserver(() => {
+      let automatedStep: "open" | "save" | "done" = "open"
+      const advance = () => {
         if (container.textContent?.includes("Guardado en este dispositivo")) {
           clearTimeout(timer)
           observer.disconnect()
           resolve()
+          return
         }
-      })
+        if (interactive) return
+        if (automatedStep === "open") {
+          const edit = [...container.querySelectorAll("button")].find(
+            (button) => button.textContent?.trim() === "Editar zona" && !button.disabled
+          )
+          if (edit) {
+            automatedStep = "save"
+            edit.click()
+          }
+          return
+        }
+        if (automatedStep === "save") {
+          const input = container.querySelector<HTMLInputElement>('input[name="timeZone"]')
+          const save = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+          if (input && save && !input.disabled && !save.disabled) {
+            automatedStep = "done"
+            input.value = "America/Los_Angeles"
+            input.dispatchEvent(new Event("input", { bubbles: true }))
+            input.dispatchEvent(new Event("change", { bubbles: true }))
+            save.click()
+          }
+        }
+      }
+      const observer = new MutationObserver(advance)
       const timer = setTimeout(() => {
         observer.disconnect()
         reject(new Error("Settings editor interaction timed out"))
@@ -41,11 +66,14 @@ export async function proveSettingsEditor(account: {
         subtree: true,
         childList: true,
         characterData: true,
+        attributes: true,
+        attributeFilter: ["disabled"],
       })
+      advance()
     })
     if (networkCalls !== 0)
       throw new Error("Offline editor made a network request")
-    return { settings: await readLocalPersonalSettings(account), networkCalls }
+    return { settings: await readLocalPersonalSettings(account), networkCalls, interactive }
   } finally {
     globalThis.fetch = originalFetch
     root.unmount()

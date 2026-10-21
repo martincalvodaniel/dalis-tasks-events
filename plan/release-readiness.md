@@ -12,13 +12,13 @@ Incluye las cuatro variantes de plan, editor común, listas Atrasadas/Hoy/Próxi
 - El JSON exportado conserva datos y evidencia locales; la importación de planes simples como copias nuevas no es una restauración completa de cuenta/series/historial.
 - La sincronización necesita la aplicación abierta y conexión para confirmar cambios. Una revisión terminada o un guardado local no prueban por sí solos convergencia de todos los dispositivos.
 
-## Matriz de cierre — todavía no aprobada
+## Matriz de cierre — aprobada en `int`
 
 | Bloque | Estado y evidencia |
 | --- | --- |
 | Recorrido físico offline/multidispositivo | Aceptado por el usuario17oct; [checklist](manual-device-checklist.md). |
-| Sincronización y recuperación ordinaria | Activas en generación 6; regresión completa Next/Mongo22c **pendiente**: último intento aprobó 17 de 38 escenarios y terminó sin aprobación durante orden de categorías. No presentar scopes focalizados anteriores ni esta pasada parcial como matriz completa. |
-| Calidad de código final | 22b: 1349 pruebas aprobadas,225 opt-in omitidas,0 fallos; lint de 1072 archivos sin avisos, tipos, Webpack y worker de 46 recursos. Las omitidas requieren sus runners aislados; no son pruebas de producción. |
+| Sincronización y recuperación ordinaria | Activas en generación6; **38/38 escenarios completos automáticos Next6/Mongo** aprobados en22c1, exit0 y limpieza propia confirmada. [Resultado exacto](evidence/22c1-next-full-auto.json). No equivale a38 recorridos UI manuales. |
+| Calidad de código final | 22c1:1352 pruebas aprobadas,225 opt-in omitidas,0 fallos; lint de 1072 archivos sin avisos, tipos, Webpack y worker de 46 recursos. Las omitidas requieren sus runners aislados; no son pruebas de producción. |
 | Navegación y teclado | 22a: título y foco por pantalla, historial sin remontar shell, mes con PageUp/PageDown sin perder foco, skip link y confirmación nativa/Escape. |
 | Formularios y ampliación | 22b: errores enlazados/foco/limpieza, borrador conservado ante fallo,320 px al 200% y390 px normal, claro/oscuro. Fecha/hora siguen en la misma fila a tamaño normal. |
 | Documentación y operación | Guía y política de índices actualizadas en22c; checklist de promoción inferior. |
@@ -27,6 +27,12 @@ Incluye las cuatro variantes de plan, editor común, listas Atrasadas/Hoy/Próxi
 La revisión de accesibilidad usa componentes reales, árbol de accesibilidad del navegador, teclado, estilos y capturas; no equivale a una certificación WCAG ni a una sesión auditiva con un usuario de lector de pantalla. Se corrigieron los hallazgos observados, sin afirmar cobertura de todas las combinaciones de navegador/tecnología asistiva.
 
 Evidencia visual de fixtures propios sin DB ni cuenta: [calendario320 px/texto200%](evidence/22a-calendar-320-text200.png), [editor móvil390 px](evidence/22b-editor-mobile.png), [editor320 px/texto200%](evidence/22b-editor-320-text200.png). Fuentes de revisión: [guía de interfaces Vercel](https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md), guía instalada Next16 de accesibilidad y [componentes compartidos](../src/components).
+
+## Cómo leer la aceptación
+
+La pasada completa22c1 usa full-auto: acciones6/defaults, sesiones BetterAuth persistidas y dos orígenes IndexedDB/Mongo propios; exige38 escenarios y limpia recursos. [Captura completa](evidence/22c1-next-full-auto.png). Conserva CAS, autorización, rollback, respuesta perdida, recarga, replay e identidad de operaciones; no acredita Google interactivo ni nuevos dispositivos físicos.
+
+La interacción UI permanece acreditada por los scopes focalizados documentados en [master](master.md): contenido+categoría19e5b, asignación19f4, orden de categorías19g4b, borrado19h4, multi-slot19j5b, orden mixto19k4b2, primaria recurrente19k5f2, movimiento entre categorías19k6f y copia19l5b. Incluyen cancelar/reabrir/confirmar y UUID UI en los casos indicados en cada entrada; no se suman como una ejecución full manual. La aceptación física17oct y la revisión de accesibilidad22a/22b complementan esa evidencia. La nueva modalidad no modifica los componentes productivos ni invalida por sí sola esos recorridos.
 
 ## Promoción y comprobación operativa
 
@@ -46,4 +52,4 @@ Evidencia visual de fixtures propios sin DB ni cuenta: [calendario320 px/texto20
 - **Conflictos protegidos:** exportar evidencia, anotar incidencia y conservar la cola. No convertir ausencia desconocida en borrado o confirmación.
 - **Retirada de una versión:** evaluar compatibilidad de protocolo y evidencia antes de volver a una versión anterior; un rollback de hosting no revierte Mongo ni IndexedDB. Preferir la última versión compatible conocida o una corrección hacia adelante. Nunca reescribir UUID/colas para forzar compatibilidad.
 
-La versión todavía no se declara cerrada: falta completar la regresión conjunta de 38 escenarios. No quedan nuevos bloques de funcionalidad dentro de esta checklist. El trabajo pospuesto se mantiene separado y sólo se retoma mediante una decisión nueva; una incidencia real de regresión sí bloquea el cierre hasta resolverse.
+El desarrollo y la validación de ingeniería de esta versión están cerrados en int. No quedan nuevos bloques de funcionalidad dentro del alcance fijado. Quedan promoción a main y smoke del despliegue, que son actuaciones separadas y no se han ejecutado. El trabajo pospuesto sólo se retoma mediante una decisión nueva; una incidencia real de regresión sí reabre el cierre hasta resolverse.
