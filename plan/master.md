@@ -1,5 +1,13 @@
 # Dalis Tasks & Events — plan maestro
 
+## 22b — Editor accesible y reflujo cerrado
+
+Errores de PlanForm se anuncian y enfocan el control pertinente, con aria-invalid y descripción enlazada al mensaje; limpieza restaura atributos previos. Reintento del mismo error vuelve a enfocar; fallo de guardado enfoca resumen y conserva borrador. Zona oculta se revela antes de enfocar. Nombres de checklist permiten localizar el paso correcto. No cambian schema, payload ni sincronización.
+
+QA de componentes reales en loopback4266 sin DB: título/paso vacíos, zona inválida efectiva en plan con hora, intervalo0, reintento, corrección/guardado conservando paso, marcas limpiadas y fallo simulado sin pérdida. Tres pruebas con errores reales del schema/6aserciones; fixture inicial tenía IDs noUUID y se corrigieron sin relajar schema. Inspección visual detectó solapamiento de variantes y fecha recortada al200% además de desbordamiento de repetición. Adaptación por ancho relativo sólo en formulario/fechas: tipos2columnas, filas/fechas apiladas y controles completos cuando hace falta; tamaño normal conserva4tipos y fecha/hora en la mismafila a320/390px. Sin overflow320 a200% en claro/oscuro; colores auxiliares con contraste oscuro mejorado. Capturas /private/tmp/dalis-22b-editor-mobile.png y /private/tmp/dalis-22b-editor-320-text200-final.png. Viewport/tab/servidor propios retirados. No certificación de lector humano.
+
+DoD1349pass/225opt-in skip/0fail/14738aserciones, lint1072sinavisos/tipos/Webpack/worker46/diff sobre fuentes finales aprobados. Entrada86%5h/42%7d, control75%/40%, reservas10%/1%; commit/pushint/HEAD/cuotas. Siguiente22c: regresión Next6 completa con dosorígenes/Mongo propios, guía de uso actualizada y runbook de cierre; no nuevas funcionalidades ni recuperación excepcional. Sin DBusuario/producción/índices/dependencias/nueva programación.
+
 ## 22a — Navegación accesible cerrada
 
 WorkspaceHeading actualiza título por destino y enfoca el h1 sólo cuando cambia la pantalla; las actualizaciones dentro de la misma pantalla mantienen foco y shell. Calendario permite PageUp/PageDown desde sus controles y conserva foco en la región al retirar celdas; mes anunciado con aria-live. Estilos compartidos dan foco visible, margen respecto a navegación fija y scroll contenido en diálogos. Detectado y corregido desbordamiento del encabezado de mes con texto al200%.

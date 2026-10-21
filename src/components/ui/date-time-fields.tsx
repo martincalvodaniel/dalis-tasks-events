@@ -28,7 +28,7 @@ export function DateTimeFields({
   const inputClass = `min-h-11 min-w-0 w-full rounded-full border border-zinc-200 bg-zinc-100 ${showDayControls ? "px-1 text-xs sm:px-2 sm:text-sm" : "px-3 text-sm"} disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800`
   return (
     <fieldset
-      className={`grid min-w-0 ${showDayControls ? (hideTime ? "grid-cols-[2.5rem_minmax(0,1fr)] sm:grid-cols-[4rem_minmax(0,1fr)]" : "grid-cols-[2.5rem_minmax(0,1fr)_5rem] sm:grid-cols-[4rem_minmax(0,1fr)_6rem]") : hideTime ? "grid-cols-[4rem_minmax(0,1fr)]" : "grid-cols-[4rem_minmax(0,1fr)_minmax(0,0.7fr)]"} items-center ${showDayControls ? "gap-1" : "gap-2"}`}
+      className={`dalis-date-time-fields grid min-w-0 ${showDayControls ? (hideTime ? "grid-cols-[2.5rem_minmax(0,1fr)] sm:grid-cols-[4rem_minmax(0,1fr)]" : "grid-cols-[2.5rem_minmax(0,1fr)_5rem] sm:grid-cols-[4rem_minmax(0,1fr)_6rem]") : hideTime ? "grid-cols-[4rem_minmax(0,1fr)]" : "grid-cols-[4rem_minmax(0,1fr)_minmax(0,0.7fr)]"} items-center ${showDayControls ? "gap-1" : "gap-2"}`}
     >
       <legend className="sr-only">{label}</legend>
       <span aria-hidden="true" className="text-sm font-medium">

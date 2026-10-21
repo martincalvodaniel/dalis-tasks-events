@@ -17,6 +17,7 @@ export function ChecklistFields({
           <label className="min-w-0 flex-1 text-sm">
             Paso {index + 1}
             <input
+              name={`checklist.${index}`}
               value={entry.text}
               onChange={(event) =>
                 onChange(

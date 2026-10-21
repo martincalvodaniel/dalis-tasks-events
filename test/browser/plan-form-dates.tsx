@@ -42,6 +42,8 @@ export function PlanDateFixture() {
         tags={[]}
         onCancel={() => setSaved(null)}
         onSave={async ({ input }) => {
+          if (new URLSearchParams(location.search).has("save-failure"))
+            throw new Error("Isolated save failure")
           setSaved(input)
         }}
       />
@@ -50,6 +52,26 @@ export function PlanDateFixture() {
           ? JSON.stringify(saved, null, 2)
           : "Prueba aislada; no guarda datos en ninguna base."}
       </pre>
+      <button
+        type="button"
+        className="min-h-11 border px-2"
+        onClick={() => {
+          document.documentElement.style.fontSize = "32px"
+        }}
+      >
+        Ampliar texto al 200 %
+      </button>
+      <label>
+        Apariencia de prueba
+        <select
+          onChange={(event) => {
+            document.documentElement.dataset.theme = event.target.value
+          }}
+        >
+          <option value="light">Claro</option>
+          <option value="dark">Oscuro</option>
+        </select>
+      </label>
     </main>
   )
 }

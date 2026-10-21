@@ -1,12 +1,16 @@
 "use client"
 
-import { type FormEvent, useId, useState } from "react"
+import { type FormEvent, useId, useRef, useState } from "react"
 import { DateTimeFields } from "@/components/ui/date-time-fields"
-import { ErrorBanner } from "@/components/ui/error-banner"
 import { ItemEditorHeader } from "@/components/ui/item-editor-header"
+import {
+  type PlanFormError,
+  PlanFormFeedback,
+} from "@/features/plans/components/plan-form-feedback"
 import { PlanRecurrenceFields } from "@/features/plans/components/plan-recurrence-fields"
 import { PlanVariantSelector } from "@/features/plans/components/plan-variant-selector"
 import { shiftPlanEndDate } from "@/features/plans/plan-form-dates"
+import { planFormErrorFields } from "@/features/plans/plan-form-error-fields"
 import { parsePlanForm } from "@/features/plans/plan-form-input"
 import { ChecklistFields } from "@/features/tasks/components/checklist-fields"
 import { addCivilDays } from "@/lib/calendar/civil-date"
@@ -39,6 +43,7 @@ export function PlanForm({
   onCancel: () => void
 }) {
   const id = useId()
+  const form = useRef<HTMLFormElement>(null)
   const schedule = initialPlan?.schedule
   const [variant, setVariant] = useState(initialPlan?.variant ?? "task")
   const [allDay, setAllDay] = useState(schedule?.mode !== "timed")
@@ -47,7 +52,7 @@ export function PlanForm({
     initialPlan?.checklist ?? []
   )
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState("")
+  const [error, setError] = useState<PlanFormError | null>(null)
   const [zoneOpen, setZoneOpen] = useState(
     Boolean(schedule?.mode === "timed" && schedule.timeZone !== timeZone)
   )
@@ -105,35 +110,39 @@ export function PlanForm({
       const field = issue?.path[0]
       const reason = issue?.code === "custom" ? issue.params?.timeReason : null
       if (issue?.path.includes("timeZone")) setZoneOpen(true)
-      setError(
-        reason === "ambiguous"
-          ? "Esa hora se repite por el cambio de horario. Elige otra hora de inicio o fin."
-          : reason === "nonexistent"
-            ? "Esa hora no existe por el cambio de horario. Elige otra hora de inicio o fin."
-            : field === "title"
-              ? "Escribe un título de hasta 160 caracteres."
-              : field === "description"
-                ? "La descripción admite hasta 10.000 caracteres."
-                : field === "checklist"
-                  ? "Completa o elimina los pasos vacíos del checklist."
-                  : field === "recurrence"
-                    ? "Revisa la repetición: elige días, un intervalo y un final válidos."
-                    : issue?.path.includes("timeZone")
-                      ? "Escribe una zona horaria válida, por ejemplo Europe/Madrid."
-                      : allDay
-                        ? "Revisa las fechas: el fin debe ser igual o posterior al inicio y anterior al 31/12/9999."
-                        : "Revisa fecha y hora. El fin es opcional y debe ser posterior al inicio."
-      )
+      setError({
+        fields: planFormErrorFields(issue?.path ?? [], allDay, reason),
+        message:
+          reason === "ambiguous"
+            ? "Esa hora se repite por el cambio de horario. Elige otra hora de inicio o fin."
+            : reason === "nonexistent"
+              ? "Esa hora no existe por el cambio de horario. Elige otra hora de inicio o fin."
+              : field === "title"
+                ? "Escribe un título de hasta 160 caracteres."
+                : field === "description"
+                  ? "La descripción admite hasta 10.000 caracteres."
+                  : field === "checklist"
+                    ? "Completa o elimina los pasos vacíos del checklist."
+                    : field === "recurrence"
+                      ? "Revisa la repetición: elige días, un intervalo y un final válidos."
+                      : issue?.path.includes("timeZone")
+                        ? "Escribe una zona horaria válida, por ejemplo Europe/Madrid."
+                        : allDay
+                          ? "Revisa las fechas: el fin debe ser igual o posterior al inicio y anterior al 31/12/9999."
+                          : "Revisa fecha y hora. El fin es opcional y debe ser posterior al inicio.",
+      })
       return
     }
     setSaving(true)
-    setError("")
+    setError(null)
     try {
       await onSave({ input: parsed.data, primaryTagId })
     } catch {
-      setError(
-        "No se pudo guardar el plan. Tus datos siguen en el formulario. Si cambió en otra pestaña, cancela y ábrelo de nuevo."
-      )
+      setError({
+        fields: [],
+        message:
+          "No se pudo guardar el plan. Tus datos siguen en el formulario. Si cambió en otra pestaña, cancela y ábrelo de nuevo.",
+      })
     } finally {
       setSaving(false)
     }
@@ -141,9 +150,10 @@ export function PlanForm({
 
   return (
     <form
+      ref={form}
       onSubmit={submit}
       noValidate
-      className="dalis-compact-controls mx-auto max-w-2xl space-y-2"
+      className="dalis-plan-form dalis-compact-controls mx-auto max-w-2xl space-y-2"
     >
       <ItemEditorHeader
         title={initialPlan ? "Editar plan" : "Nuevo plan"}
@@ -155,7 +165,7 @@ export function PlanForm({
         onChange={setVariant}
         disabled={saving}
       />
-      {error ? <ErrorBanner>{error}</ErrorBanner> : null}
+      {error ? <PlanFormFeedback error={error} form={form} /> : null}
       <div>
         <label htmlFor={`${id}-title`} className="sr-only">
           Título
@@ -186,7 +196,7 @@ export function PlanForm({
           className="w-full resize-y bg-transparent px-1 py-2 text-sm"
         />
       </div>
-      <div className="flex items-center justify-between gap-3">
+      <div className="dalis-plan-field-row flex items-center justify-between gap-3">
         <label htmlFor={`${id}-category`} className="text-sm font-medium">
           Categoría
         </label>
@@ -244,7 +254,7 @@ export function PlanForm({
           />
         </label>
       </div>
-      <div className="space-y-2">
+      <div className="dalis-date-time-container space-y-2">
         <DateTimeFields
           dateValue={dates.startDate}
           onDateChange={changeStartDate}
@@ -278,14 +288,14 @@ export function PlanForm({
           />
         ) : null}
       </div>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
         El fin es opcional. En todo el día, la fecha final está incluida.
       </p>
       <PlanRecurrenceFields
         initialRule={initialPlan?.recurrence ?? null}
         disabled={saving}
       />
-      <div className="flex items-center justify-between gap-3">
+      <div className="dalis-plan-field-row flex items-center justify-between gap-3">
         <label htmlFor={`${id}-status`} className="text-sm font-medium">
           Estado
         </label>
@@ -305,7 +315,7 @@ export function PlanForm({
         open={zoneOpen}
         onToggle={(event) => setZoneOpen(event.currentTarget.open)}
       >
-        <summary className="min-h-11 cursor-pointer py-3 text-xs text-zinc-500">
+        <summary className="min-h-11 cursor-pointer py-3 text-xs text-zinc-500 dark:text-zinc-400">
           Zona horaria
         </summary>
         <label className="flex items-center justify-between gap-3 text-sm">

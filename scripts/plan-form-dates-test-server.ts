@@ -13,7 +13,7 @@ const styles = await Promise.all(
   )
 )
 const html =
-  '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Prueba de fechas de planes</title><link rel="stylesheet" href="/ui.css"></head><body class="bg-white p-3 text-zinc-900"><div id="root"></div><p id="status" role="status" class="mt-3 text-xs"></p><div id="actions" class="mt-2"></div><script type="module" src="/fixture.js"></script></body></html>'
+  '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Prueba de fechas de planes</title><link rel="stylesheet" href="/ui.css"></head><body class="bg-background p-3 text-foreground"><div id="root"></div><p id="status" role="status" class="mt-3 text-xs"></p><div id="actions" class="mt-2"></div><script type="module" src="/fixture.js"></script></body></html>'
 Bun.serve({
   hostname: "127.0.0.1",
   port: 4266,

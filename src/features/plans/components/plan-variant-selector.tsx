@@ -31,7 +31,10 @@ export function PlanVariantSelector({
   disabled: boolean
 }) {
   return (
-    <fieldset disabled={disabled} className="grid grid-cols-4 gap-1">
+    <fieldset
+      disabled={disabled}
+      className="dalis-plan-variants grid grid-cols-4 gap-1"
+    >
       <legend className="sr-only">Tipo de plan</legend>
       <input type="hidden" name="variant" value={value} />
       {variants.map((variant) => (

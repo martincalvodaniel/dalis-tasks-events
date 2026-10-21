@@ -5,7 +5,7 @@ import { CivilDateInput } from "@/components/ui/civil-date-input"
 import type { RecurrenceRule } from "@/types/calendar-item"
 
 const inputClass =
-  "min-h-11 min-w-0 rounded-full border border-zinc-200 bg-zinc-100 px-3 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+  "min-h-11 min-w-0 max-w-full rounded-full border border-zinc-200 bg-zinc-100 px-3 text-sm dark:border-zinc-700 dark:bg-zinc-800"
 const weekdays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
 
 export function PlanRecurrenceFields({
@@ -19,9 +19,9 @@ export function PlanRecurrenceFields({
   const [frequency, setFrequency] = useState(initialRule?.frequency ?? "none")
   const [endType, setEndType] = useState(initialRule?.end.type ?? "never")
   return (
-    <fieldset disabled={disabled} className="space-y-2">
+    <fieldset disabled={disabled} className="min-w-0 space-y-2">
       <legend className="sr-only">Repetición</legend>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
         <label htmlFor={`${id}-frequency`} className="text-sm font-medium">
           Repetir
         </label>
@@ -45,7 +45,7 @@ export function PlanRecurrenceFields({
         hidden={frequency === "none"}
         className="space-y-2 rounded-xl bg-zinc-50 p-2 dark:bg-zinc-800/50"
       >
-        <label className="flex items-center justify-between gap-3 text-sm">
+        <label className="flex min-w-0 flex-wrap items-center justify-between gap-3 text-sm">
           Cada cuántos periodos
           <input
             name="interval"
@@ -80,7 +80,7 @@ export function PlanRecurrenceFields({
             </label>
           ))}
         </fieldset>
-        <label className="flex items-center justify-between gap-3 text-sm">
+        <label className="flex min-w-0 flex-wrap items-center justify-between gap-3 text-sm">
           Termina
           <select
             name="recurrenceEnd"
@@ -97,7 +97,7 @@ export function PlanRecurrenceFields({
         </label>
         <div
           hidden={endType !== "until"}
-          className={`${endType === "until" ? "flex" : "hidden"} min-w-0 items-center justify-between gap-2 text-sm`}
+          className={`${endType === "until" ? "flex" : "hidden"} min-w-0 flex-wrap items-center justify-between gap-2 text-sm`}
         >
           <label htmlFor={`${id}-until-date`} className="shrink-0">
             Última fecha

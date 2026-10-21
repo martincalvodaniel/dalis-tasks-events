@@ -114,3 +114,51 @@ body {
 dialog {
   overscroll-behavior: contain;
 }
+
+.dalis-plan-form,
+.dalis-date-time-container {
+  container-type: inline-size;
+}
+
+.dalis-compact-controls fieldset {
+  min-inline-size: 0;
+}
+
+@container (width < 16rem) {
+  .dalis-date-time-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dalis-date-time-fields > div {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .dalis-date-time-fields input[type="date"] {
+    order: -1;
+    flex-basis: 100%;
+    width: 100%;
+  }
+
+  .dalis-date-time-fields input[type="time"]:not([hidden]) {
+    grid-column: 1;
+  }
+
+  .dalis-plan-variants {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dalis-plan-variants button {
+    flex-wrap: wrap;
+  }
+
+  .dalis-plan-field-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dalis-plan-field-row select {
+    width: 100%;
+    max-width: 100%;
+  }
+}
