@@ -3,6 +3,7 @@ import { planOccurrenceCohortResolutionFixture } from "@/lib/backup/plan-occurre
 import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
 import { categoryPlacementResolutionFixture } from "@/lib/sync/category-placement-resolution-fixture"
 import { mixedPlacementDecisionFixture } from "@/lib/sync/mixed-placement-decision-fixture"
+import { planOccurrenceCopyFixture } from "@/lib/sync/plan-occurrence-copy-fixture"
 import { recurringPlacementResolutionFixture } from "@/lib/sync/recurring-placement-resolution-fixture"
 import {
   nextRecurringSyncStateSchema,
@@ -584,5 +585,36 @@ test("category movement fixture uses a distinct strict decision family and scope
       operationId: f.entry.operation.operationId,
       database: "production",
     })
+  ).toThrow()
+})
+
+test("appearance copy fixture requires its explicit family and isolated selector", () => {
+  const f = planOccurrenceCopyFixture()
+  expect(nextSettingsProofScopeSchema.parse("appearance-copy")).toBe(
+    "appearance-copy"
+  )
+  for (const type of [
+    "resolve-appearance-copy",
+    "appearance-copy-guard-proof",
+  ] as const) {
+    expect(
+      nextSyncDeviceCommandSchema.parse({ type, request: f.request })
+    ).toEqual({ type, request: f.request })
+    expect(() =>
+      nextSyncDeviceCommandSchema.parse({
+        type,
+        request: { ...f.request, reviewKind: "recurring_primary" },
+      })
+    ).toThrow()
+    expect(() =>
+      nextSyncDeviceCommandSchema.parse({
+        type,
+        request: f.request,
+        database: "production",
+      })
+    ).toThrow()
+  }
+  expect(() =>
+    nextSettingsProofScopeSchema.parse("appearance-copy-ui")
   ).toThrow()
 })

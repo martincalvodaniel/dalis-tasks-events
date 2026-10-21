@@ -20,6 +20,7 @@ import { provePlanCategoryResolutionUi } from "@fixture/plan-category-resolution
 import { remotePushInputV2Schema } from "@/schemas/remote-push-v2"
 import { readPlanCategoryIncidentComparison, resolvePlanCategoryIncident } from "@/features/sync/local-plan-category-resolution"
 import { proveLocalAppearanceRetry } from "@fixture/appearance-retry-local-proof"
+import { resolvePlanOccurrenceCopy } from "@/features/sync/local-plan-occurrence-copy"
 import { resolvePlanOccurrenceIncident } from "@/features/sync/local-plan-occurrence-resolution"
 import { proveLocalAppearanceResolution } from "@fixture/appearance-resolution-local-proof"
 import { proveSettingsResolutionUi } from "@fixture/settings-resolution-ui"
@@ -756,6 +757,23 @@ export async function executeLocalFixtureCommand(
       return proveAppearanceCohortResolutionUi(active,command.request)
     case "resolve-appearance-cohort":
       return resolvePlanOccurrenceCohort(active, command.request)
+    case "resolve-appearance-copy":
+      return resolvePlanOccurrenceCopy(active,command.request)
+    case "appearance-copy-guard-proof": {
+      const before=JSON.stringify((await readFixtureBackup(active)).stores)
+      let checks=0
+      for(const work of [
+        ()=>resolvePlanOccurrenceCopy({...active,epoch:crypto.randomUUID()},command.request),
+        ()=>resolvePlanOccurrenceCopy(active,{...command.request,userId:"foreign-appearance-copy"}),
+        ()=>resolvePlanOccurrenceCopy(active,{...command.request,expected:{...command.request.expected,local:null}}),
+      ]) {
+        let failed=false
+        try {await work()} catch {failed=true}
+        if(!failed||before!==JSON.stringify((await readFixtureBackup(active)).stores)) throw new Error("Appearance copy guard changed durable state")
+        checks++
+      }
+      return {checks}
+    }
     case "resolve-appearance":
       return resolvePlanOccurrenceIncident(active, command.request)
     case "appearance-resolution-local-proof":

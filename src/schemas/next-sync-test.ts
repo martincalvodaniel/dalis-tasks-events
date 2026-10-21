@@ -9,6 +9,7 @@ import { planSchema } from "@/schemas/plan-item"
 import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
 import { planOccurrenceCohortResolutionRequestSchema } from "@/schemas/plan-occurrence-cohort-resolution"
 import { planOccurrenceCommandSchema } from "@/schemas/plan-occurrence-command"
+import { planOccurrenceCopyRequestSchema } from "@/schemas/plan-occurrence-copy"
 import { planOccurrenceResolutionRequestSchema } from "@/schemas/plan-occurrence-resolution"
 import { planSaveRequestSchema } from "@/schemas/plan-save"
 import {
@@ -149,6 +150,7 @@ export const nextSettingsProofScopeSchema = z
   .enum([
     "full",
     "joint-ui",
+    "appearance-copy",
     "appearance-cohort",
     "appearance-cohort-ui",
     "assignment",
@@ -168,6 +170,14 @@ export const nextSettingsProofScopeSchema = z
   ])
   .default("full")
 export const nextSyncDeviceCommandSchema = z.discriminatedUnion("type", [
+  z.strictObject({
+    type: z.literal("resolve-appearance-copy"),
+    request: planOccurrenceCopyRequestSchema,
+  }),
+  z.strictObject({
+    type: z.literal("appearance-copy-guard-proof"),
+    request: planOccurrenceCopyRequestSchema,
+  }),
   z.strictObject({
     type: z.literal("resolve-category-placement-ui"),
     request: categoryPlacementResolutionRequestSchema,

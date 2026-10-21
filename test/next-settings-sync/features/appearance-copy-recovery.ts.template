@@ -1,0 +1,84 @@
+"use client"
+
+import type { z } from "zod"
+import { canonical, foldRecurringChanges } from "@fixture/projection"
+import { decodeRemoteRecurringShadow } from "@/lib/sync/local-plan-occurrence-sync"
+import { editablePlanOccurrence } from "@/lib/calendar/plan-occurrence-command"
+import { nextSyncDeviceCommandSchema, nextSettingsSyncStateSchema } from "@/schemas/next-sync-test"
+import { planSchema } from "@/schemas/plan-item"
+import { planOccurrenceSchema } from "@/schemas/plan-occurrence"
+import { planOccurrenceCommandSchema } from "@/schemas/plan-occurrence-command"
+import { planOccurrenceCopyRecordSchema,planOccurrenceCopyRequestSchema } from "@/schemas/plan-occurrence-copy"
+import { planOccurrenceIncidentSnapshotSchema } from "@/schemas/plan-occurrence-resolution"
+import type { LocalRecurringBackup } from "@/types/local-backup"
+import type { LocalPullCursor } from "@/types/local-sync"
+import type { RecurringSyncIncidentOverview } from "@/types/recurring-sync-incident"
+
+type Snapshot={backup:LocalRecurringBackup;cursor:LocalPullCursor}
+type Ports={owner:string;call(index:number,input:z.infer<typeof nextSyncDeviceCommandSchema>):Promise<unknown>;snapshot(index:number):Promise<Snapshot>;state():Promise<z.infer<typeof nextSettingsSyncStateSchema>>;reloadSecondary():Promise<void>}
+function assert(value:unknown,message:string):asserts value{if(!value)throw new Error(message)}
+
+export async function proveRemoteAppearanceCopy({owner,call,snapshot,state,reloadSecondary}:Ports){
+ let copied=0,lostReplies=0
+ for(const [index,variant] of (["task","event","appointment","note"] as const).entries()){
+  const itemId=crypto.randomUUID(),stepId=crypto.randomUUID(),now=new Date().toISOString(),
+   first=`${itemId}:2026-10-18`,second=`${itemId}:2026-10-19`
+  await call(0,{type:"save-plan",request:{mode:"create",itemId,contentOperationId:crypto.randomUUID(),viewOperationId:crypto.randomUUID(),primaryTagId:null,now,input:{kind:"plan",variant,title:`Serie ${variant}`,description:"Contenido padre",status:"not_started",checklist:[{id:stepId,text:"Paso original",completed:false}],schedule:{mode:"all_day",startDate:"2026-10-18",endDateExclusive:"2026-10-19"},recurrence:{frequency:"daily",interval:1,anchorDate:"2026-10-18",timeZone:"Europe/Madrid",end:{type:"count",count:3}}}}})
+  await call(0,{type:"mixed-run"});await call(1,{type:"mixed-run"})
+  async function commit(device:number,command:z.infer<typeof planOccurrenceCommandSchema>){
+   const current=await snapshot(device),series=planSchema.parse(current.backup.stores.items.find(value=>value.id===itemId)),
+    raw=current.backup.stores.occurrences.find(value=>value.id===command.occurrenceId),
+    stored=editablePlanOccurrence(series,raw?planOccurrenceSchema.parse(raw):null,command,owner).current
+   return call(device,{type:"commit-occurrence",operationId:crypto.randomUUID(),now:new Date().toISOString(),command,expectedItem:series,expectedOccurrence:stored})
+  }
+  for(const occurrenceId of [first,second]){await commit(0,{type:"plan.set-occurrence-status",itemId,occurrenceId,status:"not_started"});await call(0,{type:"mixed-run"})}
+  await call(1,{type:"mixed-run"})
+  await commit(0,{type:"plan.cancel-occurrence",itemId,occurrenceId:first});await call(0,{type:"mixed-run"})
+  const schedule=index<2?{mode:"all_day" as const,startDate:"2026-10-22",endDateExclusive:"2026-10-23"}:{mode:"timed" as const,localStart:"2026-10-22T08:30",localEnd:null,timeZone:"Europe/Madrid"}
+  await commit(1,{type:"plan.update-occurrence",itemId,occurrenceId:first,input:{title:`Borrador ${variant}`,description:"Antes del conflicto",schedule,checklist:[{id:stepId,text:"Paso elegido"}]}})
+  await commit(1,{type:"plan.set-occurrence-status",itemId,occurrenceId:first,status:index%2?"completed":"in_progress"})
+  const offline=await snapshot(1),root=offline.backup.stores.outbox.filter(entry=>entry.entityKey===`item:${itemId}`&&entry.state==="pending").toSorted((a,b)=>a.sequence-b.sequence)[0]
+  assert(root,"Real appearance copy producer did not preserve its offline root")
+  await call(1,{type:"mixed-run"})
+  await commit(1,{type:"plan.update-occurrence",itemId,occurrenceId:first,input:{title:`Último borrador ${variant}`,description:"Edición posterior al resultado",schedule,checklist:[{id:stepId,text:"Paso elegido"}]}})
+  await commit(1,{type:"plan.set-occurrence-checklist-entry",itemId,occurrenceId:first,entryId:stepId,completed:true})
+  const incidents=await call(1,{type:"settings-incidents"}) as RecurringSyncIncidentOverview[],
+   incident=incidents.find(value=>value.kind==="plan-occurrence"&&value.incident.entry.operation.operationId===root.operation.operationId)
+  assert(incident?.kind==="plan-occurrence","Owned copy conflict was not projected")
+  const expected=planOccurrenceIncidentSnapshotSchema.parse(incident.incident)
+  assert(expected.intentions.length===4&&expected.local?.content?.description==="Edición posterior al resultado"&&expected.local.checklist[0].completed&&expected.remote?.cancelled,"Copy conflict lost its current local draft or known cancellation")
+  const request=planOccurrenceCopyRequestSchema.parse({reviewKind:"occurrence_copy",choice:"copy_local",userId:owner,resolutionId:crypto.randomUUID(),operationId:crypto.randomUUID(),copyItemId:crypto.randomUUID(),createdAt:new Date().toISOString(),expected}),
+   guard=await call(1,{type:"appearance-copy-guard-proof",request}) as {checks:number}
+  assert(guard.checks===3,"Appearance copy guards were not checked")
+  const before=await snapshot(1),remoteBefore=await state(),result=await call(1,{type:"resolve-appearance-copy",request}) as {status:string;record:unknown},
+   record=planOccurrenceCopyRecordSchema.parse(result.record),decided=await snapshot(1)
+  assert(result.status==="applied"&&canonical(await state())===canonical(remoteBefore),"Local appearance copy manufactured a remote ACK")
+  assert(record.copy.recurrence===null&&record.copy.variant===variant&&record.copy.title===expected.local.content?.title&&record.copy.description===expected.local.content.description&&record.copy.status===expected.local.status&&canonical(record.copy.schedule)===canonical(expected.local.schedule)&&canonical(record.copy.checklist)===canonical(expected.local.checklist),"Copy did not preserve the exact reviewed fields")
+  for(const original of expected.intentions) assert(canonical(decided.backup.stores.outbox.find(entry=>entry.operation.operationId===original.operation.operationId))===canonical({...original,state:"superseded",lease:null}),"Appearance copy rewrote its original chain")
+  assert(canonical(decided.backup.stores.syncMetadata.find(value=>value.key===expected.outcome.key))===canonical(expected.outcome),"Appearance copy changed frozen outcome evidence")
+  for(const store of ["tags","itemViews","taskPlacements","settings","remoteShadows"] as const)assert(canonical(decided.backup.stores[store])===canonical(before.backup.stores[store]),"Appearance copy changed unrelated preferences or observed evidence")
+  const lost=await call(1,{type:"lost-plan-response-run"}) as {status:string;uploaded:number},committed=await state(),pending=await snapshot(1),
+   attempted=pending.backup.stores.outbox.find(entry=>entry.operation.operationId===record.operationId)
+  assert(lost.status==="retry_later"&&lost.uploaded===0&&attempted?.state==="pending"&&attempted.attempts===1&&attempted.lease===null&&canonical(attempted.operation)===canonical(record.replacement),"Lost appearance copy response acknowledged or rewrote the command")
+  assert(committed.counts.receipts===remoteBefore.counts.receipts+1&&committed.page.through===remoteBefore.page.through+1,"Appearance copy did not commit exactly once")
+  await reloadSecondary()
+  assert(canonical((await snapshot(1)).backup.stores)===canonical(pending.backup.stores),"Reload lost appearance copy evidence")
+  await call(1,{type:"mixed-run"})
+  const ack=(await snapshot(1)).backup.stores.outbox.find(entry=>entry.operation.operationId===record.operationId)
+  assert(ack?.state==="acknowledged"&&ack.attempts===2&&canonical(ack.operation)===canonical(record.replacement)&&!ack.dependencies.length&&canonical(await state())===canonical(committed),"Replay duplicated copy or failed its unique real ACK")
+  const later=await snapshot(1)
+  assert((await call(1,{type:"resolve-appearance-copy",request}) as {status:string}).status==="replayed"&&canonical((await snapshot(1)).backup.stores)===canonical(later.backup.stores),"Durable copy replay overwrote later work")
+  await call(0,{type:"mixed-run"});await call(1,{type:"mixed-run"})
+  const authoritative=await state(),projection=foldRecurringChanges(authoritative.page),
+   oldParent=before.backup.stores.items.find(item=>item.id===itemId),otherSlot=before.backup.stores.occurrences.find(value=>value.id===second)
+  for(const device of [0,1]){
+   const current=await snapshot(device),copy=planSchema.parse(current.backup.stores.items.find(item=>item.id===record.copyItemId)),
+    rawShadow=current.backup.stores.remoteShadows.find(value=>value.entityKey===`item:${record.copyItemId}`),shadow=rawShadow?decodeRemoteRecurringShadow(rawShadow,owner):null
+   assert(current.cursor.after===authoritative.page.through&&current.cursor.through===null&&copy.revision===1&&copy.recurrence===null&&canonical(copy)===canonical(projection.items.get(record.copyItemId))&&shadow&&"kind"in shadow&&shadow.kind==="item"&&canonical(shadow.record)===canonical(copy),"Copy partitions, shadows or Mongo projection differ")
+   assert(canonical(current.backup.stores.items.find(item=>item.id===itemId))===canonical(oldParent)&&canonical(current.backup.stores.occurrences.find(value=>value.id===second))===canonical(otherSlot)&&canonical(current.backup.stores.occurrences.find(value=>value.id===first))===canonical(projection.occurrences.get(first)),"Copy changed its parent, other slot or original cancellation")
+   assert(!current.backup.stores.itemViews.some(view=>view.itemId===copy.id)&&!current.backup.stores.taskPlacements.some(position=>position.occurrenceId===copy.id),"Copy inherited category or manual order")
+  }
+  copied++;lostReplies++
+ }
+ return {copied,lostReplies}
+}

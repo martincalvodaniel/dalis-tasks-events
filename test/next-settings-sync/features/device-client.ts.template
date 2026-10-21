@@ -168,6 +168,8 @@ async function execute(
       "lost-settings-response-run",
       "epoch-after-settings-commit-run",
       "settings-incidents",
+      "resolve-appearance-copy",
+      "appearance-copy-guard-proof",
       "resolve-appearance",
       "appearance-cohort-comparison",
       "resolve-appearance-cohort",
