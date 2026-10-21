@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test"
 import { applyPlanCommand } from "@/lib/calendar/plan-command"
 import {
+  canCopyPlanOccurrenceIncident,
   planOccurrenceCopy,
   validatePlanOccurrenceCopyRecord,
 } from "@/lib/sync/plan-occurrence-copy"
@@ -237,6 +238,7 @@ for (const [name, change] of guards)
     const request = { ...f.request, expected: current },
       before = JSON.stringify({ request, current })
     expect(() => planOccurrenceCopy(request, current)).toThrow()
+    expect(canCopyPlanOccurrenceIncident(current, f.userId)).toBe(false)
     expect(JSON.stringify({ request, current })).toBe(before)
   })
 
@@ -322,6 +324,7 @@ test("appearance copy refuses oversized evidence even when the reviewed snapshot
   expect(low).toBeGreaterThan(1000)
   const before = JSON.stringify(f.snapshot)
   expect(() => planOccurrenceCopy(f.request, f.snapshot)).toThrow("byte limit")
+  expect(canCopyPlanOccurrenceIncident(f.snapshot, f.userId)).toBe(false)
   expect(JSON.stringify(f.snapshot)).toBe(before)
 })
 

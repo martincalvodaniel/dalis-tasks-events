@@ -9,9 +9,10 @@ import { syncOperationSchema } from "@/schemas/sync"
 import type { PlanOccurrenceCopyRecord } from "@/types/plan-occurrence-copy"
 
 // This planner cannot acknowledge commands or authorize changes to the original series.
-export function planOccurrenceCopy(
+function buildPlanOccurrenceCopy(
   input: unknown,
-  currentInput: unknown
+  currentInput: unknown,
+  representationOnly = false
 ): PlanOccurrenceCopyRecord {
   const request = planOccurrenceCopyRequestSchema.parse(input),
     current = planOccurrenceIncidentSnapshotSchema.parse(currentInput)
@@ -62,8 +63,9 @@ export function planOccurrenceCopy(
     request.copyItemId,
   ]
   if (
-    new Set(identities).size !== identities.length ||
-    identities.some((id) => ids.has(id) || id === value.series.id)
+    !representationOnly &&
+    (new Set(identities).size !== identities.length ||
+      identities.some((id) => ids.has(id) || id === value.series.id))
   )
     throw new Error("Appearance copy requires new distinct identities")
   const replacement = syncOperationSchema.parse({
@@ -100,6 +102,42 @@ export function planOccurrenceCopy(
       (entry) => entry.operation.operationId
     ),
   })
+}
+
+export function planOccurrenceCopy(
+  input: unknown,
+  currentInput: unknown
+): PlanOccurrenceCopyRecord {
+  return buildPlanOccurrenceCopy(input, currentInput)
+}
+
+// Representative UUIDs measure the complete receipt only; they never reach a writer or remote executor.
+export function canCopyPlanOccurrenceIncident(
+  input: unknown,
+  actor: string
+): boolean {
+  try {
+    const snapshot = planOccurrenceIncidentSnapshotSchema.parse(input)
+    if (snapshot.entry.userId !== actor) return false
+    const id = snapshot.entry.operation.operationId
+    buildPlanOccurrenceCopy(
+      {
+        reviewKind: "occurrence_copy",
+        choice: "copy_local",
+        userId: actor,
+        resolutionId: id,
+        operationId: id,
+        copyItemId: id,
+        createdAt: "2000-01-01T00:00:00.000Z",
+        expected: snapshot,
+      },
+      snapshot,
+      true
+    )
+    return true
+  } catch {
+    return false
+  }
 }
 
 export function validatePlanOccurrenceCopyRecord(

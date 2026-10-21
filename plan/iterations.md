@@ -1,5 +1,15 @@
 # Iteraciones de implementación
 
+## 19l5a — Diálogo de copia preparado y revisado en móvil
+
+Disponibilidad usa el mismo planner y el tamaño completo de recibo; IDs representativos privados sólo miden la representación, nunca alcanzan writer o ejecutor. APIs públicas siguen exigiendo IDs nuevos. Diálogo recibe request real congelado, valida actor/evidencia, compara el plan nuevo con el original cancelado y explica sin repetición/categoría/orden, historial conservado y pending hasta confirmación. Vista nueva muestra el borrador sin UUID ni revisión técnica. No hay caller activo aún.
+
+Cinco SSR con cuatro variantes/guardias/busy y pruebas de disponibilidad en snapshots inválidos y desbordamiento de recibo; 46 pruebas focalizadas/357 aserciones junto al planner. QA CSS final390×844: página390/dialog356 sin desbordamiento, botones50px accesibles tras scroll y cancelar cierra sin datos/DB. Captura `/private/tmp/dalis-21-appearance-copy-dialog-mobile-final.png`; viewport restaurado, tab/servidor propios cerrados. DoD1345pass/225opt-in skip/0fail/14723 aserciones, lint1065 sin avisos/tipos/Webpack/worker46/diff aprobados. Entrada47%5h/48%7d, control37%/47%, reservas10%/1%, secuencial. Sin IO/índices/protocolo/dependencias nuevos. Siguiente19l5b: lectura fresca de comparación, botón y modal con IDs reales estables/cuenta/época/mounted/cache; interacción real cancelar/reabrir/confirmar con UUID UI y replay remoto antes de publicar activación.
+
+## 19l5a — Disponibilidad y diálogo de copia preparados
+
+Objetivo: presentación compacta de la copia frente a la cancelación original sin caller activo aún. target_paths: lib/sync/plan-occurrence-copy y tests de disponibilidad; nuevos componentes plan-occurrence-copy-dialog/SSR; test/browser/appearance-copy-review y selector privado scripts/plan-agenda-ui-test-server. Dependencias19l4, entrada47%5h/48%7d, reservas10%/1%, secuencial. Aceptación: disponibilidad valida el mismo planner y bytes de recibo con IDs representativos privados, nunca enviados a writer; actor/familia/ausencia/cadena inválidos sin elección. Diálogo recibe request real congelado y muestra copia exacta/slot original, sin repetición/categoría/orden, cambios sustituidos e historial/pending/posible conflicto. IDs reales estables durante revisión; cancelar sólo cierra. Reutilizar ConfirmationDialog y versiones existentes, QA390px con CSS/controles accesibles, SSR de campos/consecuencias/guardias/busy, DoD/plan/log/commit/pushint/HEAD/cuotas. No conectar caller hasta19l5b con interacción Next/Mongo real.
+
 ## 19l4 — Copia de aparición acreditada con Next6 y Mongo
 
 Once escenarios Next6 focalizados (`appearance-copy`) pasan con acciones/defaults reales, sesiones BetterAuth persistidas y dos orígenes IndexedDB/Mongo propios. Cuatro variantes: excepción editada offline frente a cancelación concurrente, cuatro intenciones del mismo slot y borrador posterior al outcome. Cuenta/época/stale no escriben. Decisión local conserva originales y outcome exactos, crea un plan independiente sin repetición/categoría/orden y no confirma nada remotamente.
