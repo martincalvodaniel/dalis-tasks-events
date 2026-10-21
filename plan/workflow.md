@@ -1,5 +1,11 @@
 # Flujo de trabajo con Codex
 
+## 21q1 — Control de cuota permanente y lote cerrado
+
+AGENTS y workflow exigen comprobar ambas ventanas también entre fases largas, antes de pruebas costosas y después de fallos imprevistos. La reserva10%5h/1%7d permanece intacta: se protege también el coste de reparar, documentar, publicar, verificar y volver a leer cuotas; no se usa como objetivo que haya que alcanzar consumiendo. Las lecturas de este lote se hicieron al empezar, durante implementación/pruebas y después de cada entrega. Último código b126453 con DoD completo; contrato de copia actualizado sin duplicaciones ni instrucciones históricas de reparar un counter ausente.
+
+Lote retomado con100%5h/57%7d y cerrado tras recuperación categoría+orden y copia independiente de aparición cancelada, ambas activas en int. Última lectura antes de este corte23%5h/45%7d; reservas10%/1%. El siguiente bloque residual requiere contrato/implementación/pruebas y coste de reparación no acotado dentro del margen disponible: no se inicia. Sin cambios de código desde DoD1346pass/225skip/0fail, lint/tipos/Webpack/worker46. Validación documental/referencias/consistencia/diff; commit/pushint/HEAD/cuotas. Recursos Mongo/Next/IndexedDB/browser propios retirados, repo sin trabajo parcial y main humano preservado. No nueva programación, créditos ni reinicios utilizados.
+
 ## 19l5b — Copia de una aparición cancelada activa en Ajustes
 
 Botón «Crear copia de este día» sólo para cuenta propia y comparación de un slot admitida. Antes de abrir, lee de nuevo el overview completo en TX readonly y verifica cuenta/época; congela request y tres UUID reales generados por UI. Confirmación reusa esos IDs, cancela sin escribir, valida nuevamente en writer y sólo invalida cachés de su cuenta/época. Componente identificado por cuenta/época/operación y mounted guardado; no expone copia para ausencia desconocida, padre borrado o cohorte externa. Adopción existente permanece disponible. La copia es un plan independiente sin repetición/categoría/orden; nunca resucita el original.

@@ -1,5 +1,9 @@
 # Iteraciones de implementación
 
+## 21q1 — Cierre seguro y comprobaciones de cuota intermedias
+
+Objetivo: hacer permanente la petición del usuario del21oct de evitar otro agotamiento antes de publicar. target_paths: AGENTS.md, workflow/master/iterations/iteration-log y remote-absence-recovery para consistencia del alcance cerrado. Dependencia19l5b publicado, entrada23%5h/45%7d; reservas10%/1%. Aceptación: lectura directa antes de empezar, entre fases largas/antes de RPC o validación costosa y tras fallo inesperado, además de cada commit; coste restante incluye reparación/plan/commit/push/verificación/cuota, sin perseguir el10% como objetivo de consumo. Si siguiente corte no cabe completo, cerrar con repo limpio aunque quede más reserva. No cambia reserva ni autoriza programación/créditos/reset. Contrato de copia resume estado actual sin condiciones históricas contradictorias (counter ausente se rechaza). Validación documental, referencias locales/consistencia/diff, ConventionalCommit/pushint/HEAD/cuotas; sin nuevos tests de código.
+
 ## 19l5b — Copia de una aparición cancelada activa en Ajustes
 
 Botón «Crear copia de este día» sólo para cuenta propia y comparación de un slot admitida. Antes de abrir, lee de nuevo el overview completo en TX readonly y verifica cuenta/época; congela request y tres UUID reales generados por UI. Confirmación reusa esos IDs, cancela sin escribir, valida nuevamente en writer y sólo invalida cachés de su cuenta/época. Componente identificado por cuenta/época/operación y mounted guardado; no expone copia para ausencia desconocida, padre borrado o cohorte externa. Adopción existente permanece disponible. La copia es un plan independiente sin repetición/categoría/orden; nunca resucita el original.
