@@ -19,6 +19,7 @@ import { resolveLocalPlanCategoryIncident } from "@/lib/local-db/plan-category-r
 import { readLocalPlanCategoryResolutionSnapshot } from "@/lib/local-db/plan-category-resolution-capture"
 import { readLocalPlanOccurrenceCohortComparison } from "@/lib/local-db/plan-occurrence-cohort-capture"
 import { resolveLocalPlanOccurrenceCohort } from "@/lib/local-db/plan-occurrence-cohort-resolution"
+import { resolveLocalPlanOccurrenceCopy } from "@/lib/local-db/plan-occurrence-copy"
 import { resolveLocalPlanOccurrenceIncident } from "@/lib/local-db/plan-occurrence-resolution"
 import { applyLocalChangesPage } from "@/lib/local-db/pull-changes"
 import { readLocalSyncQueueSummary } from "@/lib/local-db/queue-summary"
@@ -142,6 +143,17 @@ export class LocalSyncStore {
 
   resolvePlanOccurrenceCohort(input: unknown) {
     return resolveLocalPlanOccurrenceCohort(
+      this.database,
+      this.userId,
+      input
+    ).then((result) => {
+      if (result.status === "applied") notifyLocalOutboxChange(this.userId)
+      return result
+    })
+  }
+
+  resolvePlanOccurrenceCopy(input: unknown) {
+    return resolveLocalPlanOccurrenceCopy(
       this.database,
       this.userId,
       input

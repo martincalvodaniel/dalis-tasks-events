@@ -30,6 +30,7 @@ if (
   suite !== "plan-category-capture" &&
   suite !== "plan-category-resolution" &&
   suite !== "plan-occurrence-cohort-resolution" &&
+  suite !== "plan-occurrence-copy" &&
   suite !== "task-snapshot" &&
   suite !== "occurrence-ordering"
 )

@@ -3,8 +3,11 @@ import { projectPlanOccurrenceSyncIncidents } from "@/lib/sync/recurring-inciden
 import { planOccurrenceCopyRequestSchema } from "@/schemas/plan-occurrence-copy"
 import type { Plan } from "@/types/plan-item"
 
-export function planOccurrenceCopyFixture(variant: Plan["variant"] = "task") {
-  const source = planOccurrenceCohortFixture("appearance-copy-owner"),
+export function planOccurrenceCopyFixture(
+  variant: Plan["variant"] = "task",
+  actor = "appearance-copy-owner"
+) {
+  const source = planOccurrenceCohortFixture(actor),
     outcome = source.outcomes[0],
     result = outcome.result.outcome
   if (result.status !== "conflict" || !result.current)
