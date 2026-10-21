@@ -562,6 +562,7 @@ test("category movement fixture uses a distinct strict decision family and scope
   )
   for (const type of [
     "resolve-category-placement",
+    "resolve-category-placement-ui",
     "category-placement-guard-proof",
   ] as const) {
     expect(
@@ -574,9 +575,9 @@ test("category movement fixture uses a distinct strict decision family and scope
       })
     ).toThrow()
   }
-  expect(() =>
-    nextSettingsProofScopeSchema.parse("category-placement-ui")
-  ).toThrow()
+  expect(nextSettingsProofScopeSchema.parse("category-placement-ui")).toBe(
+    "category-placement-ui"
+  )
   expect(() =>
     nextSyncDeviceCommandSchema.parse({
       type: "category-placement-comparison",

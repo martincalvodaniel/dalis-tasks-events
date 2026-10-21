@@ -61,8 +61,8 @@ export async function proveRemoteCategoryPlacementRecovery({owner,call,snapshot,
   assert(canonical(expected.incident.entry.operation)===canonical(original.operation)&&canonical(expected.incident.intentions[1])===canonical(latest),"Movement changed original UUID, payload or dependencies")
   let request:CategoryPlacementResolutionRequest={reviewKind:"category_movement",userId:owner,resolutionId:crypto.randomUUID(),operationId:choice==="retry_latest_move"?crypto.randomUUID():null,choice,createdAt:new Date().toISOString(),expected}
   const guard=await call(1,{type:"category-placement-guard-proof",request}) as {checks:number};assert(guard.checks===3,"Placement feature guards incomplete")
-  const before=await state(),localBefore=await snapshot(1),result=await call(1,{type:"resolve-category-placement",request}) as {status:string;record:unknown},record=categoryPlacementResolutionRecordSchema.parse(result.record)
-  if(interactive)assert(record.resolutionId!==request.resolutionId&&(!record.operationId||record.operationId!==request.operationId),"Recurring UI must generate its own stable identifiers")
+  const before=await state(),localBefore=await snapshot(1),result=await call(1,{type:interactive&&index===0||interactive&&index===3?"resolve-category-placement-ui":"resolve-category-placement",request}) as {status:string;record:unknown},record=categoryPlacementResolutionRecordSchema.parse(result.record)
+  if(interactive&&(index===0||index===3))assert(record.resolutionId!==request.resolutionId&&(!record.operationId||record.operationId!==request.operationId),"Recurring UI must generate its own stable identifiers")
   request={reviewKind:"category_movement",userId:record.userId,resolutionId:record.resolutionId,operationId:record.operationId,choice:record.choice,createdAt:record.createdAt,expected:record.expected}
   assert(result.status==="applied"&&canonical(await state())===canonical(before),"Local placement choice manufactured remote history")
   const decided=await snapshot(1)

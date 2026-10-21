@@ -1,4 +1,5 @@
 "use client"
+import {proveCategoryPlacementResolutionUi} from "@fixture/category-placement-resolution-ui"
 import {readCategoryPlacementIncidentComparison,resolveCategoryPlacementIncident} from "@/features/sync/local-category-placement-resolution"
 import {proveRecurringPlacementResolutionUi} from "@fixture/recurring-placement-resolution-ui"
 import {readRecurringPlacementIncidentComparison,resolveRecurringPlacementIncident} from "@/features/sync/local-recurring-placement-resolution"
@@ -607,6 +608,7 @@ export async function executeLocalFixtureCommand(
     }
     case "resolve-recurring-placement-ui":return proveRecurringPlacementResolutionUi(active,command.request)
     case "resolve-mixed-placement-ui":return proveMixedPlacementResolutionUi(active,command.request)
+    case "resolve-category-placement-ui":return proveCategoryPlacementResolutionUi(active,command.request)
     case "category-placement-comparison":return readCategoryPlacementIncidentComparison(active,command.operationId)
     case "resolve-category-placement":return resolveCategoryPlacementIncident(active,command.request)
     case "category-placement-guard-proof": {

@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react"
 import { useSWRConfig } from "swr"
 import { activeProductSyncProtocol } from "@/config/common-plan-release"
+import { CategoryPlacementIncidentResolutionDialog } from "@/features/sync/components/category-placement-resolution-dialog"
 import { PlacementIncidentResolutionDialog } from "@/features/sync/components/placement-incident-resolution-dialog"
+import { resolveCategoryPlacementIncident } from "@/features/sync/local-category-placement-resolution"
 import { resolveMixedPlacementIncident } from "@/features/sync/local-mixed-placement-resolution"
 import {
   readPlacementIncidentComparison,
@@ -13,12 +15,15 @@ import { resolveRecurringPlacementIncident } from "@/features/sync/local-recurri
 import { isAccountSyncCacheKey } from "@/features/sync/manual-sync"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { requireActiveAccount } from "@/features/workspace/require-active-account"
+import { availableCategoryPlacementResolutionChoices } from "@/lib/sync/category-placement-decision"
 import { availableMixedPlacementResolutionChoices } from "@/lib/sync/mixed-placement-decision"
 import { availablePlacementResolutionChoices } from "@/lib/sync/placement-decision"
 import { availableRecurringPlacementResolutionChoices } from "@/lib/sync/recurring-placement-decision"
+import { categoryPlacementResolutionRequestSchema } from "@/schemas/category-placement-resolution"
 import { mixedPlacementResolutionRequestSchema } from "@/schemas/mixed-placement-resolution"
 import { placementResolutionRequestSchema } from "@/schemas/placement-resolution"
 import { recurringPlacementResolutionRequestSchema } from "@/schemas/recurring-placement-resolution"
+import type { CategoryPlacementResolutionRequest } from "@/types/category-placement-resolution"
 import type { MixedPlacementResolutionRequest } from "@/types/mixed-placement-resolution"
 import type {
   PlacementResolutionRequest,
@@ -40,13 +45,14 @@ export function PlacementIncidentActions({
     null
   )
   const [reviewKind, setReviewKind] = useState<
-    "mixed_group" | "recurring_primary" | undefined
+    "mixed_group" | "recurring_primary" | "category_movement" | undefined
   >(undefined)
   const [choice, setChoice] =
     useState<PlacementResolutionRequest["choice"]>("adopt_remote")
   const [busy, setBusy] = useState(false),
     [notice, setNotice] = useState("")
   const intent = useRef<
+      | CategoryPlacementResolutionRequest
       | PlacementResolutionRequest
       | MixedPlacementResolutionRequest
       | RecurringPlacementResolutionRequest
@@ -83,11 +89,20 @@ export function PlacementIncidentActions({
       const recurring =
         availableRecurringPlacementResolutionChoices(current, account.userId)
           .length > 0
-      if (!simple && !mixed && !recurring)
+      const category =
+        availableCategoryPlacementResolutionChoices(current, account.userId)
+          .length > 0
+      if (!simple && !mixed && !recurring && !category)
         throw new Error("Plan order comparison has no supported choice")
       if (mounted.current) {
         setReviewKind(
-          simple ? undefined : mixed ? "mixed_group" : "recurring_primary"
+          simple
+            ? undefined
+            : mixed
+              ? "mixed_group"
+              : recurring
+                ? "recurring_primary"
+                : "category_movement"
         )
         setChoice("adopt_remote")
         setSnapshot(current)
@@ -104,11 +119,13 @@ export function PlacementIncidentActions({
   async function confirm(resolutionId: string) {
     if (!snapshot) throw new Error("Plan order review is missing")
     intent.current ??= (
-      reviewKind === "recurring_primary"
-        ? recurringPlacementResolutionRequestSchema
-        : reviewKind === "mixed_group"
-          ? mixedPlacementResolutionRequestSchema
-          : placementResolutionRequestSchema
+      reviewKind === "category_movement"
+        ? categoryPlacementResolutionRequestSchema
+        : reviewKind === "recurring_primary"
+          ? recurringPlacementResolutionRequestSchema
+          : reviewKind === "mixed_group"
+            ? mixedPlacementResolutionRequestSchema
+            : placementResolutionRequestSchema
     ).parse({
       ...(reviewKind ? { reviewKind } : {}),
       userId: account.userId,
@@ -121,7 +138,9 @@ export function PlacementIncidentActions({
     setBusy(true)
     try {
       if ("reviewKind" in intent.current) {
-        if (intent.current.reviewKind === "recurring_primary")
+        if (intent.current.reviewKind === "category_movement")
+          await resolveCategoryPlacementIncident(account, intent.current)
+        else if (intent.current.reviewKind === "recurring_primary")
           await resolveRecurringPlacementIncident(account, intent.current)
         else await resolveMixedPlacementIncident(account, intent.current)
       } else await resolvePlacementIncident(account, intent.current)
@@ -137,6 +156,18 @@ export function PlacementIncidentActions({
       }
     } finally {
       if (mounted.current) setBusy(false)
+    }
+  }
+  function selectChoice(value: PlacementResolutionRequest["choice"]) {
+    if (!busy) {
+      intent.current = null
+      setChoice(value)
+    }
+  }
+  function closeReview() {
+    if (!busy) {
+      intent.current = null
+      setSnapshot(null)
     }
   }
   return (
@@ -163,26 +194,28 @@ export function PlacementIncidentActions({
         </p>
       ) : null}
       {snapshot ? (
-        <PlacementIncidentResolutionDialog
-          snapshot={snapshot}
-          reviewKind={reviewKind}
-          actor={account.userId}
-          choice={choice}
-          busy={busy}
-          onSelect={(value) => {
-            if (!busy) {
-              intent.current = null
-              setChoice(value)
-            }
-          }}
-          onConfirm={confirm}
-          onClose={() => {
-            if (!busy) {
-              intent.current = null
-              setSnapshot(null)
-            }
-          }}
-        />
+        reviewKind === "category_movement" ? (
+          <CategoryPlacementIncidentResolutionDialog
+            snapshot={snapshot}
+            actor={account.userId}
+            choice={choice}
+            busy={busy}
+            onSelect={selectChoice}
+            onConfirm={confirm}
+            onClose={closeReview}
+          />
+        ) : (
+          <PlacementIncidentResolutionDialog
+            snapshot={snapshot}
+            reviewKind={reviewKind}
+            actor={account.userId}
+            choice={choice}
+            busy={busy}
+            onSelect={selectChoice}
+            onConfirm={confirm}
+            onClose={closeReview}
+          />
+        )
       ) : null}
     </div>
   )
