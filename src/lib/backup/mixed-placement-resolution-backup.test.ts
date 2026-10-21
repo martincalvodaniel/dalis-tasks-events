@@ -59,7 +59,8 @@ test("mixed portable evidence rejects missing original, outcome, decision, repla
   }
   const f = mixedPlacementResolutionBackupFixture()
   f.backup.stores.syncMetadata = f.backup.stores.syncMetadata.map((value) => {
-    if (!("reviewKind" in value)) return value
+    if (!("reviewKind" in value) || value.reviewKind !== "mixed_group")
+      return value
     const { reviewKind: _, ...legacy } = value
     return legacy
   })

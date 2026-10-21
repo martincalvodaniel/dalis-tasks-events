@@ -68,7 +68,8 @@ test("recurring portable evidence rejects missing original, outcome, decision, r
   }
   const f = recurringPlacementResolutionBackupFixture()
   f.backup.stores.syncMetadata = f.backup.stores.syncMetadata.map((value) => {
-    if (!("reviewKind" in value)) return value
+    if (!("reviewKind" in value) || value.reviewKind !== "recurring_primary")
+      return value
     const { reviewKind: _, ...legacy } = value
     return legacy
   })

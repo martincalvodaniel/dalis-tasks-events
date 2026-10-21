@@ -16,6 +16,7 @@ import { mixedPlacementResolutionRecordSchema } from "@/schemas/mixed-placement-
 import { placementResolutionRecordSchema } from "@/schemas/placement-resolution"
 import { planCategoryResolutionRecordSchema } from "@/schemas/plan-category-resolution"
 import { planOccurrenceCohortResolutionRecordSchema } from "@/schemas/plan-occurrence-cohort-resolution"
+import { planOccurrenceCopyRecordSchema } from "@/schemas/plan-occurrence-copy"
 import { planOccurrenceResolutionRecordSchema } from "@/schemas/plan-occurrence-resolution"
 import { recurringPlacementResolutionRecordSchema } from "@/schemas/recurring-placement-resolution"
 import { settingsResolutionRecordSchema } from "@/schemas/settings-resolution"
@@ -46,6 +47,7 @@ export const localRecurringBackupV3Schema = localBackupV2Schema.extend({
           tagDeletionResolutionRecordSchema,
           planCategoryResolutionRecordSchema,
           planOccurrenceResolutionRecordSchema,
+          planOccurrenceCopyRecordSchema,
           planOccurrenceCohortResolutionRecordSchema,
         ])
       )

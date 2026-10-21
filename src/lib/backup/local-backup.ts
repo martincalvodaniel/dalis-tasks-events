@@ -9,6 +9,7 @@ import {
 } from "@/lib/backup/placement-resolution-evidence"
 import { validatePlanCategoryResolutionEvidence } from "@/lib/backup/plan-category-resolution-evidence"
 import { validatePlanOccurrenceCohortResolutionEvidence } from "@/lib/backup/plan-occurrence-cohort-resolution-evidence"
+import { validatePlanOccurrenceCopyEvidence } from "@/lib/backup/plan-occurrence-copy-evidence"
 import { validateTagDeletionResolutionEvidence } from "@/lib/backup/tag-delete-resolution-evidence"
 import { validateTagOrderResolutionEvidence } from "@/lib/backup/tag-order-resolution-evidence"
 import { decodeLocalOperationOutcome } from "@/lib/sync/local-operation-outcome-v2"
@@ -224,8 +225,33 @@ function validateBackup(
         : []
     )
   )
-  const superseded = new Set<string>()
+  const superseded = new Set<string>(),
+    itemsById = new Map(s.items.map((item) => [item.id, item])),
+    occurrencesById = new Map(
+      s.occurrences.map((record) => [record.id, record])
+    ),
+    copyIds = s.syncMetadata.flatMap((record) =>
+      "copyItemId" in record && record.copyItemId ? [record.copyItemId] : []
+    )
+  unique(copyIds, "copy item IDs")
+  const resolutionIdentitySet = new Set(resolutionIds)
+  if (
+    copyIds.some((id) => operationIds.has(id) || resolutionIdentitySet.has(id))
+  )
+    throw new Error(
+      "Backup copy identity collides with operation or decision history"
+    )
   for (const record of s.syncMetadata) {
+    if (record.key.startsWith("appearance-copy-resolution:"))
+      validatePlanOccurrenceCopyEvidence(
+        record,
+        actor,
+        entries,
+        outcomes,
+        itemsById,
+        occurrencesById
+      )
+
     if ("replacements" in record) {
       const decision = validatePlanOccurrenceCohortResolutionEvidence(
         record,

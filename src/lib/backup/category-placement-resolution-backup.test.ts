@@ -59,7 +59,8 @@ test("category movement portable evidence rejects missing original, outcome, dec
   }
   const f = categoryPlacementResolutionBackupFixture()
   f.backup.stores.syncMetadata = f.backup.stores.syncMetadata.map((value) => {
-    if (!("reviewKind" in value)) return value
+    if (!("reviewKind" in value) || value.reviewKind !== "category_movement")
+      return value
     const { reviewKind: _, ...legacy } = value
     return legacy
   })
