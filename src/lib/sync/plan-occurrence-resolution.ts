@@ -15,7 +15,10 @@ import type {
   PlanOccurrenceResolutionRequest,
 } from "@/types/plan-occurrence-resolution"
 
-function validateComparison(input: unknown, actor: string) {
+export function validatePlanOccurrenceResolutionComparison(
+  input: unknown,
+  actor: string
+) {
   const value = planOccurrenceIncidentSnapshotSchema.parse(input)
   const outcome = validateLocalPlanOccurrenceOutcome(value.outcome, actor)
   const command = outcome.operation.command,
@@ -131,7 +134,10 @@ export function availablePlanOccurrenceResolutionChoices(
 ): PlanOccurrenceResolutionRequest["choice"][] {
   try {
     const value = planOccurrenceIncidentSnapshotSchema.parse(input)
-    const { remote } = validateComparison(value, value.entry.userId)
+    const { remote } = validatePlanOccurrenceResolutionComparison(
+      value,
+      value.entry.userId
+    )
     if (value.local) {
       try {
         planOccurrenceRetryCommands(value.series, value.local, remote)
@@ -147,7 +153,10 @@ export function availablePlanOccurrenceResolutionChoices(
 }
 export function planOccurrenceRetryOperationCount(input: unknown): number {
   const value = planOccurrenceIncidentSnapshotSchema.parse(input)
-  const { remote } = validateComparison(value, value.entry.userId)
+  const { remote } = validatePlanOccurrenceResolutionComparison(
+    value,
+    value.entry.userId
+  )
   if (!value.local) throw new Error("Appearance retry requires a local draft")
   return planOccurrenceRetryCommands(value.series, value.local, remote).length
 }
@@ -159,7 +168,10 @@ export function planOccurrenceIncidentResolution(
     current = planOccurrenceIncidentSnapshotSchema.parse(currentInput)
   if (JSON.stringify(request.expected) !== JSON.stringify(current))
     throw new Error("Appearance comparison changed after it was opened")
-  const { value, remote, ids } = validateComparison(current, request.userId)
+  const { value, remote, ids } = validatePlanOccurrenceResolutionComparison(
+    current,
+    request.userId
+  )
   if (ids.has(request.resolutionId))
     throw new Error("Appearance decision requires a new identity")
   if (request.choice === "retry_local") {
