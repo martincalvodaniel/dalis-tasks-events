@@ -1,5 +1,13 @@
 # Registro de iteraciones
 
+## 22a — Navegación accesible cerrada
+
+WorkspaceHeading actualiza título por destino y enfoca el h1 sólo cuando cambia la pantalla; las actualizaciones dentro de la misma pantalla mantienen foco y shell. Calendario permite PageUp/PageDown desde sus controles y conserva foco en la región al retirar celdas; mes anunciado con aria-live. Estilos compartidos dan foco visible, margen respecto a navegación fija y scroll contenido en diálogos. Detectado y corregido desbordamiento del encabezado de mes con texto al200%.
+
+Prueba de componentes reales en loopback propio4277 sin cuenta/DB: navegación→h1/título, Atrás, UUID de montaje idéntico, PageDown→noviembre con foco conservado, confirmación nativa/Escape→botón original. A320px texto200%, scrollWidth320 en claro y oscuro, sin elementos desbordados; captura /private/tmp/dalis-22a-calendar-320-text200.png. Primer fixture falló por NextImage sin process.env: configuración ficticia aislada añadida sólo al servidor de prueba; producto no afectado. Viewport restablecido/tab/servidor propios cerrados. No prueba de lector de pantalla humano ni certificación WCAG. Guías Next instaladas/Vercel aplicadas.
+
+DoD1346pass/225opt-in skip/0fail/14732aserciones, lint1069sinavisos/tipos/Webpack/worker46/diff aprobados sobre fuentes finales. Entrada100%5h/44%7d; control93%/43%, reservas10%/1%. Commit/pushint/HEAD/cuotas; sigue22b errores enfocados del editor, luego22c regresión/cierre operativo. Recuperaciones excepcionales quedan pospuestas conservando protecciones, no completadas. Sin DBusuario/producción/índices/dependencias ni nueva programación.
+
 ## 21q1 — Control de cuota permanente y lote cerrado
 
 AGENTS y workflow exigen comprobar ambas ventanas también entre fases largas, antes de pruebas costosas y después de fallos imprevistos. La reserva10%5h/1%7d permanece intacta: se protege también el coste de reparar, documentar, publicar, verificar y volver a leer cuotas; no se usa como objetivo que haya que alcanzar consumiendo. Las lecturas de este lote se hicieron al empezar, durante implementación/pruebas y después de cada entrega. Último código b126453 con DoD completo; contrato de copia actualizado sin duplicaciones ni instrucciones históricas de reparar un counter ausente.

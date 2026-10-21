@@ -81,7 +81,13 @@ export function useMonthSwipe(selectedDate: string) {
     },
     onKeyDown(event: KeyboardEvent<HTMLElement>) {
       if (event.key !== "PageUp" && event.key !== "PageDown") return
+      if (
+        event.target instanceof Element &&
+        event.target.closest("input, textarea, select, [contenteditable]")
+      )
+        return
       event.preventDefault()
+      event.currentTarget.focus({ preventScroll: true })
       changeMonth(event.key === "PageUp" ? -1 : 1)
     },
   }

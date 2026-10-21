@@ -15,6 +15,7 @@ import { TagsScreen } from "@/features/tags/components/tags-screen"
 import { CreateItemDialog } from "@/features/workspace/components/create-item-dialog"
 import { DeviceSettings } from "@/features/workspace/components/device-settings"
 import { UpdateNotice } from "@/features/workspace/components/update-notice"
+import { WorkspaceHeading } from "@/features/workspace/components/workspace-heading"
 import { WorkspaceOverview } from "@/features/workspace/components/workspace-overview"
 import { useAccountProfile } from "@/features/workspace/hooks/use-account-profile"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
@@ -81,9 +82,7 @@ export function Workspace() {
           tabIndex={-1}
           className="mx-auto w-full min-w-0 max-w-3xl wrap-anywhere px-3 pt-4 pb-[calc(18rem+env(safe-area-inset-bottom))] sm:px-8 md:py-12"
         >
-          <h1 className="mb-3 text-xl font-semibold tracking-tight md:mt-3 md:text-3xl">
-            {destination.label}
-          </h1>
+          <WorkspaceHeading view={view} />
           <p className="hidden md:block mt-3 mb-6 max-w-xl text-zinc-600 dark:text-zinc-400">
             {destination.description}
           </p>

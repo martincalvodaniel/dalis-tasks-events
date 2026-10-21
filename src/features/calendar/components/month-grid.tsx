@@ -41,12 +41,18 @@ export function MonthGrid({
   return (
     <section
       aria-label="Calendario mensual. Desliza para cambiar de mes o usa Re Pág y Av Pág."
+      tabIndex={-1}
+      aria-keyshortcuts="PageUp PageDown"
       {...swipe}
       data-order-drop-scope={dropScope}
       className="touch-pan-y touch-pinch-zoom select-none rounded-2xl border border-zinc-200 bg-white p-3 sm:p-5 focus-visible:outline-2 focus-visible:outline-emerald-700 dark:border-zinc-800 dark:bg-zinc-900"
     >
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <h2 className="text-base font-semibold first-letter:uppercase">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <h2
+          aria-live="polite"
+          aria-atomic="true"
+          className="min-w-0 wrap-anywhere text-base font-semibold first-letter:uppercase"
+        >
           {title}
         </h2>
         <a
