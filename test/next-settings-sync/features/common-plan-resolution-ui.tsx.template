@@ -1,5 +1,7 @@
 "use client"
 
+import { createFixtureReviewInstructions } from "@fixture/review-instructions"
+
 import { createRoot } from "react-dom/client"
 import { SWRConfig } from "swr"
 import { SyncIncidentCard } from "@/features/sync/components/sync-incident-card"
@@ -20,7 +22,8 @@ export async function proveCommonPlanResolutionUi(
   await requireActiveAccount(account)
   const container = document.createElement("aside")
   container.setAttribute("aria-label", "Recuperación común de prueba")
-  document.body.append(container)
+  const instructions = createFixtureReviewInstructions(request.choice)
+  document.body.append(instructions, container)
   const root = createRoot(container)
   let chosen: SyncResolutionRecord | null = null
   let unsubscribe = () => {},
@@ -96,7 +99,7 @@ export async function proveCommonPlanResolutionUi(
     unsubscribe()
     disconnect()
     root.unmount()
-    container.remove()
+    container.remove(); instructions.remove()
     database.close()
   }
 }

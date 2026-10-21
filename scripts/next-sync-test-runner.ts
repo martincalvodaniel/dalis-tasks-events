@@ -48,7 +48,8 @@ const deadline = setTimeout(
       if (child.exitCode === null) child.kill("SIGTERM")
     finish(false)
   },
-  10 * 60 * 1000
+  // The settings matrix includes serial, human-driven recovery dialogs.
+  (settings ? 30 : 10) * 60 * 1000
 )
 for (const signal of ["SIGINT", "SIGTERM"] as const)
   process.on(signal, () => {

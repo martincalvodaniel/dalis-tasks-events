@@ -1,6 +1,6 @@
 # Guía de uso de Dalis
 
-Versión de referencia: generación6 en `int`, 18 de octubre de 2026. La aplicación sigue en preproducción. Esta guía describe las funciones disponibles; el usuario ha [aprobado los diez pasos del recorrido en dos dispositivos físicos](manual-device-checklist.md), incluidos reapertura offline y reconexión. Quedan recuperación residual de conflictos, revisión de accesibilidad y publicación autorizada.
+Versión de referencia: generación 6 de `int`, revisión del 21 de octubre de 2026. Describe el código validado de esta rama; su publicación en producción se comprueba por separado en la [guía de cierre](release-readiness.md). El usuario ya [aprobó los diez pasos en dos dispositivos físicos](manual-device-checklist.md), incluidos reapertura offline y reconexión.
 
 ## Preparar un dispositivo
 
@@ -14,9 +14,11 @@ El botón `+` permite crear Tarea, Evento, Cita o Nota. Comparten opciones y se 
 
 Inicio y fin tienen fecha y hora separadas. «Todo el día» oculta las horas; «Con fin» permite añadir o quitar el fin. Cambiar la fecha de inicio desplaza el fin el mismo número de días. Las flechas junto a una fecha restan o suman un día.
 
-En la lista, pulsa el icono de un plan para pasar de sin empezar a en progreso, completado y de nuevo sin empezar. Los pasos tienen dos estados y se pueden marcar directamente; heredan el icono y color del plan. La categoría agrupa los planes y aporta su color. Un plan pendiente cuya fecha haya pasado aparece en Atrasadas conservando su estado.
+En la lista, pulsa el icono de un plan para pasar de sin empezar a en progreso, completado y de nuevo sin empezar. Los pasos tienen dos estados y se pueden marcar directamente; heredan el icono y color del plan. La categoría agrupa los planes y aporta su color. Un plan pendiente cuya fecha haya pasado aparece en Atrasadas conservando su estado. Mi espacio separa Atrasadas, Hoy y Próximas; puedes plegar cada sección y consultar sus contadores. Hoy y el día seleccionado en calendario muestran todos sus planes; Próximas puede ofrecer más apariciones por bloques.
 
 Mantén pulsado un plan o categoría hasta ver la selección y arrástralo para ordenar. En el calendario puedes arrastrar un plan a otro día. Desliza horizontalmente sobre la cuadrícula para cambiar de mes; «Hoy» vuelve al actual. Tocar un día abre su contenido. Las acciones de una aparición de una repetición permiten cambiar su progreso y pasos sin completar las demás.
+
+Con teclado, usa Tab para recorrer controles. «Saltar al contenido» evita recorrer la navegación; al cambiar de pantalla el foco pasa al título. En el calendario, Re Pág/Av Pág cambian de mes desde sus controles. Para ordenar una fila enfocada, usa Alt y flecha arriba/abajo. Para cambiar una fecha sin arrastrar, abre Editar y modifica Inicio; las flechas junto al campo permiten sumar o restar un día. Los errores del editor se anuncian y enfocan el control que revisar. El diseño permite ampliar texto y adapta filas cuando falta espacio.
 
 ## Ajustes de cuenta y dispositivo
 
@@ -40,7 +42,19 @@ Desde Copia de seguridad puedes descargar un JSON de este dispositivo, incluida 
 
 La importación muestra una vista previa y crea copias nuevas de planes sin repetición compatibles. No es un reemplazo completo de la cuenta ni una restauración de la cola, de las preferencias o de las series. Revisa la vista previa antes de confirmar.
 
-Si aparece un conflicto, Ajustes permite comparar el estado local, la versión remota conocida y la evidencia del envío. Esa versión remota puede haber cambiado después. Para planes sin repetición y sin cambios relacionados externos, puedes adoptar la versión remota conocida, reenviar todo tu borrador o crear una copia si el original remoto fue eliminado. El diálogo explica qué intenciones sustituye y permite cancelar. Para un conflicto de zona horaria personal, puedes usar la zona remota conocida o guardar tu última zona local para enviarla de nuevo; no cambia las fechas de los planes y puede aparecer otro conflicto. Para una aparición con conflicto y sin otras fechas o dependencias pendientes, puedes adoptar su versión remota conocida; el diálogo muestra lo que conservarás y sustituye explícitamente los cambios revisados, sin cambiar la serie ni otros días. Si la aparición remota sigue activa, también puedes reenviar tu aparición local completa, incluidos contenido, horario, estado y pasos. El envío avanza por pasos: otro dispositivo puede mostrar un estado intermedio hasta confirmar toda la cadena, y puede aparecer otro conflicto. Una aparición remota cancelada o eliminada no se resucita con este flujo. Para un conflicto aislado al guardar nombre o color de una categoría, puedes usar la categoría remota o reenviar tu nombre y color actuales conservando el orden remoto. El diálogo muestra el color elegido y los cambios que sustituirá, mantiene el historial y permite cancelar. El reenvío queda pendiente de confirmación; puede aparecer otro conflicto. Si el conflicto del plan incluye asignaciones de categoría pendientes compatibles, «Revisar plan y categoría» permite comparar y conservar ambos remotos o enviar ambos borradores juntos. El diálogo muestra contenido, fecha, estado, pasos y categoría; cancelar no cambia datos. El reenvío puede mostrar un estado intermedio entre contenido y asignación y todavía necesita confirmación del servidor. Para conflictos de sólo asignación, tanto en planes simples como en series sin otros cambios pendientes, «Revisar asignación» compara la categoría remota con la local y permite conservar una de ellas. El contenido y orden del plan no cambian; el reenvío queda pendiente y cancelar no escribe. Quedan otras cadenas de apariciones y preferencias sin resolución disponible. Conserva el JSON y el número de incidencia si el caso no tiene resolución disponible. No borres datos para desbloquearlo ni interpretes un cambio local como confirmación del servidor.
+Si aparece un conflicto, Ajustes compara tu borrador, la versión remota conocida y el envío. La versión revisada puede haber cambiado después: una elección local todavía necesita confirmación del servidor y puede encontrar otro conflicto. Cancelar no escribe y las decisiones conservan el historial.
+
+Las opciones disponibles dependen de la evidencia y de los cambios relacionados:
+
+- **Plan sin repetición:** usar la versión remota o reenviar el borrador. Con un borrado remoto confirmado, crear una copia con identidad nueva.
+- **Apariciones:** revisar una aparición o una cohorte compatible de varias fechas; usar lo remoto o reenviar las excepciones revisadas. Una aparición remota cancelada/eliminada puede copiarse como plan independiente cuando el diálogo lo ofrece: conserva su borrador, sin repetición, categoría ni orden, y no resucita el original.
+- **Categorías:** revisar nombre/color, borrado u orden. Adoptar una categoría remota viva puede restaurar su visibilidad y la de sus asignaciones; no modifica el contenido de los planes.
+- **Asignación y orden de planes:** comparar la categoría y las posiciones implicadas, incluidas otras fechas cuando el movimiento de la categoría del padre las afecta. La revisión de contenido+categoría permite elegir ambos conjuntamente. Un reenvío de varios cambios puede verse de forma intermedia hasta confirmarse por completo.
+- **Zona personal:** usar la zona remota o reenviar la local, sin mover las fechas de los planes.
+
+No todas las combinaciones permiten resolver desde la interfaz. Un padre eliminado, una versión remota desconocida o dependencias externas pueden mantener el caso protegido y bloquear los cambios que dependan de él. Esto no acredita borrado ni autoriza descartar pendientes. Descarga el JSON, conserva el identificador de incidencia y solicita revisión; no borres almacenamiento ni bases de datos para desbloquearlo. La copia de una serie completa y las resoluciones excepcionales aplazadas no forman parte de esta versión.
+
+La exportación es evidencia y copia local; importar no reconstruye automáticamente una cuenta, series o historial. Mantén el archivo privado y revisa el alcance de la vista previa.
 
 ## Alcance actual
 

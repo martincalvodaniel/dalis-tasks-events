@@ -1,5 +1,7 @@
 "use client"
 
+import { createFixtureReviewInstructions } from "@fixture/review-instructions"
+
 import { createRoot } from "react-dom/client"
 import { SWRConfig } from "swr"
 import { PersonalIncidentCard } from "@/features/sync/components/personal-incident-card"
@@ -20,7 +22,8 @@ export async function proveMixedPlacementResolutionUi(
   await requireActiveAccount(account)
   const container = document.createElement("aside")
   container.setAttribute("aria-label", "Recuperación de orden mixto de prueba")
-  document.body.append(container)
+  const instructions = createFixtureReviewInstructions(request.choice)
+  document.body.append(instructions, container)
   const root = createRoot(container)
   let chosen: MixedPlacementResolutionRecord | null = null
   let unsubscribe = () => {},
@@ -115,7 +118,7 @@ export async function proveMixedPlacementResolutionUi(
     unsubscribe()
     disconnect()
     root.unmount()
-    container.remove()
+    container.remove(); instructions.remove()
     database.close()
   }
 }

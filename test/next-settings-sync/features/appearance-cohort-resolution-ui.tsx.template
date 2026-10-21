@@ -1,5 +1,7 @@
 "use client"
 
+import { createFixtureReviewInstructions } from "@fixture/review-instructions"
+
 import { createRoot } from "react-dom/client"
 import { SWRConfig } from "swr"
 import { PlanOccurrenceIncidentCard } from "@/features/sync/components/plan-occurrence-incident-card"
@@ -15,7 +17,8 @@ export async function proveAppearanceCohortResolutionUi(account:{userId:string;e
   await requireActiveAccount(account)
   const container=document.createElement("aside")
   container.setAttribute("aria-label","Recuperación de fechas relacionadas de prueba")
-  document.body.append(container)
+  const instructions = createFixtureReviewInstructions(request.choice)
+  document.body.append(instructions, container)
   const root=createRoot(container), database=await openLocalDatabase(account.userId), sync=await LocalSyncStore.open(account.userId)
   let chosen: PlanOccurrenceCohortResolutionRecord|null=null, unsubscribe=()=>{}, disconnect=()=>{}
   try {
@@ -54,5 +57,5 @@ export async function proveAppearanceCohortResolutionUi(account:{userId:string;e
     const record=planOccurrenceCohortResolutionRecordSchema.parse(chosen)
     if(openings<2||cancellations<1||record.choice!==request.choice||JSON.stringify(record.expected)!==JSON.stringify(request.expected)||record.resolutionId===request.resolutionId||record.operationIds.some((id)=>request.operationIds.includes(id)))throw new Error("Joint appearance UI did not cancel, reopen and create its own reviewed decision")
     return {status:"applied",record}
-  } finally {unsubscribe();disconnect();root.unmount();container.remove();sync.close();database.close()}
+  } finally {unsubscribe();disconnect();root.unmount();container.remove(); instructions.remove();sync.close();database.close()}
 }

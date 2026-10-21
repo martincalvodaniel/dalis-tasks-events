@@ -1,0 +1,18 @@
+"use client"
+
+export function createFixtureReviewInstructions(choice: string) {
+  const labels: Record<string, string> = {
+    adopt_remote: "usar la versión remota",
+    retry_local: "enviar el borrador local",
+    retry_latest_move: "reaplicar el último movimiento",
+    retry_delete: "eliminar la categoría",
+    copy_local: "crear una copia",
+  }
+  const label = labels[choice]
+  if (!label) throw new Error("Unsupported isolated review choice")
+  const instructions = document.createElement("p")
+  instructions.setAttribute("role", "status")
+  instructions.setAttribute("data-fixture-review", choice)
+  instructions.textContent = `Prueba aislada: cancela, vuelve a abrir y confirma esta elección: ${label}.`
+  return instructions
+}
