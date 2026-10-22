@@ -1,5 +1,11 @@
 # Iteraciones de implementación
 
+## 23i — Planes sin desplegable y títulos móviles discretos
+
+Objetivo: eliminar details/summary y selector de categoría en filas, mostrar lápiz y cruz roja SVG a la derecha con controles táctiles/nombres españoles, conservar datos/progreso/checklist/gestos/confirmaciones. H1 de destinos de navegación no visibles en móvil pero semánticos/foco accesible y visibles escritorio. target_paths: plans/components/plan-card y tests, plan-list, workspace/components/workspace-heading y test, fixture plan-order-ui y accesibilidad si precisa; plan/log/guía. Dependencia bc39313 limpia en int, entrada34%5h/90%7d, reservas10%/1%, secuencial. Descripción visible compacta y contexto de serie accesible; no borrar opciones del editor. Adaptar superficie de fixture al encabezado no interactivo. SSR acciones/busy/sin selector ni disclosure, título responsive, QA390px de iconos/editar/cancelar borrado y gesto regresión, suite/lint/tipos/Webpack/worker/diff. Mismo commit/pushint/SHA/cuotas. Sin DBusuario/producción/índices/protocolo/dependencias.
+
+Resultado23i: filas sin disclosure/selector, iconos SVG directos y H1 oculto visualmente en móvil activos.6focalizadas/142aserciones; DoD1383/225skip/0fail/15084, lint1114/tipos/Webpack/worker46. UI editar/cancelar borrado/gesto y H1 foco390px/visible1024px aprobados; recursos propios limpios. Detalle en iteration-log.
+
 ## 23h — Días de calendario más compactos
 
 Objetivo: reducir altura mínima de las celdas de56a44px conservando superficie táctil usable, navegación/arrastre y estados de color. target_paths: calendar/components/month-grid.tsx; plan/master.md, iterations.md e iteration-log.md. Dependencia60bb310 limpia en int, entrada39%5h/90%7d, reservas10%/1%, secuencial. Cambio CSS acotado sin nuevas pruebas que dupliquen implementación; suite/lint/tipos/Webpack/worker, QA390px de tamaño y screenshot propios, diff. Mismo ConventionalCommit/pushint/SHA/cuotas. Sin datos, protocolo, índices, dependencias o producción.

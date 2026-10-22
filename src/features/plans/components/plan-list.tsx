@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useId, useMemo, useRef, useState } from "react"
+import { useId, useMemo, useState } from "react"
 import { DelayedStatus } from "@/components/ui/delayed-status"
 import { ErrorBanner } from "@/components/ui/error-banner"
 import { LongPressOrder } from "@/components/ui/long-press-order"
@@ -33,12 +33,8 @@ import {
   planRowMoveCommand,
   planRowOrderPeers,
 } from "@/features/plans/plan-order-selection"
-import { ItemCategorySelect } from "@/features/tags/components/item-category-select"
 import { useLocalTags } from "@/features/tags/hooks/use-local-tags"
-import {
-  assignLocalCategory,
-  changeLocalTagOrder,
-} from "@/features/tags/local-tags"
+import { changeLocalTagOrder } from "@/features/tags/local-tags"
 import { TaskGroup } from "@/features/tasks/components/task-group"
 import { useLocalTaskPlacements } from "@/features/tasks/hooks/use-local-task-placements"
 import { useLocalAccount } from "@/features/workspace/hooks/use-local-account"
@@ -78,31 +74,12 @@ export function PlanList({
   const rescheduling = usePlanReschedule(account)
   const { data: placements, error: placementReadError } =
     useLocalTaskPlacements(account)
-  const category = useLocalIntent<{ itemId: string; tagId: string | null }>(
-    (command, operationId) =>
-      assignLocalCategory(account, command.itemId, command.tagId, operationId),
-    () => Promise.all([mutate(), refreshTags()])
-  )
   const groupOrdering = useLocalIntent<
     Extract<LocalPreferenceCommand, { type: "tag.move" }>
   >(
     (command, operationId) =>
       changeLocalTagOrder(account, command, operationId),
     () => Promise.all([mutate(), refreshTags()])
-  )
-  const section = useRef<HTMLElement>(null)
-  const categoryFocus = useRef<string | null>(null)
-  useEffect(() => {
-    if (category.busy || categoryFocus.current === null) return
-    section.current
-      ?.querySelector<HTMLSelectElement>(
-        `select[data-item-id="${categoryFocus.current}"]`
-      )
-      ?.focus({ preventScroll: true })
-    categoryFocus.current = null
-  }, [category.busy])
-  const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(
-    () => new Set()
   )
   const [editing, setEditing] = useState<{
     plan: Plan
@@ -186,7 +163,6 @@ export function PlanList({
     occurrenceProgress.busy ||
     ordering.busy ||
     rescheduling.busy ||
-    category.busy ||
     groupOrdering.busy
   const canOrderRows = Boolean(
     data && placements && !placementReadError && !appearances.nextCursor
@@ -208,7 +184,6 @@ export function PlanList({
   }
   return (
     <section
-      ref={section}
       aria-label={
         selection.kind === "day"
           ? "Planes del día"
@@ -256,10 +231,7 @@ export function PlanList({
             cambió en otra pestaña, comprueba su contenido actualizado.
           </ErrorBanner>
         ) : null}
-        {placementReadError ||
-        ordering.error ||
-        category.error ||
-        groupOrdering.error ? (
+        {placementReadError || ordering.error || groupOrdering.error ? (
           <ErrorBanner>
             No se pudo leer o guardar el orden o la categoría. Vuelve a
             intentarlo; tus planes se conservan.
@@ -382,17 +354,6 @@ export function PlanList({
                         plan={row.plan}
                         categoryColor={group.color}
                         busy={busy}
-                        expanded={expandedIds.has(row.key)}
-                        onExpandedChange={(expanded) =>
-                          setExpandedIds((current) => {
-                            if (current.has(row.key) === expanded)
-                              return current
-                            const next = new Set(current)
-                            if (expanded) next.add(row.key)
-                            else next.delete(row.key)
-                            return next
-                          })
-                        }
                         onEdit={() =>
                           setEditing({
                             plan: row.series,
@@ -471,30 +432,6 @@ export function PlanList({
                                     completed,
                                   })
                               }
-                        }
-                        categoryControl={
-                          data ? (
-                            <ItemCategorySelect
-                              compact
-                              title={row.plan.title}
-                              itemId={row.series.id}
-                              tags={data.tags}
-                              selectedId={
-                                group.id === "uncategorized" ? null : group.id
-                              }
-                              busy={busy}
-                              onChange={(tagId) => {
-                                const currentTagId =
-                                  group.id === "uncategorized" ? null : group.id
-                                if (tagId === currentTagId) return
-                                categoryFocus.current = row.series.id
-                                void category.change({
-                                  itemId: row.series.id,
-                                  tagId,
-                                })
-                              }}
-                            />
-                          ) : undefined
                         }
                         orderControl={
                           (calendarDropScope && !row.plan.recurrence) ||

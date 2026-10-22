@@ -19,7 +19,7 @@ export function WorkspaceHeading({ view }: { view: WorkspaceView }) {
     <h1
       ref={heading}
       tabIndex={-1}
-      className="mb-3 text-xl font-semibold tracking-tight md:mt-3 md:text-3xl"
+      className="sr-only font-semibold tracking-tight md:not-sr-only md:mt-3 md:mb-3 md:text-3xl"
     >
       {label}
     </h1>

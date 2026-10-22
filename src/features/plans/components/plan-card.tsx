@@ -21,10 +21,7 @@ const statusLabels = {
 export function PlanCard({
   plan,
   categoryColor,
-  categoryControl,
   orderControl,
-  expanded = false,
-  onExpandedChange,
   onEdit,
   onDelete,
   onStatusChange,
@@ -36,10 +33,7 @@ export function PlanCard({
 }: {
   plan: Plan
   categoryColor?: string | null
-  categoryControl?: ReactNode
   orderControl?: ReactNode
-  expanded?: boolean
-  onExpandedChange?: (expanded: boolean) => void
   onEdit?: () => void
   onDelete?: () => void
   onStatusChange?: (status: Plan["status"]) => void
@@ -59,14 +53,8 @@ export function PlanCard({
         busy={busy}
         onChange={onStatusChange}
       />
-      <details
-        open={expanded}
-        onToggle={(event) => onExpandedChange?.(event.currentTarget.open)}
-      >
-        <summary
-          aria-label={`Detalles de ${plan.title}`}
-          className="relative flex min-h-12 cursor-pointer list-none flex-col justify-center gap-0.5 rounded-xl py-1.5 pr-8 pl-11 focus-visible:outline-2 focus-visible:outline-emerald-700 [&::-webkit-details-marker]:hidden"
-        >
+      <div className="flex min-h-12 items-start pl-11">
+        <div data-plan-drag-surface className="min-w-0 flex-1 py-1.5">
           <h4
             className={`wrap-anywhere text-sm font-semibold ${plan.status === "completed" ? "line-through" : ""}`}
           >
@@ -84,55 +72,65 @@ export function PlanCard({
               : ""}{" "}
             · {statusLabels[plan.status]}
           </p>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            className={`absolute top-4 right-2 size-4 ${expanded ? "rotate-180" : ""}`}
-            aria-hidden="true"
-          >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </summary>
-        <div className="border-t border-zinc-200 px-3 pb-2 dark:border-zinc-800">
-          {plan.description ? (
-            <p className="mt-2 text-sm whitespace-pre-wrap wrap-anywhere text-zinc-600 dark:text-zinc-300">
-              {plan.description}
-            </p>
-          ) : null}
-          {contextLabel ? (
-            <p className="mt-2 text-xs text-zinc-500">{contextLabel}</p>
-          ) : null}
-          {categoryControl}
-          {onEdit || onDelete ? (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {onEdit ? (
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={onEdit}
-                  aria-label={`${editLabel} ${plan.title}`}
-                  className="min-h-8 rounded-lg border border-zinc-300 px-2.5 text-sm disabled:opacity-50 dark:border-zinc-700"
-                >
-                  {editLabel}
-                </button>
-              ) : null}
-              {onDelete ? (
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={onDelete}
-                  aria-label={`${deleteLabel} ${plan.title}`}
-                  className="min-h-8 rounded-lg border border-zinc-300 px-2.5 text-sm disabled:opacity-50 dark:border-zinc-700"
-                >
-                  {deleteLabel}
-                </button>
-              ) : null}
-            </div>
-          ) : null}
         </div>
-      </details>
+        {onEdit || onDelete ? (
+          <div className="flex shrink-0">
+            {onEdit ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={onEdit}
+                aria-label={`${editLabel} ${plan.title}`}
+                title={editLabel}
+                className="flex size-11 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-emerald-700 disabled:opacity-50 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="size-4"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="m16 3 5 5M4 20l4-1L21 6a2 2 0 0 0-4-4L4 15z" />
+                </svg>
+              </button>
+            ) : null}
+            {onDelete ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={onDelete}
+                aria-label={`${deleteLabel} ${plan.title}`}
+                title={deleteLabel}
+                className="flex size-11 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-600 disabled:opacity-50 dark:text-red-400 dark:hover:bg-zinc-800"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  className="size-4"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="m6 6 12 12M18 6 6 18" />
+                </svg>
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+      {plan.description ? (
+        <p className="pr-3 pb-1.5 pl-11 text-xs whitespace-pre-wrap wrap-anywhere text-zinc-600 dark:text-zinc-400">
+          {plan.description}
+        </p>
+      ) : null}
+      {contextLabel ? <p className="sr-only">{contextLabel}</p> : null}
       {orderControl}
       {plan.recurrence ? (
         <p className="px-3 pb-2 text-xs text-zinc-500">

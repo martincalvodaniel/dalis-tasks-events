@@ -314,8 +314,8 @@ action("Probar pulsación y arrastre de Plan 3", async () => {
     `li[data-order-item="${id(1)}"]`
   )
   assert(source && destination, "Mixed UI rows are missing")
-  const target = source.querySelector("summary")
-  assert(target, "Plan summary is missing")
+  const target = source.querySelector("[data-plan-drag-surface]")
+  assert(target, "Plan drag surface is missing")
   source.scrollIntoView({ block: "nearest" })
   const sourceRect = target.getBoundingClientRect(),
     destinationRect = destination.getBoundingClientRect()
@@ -380,7 +380,7 @@ if (categories) {
     const source = Array.from(
       section?.querySelectorAll<HTMLElement>("li[data-order-item]") ?? []
     ).find((row) => row.dataset.orderLabel === title)
-    const target = source?.querySelector("summary")
+    const target = source?.querySelector("[data-plan-drag-surface]")
     assert(source && target, "Category drag source is missing")
     source.scrollIntoView({ block: "center" })
     const rect = target.getBoundingClientRect(),

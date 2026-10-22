@@ -36,7 +36,7 @@ function plan(variant: "task" | "event" | "appointment" | "note") {
   )
 }
 
-test("all variants render category-colored completion shapes and visible checklist outside details", () => {
+test("all variants render category-colored completion shapes and an always visible checklist", () => {
   for (const variant of ["task", "event", "appointment", "note"] as const) {
     const html = renderToStaticMarkup(
       <PlanCard
@@ -64,9 +64,9 @@ test("all variants render category-colored completion shapes and visible checkli
     expect(completed).toContain('aria-pressed="true"')
     expect(completed).toContain('aria-label="Reabrir Common plan; Completado"')
     expect(completed).toContain('stroke="#123abc"')
-    expect(html.indexOf("Visible step")).toBeGreaterThan(
-      html.indexOf("</details>")
-    )
+    expect(html).toContain("Visible step")
+    expect(html).not.toContain("<details")
+    expect(html).not.toContain("<summary")
     expect(html).not.toContain("Subir")
     expect(html).not.toContain("Bajar")
   }
@@ -161,4 +161,37 @@ test("checklist steps inherit the parent shape and color while keeping independe
     ).not.toContain('type="checkbox"')
     expect(readonly).toContain('stroke="#123abc"')
   }
+})
+
+test("plan actions are always available SVG icons with accessible labels and busy guards", () => {
+  const html = renderToStaticMarkup(
+    <PlanCard
+      plan={plan("task")}
+      onEdit={() => undefined}
+      onDelete={() => undefined}
+    />
+  )
+  expect(html).toContain('aria-label="Editar Common plan"')
+  expect(html).toContain('aria-label="Eliminar Common plan"')
+  expect(html).toContain("text-red-600")
+  expect(html).toContain("data-plan-drag-surface")
+  expect(html).not.toContain("<select")
+  expect(html).not.toContain("<details")
+  expect(html).not.toContain(">Editar</button>")
+  expect(html).not.toContain(">Eliminar</button>")
+  expect(html).toContain("Details")
+  const busy = renderToStaticMarkup(
+    <PlanCard
+      plan={plan("event")}
+      busy
+      onEdit={() => undefined}
+      onDelete={() => undefined}
+      editLabel="Editar serie"
+      deleteLabel="Cancelar aparición"
+    />
+  )
+  expect(busy).toMatch(/disabled=""[^>]*aria-label="Editar serie Common plan"/)
+  expect(busy).toMatch(
+    /disabled=""[^>]*aria-label="Cancelar aparición Common plan"/
+  )
 })
