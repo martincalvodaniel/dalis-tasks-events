@@ -1,5 +1,15 @@
 # Registro de iteraciones
 
+## 23j — Sin espacios verticales sobrantes ni Ver más en agenda
+
+Mi espacio elimina margen superior de Atrasadas mediante flushTop; separación de Hoy/Próximas se mantiene. Calendario usa padding horizontal y0vertical también en escritorio. usePlanAppearances elimina estado/botones de paginación y lee todas las páginas con modo all y tamaño500, conservando cursor/guardia de avance del lector puro. PlanList retira Ver más y aviso de página parcial de este consumidor. Modo numérico y tope mensual de otros callers se conservan.
+
+Atrasadas materializa su rango histórico finito completo; Próximas materializa todas las repeticiones del horizonte visible30días ampliable. Series sin fin no se convierten en una lista infinita, ni se afirma que se muestran todas sus fechas futuras. Planes simples futuros siguen su selección vigente. Lectura sin escrituras/ACK, mismos filtros de estado/cancelación y contexto de orden.
+
+Prueba de61series×2días: modoall entrega122slots únicos/sincursor y conserva entrada; modo numérico1 sigue paginado. DoD1384pass/225opt-in skip/0fail/15090aserciones, lint1114sinavisos/tipos/Webpack16.4.2/worker46/diff aprobados. UI productiva propia390px con52seriesextra: Atrasadas1fila, Hoy62, Próximas5; cero botones Ver más y margen superior de primera sección0px (resto16px). La fixture de52extras termina cada una en su primera fecha, por eso no se atribuyen52extras a Próximas; regresión122slots acredita drenaje de intervalo. Captura /private/tmp/dalis-23j-full-agenda.png. Segunda fixture confirma paddingTop/paddingBottom0px del calendario; captura /private/tmp/dalis-23j-calendar-spacing.png.
+
+Bases/particiones/control propios eliminados con ownership; pestañas/servidores retirados y viewport restablecido. Sin prueba física/Google/RPC nueva ni DBusuario/producción/índices/protocolo/dependencias. Entrada24%5h/88%7d, controles22/88 y19/87, reservas10%/1%, secuencial; mismo commit/pushint/SHA/cuotas.
+
 ## 23i — Filas directas e iconos de acción; H1 móvil sin duplicar navegación
 
 PlanCard elimina details/summary, flecha y selector de categoría de la fila. Título/fecha/estado, descripción compacta y checklist quedan visibles sin abrir un desplegable; contexto de serie permanece accesible. Lápiz SVG y cruz SVG roja aparecen directamente a la derecha, cada botón con área44px, nombre/título español y disabled mientras guarda. Se conservan editor y diálogos de eliminar/cancelar aparición; categoría se cambia por arrastre o editor. PlanList retira estado de expansión y mutación/foco exclusivos del antiguo selector, sin alterar colapsado de Atrasadas/Hoy/Próximas ni sus contadores.

@@ -49,7 +49,7 @@ export function MonthGrid({
       aria-keyshortcuts="PageUp PageDown"
       {...swipe}
       data-order-drop-scope={dropScope}
-      className="touch-pan-y touch-pinch-zoom select-none rounded-2xl border border-zinc-200 bg-white p-3 sm:p-5 focus-visible:outline-2 focus-visible:outline-emerald-700 dark:border-zinc-800 dark:bg-zinc-900"
+      className="touch-pan-y touch-pinch-zoom select-none rounded-2xl border border-zinc-200 bg-white px-3 py-0 sm:px-5 focus-visible:outline-2 focus-visible:outline-emerald-700 dark:border-zinc-800 dark:bg-zinc-900"
     >
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <h2

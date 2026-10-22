@@ -54,11 +54,13 @@ export function PlanList({
   calendarDropScope,
   collapsible = false,
   groupByCategory = true,
+  flushTop = false,
 }: {
   account: LocalAccount
   selection?: PlanAgendaSelection
   calendarDropScope?: string
   heading?: string
+  flushTop?: boolean
   groupByCategory?: boolean
   collapsible?: boolean
 }) {
@@ -195,7 +197,7 @@ export function PlanList({
                 : "Hoy y próximas"
               : "Planes guardados"
       }
-      className="mt-4 space-y-2 sm:mt-6"
+      className={`space-y-2 ${flushTop ? "mt-0" : "mt-4 sm:mt-6"}`}
     >
       <PlanListHeading
         heading={heading}
@@ -527,23 +529,6 @@ export function PlanList({
           >
             Hay apariciones con una hora no válida por el cambio de horario.
             Revisa la fecha y la zona de la serie.
-          </p>
-        ) : null}
-        {appearances.canLoadMore ? (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={appearances.loadMore}
-            aria-label={`Cargar más apariciones de ${heading}`}
-            className="min-h-8 rounded px-2 text-xs font-medium text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 focus-visible:outline-2 focus-visible:outline-emerald-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
-          >
-            Ver más
-          </button>
-        ) : null}
-        {appearances.limited ? (
-          <p role="status" className="text-xs text-zinc-500">
-            Quedan apariciones fuera de esta página. Abre un día concreto en el
-            calendario para limitar el intervalo.
           </p>
         ) : null}
         {selection.kind === "upcoming" &&

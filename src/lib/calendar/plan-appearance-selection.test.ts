@@ -117,3 +117,19 @@ test("intervals retain explicit paging while a single-day empty range completes"
     )
   ).toEqual({ views: [], issues: [], nextCursor: null })
 })
+
+test("all interval pages drain more than fifty series without losing rows or changing numeric paging", () => {
+  const plans = Array.from({ length: 61 }, (_, index) => series(index + 1))
+  const query = { startDate: date, endDate: "2026-10-20" }
+  const before = structuredClone(plans)
+  const partial = readPlanAppearanceSelection(plans, [], userId, query, 1)
+  expect(partial.nextCursor).not.toBeNull()
+  const complete = readPlanAppearanceSelection(plans, [], userId, query, "all")
+  expect(complete.nextCursor).toBeNull()
+  expect(complete.views).toHaveLength(122)
+  expect(new Set(complete.views.map((view) => view.occurrence.id)).size).toBe(
+    122
+  )
+  expect(complete.issues).toEqual([])
+  expect(plans).toEqual(before)
+})

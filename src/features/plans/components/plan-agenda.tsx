@@ -20,6 +20,7 @@ export function PlanAgenda({ account }: { account: LocalAccount }) {
   return (
     <>
       <PlanList
+        flushTop
         collapsible
         account={account}
         groupByCategory={false}

@@ -12,7 +12,7 @@ export function readPlanAppearanceSelection(
   occurrences: readonly PlanOccurrence[],
   userId: string,
   queryInput: z.input<typeof planAppearanceQuerySchema>,
-  pages: number
+  pages: number | "all"
 ): PlanAppearancePage {
   const query = planAppearanceQuerySchema.parse(queryInput)
   const readPage = createPlanAppearanceReader(plans, occurrences, userId)
@@ -23,7 +23,7 @@ export function readPlanAppearanceSelection(
     nextCursor: null,
   }
   const seen = new Set<string>()
-  for (let page = 0; completeDay || page < pages; page++) {
+  for (let page = 0; completeDay || pages === "all" || page < pages; page++) {
     const result = readPage(query, selection.nextCursor)
     selection.views.push(...result.views)
     selection.issues.push(...result.issues)
