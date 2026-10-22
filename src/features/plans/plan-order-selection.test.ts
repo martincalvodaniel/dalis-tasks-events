@@ -1,17 +1,21 @@
 import { expect, test } from "bun:test"
 import {
   createPlanAgendaRows,
+  groupPlanAgendaRows,
   orderPlanAgendaRows,
   type PlanAgendaRow,
 } from "@/features/plans/plan-agenda-rows"
 import {
+  planRowCategoryDropGroups,
   planRowMoveCommand,
   planRowOrderPeers,
 } from "@/features/plans/plan-order-selection"
 import { readPlanAppearancePage } from "@/lib/calendar/plan-appearance-page"
 import { applyPlanCommand } from "@/lib/calendar/plan-command"
 import { planLocalRecurringPlanMove } from "@/lib/local-db/recurring-plan-move"
+import { groupDropNeighbors } from "@/lib/ordering/group-drop"
 import { planSchema } from "@/schemas/plan-item"
+import { itemViewSchema, tagSchema } from "@/schemas/preferences"
 import { syncCommandSchema } from "@/schemas/sync"
 import type { PlanVariant } from "@/types/plan-item"
 
@@ -329,3 +333,137 @@ test("deleted and cancelled rows and raw series are protected without blocking v
     )
   ).toEqual([f.first.key, f.second.key])
 })
+
+for (const variant of ["task", "event", "appointment", "note"] as const) {
+  for (const recurring of [false, true]) {
+    test(`cross-category ${variant} ${recurring ? "occurrence" : "simple"} uses one real movement for assignment and position`, () => {
+      const f = fixture(variant),
+        selection = { kind: "day", date } as const
+      f.first.plan.variant = variant
+      if (recurring && f.parent.recurrence) {
+        f.parent.schedule = {
+          mode: "timed",
+          localStart: "2026-10-10T14:30",
+          localEnd: "2026-10-11T15:30",
+          timeZone: "Europe/Madrid",
+        }
+        f.parent.recurrence.anchorDate = "2026-10-10"
+        f.views = readPlanAppearancePage([f.parent], [], "owner", {
+          startDate: date,
+          endDate: date,
+        }).views
+      }
+      f.rows = createPlanAgendaRows(f.parents, f.views, selection)
+      const moved = f.rows.find((record) =>
+        recurring ? Boolean(record.occurrence) : record.key === f.first.key
+      )
+      if (!moved) throw new Error("Missing movement row")
+      const metadata = {
+        revision: 0,
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+      }
+      const tags = [1, 2, 3].map((index) =>
+        tagSchema.parse({
+          id: `00000000-0000-4000-8000-00000000009${index}`,
+          userId: "owner",
+          name: `Category ${index}`,
+          normalizedName: `category ${index}`,
+          color: "#123abc",
+          position: index * 1024,
+          ...metadata,
+        })
+      )
+      const views = f.parents.map((parent) =>
+        itemViewSchema.parse({
+          itemId: parent.id,
+          userId: "owner",
+          primaryTagId: parent.id === moved.series.id ? tags[0].id : tags[1].id,
+          ...metadata,
+        })
+      )
+      const groups = groupPlanAgendaRows(f.rows, tags, views, true)
+      const targets = planRowCategoryDropGroups(groups, selection, moved, [])
+      expect(targets.map((group) => group.id)).toEqual([
+        ...tags.map((tag) => tag.id),
+        "uncategorized",
+      ])
+      const destination = targets.find((group) => group.id === tags[1].id)
+      if (!destination) throw new Error("Missing destination category")
+      const first = destination.peers.find((id) => id !== moved.key)
+      if (!first) throw new Error("Missing destination peer")
+      const neighbors = groupDropNeighbors(
+        destination,
+        tags[0].id,
+        moved.key,
+        first,
+        "before"
+      )
+      if (!neighbors) throw new Error("Missing movement neighbors")
+      const command = planRowMoveCommand(
+        selection,
+        moved,
+        destination.id,
+        neighbors
+      )
+      expect(syncCommandSchema.parse(command)).toEqual(command)
+      const snapshot = {
+        items: f.parents,
+        occurrences: [],
+        tags,
+        views,
+        placements: [],
+        settings: null,
+      }
+      const before = structuredClone(snapshot)
+      const planned = planLocalRecurringPlanMove(
+        snapshot,
+        command,
+        "owner",
+        now
+      )
+      expect(planned.view?.primaryTagId).toBe(destination.id)
+      expect(
+        planned.placements.find((record) => record.occurrenceId === moved.key)
+          ?.tagId
+      ).toBe(destination.id)
+      expect(planned.placements.every((record) => record.date === date)).toBe(
+        true
+      )
+      const ordered = orderPlanAgendaRows(
+        f.rows,
+        planned.placements,
+        selection,
+        destination.id
+      )
+      expect(ordered[0].key).toBe(moved.key)
+      expect(command.occurrenceId).toBe(moved.occurrence?.id ?? null)
+      expect(snapshot).toEqual(before)
+      const empty = targets.find((group) => group.id === tags[2].id)
+      if (!empty) throw new Error("Missing empty category")
+      const emptyNeighbors = groupDropNeighbors(
+        empty,
+        tags[0].id,
+        moved.key,
+        null,
+        "after"
+      )
+      expect(emptyNeighbors).toEqual({
+        beforeId: null,
+        afterId: empty.peers.filter((id) => id !== moved.key).at(-1) ?? null,
+      })
+      if (!emptyNeighbors) throw new Error("Missing empty category neighbors")
+      const emptyMove = planLocalRecurringPlanMove(
+        snapshot,
+        planRowMoveCommand(selection, moved, empty.id, emptyNeighbors),
+        "owner",
+        now
+      )
+      expect(emptyMove.view?.primaryTagId).toBe(empty.id)
+      expect(
+        planRowCategoryDropGroups(groups, { kind: "upcoming", date }, moved, [])
+      ).toEqual([])
+    })
+  }
+}

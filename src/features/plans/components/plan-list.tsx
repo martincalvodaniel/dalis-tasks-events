@@ -29,6 +29,7 @@ import {
   planAppearanceRange,
 } from "@/features/plans/plan-agenda-rows"
 import {
+  planRowCategoryDropGroups,
   planRowMoveCommand,
   planRowOrderPeers,
 } from "@/features/plans/plan-order-selection"
@@ -66,6 +67,7 @@ export function PlanList({
   collapsible?: boolean
 }) {
   const contentId = useId()
+  const categoryDropScope = useId()
   const [collapsed, setCollapsed] = useState(false)
   const { data, error, isLoading, mutate } = useLocalPlans(account)
   const { refresh } = useLocalAccount()
@@ -139,19 +141,29 @@ export function PlanList({
   const rows = data
     ? createPlanAgendaRows(data.plans, appearances.views, selection)
     : []
+  const allowCategoryDrop = Boolean(
+    groupByCategory &&
+      selection.kind === "day" &&
+      data &&
+      placements &&
+      !placementReadError &&
+      !appearances.nextCursor
+  )
   const groups = data
-    ? groupPlanAgendaRows(rows, data.tags, data.views).map((group) => ({
-        ...group,
-        rows:
-          placements && !placementReadError
-            ? orderPlanAgendaRows(
-                group.rows,
-                placements,
-                selection,
-                group.id === "uncategorized" ? null : group.id
-              )
-            : group.rows,
-      }))
+    ? groupPlanAgendaRows(rows, data.tags, data.views, allowCategoryDrop).map(
+        (group) => ({
+          ...group,
+          rows:
+            placements && !placementReadError
+              ? orderPlanAgendaRows(
+                  group.rows,
+                  placements,
+                  selection,
+                  group.id === "uncategorized" ? null : group.id
+                )
+              : group.rows,
+        })
+      )
     : []
   const categoryByRow = new Map(
     groups.flatMap((group) =>
@@ -181,7 +193,7 @@ export function PlanList({
   )
   const tagIds = data?.tags.map((tag) => tag.id) ?? []
   const visibleTagIds = groups
-    .filter((group) => tagIds.includes(group.id))
+    .filter((group) => group.rows.length && tagIds.includes(group.id))
     .map((group) => group.id)
   async function remove(plan: Plan, operationId: string) {
     setDeleting(true)
@@ -316,16 +328,24 @@ export function PlanList({
         ) : isLoading ? (
           <DelayedStatus>Cargando planes…</DelayedStatus>
         ) : rows.length ? (
-          <div data-order-list className="space-y-3">
+          <div
+            data-order-list
+            data-order-category-scope={
+              allowCategoryDrop ? categoryDropScope : undefined
+            }
+            className="group/plan-order space-y-3"
+          >
             {displayGroups.map((displayGroup) => (
               <TaskGroup
                 key={displayGroup.id}
                 title={displayGroup.title}
                 color={displayGroup.color}
                 headingVisible={groupByCategory}
+                categoryDropId={allowCategoryDrop ? displayGroup.id : undefined}
                 orderId={displayGroup.id}
                 orderControl={
                   groupByCategory &&
+                  displayGroup.rows.length > 0 &&
                   visibleTagIds.length > 1 &&
                   visibleTagIds.includes(displayGroup.id) ? (
                     <LongPressOrder
@@ -478,12 +498,13 @@ export function PlanList({
                         }
                         orderControl={
                           (calendarDropScope && !row.plan.recurrence) ||
-                          peers.length > 1 ? (
+                          peers.length > 1 ||
+                          allowCategoryDrop ? (
                             <LongPressOrder
                               itemId={row.key}
                               dropScope={calendarDropScope}
                               version={
-                                calendarDropScope
+                                calendarDropScope || allowCategoryDrop
                                   ? JSON.stringify(row)
                                   : undefined
                               }
@@ -491,6 +512,35 @@ export function PlanList({
                                 calendarDropScope
                                   ? (date) => {
                                       void rescheduling.change({ row, date })
+                                    }
+                                  : undefined
+                              }
+                              groupDrop={
+                                allowCategoryDrop && placements
+                                  ? {
+                                      scope: categoryDropScope,
+                                      sourceId: group.id,
+                                      targets: planRowCategoryDropGroups(
+                                        groups,
+                                        selection,
+                                        row,
+                                        placements
+                                      ),
+                                      note: row.occurrence
+                                        ? "La categoría cambia para toda la serie."
+                                        : undefined,
+                                      onDrop: (groupId, neighbors) => {
+                                        void ordering.change(
+                                          planRowMoveCommand(
+                                            selection,
+                                            row,
+                                            groupId === "uncategorized"
+                                              ? null
+                                              : groupId,
+                                            neighbors
+                                          )
+                                        )
+                                      },
                                     }
                                   : undefined
                               }

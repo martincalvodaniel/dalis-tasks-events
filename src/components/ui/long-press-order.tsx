@@ -2,6 +2,10 @@
 
 import { useEffect, useEffectEvent, useRef, useState } from "react"
 import { OrderDragPreview } from "@/components/ui/order-drag-preview"
+import {
+  groupDropNeighbors,
+  type OrderDropGroup,
+} from "@/lib/ordering/group-drop"
 import { longPressDelay, longPressPhase } from "@/lib/ordering/long-press"
 import {
   adjacentMoveNeighbors,
@@ -27,6 +31,8 @@ type DropTarget = {
   left: number
   width: number
   date?: string
+  groupId?: string
+  neighbors?: RankNeighbors
   height?: number
 }
 
@@ -39,6 +45,7 @@ export function LongPressOrder({
   dropScope,
   version,
   onDateDrop,
+  groupDrop,
 }: {
   itemId: string
   label: string
@@ -48,6 +55,13 @@ export function LongPressOrder({
   dropScope?: string
   version?: string
   onDateDrop?: (date: string) => void
+  groupDrop?: {
+    scope: string
+    sourceId: string
+    targets: readonly OrderDropGroup[]
+    note?: string
+    onDrop: (groupId: string, neighbors: RankNeighbors) => void
+  }
 }) {
   const anchor = useRef<HTMLSpanElement>(null)
   const gesture = useRef<Gesture | null>(null)
@@ -55,8 +69,24 @@ export function LongPressOrder({
   const [dragging, setDragging] = useState(false)
   const [point, setPoint] = useState<{ x: number; y: number } | null>(null)
   const [target, setTarget] = useState<DropTarget | null>(null)
-  const fingerprint = JSON.stringify({ peers, dropScope, version })
-  const unavailable = busy || (peers.length < 2 && !onDateDrop)
+  const fingerprint = JSON.stringify({
+    peers,
+    dropScope,
+    version,
+    groups: groupDrop
+      ? {
+          scope: groupDrop.scope,
+          sourceId: groupDrop.sourceId,
+          targets: groupDrop.targets,
+          note: groupDrop.note,
+        }
+      : null,
+  })
+  const canChangeGroup = groupDrop?.targets.some(
+    (group) => group.id !== groupDrop.sourceId
+  )
+  const unavailable =
+    busy || (peers.length < 2 && !onDateDrop && !canChangeGroup)
   const canStart = useEffectEvent(() => !unavailable && peers.includes(itemId))
   const drop = useEffectEvent((neighbors: RankNeighbors) => {
     if (!unavailable) onDrop(neighbors)
@@ -64,6 +94,11 @@ export function LongPressOrder({
   const locate = useEffectEvent(
     (root: HTMLElement, point: Gesture): DropTarget | null => {
       if (point.fingerprint !== fingerprint || unavailable) return null
+      if (
+        groupDrop &&
+        Math.hypot(point.x - point.startX, point.y - point.startY) <= 12
+      )
+        return null
       if (onDateDrop && dropScope) {
         const cell = document
           .elementFromPoint(point.x, point.y)
@@ -85,6 +120,46 @@ export function LongPressOrder({
               width: rect.width,
               height: rect.height,
             }
+          }
+        }
+      }
+      if (groupDrop) {
+        const element = document.elementFromPoint(point.x, point.y)
+        const section = element?.closest<HTMLElement>("[data-order-category]")
+        const groupId = section?.dataset.orderCategory
+        if (
+          section?.closest<HTMLElement>("[data-order-category-scope]")?.dataset
+            .orderCategoryScope === groupDrop.scope &&
+          groupId &&
+          groupId !== groupDrop.sourceId
+        ) {
+          const group = groupDrop.targets.find(
+            (target) => target.id === groupId
+          )
+          if (!group) return null
+          const row = element?.closest<HTMLElement>("li[data-order-item]")
+          const rect = (row ?? section).getBoundingClientRect()
+          const side =
+            row && point.y < rect.top + rect.height / 2 ? "before" : "after"
+          const neighbors = groupDropNeighbors(
+            group,
+            groupDrop.sourceId,
+            itemId,
+            row?.dataset.orderItem ?? null,
+            side
+          )
+          if (!neighbors) return null
+          return {
+            id: row?.dataset.orderItem ?? groupId,
+            groupId,
+            neighbors,
+            label: row
+              ? `${row.dataset.orderLabel ?? "plan"} (${group.label})`
+              : group.label,
+            side,
+            top: side === "before" ? rect.top : rect.bottom,
+            left: rect.left,
+            width: rect.width,
           }
         }
       }
@@ -119,10 +194,14 @@ export function LongPressOrder({
       }
     }
   )
-  const finish = useEffectEvent((root: HTMLElement, point: Gesture) => {
-    const destination = point.active ? locate(root, point) : null
+  const finish = useEffectEvent((destination: DropTarget | null) => {
     if (destination?.date) {
       if (!unavailable) onDateDrop?.(destination.date)
+      return
+    }
+    if (destination?.groupId && destination.neighbors) {
+      if (!unavailable)
+        groupDrop?.onDrop(destination.groupId, destination.neighbors)
       return
     }
     const neighbors = destination
@@ -273,8 +352,9 @@ export function LongPressOrder({
       if (!root || !current) return
       current.x = x
       current.y = y
+      const destination = current.active ? locate(root, current) : null
       cancel()
-      finish(root, current)
+      finish(destination)
     }
     function down(event: PointerEvent) {
       if (event.pointerType === "touch") return
@@ -429,15 +509,16 @@ export function LongPressOrder({
     <>
       <span ref={anchor} className="sr-only">
         Mantén pulsado para ordenar {label}
-        {onDateDrop ? " o moverlo a un día del calendario" : ""}. Con teclado,
-        usa Alt y flechas arriba o abajo.
+        {onDateDrop ? " o moverlo a un día del calendario" : ""}
+        {groupDrop ? " o cambiarlo de categoría" : ""}. Con teclado, usa Alt y
+        flechas arriba o abajo.
       </span>
       <span role="status" className="sr-only">
         {dragging
           ? target
             ? target.date
               ? `Mover a ${target.label}. Escape cancela.`
-              : `Soltar ${target.side === "before" ? "antes" : "después"} de ${target.label}. Escape cancela.`
+              : `Soltar ${target.side === "before" ? "antes" : "después"} de ${target.label}. ${target.groupId ? (groupDrop?.note ?? "") : ""} Escape cancela.`
             : "Arrastrando. Busca un destino. Escape cancela."
           : ""}
       </span>
@@ -450,7 +531,7 @@ export function LongPressOrder({
             target?.date
               ? `Mover al ${target.date}`
               : target
-                ? `Soltar ${target.side === "before" ? "antes" : "después"} de ${target.label}`
+                ? `Soltar ${target.side === "before" ? "antes" : "después"} de ${target.label}${target.groupId && groupDrop?.note ? `. ${groupDrop.note}` : ""}`
                 : undefined
           }
         />

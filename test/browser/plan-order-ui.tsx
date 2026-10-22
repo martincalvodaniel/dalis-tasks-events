@@ -50,6 +50,7 @@ if (!rootElement || !statusElement || !actionsElement)
 const status = statusElement,
   actions = actionsElement
 const reload = query.get("phase") === "reload"
+const categories = query.get("categories") === "1"
 const databases = await indexedDB.databases()
 if (reload) {
   assert(
@@ -126,13 +127,30 @@ async function protectedSnapshot() {
   }
 }
 if (!reload) {
+  if (categories) {
+    const outbox = await LocalOutbox.open(userId)
+    try {
+      for (let index = 1; index <= 3; index++)
+        await outbox.commitPreferenceCommand({
+          type: "tag.save",
+          tagId: id(50 + index),
+          input: {
+            name: index === 3 ? "Vacía" : `Categoría ${index}`,
+            color: ["#123abc", "#e85d04", "#2b9348"][index - 1],
+            position: index * 1024,
+          },
+        })
+    } finally {
+      outbox.close()
+    }
+  }
   for (let index = 1; index <= 3; index++)
     await saveLocalPlan(account, {
       mode: "create",
       itemId: id(index),
       contentOperationId: crypto.randomUUID(),
       viewOperationId: crypto.randomUUID(),
-      primaryTagId: null,
+      primaryTagId: categories ? id(index === 1 ? 51 : 52) : null,
       now: new Date().toISOString(),
       input: {
         kind: "plan",
@@ -347,9 +365,220 @@ action("Probar pulsación y arrastre de Plan 3", async () => {
   }
   throw new Error("Long press did not persist and display the mixed order")
 })
+
+if (categories) {
+  async function crossCategoryDrag(
+    title: string,
+    groupId: string,
+    peer: string | null,
+    side: "before" | "after",
+    mode: "drop" | "cancel" | "hold" = "drop"
+  ) {
+    const section = document.querySelector(
+      'section[aria-label="Planes del día"]'
+    )
+    const source = Array.from(
+      section?.querySelectorAll<HTMLElement>("li[data-order-item]") ?? []
+    ).find((row) => row.dataset.orderLabel === title)
+    const target = source?.querySelector("summary")
+    assert(source && target, "Category drag source is missing")
+    source.scrollIntoView({ block: "center" })
+    const rect = target.getBoundingClientRect(),
+      x = rect.left + rect.width / 2,
+      y = rect.top + rect.height / 2
+    const touch = (clientX: number, clientY: number) =>
+      new Touch({ identifier: 77, target, clientX, clientY })
+    target.dispatchEvent(
+      new TouchEvent("touchstart", {
+        bubbles: true,
+        cancelable: true,
+        touches: [touch(x, y)],
+        changedTouches: [touch(x, y)],
+      })
+    )
+    await new Promise((resolve) => setTimeout(resolve, longPressDelay + 100))
+    assert(
+      source.dataset.orderDragging === "true",
+      "Category drag did not activate"
+    )
+    if (mode === "hold") {
+      target.dispatchEvent(
+        new TouchEvent("touchend", {
+          bubbles: true,
+          cancelable: true,
+          touches: [],
+          changedTouches: [touch(x, y)],
+        })
+      )
+      await new Promise((resolve) => setTimeout(resolve, 80))
+      status.textContent = "Pulsación sin arrastre: no se guarda movimiento."
+      return
+    }
+    const group = section?.querySelector<HTMLElement>(
+      `[data-order-category="${groupId}"]`
+    )
+    assert(group, "Destination category is missing")
+    const destination = peer
+      ? Array.from(
+          group.querySelectorAll<HTMLElement>("li[data-order-item]")
+        ).find((row) => row.dataset.orderLabel === peer)
+      : group.querySelector<HTMLElement>("h3")
+    assert(destination, "Destination row or empty header is missing")
+    destination.scrollIntoView({ block: "center" })
+    const bounds = destination.getBoundingClientRect(),
+      endX = bounds.left + bounds.width / 2,
+      endY = side === "before" ? bounds.top + 4 : bounds.bottom - 4
+    assert(bounds.height > 0, "Empty category drop zone is hidden during drag")
+    target.dispatchEvent(
+      new TouchEvent("touchmove", {
+        bubbles: true,
+        cancelable: true,
+        touches: [touch(endX, endY)],
+        changedTouches: [touch(endX, endY)],
+      })
+    )
+    await new Promise((resolve) => setTimeout(resolve, 40))
+    assert(
+      document
+        .querySelector("[data-order-preview]")
+        ?.textContent?.includes(
+          group.querySelector("h3")?.textContent ?? "missing"
+        ),
+      "Preview did not identify the destination category"
+    )
+    if (mode === "cancel")
+      source.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "Escape" })
+      )
+    target.dispatchEvent(
+      new TouchEvent("touchend", {
+        bubbles: true,
+        cancelable: true,
+        touches: [],
+        changedTouches: [touch(endX, endY)],
+      })
+    )
+    const itemId = title === "Plan 1" ? id(1) : id(3)
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const repository = await LocalRepository.open(userId)
+      let categoryId: string | null | undefined
+      try {
+        categoryId = (await repository.get("itemViews", itemId))?.primaryTagId
+      } finally {
+        repository.close()
+      }
+      if (
+        mode === "cancel" ||
+        categoryId === (groupId === "uncategorized" ? null : groupId)
+      ) {
+        await new Promise((resolve) => setTimeout(resolve, 80))
+        status.textContent =
+          mode === "cancel"
+            ? "Cancelado sin guardar."
+            : `Movimiento guardado: ${title} → ${group.querySelector("h3")?.textContent}.`
+        return
+      }
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    }
+    throw new Error("Category movement did not persist")
+  }
+  action("Mover Plan 1 antes de Plan 2 en Categoría 2", () =>
+    crossCategoryDrag("Plan 1", id(52), "Plan 2", "before")
+  )
+  action("Mover Plan 1 a Categoría 1 vacía", () =>
+    crossCategoryDrag("Plan 1", id(51), null, "after")
+  )
+  action("Mover Plan 3 a Vacía", () =>
+    crossCategoryDrag("Plan 3", id(53), null, "after")
+  )
+  action("Mover Plan 3 a Sin categoría", () =>
+    crossCategoryDrag("Plan 3", "uncategorized", null, "after")
+  )
+  action("Mover Plan 1 después de Plan 2", () =>
+    crossCategoryDrag("Plan 1", id(52), "Plan 2", "after")
+  )
+  action("Cancelar cambio de categoría de Plan 1", () =>
+    crossCategoryDrag("Plan 1", id(51), null, "after", "cancel")
+  )
+  action("Pulsar sin arrastrar Plan 1", () =>
+    crossCategoryDrag("Plan 1", id(51), null, "after", "hold")
+  )
+  action("Verificar movimientos entre categorías", async () => {
+    const repository = await LocalRepository.open(userId),
+      outbox = await LocalOutbox.open(userId)
+    try {
+      const baseline = JSON.parse(
+        sessionStorage.getItem(`${marker}:baseline`) ?? "null"
+      ) as unknown[]
+      for (const index of [0, 1, 3, 4])
+        assert(
+          JSON.stringify(
+            await repository.list(protectedStores[index], {
+              includeDeleted: true,
+            })
+          ) === JSON.stringify(baseline[index]),
+          "Category drag changed protected content, slots, tags or settings"
+        )
+      const views = await repository.list("itemViews", { includeDeleted: true })
+      assert(
+        views.find((view) => view.itemId === id(1))?.primaryTagId === id(52),
+        "Plan 1 category is wrong"
+      )
+      assert(
+        views.find((view) => view.itemId === id(2))?.primaryTagId === id(52),
+        "Peer category changed"
+      )
+      assert(
+        views.find((view) => view.itemId === id(3))?.primaryTagId === null,
+        "Series category is wrong"
+      )
+      const entries = await outbox.listEntries(),
+        moves = entries.filter(
+          (entry) => entry.operation.command.type === "task.move"
+        )
+      assert(
+        moves.length === 5,
+        "Cancel or a drop produced an unexpected extra command"
+      )
+      for (const entry of moves) {
+        const command = entry.operation.command
+        assert(
+          command.type === "task.move" &&
+            command.date === day &&
+            command.scope === "day" &&
+            command.occurrenceId ===
+              (command.itemId === id(3) ? `${id(3)}:${day}` : null),
+          "Movement lost canonical identity or day"
+        )
+        assert(
+          entry.state === "pending" &&
+            entry.attempts === 0 &&
+            entry.lease === null,
+          "UI manufactured a remote ACK"
+        )
+      }
+      const group = document.querySelector(
+        `[aria-label="Planes del día"] [data-order-category="${id(52)}"]`
+      )
+      assert(
+        JSON.stringify(
+          Array.from(
+            group?.querySelectorAll<HTMLElement>("li[data-order-item]") ?? []
+          ).map((row) => row.dataset.orderLabel)
+        ) === JSON.stringify(["Plan 2", "Plan 1"]),
+        "Destination order differs from requested drop"
+      )
+      status.textContent =
+        "Correcto: cinco movimientos atómicos, cancelación sin escritura, orden/categorías persistidos y resto intacto."
+    } finally {
+      repository.close()
+      outbox.close()
+    }
+  })
+}
 const reloadLink = document.createElement("a")
 reloadLink.textContent = "Recargar prueba"
-reloadLink.href = `/?run=${runId}&phase=reload`
+reloadLink.href = `/?run=${runId}&phase=reload${categories ? "&categories=1" : ""}`
 reloadLink.className =
   "mr-2 inline-flex min-h-11 items-center text-xs underline"
 actions.append(reloadLink)

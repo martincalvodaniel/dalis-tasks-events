@@ -42,3 +42,15 @@ test("today and calendar retain category headings and group controls by default"
   expect(html).toContain("Ordenar categoría")
   expect(html).toContain("background-color:#ff0000")
 })
+
+test("empty category destinations appear only during a plan drag and retain their drop identity", () => {
+  const html = renderToStaticMarkup(
+    <TaskGroup title="Vacía" categoryDropId="empty">
+      {[]}
+    </TaskGroup>
+  )
+  expect(html).toContain('data-order-category="empty"')
+  expect(html).toContain("hidden space-y-1")
+  expect(html).toContain("group-has-[[data-order-dragging]]/plan-order:block")
+  expect(html).toContain("Suelta aquí")
+})

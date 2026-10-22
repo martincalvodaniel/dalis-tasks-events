@@ -113,7 +113,8 @@ export function createPlanAgendaRows(
 export function groupPlanAgendaRows(
   rows: readonly PlanAgendaRow[],
   tags: readonly Tag[],
-  views: readonly ItemView[]
+  views: readonly ItemView[],
+  includeEmpty = false
 ): PlanAgendaRowGroup[] {
   const groups = new Map<string, PlanAgendaRowGroup>(
     tags
@@ -141,7 +142,7 @@ export function groupPlanAgendaRows(
     group.rows.push(structuredClone(row))
   }
   return [...groups.values(), uncategorized].filter(
-    (group) => group.rows.length > 0
+    (group) => includeEmpty || group.rows.length > 0
   )
 }
 

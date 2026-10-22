@@ -1,6 +1,6 @@
 "use client"
 
-import { type ReactNode, useId } from "react"
+import { Children, type ReactNode, useId } from "react"
 
 export function TaskGroup({
   title,
@@ -9,8 +9,10 @@ export function TaskGroup({
   orderId,
   color,
   headingVisible = true,
+  categoryDropId,
 }: {
   title: string
+  categoryDropId?: string
   headingVisible?: boolean
   children: ReactNode
   orderControl?: ReactNode
@@ -18,6 +20,8 @@ export function TaskGroup({
   orderId?: string
 }) {
   const headingId = useId()
+  const emptyDropTarget =
+    categoryDropId !== undefined && Children.count(children) === 0
   if (!headingVisible)
     return (
       <ul data-order-list className="space-y-1.5">
@@ -26,10 +30,15 @@ export function TaskGroup({
     )
   return (
     <section
+      data-order-category={categoryDropId}
       data-order-item={orderId}
       data-order-label={title}
       aria-labelledby={headingId}
-      className="space-y-1"
+      className={
+        emptyDropTarget
+          ? "hidden space-y-1 group-has-[[data-order-dragging]]/plan-order:block"
+          : "space-y-1"
+      }
     >
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-1">
         <h3
@@ -49,6 +58,11 @@ export function TaskGroup({
       </div>
       <ul data-order-list className="space-y-1.5">
         {children}
+        {emptyDropTarget ? (
+          <li className="min-h-11 rounded-lg border border-dashed border-zinc-400 p-2 text-xs text-zinc-500">
+            Suelta aquí
+          </li>
+        ) : null}
       </ul>
     </section>
   )

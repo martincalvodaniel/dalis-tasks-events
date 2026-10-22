@@ -1,5 +1,9 @@
 import type { PlanAgendaSelection } from "@/features/plans/agenda-selection"
-import type { PlanAgendaRow } from "@/features/plans/plan-agenda-rows"
+import {
+  orderPlanAgendaRows,
+  type PlanAgendaRow,
+  type PlanAgendaRowGroup,
+} from "@/features/plans/plan-agenda-rows"
 import {
   comparePlans,
   isPlanOverdue,
@@ -10,6 +14,7 @@ import {
   commonItemOrderProjection,
   compareCommonItems,
 } from "@/lib/ordering/common-item-order"
+import type { OrderDropGroup } from "@/lib/ordering/group-drop"
 import type { RankNeighbors } from "@/lib/ordering/rank"
 import { orderPlacedTasks } from "@/lib/ordering/task-order"
 import { overduePlacementDate } from "@/schemas/ordering"
@@ -65,6 +70,40 @@ export function planRowOrderPeers(
         ? planIncludesDate(record.plan, context.date)
         : planStartDate(record.plan) === context.date)
   return belongs(row) ? rows.filter(belongs) : []
+}
+
+export function planRowCategoryDropGroups(
+  groups: readonly PlanAgendaRowGroup[],
+  selection: PlanAgendaSelection,
+  row: PlanAgendaRow,
+  placements: readonly TaskPlacement[]
+): OrderDropGroup[] {
+  if (
+    selection.kind !== "day" ||
+    !planRowOrderPeers([row], selection, row).length
+  )
+    return []
+  const siblings = groups
+    .flatMap((group) => group.rows)
+    .filter((record) => record.series.id === row.series.id)
+  return groups.map((group) => {
+    const candidates = [
+      ...group.rows,
+      ...siblings.filter(
+        (record) => !group.rows.some((peer) => peer.key === record.key)
+      ),
+    ]
+    return {
+      id: group.id,
+      label: group.title,
+      peers: orderPlanAgendaRows(
+        candidates,
+        placements,
+        selection,
+        group.id === "uncategorized" ? null : group.id
+      ).map((record) => record.key),
+    }
+  })
 }
 
 export function planRowMoveCommand(
