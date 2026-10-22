@@ -18,11 +18,13 @@ Incluye las cuatro variantes de plan, editor común, listas Atrasadas/Hoy/Próxi
 | --- | --- |
 | Recorrido físico offline/multidispositivo | Aceptado por el usuario17oct; [checklist](manual-device-checklist.md). |
 | Sincronización y recuperación ordinaria | Activas en generación6; **38/38 escenarios completos automáticos Next6/Mongo** aprobados en22c1, exit0 y limpieza propia confirmada. [Resultado exacto](evidence/22c1-next-full-auto.json). No equivale a38 recorridos UI manuales. |
-| Calidad de código final | 22c1:1352 pruebas aprobadas,225 opt-in omitidas,0 fallos; lint de 1072 archivos sin avisos, tipos, Webpack y worker de 46 recursos. Las omitidas requieren sus runners aislados; no son pruebas de producción. |
+| Calidad de código final | 23a:1357 pruebas aprobadas,225 opt-in omitidas,0 fallos; lint de 1074 archivos sin avisos, tipos, Webpack y worker de 46 recursos. Las omitidas requieren sus runners aislados; no son pruebas de producción. |
 | Navegación y teclado | 22a: título y foco por pantalla, historial sin remontar shell, mes con PageUp/PageDown sin perder foco, skip link y confirmación nativa/Escape. |
 | Formularios y ampliación | 22b: errores enlazados/foco/limpieza, borrador conservado ante fallo,320 px al 200% y390 px normal, claro/oscuro. Fecha/hora siguen en la misma fila a tamaño normal. |
 | Documentación y operación | Guía y política de índices actualizadas en22c; checklist de promoción inferior. |
 | Producción | No se despliega ni se inspecciona una DB del usuario en esta entrega. La verificación del entorno publicado va después de la promoción autorizada. |
+
+Corrección23a posterior: el caso reportado de dos planes simples más una repetición ya permite reordenar ambos tipos en Mi espacio y Calendario. Eventos táctiles sintetizados por fixture sobre componentes reales, teclas, persistencia/recarga e IndexedDB propio aprobados; sólo cambia el orden de hoy. [Evidencia móvil](evidence/23a-home-order-mobile.png). Regresión Mongo140 aprobada con limpieza propia. La matriz automática38 anterior corresponde a22c1; no se declara una nueva ejecución Next38 ni una nueva prueba física por esta corrección.
 
 La revisión de accesibilidad usa componentes reales, árbol de accesibilidad del navegador, teclado, estilos y capturas; no equivale a una certificación WCAG ni a una sesión auditiva con un usuario de lector de pantalla. Se corrigieron los hallazgos observados, sin afirmar cobertura de todas las combinaciones de navegador/tecnología asistiva.
 

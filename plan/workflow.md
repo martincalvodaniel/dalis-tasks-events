@@ -1,5 +1,9 @@
 # Flujo de trabajo con Codex
 
+## 23a — Corrección focalizada posterior al cierre
+
+Regresión concreta del gesto mixto corregida, sin nuevos bloques de producto. Entrada100%5h/20%7d, reset1792704583; controles94/19,91/19 y82/17 entre implementación, pruebas y cierre. Reservas10%5h/1%7d; secuencial, sin créditos/reinicios/programación. UI propia, Mongo140 y DoD1357/lint/tipos/Webpack/worker46 aprobados; recursos propios retirados. Misma entrega con plan/log, commit y pushint, SHA remoto y consulta directa posterior. La matriz Next38 de22c1 es evidencia anterior; esta entrega añade el recorrido real de ordenar filas que faltaba, sin declarar nuevas pruebas físicas o productivas.
+
 ## 22c1 — Cierre de la versión y reservas respetadas
 
 Matriz completa automática Next6/Mongo38 aprobada y DoD1352pass/225skip/0fail, lint/tipos/Webpack/worker46. Evidencia y límites en [release-readiness](release-readiness.md). Entrada100%5h/29%7d, reset publicado1792633934; controles90/28 antes del primer RPC,72/25 después del timeout del host manual,66/24 y62/23 durante la repetición,55/22 antes del cierre de matriz y51/21 antes de tipos/build. Reservas10%5h/1%7d preservadas; consulta directa tras commit/publicación y sin créditos/reinicios. Secuencial, sin DBusuario/producción ni nueva programación.

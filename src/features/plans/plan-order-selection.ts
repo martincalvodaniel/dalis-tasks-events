@@ -2,6 +2,7 @@ import type { PlanAgendaSelection } from "@/features/plans/agenda-selection"
 import type { PlanAgendaRow } from "@/features/plans/plan-agenda-rows"
 import {
   comparePlans,
+  isPlanOverdue,
   planIncludesDate,
   planStartDate,
 } from "@/lib/calendar/plan-selection"
@@ -9,10 +10,12 @@ import {
   commonItemOrderProjection,
   compareCommonItems,
 } from "@/lib/ordering/common-item-order"
+import type { RankNeighbors } from "@/lib/ordering/rank"
 import { orderPlacedTasks } from "@/lib/ordering/task-order"
 import { overduePlacementDate } from "@/schemas/ordering"
 import type { Plan } from "@/types/plan-item"
 import type { TaskPlacement } from "@/types/preferences"
+import type { SyncCommand } from "@/types/sync"
 
 export function planOrderContext(selection: PlanAgendaSelection, plan: Plan) {
   return selection.kind === "overdue"
@@ -36,26 +39,49 @@ export function planOrderPeers(
   )
 }
 
+function isOrderableRow(row: PlanAgendaRow) {
+  return (
+    !row.series.deletedAt &&
+    !row.plan.deletedAt &&
+    Boolean(row.series.recurrence) === Boolean(row.occurrence) &&
+    !row.occurrence?.cancelled &&
+    !row.occurrence?.deletedAt
+  )
+}
+
 export function planRowOrderPeers(
   rows: readonly PlanAgendaRow[],
   selection: PlanAgendaSelection,
   row: PlanAgendaRow
-): Plan[] {
-  if (row.occurrence || row.series.recurrence || row.series.deletedAt) return []
-  const date = planStartDate(row.series)
-  if (
-    (selection.kind === "day" && date !== selection.date) ||
-    (selection.kind === "upcoming" && date < selection.date)
-  )
-    return []
-  const contextRows = rows.filter(
-    (record) =>
-      selection.kind === "overdue" || planStartDate(record.plan) === date
-  )
-  if (contextRows.some((record) => record.occurrence)) return []
-  return contextRows
-    .filter((record) => !record.series.recurrence && !record.series.deletedAt)
-    .map((record) => record.series)
+): PlanAgendaRow[] {
+  if (!isOrderableRow(row)) return []
+  const context = planOrderContext(selection, row.plan)
+  if (selection.kind === "upcoming" && context.date < selection.date) return []
+  const belongs = (record: PlanAgendaRow) =>
+    isOrderableRow(record) &&
+    (context.scope === "overdue"
+      ? isPlanOverdue(record.plan, context.date)
+      : selection.kind === "day"
+        ? planIncludesDate(record.plan, context.date)
+        : planStartDate(record.plan) === context.date)
+  return belongs(row) ? rows.filter(belongs) : []
+}
+
+export function planRowMoveCommand(
+  selection: PlanAgendaSelection,
+  row: PlanAgendaRow,
+  tagId: string | null,
+  neighbors: RankNeighbors
+): Extract<SyncCommand, { type: "task.move" }> {
+  if (!isOrderableRow(row)) throw new Error("Plan row cannot be reordered")
+  return {
+    type: "task.move",
+    itemId: row.series.id,
+    occurrenceId: row.occurrence?.id ?? null,
+    tagId,
+    ...planOrderContext(selection, row.plan),
+    ...neighbors,
+  }
 }
 export function orderAgendaGroupPlans(
   plans: readonly Plan[],

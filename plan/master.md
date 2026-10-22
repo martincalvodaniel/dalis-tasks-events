@@ -1,5 +1,13 @@
 # Dalis Tasks & Events — plan maestro
 
+## 23a — Orden mixto restaurado en Mi espacio y Calendario
+
+Corregida la regresión reportada: Plan1 y Plan2 de hoy siguen siendo reordenables al añadir Plan3 con repetición diaria durante3días. La selección mezcla planes simples y apariciones; cada fila conserva su clave original y el comando guarda el padre junto con occurrenceId del slot concreto. Calendario ofrece tanto orden entre filas como cambio de fecha; Mi espacio comparte las posiciones del mismo día/categoría. Próximas conserva agrupación cronológica por fecha y Atrasadas su contexto conjunto; se mantienen guardias de carga incompleta/cuenta/busy. Los planes de varios días también se pueden ordenar en el día seleccionado.
+
+Siete pruebas del selector/comando y17focalizadas con agenda, incluyendo cuatrovariantes, planner real, orden inverso simple↔aparición, slot movido, multidía, atrasadas y cancelados/borrados. UI productiva con IndexedDB propio: pulsación prolongada+arrastre táctil sintetizado por fixture en Mi espacio y Calendario390px, teclas reales Alt+flechas, mismo orden al cambiar de vista y después de recarga. Dos ejecuciones con seis y cuatro movimientos pending/attempt0/sinlease respectivamente, tres posiciones sólo de hoy; padres, contenido, horarios, otras fechas y preferencias idénticos. No es prueba nueva en dispositivo físico ni convergencia RPC nueva. [Mi espacio tras recarga](evidence/23a-home-order-mobile.png), [Calendario](evidence/23a-calendar-order-mobile.png).
+
+DoD1357pass/225opt-in skip/0fail/14841aserciones, lint1074sinavisos/tipos/Webpack/worker46. Regresión Mongo propia140pass/1904aserciones, exit0 y limpieza confirmada. No cambia el motor remoto, el protocolo o los índices. Matriz Next38 anterior22c1 permanece como evidencia previa, no se atribuye repetición a este corte. Sin DBusuario/producción; mismo commit/pushint/HEAD/cuotas.
+
 ## 22c1 — Versión de alcance vigente validada
 
 El desarrollo y la validación de ingeniería de esta versión quedan cerrados. Los **38 escenarios completos Next6 automáticos** pasan en una sola ejecución, con acciones/defaults reales, sesiones BetterAuth persistidas, dos orígenes IndexedDB y Mongo propios. Run f7a895f9-b3a8-4ce7-9003-481bacacd0f8: exit0 y retirada de recursos propios confirmados. [Checklist de cierre](release-readiness.md), [resultado exacto](evidence/22c1-next-full-auto.json) y [captura](evidence/22c1-next-full-auto.png).

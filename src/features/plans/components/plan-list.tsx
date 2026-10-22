@@ -28,7 +28,7 @@ import {
   planAppearanceRange,
 } from "@/features/plans/plan-agenda-rows"
 import {
-  planOrderContext,
+  planRowMoveCommand,
   planRowOrderPeers,
 } from "@/features/plans/plan-order-selection"
 import { ItemCategorySelect } from "@/features/tags/components/item-category-select"
@@ -324,181 +324,176 @@ export function PlanList({
                   ) : undefined
                 }
               >
-                {group.rows.map((row) => (
-                  <li
-                    key={row.key}
-                    data-order-item={row.key}
-                    data-order-label={row.plan.title}
-                  >
-                    <PlanCard
-                      plan={row.plan}
-                      categoryColor={group.color}
-                      busy={busy}
-                      expanded={expandedIds.has(row.key)}
-                      onExpandedChange={(expanded) =>
-                        setExpandedIds((current) => {
-                          if (current.has(row.key) === expanded) return current
-                          const next = new Set(current)
-                          if (expanded) next.add(row.key)
-                          else next.delete(row.key)
-                          return next
-                        })
-                      }
-                      onEdit={() =>
-                        setEditing({
-                          plan: row.series,
-                          view:
-                            data?.views.find(
-                              (view) => view.itemId === row.series.id
-                            ) ?? null,
-                        })
-                      }
-                      editLabel={
-                        row.occurrence || row.series.recurrence
-                          ? "Editar serie"
-                          : "Editar"
-                      }
-                      deleteLabel={
-                        row.occurrence
-                          ? "Cancelar aparición"
-                          : row.series.recurrence
-                            ? "Eliminar serie"
-                            : "Eliminar"
-                      }
-                      contextLabel={
-                        row.occurrence
-                          ? "El progreso afecta sólo a esta aparición; la categoría y la edición afectan a la serie."
-                          : undefined
-                      }
-                      onDelete={() =>
-                        row.occurrence
-                          ? setPendingCancel(row)
-                          : setPendingDelete(row.series)
-                      }
-                      onStatusChange={
-                        row.plan.recurrence
-                          ? undefined
-                          : (status) => {
-                              if (row.occurrence)
-                                void occurrenceProgress.change({
-                                  command: {
-                                    type: "plan.set-occurrence-status",
+                {group.rows.map((row) => {
+                  const peers = canOrderRows
+                    ? planRowOrderPeers(group.rows, selection, row).map(
+                        (peer) => peer.key
+                      )
+                    : []
+                  return (
+                    <li
+                      key={row.key}
+                      data-order-item={row.key}
+                      data-order-label={row.plan.title}
+                    >
+                      <PlanCard
+                        plan={row.plan}
+                        categoryColor={group.color}
+                        busy={busy}
+                        expanded={expandedIds.has(row.key)}
+                        onExpandedChange={(expanded) =>
+                          setExpandedIds((current) => {
+                            if (current.has(row.key) === expanded)
+                              return current
+                            const next = new Set(current)
+                            if (expanded) next.add(row.key)
+                            else next.delete(row.key)
+                            return next
+                          })
+                        }
+                        onEdit={() =>
+                          setEditing({
+                            plan: row.series,
+                            view:
+                              data?.views.find(
+                                (view) => view.itemId === row.series.id
+                              ) ?? null,
+                          })
+                        }
+                        editLabel={
+                          row.occurrence || row.series.recurrence
+                            ? "Editar serie"
+                            : "Editar"
+                        }
+                        deleteLabel={
+                          row.occurrence
+                            ? "Cancelar aparición"
+                            : row.series.recurrence
+                              ? "Eliminar serie"
+                              : "Eliminar"
+                        }
+                        contextLabel={
+                          row.occurrence
+                            ? "El progreso afecta sólo a esta aparición; la categoría y la edición afectan a la serie."
+                            : undefined
+                        }
+                        onDelete={() =>
+                          row.occurrence
+                            ? setPendingCancel(row)
+                            : setPendingDelete(row.series)
+                        }
+                        onStatusChange={
+                          row.plan.recurrence
+                            ? undefined
+                            : (status) => {
+                                if (row.occurrence)
+                                  void occurrenceProgress.change({
+                                    command: {
+                                      type: "plan.set-occurrence-status",
+                                      itemId: row.series.id,
+                                      occurrenceId: row.occurrence.id,
+                                      status,
+                                    },
+                                    expectedItem: row.series,
+                                    expectedOccurrence: row.occurrence,
+                                  })
+                                else
+                                  void progress.change({
+                                    type: "plan.set-status",
                                     itemId: row.series.id,
-                                    occurrenceId: row.occurrence.id,
                                     status,
-                                  },
-                                  expectedItem: row.series,
-                                  expectedOccurrence: row.occurrence,
-                                })
-                              else
-                                void progress.change({
-                                  type: "plan.set-status",
-                                  itemId: row.series.id,
-                                  status,
-                                })
-                            }
-                      }
-                      onChecklistChange={
-                        row.plan.recurrence
-                          ? undefined
-                          : (entryId, completed) => {
-                              if (row.occurrence)
-                                void occurrenceProgress.change({
-                                  command: {
-                                    type: "plan.set-occurrence-checklist-entry",
+                                  })
+                              }
+                        }
+                        onChecklistChange={
+                          row.plan.recurrence
+                            ? undefined
+                            : (entryId, completed) => {
+                                if (row.occurrence)
+                                  void occurrenceProgress.change({
+                                    command: {
+                                      type: "plan.set-occurrence-checklist-entry",
+                                      itemId: row.series.id,
+                                      occurrenceId: row.occurrence.id,
+                                      entryId,
+                                      completed,
+                                    },
+                                    expectedItem: row.series,
+                                    expectedOccurrence: row.occurrence,
+                                  })
+                                else
+                                  void progress.change({
+                                    type: "plan.set-checklist-entry",
                                     itemId: row.series.id,
-                                    occurrenceId: row.occurrence.id,
                                     entryId,
                                     completed,
-                                  },
-                                  expectedItem: row.series,
-                                  expectedOccurrence: row.occurrence,
-                                })
-                              else
-                                void progress.change({
-                                  type: "plan.set-checklist-entry",
-                                  itemId: row.series.id,
-                                  entryId,
-                                  completed,
-                                })
-                            }
-                      }
-                      categoryControl={
-                        data ? (
-                          <ItemCategorySelect
-                            compact
-                            title={row.plan.title}
-                            itemId={row.series.id}
-                            tags={data.tags}
-                            selectedId={
-                              group.id === "uncategorized" ? null : group.id
-                            }
-                            busy={busy}
-                            onChange={(tagId) => {
-                              const currentTagId =
+                                  })
+                              }
+                        }
+                        categoryControl={
+                          data ? (
+                            <ItemCategorySelect
+                              compact
+                              title={row.plan.title}
+                              itemId={row.series.id}
+                              tags={data.tags}
+                              selectedId={
                                 group.id === "uncategorized" ? null : group.id
-                              if (tagId === currentTagId) return
-                              categoryFocus.current = row.series.id
-                              void category.change({
-                                itemId: row.series.id,
-                                tagId,
-                              })
-                            }}
-                          />
-                        ) : undefined
-                      }
-                      orderControl={
-                        (calendarDropScope && !row.plan.recurrence) ||
-                        (canOrderRows &&
-                          planRowOrderPeers(group.rows, selection, row).length >
-                            1) ? (
-                          <LongPressOrder
-                            itemId={row.key}
-                            dropScope={calendarDropScope}
-                            version={
-                              calendarDropScope
-                                ? JSON.stringify(row)
-                                : undefined
-                            }
-                            onDateDrop={
-                              calendarDropScope
-                                ? (date) => {
-                                    void rescheduling.change({ row, date })
-                                  }
-                                : undefined
-                            }
-                            label={`plan ${row.plan.title}`}
-                            peers={
-                              canOrderRows &&
-                              planRowOrderPeers(group.rows, selection, row)
-                                .length > 1
-                                ? planRowOrderPeers(
-                                    group.rows,
+                              }
+                              busy={busy}
+                              onChange={(tagId) => {
+                                const currentTagId =
+                                  group.id === "uncategorized" ? null : group.id
+                                if (tagId === currentTagId) return
+                                categoryFocus.current = row.series.id
+                                void category.change({
+                                  itemId: row.series.id,
+                                  tagId,
+                                })
+                              }}
+                            />
+                          ) : undefined
+                        }
+                        orderControl={
+                          (calendarDropScope && !row.plan.recurrence) ||
+                          peers.length > 1 ? (
+                            <LongPressOrder
+                              itemId={row.key}
+                              dropScope={calendarDropScope}
+                              version={
+                                calendarDropScope
+                                  ? JSON.stringify(row)
+                                  : undefined
+                              }
+                              onDateDrop={
+                                calendarDropScope
+                                  ? (date) => {
+                                      void rescheduling.change({ row, date })
+                                    }
+                                  : undefined
+                              }
+                              label={`plan ${row.plan.title}`}
+                              peers={peers.length > 1 ? peers : [row.key]}
+                              busy={busy}
+                              onDrop={(neighbors) => {
+                                void ordering.change(
+                                  planRowMoveCommand(
                                     selection,
-                                    row
-                                  ).map((record) => record.id)
-                                : [row.key]
-                            }
-                            busy={busy}
-                            onDrop={(neighbors) => {
-                              void ordering.change({
-                                type: "task.move",
-                                itemId: row.series.id,
-                                occurrenceId: null,
-                                tagId:
-                                  group.id === "uncategorized"
-                                    ? null
-                                    : group.id,
-                                ...planOrderContext(selection, row.series),
-                                ...neighbors,
-                              })
-                            }}
-                          />
-                        ) : undefined
-                      }
-                    />
-                  </li>
-                ))}
+                                    row,
+                                    group.id === "uncategorized"
+                                      ? null
+                                      : group.id,
+                                    neighbors
+                                  )
+                                )
+                              }}
+                            />
+                          ) : undefined
+                        }
+                      />
+                    </li>
+                  )
+                })}
               </TaskGroup>
             ))}
           </div>
