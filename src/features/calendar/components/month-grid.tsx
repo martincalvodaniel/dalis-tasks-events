@@ -112,7 +112,7 @@ export function MonthGrid({
                         href={calendarHref(cell.date)}
                         aria-current={selected ? "true" : undefined}
                         aria-label={`${dayFormatter.format(civilDateToUtc(cell.date))}${isToday ? ", hoy" : ""}${selected ? ", seleccionado" : ""}${incomplete ? ", planes sin completar" : completed ? ", todos los planes completados" : count === 0 ? ", sin planes" : ""}`}
-                        className={`flex min-h-14 items-center justify-center rounded-lg border py-1 text-sm text-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-emerald-700 dark:text-zinc-200 ${selected ? "border-emerald-700 bg-zinc-100 dark:bg-zinc-800" : isToday ? "border-emerald-700" : "border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800"} ${cell.inMonth ? "" : "opacity-60"}`}
+                        className={`flex min-h-11 items-center justify-center rounded-lg border py-1 text-sm text-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-emerald-700 dark:text-zinc-200 ${selected ? "border-emerald-700 bg-zinc-100 dark:bg-zinc-800" : isToday ? "border-emerald-700" : "border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800"} ${cell.inMonth ? "" : "opacity-60"}`}
                       >
                         <span
                           className={
