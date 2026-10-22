@@ -7,7 +7,7 @@ import { MonthGrid } from "@/features/calendar/components/month-grid"
 import { useAccountDay } from "@/features/calendar/hooks/use-account-day"
 import { useCalendarDate } from "@/features/calendar/hooks/use-calendar-date"
 import { calendarWeeks } from "@/features/calendar/month-view"
-import { planCalendarCounts } from "@/features/plans/calendar-plans"
+import { planCalendarSummary } from "@/features/plans/calendar-plans"
 import { PlanList } from "@/features/plans/components/plan-list"
 import { useLocalPlans } from "@/features/plans/hooks/use-local-plans"
 import { usePlanAppearances } from "@/features/plans/hooks/use-plan-appearances"
@@ -42,11 +42,14 @@ export function PlanCalendarBoard({ account }: { account: LocalAccount }) {
     account.epoch,
     range
   )
-  const counts = useMemo(
+  const summary = useMemo(
     () =>
       data && range
-        ? planCalendarCounts(data.plans, appearances.views, range)
-        : new Map<string, number>(),
+        ? planCalendarSummary(data.plans, appearances.views, range)
+        : {
+            counts: new Map<string, number>(),
+            incompleteDates: new Set<string>(),
+          },
     [data, range, appearances.views]
   )
   if (error)
@@ -62,7 +65,8 @@ export function PlanCalendarBoard({ account }: { account: LocalAccount }) {
       <MonthGrid
         selectedDate={selected}
         today={today}
-        counts={counts}
+        counts={summary.counts}
+        incompleteDates={summary.incompleteDates}
         dropScope={dropScope}
       />
       {appearances.nextCursor ? (

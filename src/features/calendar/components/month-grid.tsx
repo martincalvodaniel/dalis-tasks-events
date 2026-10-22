@@ -29,12 +29,14 @@ export function MonthGrid({
   selectedDate,
   today,
   counts,
+  incompleteDates,
   dropScope,
 }: {
   selectedDate: string
   today: string
   dropScope?: string
   counts: ReadonlyMap<string, number>
+  incompleteDates?: ReadonlySet<string>
 }) {
   const swipe = useMonthSwipe(selectedDate)
   const title = monthFormatter.format(civilDateToUtc(selectedDate))
@@ -91,6 +93,8 @@ export function MonthGrid({
                 {week.map((cell) => {
                   if (!cell.date) return <td key={cell.key} />
                   const count = counts.get(cell.date) ?? 0
+                  const incomplete =
+                    count > 0 && incompleteDates?.has(cell.date)
                   const selected = cell.date === selectedDate
                   const isToday = cell.date === today
                   return (
@@ -100,13 +104,22 @@ export function MonthGrid({
                         data-order-drop-date={dropScope ? cell.date : undefined}
                         href={calendarHref(cell.date)}
                         aria-current={selected ? "true" : undefined}
-                        aria-label={`${dayFormatter.format(civilDateToUtc(cell.date))}${isToday ? ", hoy" : ""}${selected ? ", seleccionado" : ""}, ${count} ${count === 1 ? "elemento" : "elementos"}`}
+                        aria-label={`${dayFormatter.format(civilDateToUtc(cell.date))}${isToday ? ", hoy" : ""}${selected ? ", seleccionado" : ""}, ${count} ${count === 1 ? "elemento" : "elementos"}${incomplete ? ", planes sin completar" : ""}`}
                         className={`flex min-h-14 flex-col items-center justify-center rounded-lg border py-1 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-emerald-700 ${selected ? "border-emerald-700 bg-emerald-700 font-bold text-white" : isToday ? "border-emerald-700 text-emerald-800 dark:text-emerald-300" : "border-transparent text-zinc-800 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"} ${cell.inMonth ? "" : "opacity-60"}`}
                       >
                         <span>{cell.day}</span>
                         {count ? (
                           <span className="text-xs" aria-hidden="true">
-                            {count > 99 ? "99+" : String(count)} ·
+                            {count > 99 ? "99+" : String(count)}{" "}
+                            <span
+                              className={
+                                incomplete
+                                  ? "text-red-500 dark:text-red-400"
+                                  : undefined
+                              }
+                            >
+                              ·
+                            </span>
                           </span>
                         ) : (
                           <span className="h-4" aria-hidden="true" />

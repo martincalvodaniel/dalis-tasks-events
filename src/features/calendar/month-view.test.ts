@@ -79,3 +79,25 @@ describe("monthly calendar navigation", () => {
     expect(calendarWeeks("2021-02-01")).toHaveLength(4)
   })
 })
+
+test("pending day colors only its dot and exposes completion state accessibly", () => {
+  const markup = renderToStaticMarkup(
+    createElement(MonthGrid, {
+      selectedDate: "2026-10-11",
+      today: "2026-10-11",
+      counts: new Map([
+        ["2026-10-11", 2],
+        ["2026-10-12", 1],
+      ]),
+      incompleteDates: new Set(["2026-10-11"]),
+    })
+  )
+  expect(markup).toContain("2 elementos, planes sin completar")
+  expect(markup).toContain('lunes, 12 de octubre de 2026, 1 elemento"')
+  expect(markup.match(/class="text-red-500 dark:text-red-400"/g)).toHaveLength(
+    1
+  )
+  expect(markup).toContain(
+    '2 <span class="text-red-500 dark:text-red-400">·</span>'
+  )
+})

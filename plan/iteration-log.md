@@ -1,5 +1,11 @@
 # Registro de iteraciones
 
+## 23b — Indicador de pendientes en el calendario
+
+El punto junto al total diario se muestra rojo si queda algún plan sin empezar o en progreso, incluidas las cuatro variantes y las apariciones recurrentes. Al completar todos vuelve al color neutro; el número sigue incluyendo completados. Cancelados y borrados no intervienen. La descripción accesible anuncia pendientes sin depender sólo del color.
+
+Pruebas focalizadas11/80aserciones y DoD1360pass/225opt-in skip/0fail/14873aserciones, lint1074sinavisos/tipos/Webpack/worker46 aprobados. UI productiva con IndexedDB propio: completar los tres planes de hoy elimina el rojo conservando total3; reabrir uno lo restaura y otras apariciones conservan su estado. Prueba y bases propias eliminadas, servidor y pestaña cerrados. Sin cambios de persistencia, sincronización o índices ni DBusuario/producción. Build inicial compiló pero salió por aviso de seguridad de Next16.4.0; la repetición ordinaria indicada por el comando pasó, sin actualizar dependencias ni modificar comprobaciones. No se atribuye nueva matriz RPC, Google o prueba física.
+
 ## 23a — Restaurar orden de filas mixtas y comprobar el caso reportado
 
 Objetivo/rutas/dependencias/aceptación definidos antes de código. Basebd27132 limpia en int. planRowOrderPeers devuelve filas simples/apariciones sin bloquear todo el contexto; conserva orden mostrado, fecha efectiva y selección completa de día/atrasadas. planRowMoveCommand comparte identidad/categoría/contexto con la UI y envía el slot original cuando existe. La lista calcula vecinos una vez por fila; ya no envía occurrenceIdnull para una aparición. Usa el productor recurrente activo sin tocar TX, ejecutores, negociación o índices. Guardias de catálogo incompleto, cuenta/época/busy y datos borrados/cancelados siguen vigentes.

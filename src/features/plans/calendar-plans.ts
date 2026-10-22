@@ -6,7 +6,7 @@ import { civilDateSchema } from "@/schemas/primitives"
 import type { Plan } from "@/types/plan-item"
 
 // Counts reflect the loaded appearance pages; the UI exposes any remaining cursor.
-export function planCalendarCounts(
+export function planCalendarSummary(
   plans: readonly Plan[],
   appearances: readonly PlanOccurrenceView[],
   range: { startDate: string; endDate: string }
@@ -19,17 +19,26 @@ export function planCalendarCounts(
     date: start,
   })
   const counts = new Map<string, number>()
+  const incompleteDates = new Set<string>()
   let date = start
   let days = 0
   while (date <= end) {
     if (++days > 42)
       throw new Error("Plan calendar range exceeds its month grid limit")
-    counts.set(
-      date,
-      rows.filter((row) => planIncludesDate(row.plan, date)).length
-    )
+    const visible = rows.filter((row) => planIncludesDate(row.plan, date))
+    counts.set(date, visible.length)
+    if (visible.some((row) => row.plan.status !== "completed"))
+      incompleteDates.add(date)
     if (date === end) break
     date = addCivilDays(date, 1)
   }
-  return counts
+  return { counts, incompleteDates }
+}
+
+export function planCalendarCounts(
+  plans: readonly Plan[],
+  appearances: readonly PlanOccurrenceView[],
+  range: { startDate: string; endDate: string }
+) {
+  return planCalendarSummary(plans, appearances, range).counts
 }
