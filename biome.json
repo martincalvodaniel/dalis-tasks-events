@@ -12,6 +12,15 @@
     "rules": {
       "performance": {
         "noJsxPropsBind": "off"
+      },
+      "style": {
+        "useConsistentTestIt": "off"
+      },
+      "suspicious": {
+        "noConditionalExpect": "off"
+      },
+      "complexity": {
+        "useMathMinMax": "off"
       }
     }
   },
@@ -70,5 +79,10 @@
         }
       }
     }
-  ]
+  ],
+  "markdown": {
+    "formatter": {
+      "enabled": false
+    }
+  }
 }

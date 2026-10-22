@@ -1,5 +1,13 @@
 # Registro de iteraciones
 
+## 23c — Dependencias actualizadas y build validada
+
+Ejecutado el comando solicitado `bun update --latest && bun install`: instalación final sin cambios adicionales. Actualizadas dependencias directas Next16.4.0→16.4.2, React/ReactDOM19.3.0→19.3.1, BetterAuth1.7.7→1.7.12, Zod4.6.5→4.6.7, Biome2.5.15→2.6.2, tiposBun1.4.2→1.4.3 yKnip6.41.0→6.42.1, con transitivas en bun.lock. Sin nuevas dependencias directas ni cambios de código productivo.
+
+Biome2.6 incorpora formato Markdown y diagnósticos nuevos sobre el histórico: se conserva explícitamente el alcance anterior, desactivando formatter Markdown y reglas useConsistentTestIt/noConditionalExpect/useMathMinMax. Evita reformatear documentación y reescribir aserciones de fixtures por una actualización de herramientas; el resto de reglas siguen activas. Primer lint rechazó formato Markdown; tras ajustar política, un formato de biome.json se corrigió de forma aislada. Resultado final:1360pass/225opt-in skip/0fail/14873aserciones, lint1110sinavisos/tipos/Webpack16.4.2/worker46/diff aprobados. Build con configuración ficticia sin conexión a DBusuario y fallback Webpack ambiental habitual; no apareció el aviso de seguridad que detuvo la build16.4.0. Esto no constituye una auditoría de seguridad ni una nueva matriz RPC/Google. No DBusuario/producción/hosting/secretos/permisos.
+
+Entrada88%5h/98%7d, control84%/97%, reservas10%/1%; mismo ConventionalCommit/pushint/verificación SHA/cuotas.
+
 ## 23b — Indicador de pendientes en el calendario
 
 El punto junto al total diario se muestra rojo si queda algún plan sin empezar o en progreso, incluidas las cuatro variantes y las apariciones recurrentes. Al completar todos vuelve al color neutro; el número sigue incluyendo completados. Cancelados y borrados no intervienen. La descripción accesible anuncia pendientes sin depender sólo del color.

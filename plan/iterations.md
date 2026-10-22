@@ -1,5 +1,11 @@
 # Iteraciones de implementación
 
+## 23c — Actualizar dependencias a latest
+
+Objetivo solicitado: ejecutar `bun update --latest && bun install` y publicar sólo si validaciones completas pasan. target_paths: package.json, bun.lock, biome.json y adaptaciones estrictamente necesarias por incompatibilidad; plan/master.md, iterations.md e iteration-log.md. Dependencia cf06e16 limpio en int; entrada88%5h/98%7d, reservas10%/1%, secuencial. Aceptación: instalación coherente sin secretos ni nuevas dependencias core deliberadas, revisar cambios directos/transitivos, suite/lint/tipos/buildWebpack y worker aprobados; si falla corregir incompatibilidad acotada o informar sin commit de código roto. Mismo commit/pushint/HEAD remoto/cuotas. No DBusuario, producción o configuración de hosting.
+
+Resultado23c: instalación final coherente, sin cambios de aplicación;1360pass/225skip/0fail/14873aserciones, lint1110/tipos/Webpack16.4.2/worker46 aprobados. Configuración de Biome conserva política previa ante formato y diagnósticos nuevos; detalle en iteration-log. Sin auditoría de seguridad ni piloto RPC nuevos.
+
 ## 23b — Punto rojo cuando quedan planes sin completar
 
 Objetivo: mantener el número total de planes del calendario y colorear sólo su punto si hay algún plan sin empezar/en progreso, incluidas apariciones y cuatro variantes. target_paths: features/plans/calendar-plans y tests, plan-calendar-board, calendar/components/month-grid y SSR existente; plan/log/guía. Dependencia c88f3ed limpio en int, entrada100%5h/100%7d, reservas10%/1%, secuencial. Aceptación: estado derivado en el mismo cálculo del recuento; sin contar padres, cancelados o borrados; cambio inmediato al completar/reactivar, punto neutro con todo completado, número intacto y descripción accesible española. Pruebas de estados/intervalos/apariciones y SSR, QA de componentes reales en fixture propia, lint/tipos/Webpack/worker, mismo commit/pushint/SHA/cuotas. Sin persistencia/protocolo/índices/dependencias nuevos ni DBusuario/producción.
