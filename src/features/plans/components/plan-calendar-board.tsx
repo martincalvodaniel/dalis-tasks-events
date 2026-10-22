@@ -67,11 +67,13 @@ export function PlanCalendarBoard({ account }: { account: LocalAccount }) {
         today={today}
         counts={summary.counts}
         incompleteDates={summary.incompleteDates}
+        completionKnown={!appearances.nextCursor && !appearances.issues.length}
         dropScope={dropScope}
       />
       {appearances.nextCursor ? (
         <p role="status" className="mt-2 text-xs text-zinc-500">
-          El recuento incluye las apariciones cargadas.
+          Quedan apariciones por cargar. Completa el mes para confirmar los días
+          terminados.
         </p>
       ) : null}
       {appearances.canLoadMore ? (
@@ -80,12 +82,12 @@ export function PlanCalendarBoard({ account }: { account: LocalAccount }) {
           onClick={appearances.loadMore}
           className="min-h-11 rounded-lg border px-3 text-sm"
         >
-          Completar recuento del mes
+          Completar mes
         </button>
       ) : null}
       {appearances.limited ? (
         <p role="status" className="text-xs text-zinc-500">
-          Quedan apariciones sin contar; consulta un día concreto.
+          Quedan apariciones sin cargar; consulta un día concreto.
         </p>
       ) : null}
       {appearances.issues.length ? (

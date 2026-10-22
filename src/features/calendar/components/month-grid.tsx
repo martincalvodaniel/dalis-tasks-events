@@ -30,6 +30,7 @@ export function MonthGrid({
   today,
   counts,
   incompleteDates,
+  completionKnown = true,
   dropScope,
 }: {
   selectedDate: string
@@ -37,6 +38,7 @@ export function MonthGrid({
   dropScope?: string
   counts: ReadonlyMap<string, number>
   incompleteDates?: ReadonlySet<string>
+  completionKnown?: boolean
 }) {
   const swipe = useMonthSwipe(selectedDate)
   const title = monthFormatter.format(civilDateToUtc(selectedDate))
@@ -95,6 +97,11 @@ export function MonthGrid({
                   const count = counts.get(cell.date) ?? 0
                   const incomplete =
                     count > 0 && incompleteDates?.has(cell.date)
+                  const completed =
+                    count > 0 &&
+                    completionKnown &&
+                    incompleteDates &&
+                    !incomplete
                   const selected = cell.date === selectedDate
                   const isToday = cell.date === today
                   return (
@@ -104,26 +111,20 @@ export function MonthGrid({
                         data-order-drop-date={dropScope ? cell.date : undefined}
                         href={calendarHref(cell.date)}
                         aria-current={selected ? "true" : undefined}
-                        aria-label={`${dayFormatter.format(civilDateToUtc(cell.date))}${isToday ? ", hoy" : ""}${selected ? ", seleccionado" : ""}, ${count} ${count === 1 ? "elemento" : "elementos"}${incomplete ? ", planes sin completar" : ""}`}
-                        className={`flex min-h-14 flex-col items-center justify-center rounded-lg border py-1 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-emerald-700 ${selected ? "border-emerald-700 bg-emerald-700 font-bold text-white" : isToday ? "border-emerald-700 text-emerald-800 dark:text-emerald-300" : "border-transparent text-zinc-800 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"} ${cell.inMonth ? "" : "opacity-60"}`}
+                        aria-label={`${dayFormatter.format(civilDateToUtc(cell.date))}${isToday ? ", hoy" : ""}${selected ? ", seleccionado" : ""}${incomplete ? ", planes sin completar" : completed ? ", todos los planes completados" : count === 0 ? ", sin planes" : ""}`}
+                        className={`flex min-h-14 items-center justify-center rounded-lg border py-1 text-sm text-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-emerald-700 dark:text-zinc-200 ${selected ? "border-emerald-700 bg-zinc-100 dark:bg-zinc-800" : isToday ? "border-emerald-700" : "border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800"} ${cell.inMonth ? "" : "opacity-60"}`}
                       >
-                        <span>{cell.day}</span>
-                        {count ? (
-                          <span className="text-xs" aria-hidden="true">
-                            {count > 99 ? "99+" : String(count)}{" "}
-                            <span
-                              className={
-                                incomplete
-                                  ? "text-red-500 dark:text-red-400"
-                                  : undefined
-                              }
-                            >
-                              ·
-                            </span>
-                          </span>
-                        ) : (
-                          <span className="h-4" aria-hidden="true" />
-                        )}
+                        <span
+                          className={
+                            incomplete
+                              ? "font-bold text-red-700 dark:text-red-400"
+                              : completed
+                                ? "font-bold text-green-700 dark:text-green-400"
+                                : undefined
+                          }
+                        >
+                          {cell.day}
+                        </span>
                       </a>
                     </td>
                   )
@@ -133,10 +134,6 @@ export function MonthGrid({
           </tbody>
         </table>
       </div>
-      <p className="hidden md:block mt-3 text-sm text-zinc-600 dark:text-zinc-400">
-        Los números indican los elementos de cada día, incluidos los
-        completados.
-      </p>
     </section>
   )
 }

@@ -80,24 +80,64 @@ describe("monthly calendar navigation", () => {
   })
 })
 
-test("pending day colors only its dot and exposes completion state accessibly", () => {
+for (const selectedDate of ["2026-10-11", "2026-10-12", "2026-10-13"]) {
+  test(`day numbers expose pending/completed/empty states with selection on ${selectedDate}`, () => {
+    const markup = renderToStaticMarkup(
+      createElement(MonthGrid, {
+        selectedDate,
+        today: "2026-10-11",
+        counts: new Map([
+          ["2026-10-11", 2],
+          ["2026-10-12", 1],
+        ]),
+        incompleteDates: new Set(["2026-10-11"]),
+      })
+    )
+    expect(markup).toContain(
+      'class="font-bold text-red-700 dark:text-red-400">11</span>'
+    )
+    expect(markup).toContain(
+      'class="font-bold text-green-700 dark:text-green-400">12</span>'
+    )
+    expect(markup).toContain("<span>13</span>")
+    expect(markup).toContain("planes sin completar")
+    expect(markup).toContain("todos los planes completados")
+    expect(markup).toContain("sin planes")
+    expect(markup).toContain('aria-current="true"')
+    expect(markup).toContain("bg-zinc-100 dark:bg-zinc-800")
+    expect(markup).not.toContain("·")
+    expect(markup).not.toContain("elementos")
+    expect(markup).not.toContain('class="text-xs" aria-hidden="true"')
+    expect(markup).not.toContain("Los números indican")
+  })
+}
+
+test("counts without completion evidence never imply that every plan is completed", () => {
+  const markup = renderToStaticMarkup(
+    createElement(MonthGrid, {
+      selectedDate: "2026-10-11",
+      today: "2026-10-11",
+      counts: new Map([["2026-10-11", 2]]),
+    })
+  )
+  expect(markup).not.toContain("text-green-700")
+  expect(markup).not.toContain("todos los planes completados")
+})
+
+test("partial appearance pages keep pending days red but never claim all plans completed", () => {
   const markup = renderToStaticMarkup(
     createElement(MonthGrid, {
       selectedDate: "2026-10-11",
       today: "2026-10-11",
       counts: new Map([
-        ["2026-10-11", 2],
+        ["2026-10-11", 1],
         ["2026-10-12", 1],
       ]),
       incompleteDates: new Set(["2026-10-11"]),
+      completionKnown: false,
     })
   )
-  expect(markup).toContain("2 elementos, planes sin completar")
-  expect(markup).toContain('lunes, 12 de octubre de 2026, 1 elemento"')
-  expect(markup.match(/class="text-red-500 dark:text-red-400"/g)).toHaveLength(
-    1
-  )
-  expect(markup).toContain(
-    '2 <span class="text-red-500 dark:text-red-400">·</span>'
-  )
+  expect(markup).toContain("font-bold text-red-700")
+  expect(markup).not.toContain("text-green-700")
+  expect(markup).not.toContain("todos los planes completados")
 })
