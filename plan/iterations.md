@@ -1,5 +1,11 @@
 # Iteraciones de implementación
 
+## 23d — Agenda cronológica sin bloques fuera de Hoy
+
+Objetivo: Mi espacio conserva categorías en Hoy y muestra Atrasadas/Próximas como listas continuas por fecha civil ascendente, respetando el orden manual existente dentro de cada categoría/fecha y color propio de cada fila. target_paths: features/plans/plan-agenda-rows y tests, components/plan-agenda y plan-list, tasks/components/task-group y pruebas de presentación; plan/log/guía. Dependencia cbe67b9 limpio en int, entrada83%5h/97%7d, reservas10%/1%, secuencial. No comparar rangos de categorías independientes como un orden global ni permitir que un orden antiguo salte fechas. Conservar productores/identidad de aparición, gestos dentro del contexto válido, contadores/desplegables/paginación, categoría editable e iconos/checklist. Calendario y otras listas conservan agrupación. Pruebas de fechas entre categorías, orden manual mixto, colores/metadatos y SSR sin encabezados, QA local propia pertinente, suite/lint/tipos/Webpack/worker/diff, mismo commit/pushint/SHA/cuotas. Sin persistencia, protocolo, índices, dependencias o DBusuario/producción.
+
+Resultado23d: listas continuas cronológicas activas sólo en Atrasadas/Próximas, categoría/color/posiciones propios conservados.14focalizadas/88aserciones; DoD1364/225skip/0fail/14892, lint1111/tipos/Webpack/worker46 y QA390px propios aprobados. Detalle y límites en iteration-log.
+
 ## 23c — Actualizar dependencias a latest
 
 Objetivo solicitado: ejecutar `bun update --latest && bun install` y publicar sólo si validaciones completas pasan. target_paths: package.json, bun.lock, biome.json y adaptaciones estrictamente necesarias por incompatibilidad; plan/master.md, iterations.md e iteration-log.md. Dependencia cf06e16 limpio en int; entrada88%5h/98%7d, reservas10%/1%, secuencial. Aceptación: instalación coherente sin secretos ni nuevas dependencias core deliberadas, revisar cambios directos/transitivos, suite/lint/tipos/buildWebpack y worker aprobados; si falla corregir incompatibilidad acotada o informar sin commit de código roto. Mismo commit/pushint/HEAD remoto/cuotas. No DBusuario, producción o configuración de hosting.

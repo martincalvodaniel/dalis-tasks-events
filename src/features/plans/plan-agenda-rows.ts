@@ -186,6 +186,33 @@ export function orderPlanAgendaRows(
   )
 }
 
+// Manual ranks belong to a category and scope; never compare ranks across groups.
+export function chronologicalPlanAgendaRows(
+  groups: readonly PlanAgendaRowGroup[]
+): PlanAgendaRow[] {
+  const categoryByKey = new Map<string, string>()
+  const orderedByDate = new Map<string, PlanAgendaRow[]>()
+  for (const group of groups) {
+    for (const row of group.rows) {
+      categoryByKey.set(row.key, group.id)
+      const key = `${group.id}:${planStartDate(row.plan)}`
+      const queue = orderedByDate.get(key) ?? []
+      queue.push(row)
+      orderedByDate.set(key, queue)
+    }
+  }
+  const offsets = new Map<string, number>()
+  return groups
+    .flatMap((group) => group.rows)
+    .toSorted(compareRows)
+    .map((row) => {
+      const key = `${categoryByKey.get(row.key)}:${planStartDate(row.plan)}`
+      const offset = offsets.get(key) ?? 0
+      offsets.set(key, offset + 1)
+      return orderedByDate.get(key)?.[offset] ?? row
+    })
+}
+
 export function planAppearanceRange(
   plansInput: readonly Plan[],
   exceptionsInput: readonly PlanOccurrence[],

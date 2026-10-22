@@ -1,5 +1,13 @@
 # Dalis Tasks & Events — plan maestro
 
+## 23d — Mi espacio continuo fuera de Hoy
+
+Hoy mantiene bloques y orden de categorías. Atrasadas y Próximas muestran una sola lista sin encabezados de categoría, en fecha de inicio civil ascendente. Dentro de cada categoría/fecha conservan las posiciones manuales existentes; se combinan sobre el orden cronológico de base sin comparar rangos de categorías independientes ni dejar que una posición antigua cruce fechas. Cada fila conserva identidad de padre/slot, categoría editable y color propio en icono y pasos. Calendario no cambia. Contadores, plegado y carga adicional conservados; sin nuevos comandos, persistencia o índices.
+
+Catorce pruebas focalizadas/88aserciones: fechas entre categorías, manual simple/aparición, identidad original, no mutación, independencia del orden de categorías y SSR de listas continuas/agrupadas. Los primeros fixtures se corrigieron para incluir normalizedName y usar TaskPlacement estricto; expectativa de orden por variante corregida y itemId de prueba previa restaurado tras sustitución demasiado amplia. Schemas y comportamiento anteriores no relajados. DoD1364pass/225opt-in skip/0fail/14892aserciones, lint1111sinavisos/tipos/Webpack16.4.2/worker46/diff aprobados.
+
+QA de PlanAgenda real a390px con cuenta/IndexedDB propios: Atrasadas0encabezados, Hoy4categorías, Próximas0encabezados; fechas y stroke de iconos/pasos propios (#e85d04/#123abc/#2b9348/#b5179e) conservados, plegado de Hoy operativo. Captura /private/tmp/dalis-23d-home.png. Prueba/bases propias eliminadas, pestaña/servidor retirados y viewport restablecido. No nuevas pruebas RPC/Google/físicas ni DBusuario/producción. Entrada83%5h/97%7d, control78%/97%, reservas10%/1%; mismo commit/pushint/HEAD/cuotas.
+
 ## 23c — Dependencias actualizadas y build validada
 
 Ejecutado el comando solicitado `bun update --latest && bun install`: instalación final sin cambios adicionales. Actualizadas dependencias directas Next16.4.0→16.4.2, React/ReactDOM19.3.0→19.3.1, BetterAuth1.7.7→1.7.12, Zod4.6.5→4.6.7, Biome2.5.15→2.6.2, tiposBun1.4.2→1.4.3 yKnip6.41.0→6.42.1, con transitivas en bun.lock. Sin nuevas dependencias directas ni cambios de código productivo.

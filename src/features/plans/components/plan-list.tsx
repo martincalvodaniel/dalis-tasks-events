@@ -21,6 +21,7 @@ import {
   deleteLocalPlan,
 } from "@/features/plans/local-plans"
 import {
+  chronologicalPlanAgendaRows,
   createPlanAgendaRows,
   groupPlanAgendaRows,
   orderPlanAgendaRows,
@@ -55,11 +56,13 @@ export function PlanList({
   heading = "Tus planes",
   calendarDropScope,
   collapsible = false,
+  groupByCategory = true,
 }: {
   account: LocalAccount
   selection?: PlanAgendaSelection
   calendarDropScope?: string
   heading?: string
+  groupByCategory?: boolean
   collapsible?: boolean
 }) {
   const contentId = useId()
@@ -150,6 +153,21 @@ export function PlanList({
             : group.rows,
       }))
     : []
+  const categoryByRow = new Map(
+    groups.flatMap((group) =>
+      group.rows.map((row) => [row.key, group] as const)
+    )
+  )
+  const displayGroups = groupByCategory
+    ? groups
+    : [
+        {
+          id: "chronological",
+          title: heading,
+          color: null,
+          rows: chronologicalPlanAgendaRows(groups),
+        },
+      ]
   const busy =
     deleting ||
     progress.busy ||
@@ -299,24 +317,26 @@ export function PlanList({
           <DelayedStatus>Cargando planes…</DelayedStatus>
         ) : rows.length ? (
           <div data-order-list className="space-y-3">
-            {groups.map((group) => (
+            {displayGroups.map((displayGroup) => (
               <TaskGroup
-                key={group.id}
-                title={group.title}
-                color={group.color}
-                orderId={group.id}
+                key={displayGroup.id}
+                title={displayGroup.title}
+                color={displayGroup.color}
+                headingVisible={groupByCategory}
+                orderId={displayGroup.id}
                 orderControl={
+                  groupByCategory &&
                   visibleTagIds.length > 1 &&
-                  visibleTagIds.includes(group.id) ? (
+                  visibleTagIds.includes(displayGroup.id) ? (
                     <LongPressOrder
-                      itemId={group.id}
-                      label={`grupo ${group.title}`}
+                      itemId={displayGroup.id}
+                      label={`grupo ${displayGroup.title}`}
                       peers={tagIds}
                       busy={busy}
                       onDrop={(neighbors) => {
                         void groupOrdering.change({
                           type: "tag.move",
-                          tagId: group.id,
+                          tagId: displayGroup.id,
                           ...neighbors,
                         })
                       }}
@@ -324,7 +344,9 @@ export function PlanList({
                   ) : undefined
                 }
               >
-                {group.rows.map((row) => {
+                {displayGroup.rows.map((row) => {
+                  const group = categoryByRow.get(row.key)
+                  if (!group) return null
                   const peers = canOrderRows
                     ? planRowOrderPeers(group.rows, selection, row).map(
                         (peer) => peer.key

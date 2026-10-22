@@ -8,14 +8,22 @@ export function TaskGroup({
   orderControl,
   orderId,
   color,
+  headingVisible = true,
 }: {
   title: string
+  headingVisible?: boolean
   children: ReactNode
   orderControl?: ReactNode
   color?: string | null
   orderId?: string
 }) {
   const headingId = useId()
+  if (!headingVisible)
+    return (
+      <ul data-order-list className="space-y-1.5">
+        {children}
+      </ul>
+    )
   return (
     <section
       data-order-item={orderId}

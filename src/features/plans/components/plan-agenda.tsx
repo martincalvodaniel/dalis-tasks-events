@@ -22,6 +22,7 @@ export function PlanAgenda({ account }: { account: LocalAccount }) {
       <PlanList
         collapsible
         account={account}
+        groupByCategory={false}
         selection={{ kind: "overdue", date: today }}
         heading="Atrasadas"
       />
@@ -34,6 +35,7 @@ export function PlanAgenda({ account }: { account: LocalAccount }) {
       <PlanList
         collapsible
         account={account}
+        groupByCategory={false}
         selection={{ kind: "upcoming", date: today, excludeDate: today }}
         heading="Próximas"
       />

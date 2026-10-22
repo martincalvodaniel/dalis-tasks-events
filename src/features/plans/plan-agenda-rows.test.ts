@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test"
 import {
+  chronologicalPlanAgendaRows,
   createPlanAgendaRows,
   groupPlanAgendaRows,
   orderPlanAgendaRows,
@@ -486,4 +487,120 @@ test("home partition does not require incrementing the last civil day", () => {
       excludeDate: "9999-12-31",
     })
   ).toHaveLength(0)
+})
+
+test("continuous agenda interleaves categories by date while preserving each date's manual order", () => {
+  const records = [
+    plan(1, "task", false),
+    plan(2, "note", false),
+    plan(3, "event", false),
+    plan(4, "appointment", false),
+  ]
+  records[0].schedule = {
+    mode: "all_day",
+    startDate: "2026-10-12",
+    endDateExclusive: "2026-10-13",
+  }
+  records[1].schedule = {
+    mode: "all_day",
+    startDate: "2026-10-10",
+    endDateExclusive: "2026-10-11",
+  }
+  const rows = createPlanAgendaRows(records, [], { kind: "all" })
+  const row = (index: number) => {
+    const found = rows.find((value) => value.series.id === records[index].id)
+    if (!found) throw new Error("Missing agenda test row")
+    return found
+  }
+  const groups = [
+    {
+      id: "red",
+      title: "Red",
+      color: "#ff0000",
+      rows: [row(0), row(3), row(2)],
+    },
+    { id: "blue", title: "Blue", color: "#0000ff", rows: [row(1)] },
+  ]
+  const before = structuredClone(groups)
+  expect(chronologicalPlanAgendaRows(groups).map((value) => value.key)).toEqual(
+    [row(3).key, row(2).key, row(1).key, row(0).key]
+  )
+  expect(groups).toEqual(before)
+  expect(
+    chronologicalPlanAgendaRows(groups.toReversed()).map((value) => value.key)
+  ).toEqual(chronologicalPlanAgendaRows(groups).map((value) => value.key))
+  expect(chronologicalPlanAgendaRows([])).toEqual([])
+})
+
+test("continuous agenda retains slot identities and manual placement order without ranking independent categories", () => {
+  const parent = plan(1),
+    simple = plan(2, "note", false),
+    other = plan(3, "event", false)
+  const rows = createPlanAgendaRows(
+    [parent, simple, other],
+    [appearance(parent)],
+    day
+  )
+  const tags = [
+    tagSchema.parse({
+      id: uuid(50),
+      userId: owner,
+      name: "First",
+      normalizedName: "first",
+      color: "#ff0000",
+      position: 2048,
+      ...metadata,
+    }),
+    tagSchema.parse({
+      id: uuid(51),
+      userId: owner,
+      name: "Second",
+      normalizedName: "second",
+      color: "#0000ff",
+      position: 1024,
+      ...metadata,
+    }),
+  ]
+  const views = [parent, simple, other].map((value, index) =>
+    itemViewSchema.parse({
+      itemId: value.id,
+      userId: owner,
+      primaryTagId: tags[index === 2 ? 1 : 0].id,
+      ...metadata,
+    })
+  )
+  const occurrence = rows.find((row) => row.occurrence)
+  if (!occurrence) throw new Error("Missing recurring row")
+  const placements = [
+    taskPlacementSchema.parse({
+      userId: owner,
+      occurrenceId: simple.id,
+      tagId: tags[0].id,
+      scope: "day",
+      date: day.date,
+      position: 1024,
+      ...metadata,
+    }),
+    taskPlacementSchema.parse({
+      userId: owner,
+      occurrenceId: occurrence.key,
+      tagId: tags[0].id,
+      scope: "day",
+      date: day.date,
+      position: 2048,
+      ...metadata,
+    }),
+  ]
+  const groups = groupPlanAgendaRows(rows, tags, views).map((group) => ({
+    ...group,
+    rows: orderPlanAgendaRows(group.rows, placements, day, group.id),
+  }))
+  const ordered = chronologicalPlanAgendaRows(groups)
+  expect(
+    ordered.filter((row) => row.series.id !== other.id).map((row) => row.key)
+  ).toEqual([simple.id, occurrence.key])
+  expect(ordered.find((row) => row.key === occurrence.key)?.occurrence).toEqual(
+    occurrence.occurrence
+  )
+  expect(groups.find((group) => group.id === tags[0].id)?.color).toBe("#ff0000")
 })
