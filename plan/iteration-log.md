@@ -1,5 +1,13 @@
 # Registro de iteraciones
 
+## 23f — Completados azules y mes expandido automáticamente
+
+Completados pasa de verde a azul700/negrita en claro y azul400/negrita en oscuro. Se identifica y reproduce una causa del color ausente: la primera página de repeticiones dejaba nextCursor y la guardia global desactivaba completados para todo el mes. El consumidor mensual ahora expande automáticamente páginas locales con el lector existente, máximo50páginas de500, rango validado de42días. No requiere pulsar Completar mes; si se alcanza el límite o hay errores, mantiene protección contra afirmar todos completados sin evidencia y orienta a un día concreto. Paginación de Mi espacio/días individuales, datos y protocolo intactos.
+
+Prueba con93excepciones completadas: lectura anterior conserva cursor, nueva lectura completa93/31días con3porfecha, sin pendientes; reabrir última excepción en página posterior deja sólo31oct pendiente. Entradas intactas y rechazo de rango excesivo antes de expansión. SSR valida azul seleccionado y guardias de evidencia/carga parcial.17focalizadas/127aserciones; DoD1370pass/225opt-in skip/0fail/14939aserciones, lint1111sinavisos/tipos/Webpack16.4.2/worker46/diff aprobados.
+
+UI productiva+IndexedDB propio: tres planes completados vuelven el día azul visible, peso calculado700 y color oklch(0.707 0.165 254.624) en oscuro; al reabrir uno vuelve rojo. Captura390px /private/tmp/dalis-23f-calendar-blue.png. La expansión93 se prueba en núcleo real, no se atribuye a esta fixture de3planes. Prueba y bases propias eliminadas, pestaña/servidor retirados y viewport restablecido. No se ha inspeccionado la cuenta del usuario ni se afirma causa única de su dispositivo; sin RPC/Google/prueba física nueva ni DBusuario/producción. Entrada66%5h/95%7d, control63%/94%, reservas10%/1%; mismo commit/pushint/SHA/cuotas.
+
 ## 23e — Día rojo o verde sin recuento
 
 El calendario elimina número de planes, punto y leyenda de recuento. El número del día es rojo/negrita con al menos un plan sin completar, verde/negrita cuando todos sus planes conocidos están completados y neutro sin planes. Selección usa borde/fondo neutro para no tapar el estado; hoy mantiene borde reconocible. Rojo700/verde700 en claro y400 en oscuro. Etiquetas accesibles españolas anuncian estado sin recuento. No se afirma completado si la evidencia de progreso falta, quedan páginas de apariciones o hay errores de expansión; los pendientes conocidos sí quedan rojos. Mensajes/botón de carga mensual ya no hablan de recuento.

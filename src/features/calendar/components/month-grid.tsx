@@ -119,7 +119,7 @@ export function MonthGrid({
                             incomplete
                               ? "font-bold text-red-700 dark:text-red-400"
                               : completed
-                                ? "font-bold text-green-700 dark:text-green-400"
+                                ? "font-bold text-blue-700 dark:text-blue-400"
                                 : undefined
                           }
                         >

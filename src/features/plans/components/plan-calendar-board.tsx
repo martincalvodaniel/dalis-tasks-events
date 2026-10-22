@@ -7,10 +7,12 @@ import { MonthGrid } from "@/features/calendar/components/month-grid"
 import { useAccountDay } from "@/features/calendar/hooks/use-account-day"
 import { useCalendarDate } from "@/features/calendar/hooks/use-calendar-date"
 import { calendarWeeks } from "@/features/calendar/month-view"
-import { planCalendarSummary } from "@/features/plans/calendar-plans"
+import {
+  planCalendarSummary,
+  readPlanCalendarAppearances,
+} from "@/features/plans/calendar-plans"
 import { PlanList } from "@/features/plans/components/plan-list"
 import { useLocalPlans } from "@/features/plans/hooks/use-local-plans"
-import { usePlanAppearances } from "@/features/plans/hooks/use-plan-appearances"
 import type { LocalAccount } from "@/features/workspace/local-account"
 import { civilDateToUtc } from "@/lib/calendar/civil-date"
 
@@ -36,11 +38,17 @@ export function PlanCalendarBoard({ account }: { account: LocalAccount }) {
     () => (startDate && endDate ? { startDate, endDate } : null),
     [startDate, endDate]
   )
-  const appearances = usePlanAppearances(
-    data,
-    account.userId,
-    account.epoch,
-    range
+  const appearances = useMemo(
+    () =>
+      data && range
+        ? readPlanCalendarAppearances(
+            data.plans,
+            data.occurrences,
+            account.userId,
+            range
+          )
+        : { views: [], issues: [], nextCursor: null },
+    [data, range, account.userId]
   )
   const summary = useMemo(
     () =>
@@ -72,22 +80,8 @@ export function PlanCalendarBoard({ account }: { account: LocalAccount }) {
       />
       {appearances.nextCursor ? (
         <p role="status" className="mt-2 text-xs text-zinc-500">
-          Quedan apariciones por cargar. Completa el mes para confirmar los días
-          terminados.
-        </p>
-      ) : null}
-      {appearances.canLoadMore ? (
-        <button
-          type="button"
-          onClick={appearances.loadMore}
-          className="min-h-11 rounded-lg border px-3 text-sm"
-        >
-          Completar mes
-        </button>
-      ) : null}
-      {appearances.limited ? (
-        <p role="status" className="text-xs text-zinc-500">
-          Quedan apariciones sin cargar; consulta un día concreto.
+          Hay demasiadas apariciones para confirmar todo el mes. Consulta un día
+          concreto.
         </p>
       ) : null}
       {appearances.issues.length ? (

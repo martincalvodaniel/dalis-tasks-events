@@ -97,7 +97,7 @@ for (const selectedDate of ["2026-10-11", "2026-10-12", "2026-10-13"]) {
       'class="font-bold text-red-700 dark:text-red-400">11</span>'
     )
     expect(markup).toContain(
-      'class="font-bold text-green-700 dark:text-green-400">12</span>'
+      'class="font-bold text-blue-700 dark:text-blue-400">12</span>'
     )
     expect(markup).toContain("<span>13</span>")
     expect(markup).toContain("planes sin completar")
@@ -120,7 +120,7 @@ test("counts without completion evidence never imply that every plan is complete
       counts: new Map([["2026-10-11", 2]]),
     })
   )
-  expect(markup).not.toContain("text-green-700")
+  expect(markup).not.toContain("text-blue-700")
   expect(markup).not.toContain("todos los planes completados")
 })
 
@@ -138,6 +138,6 @@ test("partial appearance pages keep pending days red but never claim all plans c
     })
   )
   expect(markup).toContain("font-bold text-red-700")
-  expect(markup).not.toContain("text-green-700")
+  expect(markup).not.toContain("text-blue-700")
   expect(markup).not.toContain("todos los planes completados")
 })

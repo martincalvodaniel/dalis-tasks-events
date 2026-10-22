@@ -1,5 +1,11 @@
 # Iteraciones de implementación
 
+## 23f — Completados azules y expansión mensual automática
+
+Objetivo: sustituir verde por azul/negrita y corregir la causa verificable que oculta completados cuando la primera página mensual deja nextCursor. target_paths: calendar/components/month-grid y SSR; plans/calendar-plans y tests, components/plan-calendar-board; plan/log/guía. Dependencia17c686f limpia en int, entrada66%5h/95%7d, reservas10%/1%, secuencial. Expandir automáticamente el mes local con lector existente,500porpágina y50páginas como máximo; conservar guardia de incompletitud/errores si se alcanza límite, sin afirmar azul de datos desconocidos. No cambiar paginación de Mi espacio ni días individuales. Pruebas de más de50slots con excepciones completas y posterior pendiente/rollback de estado, SSR azul seleccionado y rojo/vacíos, UI real completar/reabrir, suite/lint/tipos/Webpack/worker/diff. Mismo commit/pushint/SHA/cuotas. Sin datos de usuario/producción/índices/protocolo/dependencias.
+
+Resultado23f: azul visible y expansión mensual automática activos, sin guardia falsa por primera página.17focalizadas/127aserciones y prueba93slots; DoD1370/225skip/0fail/14939, lint1111/tipos/Webpack/worker46 y QA390px azul→rojo aprobados. Detalle/límites en iteration-log.
+
 ## 23e — Estado en el número del día, sin recuento ni punto
 
 Objetivo solicitado: sustituir número de planes/punto por número del día rojo+negrita con al menos un pendiente y verde+negrita si todos sus planes están completados; fechas vacías neutras. target_paths: calendar/components/month-grid, month-view.test y plans/components/plan-calendar-board; plan/log/guía. Dependencia f37580d limpio en int, entrada73%5h/96%7d, reservas10%/1%, secuencial. Reutilizar resumen diario activo de planes/apariciones, sin persistencia o lecturas nuevas. Seleccionado/hoy siguen reconocibles con borde/fondo sin tapar color del número, ambos temas y descripción accesible española sin recuento. No afirmar todos completados mientras falten páginas o haya apariciones con errores; mensaje de carga sin recuento visual. Preservar navegación/swipe/destinos de arrastre. SSR estados y selección/carga parcial, QA real completar/reabrir, suite/lint/tipos/Webpack/worker/diff; mismo commit/pushint/SHA/cuotas. Sin DBusuario/producción/índices/protocolo/dependencias.
