@@ -1,5 +1,11 @@
 # Iteraciones de implementación
 
+## 23l — Configuración Vercel: España y París
+
+Objetivo: añadir vercel.ts con export config, bloqueo mitigate deny para todas las rutas cuyo x-vercel-ip-country no sea ES y región cdg1; sin modificar panel ni desplegar. target_paths: vercel.ts, plan/master.md, iterations.md e iteration-log.md. Dependencia7cbc184 limpia en main humano; commit local en rama actual, sin pushmain. Configuración estática TypeScript sin dependencias nuevas; documentación oficial Vercel confirma exportconfig, routes/mitigate/missing y región. Aceptación: España continúa a rutas Next, otros países y país ausente bloqueados, funciones en París; nombreOnlySpain es referencia del requisito, no campo no admitido en routes. Validar export TS y esquema oficial, lint/tipos del archivo, diff. No cambios de código de aplicación ni DB; validación remota sólo después de desplegar. Entrada33%5h/71%7d, reservas10%/1%, secuencial.
+
+Resultado23l: vercel.ts creado, export/esquema oficial/lint/tipos y DoD1386/225skip/0fail/lint1117/Webpack/worker46 aprobados. Sin pushmain ni aplicación remota; detalle en iteration-log.
+
 ## 23k — Categorías sin desplegable y acciones SVG directas
 
 Objetivo: categorías con lápiz y cruz roja a la derecha, sin details/summary, conservando nombre/color/orden/disabled y confirmación. target_paths: tags/components/tag-card y test; components/ui/row-actions nuevo reutilizado desde plans/components/plan-card para no duplicar SVG/estilos; fixture tag-color con modo de prueba de fila y diálogos existentes; plan/log/guía. Dependencia02e7ab7 limpia en int, entrada67%5h/76%7d, reservas10%/1%, secuencial. Área táctil44px y nombres/tooltip españoles; color y título largo no solapan iconos, acciones no inician arrastre. Editor/borrado reales de TagManager siguen conectados. SSR normal/busy/long/orderControl y regresión PlanCard, QA móvil320/390 con componentes reales sin DB (abrir edición/cancelar confirmación), suite/lint/tipos/Webpack/worker/diff; mismo commit/pushint/SHA/cuotas. Sin datos/índices/protocolo/dependencias/producción.

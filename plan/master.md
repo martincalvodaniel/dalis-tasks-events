@@ -1,5 +1,15 @@
 # Dalis Tasks & Events — plan maestro
 
+## 23l — Vercel TypeScript: España y París
+
+Nuevo vercel.ts con export config, regions:[cdg1] y routes/mitigate:deny para cualquier ruta cuyo header de geolocalización Vercel x-vercel-ip-country no coincida con ES (missing). España continúa al enrutado del framework; otros países y país ausente quedan bloqueados. No se añade nombreOnlySpain no admitido por rutas: es la equivalencia declarativa de la regla del screenshot, no una creación de regla nombrada en el panel. Funciones en París; recursos estáticos conservan distribución global. Mismo alcance en despliegues Preview/Production que incluyan el archivo, sin distinción de rama. No excepciones para API, auth o assets; no implementación de bloqueo en desarrollo local. Sin dependencias nuevas ni cambios de aplicación/datos/índices.
+
+Fuentes: [configuración TypeScript](https://vercel.com/docs/project-configuration/vercel-ts), [WAF declarativo](https://vercel.com/docs/vercel-firewall/vercel-waf/custom-rules), [header de país](https://vercel.com/docs/headers/request-headers#x-vercel-ip-country), [regiones](https://vercel.com/docs/regions) y [esquema oficial](https://openapi.vercel.sh/vercel.json). El paquete @vercel/config ofrece tipos/helpers opcionales; config exportado plano evita dependencia adicional. Validación de export con Bun, esquema oficial Draft4 con jsonschema temporal fuera del repo, lint y tipos del archivo aprobados. No se atribuye prueba geográfica/403 remota ni creación en panel: requiere despliegue posterior.
+
+DoD final:1386pass/225opt-in skip/0fail/15104aserciones, lint1117sinavisos/tipos/Webpack16.4.2/worker46 aprobados; diff limpio. Build local no interpreta reglas del edgeVercel, por lo que no acredita bloqueo geográfico desplegado.
+
+Rama actual main conservada, sin push ni despliegue productivo. Entrada33%5h/71%7d y control30/71; reservas10%/1%, secuencial. Dependencias existentes restauradas con install frozen sin cambios de manifests/lockfile para DoD.
+
 ## 23k — Categorías sin desplegable e iconos directos
 
 TagCard elimina details/summary y muestra lápiz SVG y cruz roja SVG a la derecha. RowActions extrae las acciones existentes de PlanCard para compartir iconos, estilos y áreas táctiles de44px; ambos mantienen nombres accesibles españoles y disabled mientras guardan. Nombre flexible, color y orderControl se conservan. TagManager mantiene sus callbacks y confirmación de borrado sin cambios.
