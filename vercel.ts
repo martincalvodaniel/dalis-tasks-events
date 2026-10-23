@@ -1,4 +1,6 @@
-export const config = {
+import type { VercelConfig } from "@vercel/config/v1"
+
+export const config: VercelConfig = {
   regions: ["cdg1"],
   routes: [
     {

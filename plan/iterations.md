@@ -1,5 +1,11 @@
 # Iteraciones de implementación
 
+## 23m — Tipado oficial de configuración Vercel
+
+Objetivo: añadir import type VercelConfig desde @vercel/config/v1 y verificar config contra contrato oficial, preservando España/París. target_paths: vercel.ts, package.json, bun.lock, plan/master.md, iterations.md e iteration-log.md. Dependencia c229c25 limpia en main; paquete de herramientas de configuración como devDependency solicitado por tipado, sin dependencia core/runtime. Aceptación: compilación sin casts ni tipos manuales, misma configuración serializada y esquema oficial válido. Validación lint/tipos/suite/build/worker/diff. Commit local main sin push. Entrada28%5h/70%7d, reservas10%/1%, secuencial.
+
+Resultado23m: tipo oficial VercelConfig y devDependency exacta0.13.0, export idéntico a23l y frozen coherente. DoD1386/225skip/0fail/lint1117/tipos/Webpack/worker46 aprobados. Commit local main sin push.
+
 ## 23l — Configuración Vercel: España y París
 
 Objetivo: añadir vercel.ts con export config, bloqueo mitigate deny para todas las rutas cuyo x-vercel-ip-country no sea ES y región cdg1; sin modificar panel ni desplegar. target_paths: vercel.ts, plan/master.md, iterations.md e iteration-log.md. Dependencia7cbc184 limpia en main humano; commit local en rama actual, sin pushmain. Configuración estática TypeScript sin dependencias nuevas; documentación oficial Vercel confirma exportconfig, routes/mitigate/missing y región. Aceptación: España continúa a rutas Next, otros países y país ausente bloqueados, funciones en París; nombreOnlySpain es referencia del requisito, no campo no admitido en routes. Validar export TS y esquema oficial, lint/tipos del archivo, diff. No cambios de código de aplicación ni DB; validación remota sólo después de desplegar. Entrada33%5h/71%7d, reservas10%/1%, secuencial.

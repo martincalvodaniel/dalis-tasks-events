@@ -1,5 +1,13 @@
 # Dalis Tasks & Events — plan maestro
 
+## 23m — Tipado oficial de vercel.ts
+
+vercel.ts importa type VercelConfig desde @vercel/config/v1 y anota config con el contrato oficial, sin casts ni tipos manuales. @vercel/config0.13.0 añadido como devDependency con versión exacta y bun.lock actualizado; instalación frozen aprobada sin cambios. No dependencia core ni import runtime: TypeScript elimina importtype. Export serializado comparado con23l idéntico (España/París/missing/deny), tipos del proyecto aprobados. Mismo esquema oficial validado en23l aplicable al objeto idéntico; no se atribuye despliegue ni prueba geográfica remota.
+
+DoD:1386pass/225opt-in skip/0fail/15104aserciones, lint1117sinavisos/tipos/Webpack16.4.2/worker46/diff aprobados.
+
+Entrada28%5h/70%7d, reservas10%/1%, secuencial. Rama main conservada; commit local sin push ni despliegue. Sin cambios de aplicación/datos/índices/panel/permisos.
+
 ## 23l — Vercel TypeScript: España y París
 
 Nuevo vercel.ts con export config, regions:[cdg1] y routes/mitigate:deny para cualquier ruta cuyo header de geolocalización Vercel x-vercel-ip-country no coincida con ES (missing). España continúa al enrutado del framework; otros países y país ausente quedan bloqueados. No se añade nombreOnlySpain no admitido por rutas: es la equivalencia declarativa de la regla del screenshot, no una creación de regla nombrada en el panel. Funciones en París; recursos estáticos conservan distribución global. Mismo alcance en despliegues Preview/Production que incluyan el archivo, sin distinción de rama. No excepciones para API, auth o assets; no implementación de bloqueo en desarrollo local. Sin dependencias nuevas ni cambios de aplicación/datos/índices.
