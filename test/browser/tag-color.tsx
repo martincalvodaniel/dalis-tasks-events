@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { createRoot } from "react-dom/client"
+import { DeleteTagDialog } from "@/features/tags/components/delete-tag-dialog"
+import { TagCard } from "@/features/tags/components/tag-card"
 import { TagForm } from "@/features/tags/components/tag-form"
 import type { TagDraft } from "@/features/tags/local-tags"
 import type { Tag } from "@/types/preferences"
@@ -21,6 +23,16 @@ const initialTag: Tag = {
 }
 export function TagColorFixture() {
   const [saved, setSaved] = useState<TagDraft | null>(null)
+  const [editing, setEditing] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState(false)
+  const [removed, setRemoved] = useState(false)
+  const cardTag = query.has("long")
+    ? {
+        ...initialTag,
+        name: "Categoría de prueba con un nombre suficientemente largo para ocupar varias líneas",
+      }
+    : initialTag
+
   function changeColor() {
     const input = document.querySelector<HTMLInputElement>(
       'input[type="color"]'
@@ -35,6 +47,47 @@ export function TagColorFixture() {
     input.dispatchEvent(new Event("input", { bubbles: true }))
     input.dispatchEvent(new Event("change", { bubbles: true }))
   }
+  if (query.has("card"))
+    return (
+      <main className="mx-auto max-w-sm">
+        {!removed ? (
+          <TagCard
+            tag={cardTag}
+            busy={query.has("disabled")}
+            onEdit={() => setEditing(true)}
+            onDelete={() => setPendingDelete(true)}
+          />
+        ) : (
+          <p>Categoría de prueba eliminada.</p>
+        )}
+        {editing ? (
+          <TagForm
+            initialTag={cardTag}
+            newPosition={0}
+            disabled={false}
+            onCancel={() => setEditing(false)}
+            onSave={async (_id, draft) => {
+              setSaved(draft)
+              setEditing(false)
+            }}
+          />
+        ) : null}
+        {pendingDelete ? (
+          <DeleteTagDialog
+            tag={cardTag}
+            busy={false}
+            onClose={() => setPendingDelete(false)}
+            onConfirm={async () => {
+              setRemoved(true)
+              setPendingDelete(false)
+            }}
+          />
+        ) : null}
+        <p role="status" className="mt-3 text-xs">
+          Prueba de acciones sin base de datos.
+        </p>
+      </main>
+    )
   return (
     <main className="mx-auto max-w-sm">
       <TagForm

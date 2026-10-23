@@ -1,6 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
+import { RowActions } from "@/components/ui/row-actions"
 import { PlanCompletionButton } from "@/features/plans/components/plan-completion-button"
 import { TaskChecklist } from "@/features/tasks/components/task-checklist"
 import { civilDateToUtc } from "@/lib/calendar/civil-date"
@@ -73,57 +74,13 @@ export function PlanCard({
             · {statusLabels[plan.status]}
           </p>
         </div>
-        {onEdit || onDelete ? (
-          <div className="flex shrink-0">
-            {onEdit ? (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={onEdit}
-                aria-label={`${editLabel} ${plan.title}`}
-                title={editLabel}
-                className="flex size-11 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-emerald-700 disabled:opacity-50 dark:text-zinc-400 dark:hover:bg-zinc-800"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.75"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="size-4"
-                  aria-hidden="true"
-                  focusable="false"
-                >
-                  <path d="m16 3 5 5M4 20l4-1L21 6a2 2 0 0 0-4-4L4 15z" />
-                </svg>
-              </button>
-            ) : null}
-            {onDelete ? (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={onDelete}
-                aria-label={`${deleteLabel} ${plan.title}`}
-                title={deleteLabel}
-                className="flex size-11 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-600 disabled:opacity-50 dark:text-red-400 dark:hover:bg-zinc-800"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.75"
-                  strokeLinecap="round"
-                  className="size-4"
-                  aria-hidden="true"
-                  focusable="false"
-                >
-                  <path d="m6 6 12 12M18 6 6 18" />
-                </svg>
-              </button>
-            ) : null}
-          </div>
-        ) : null}
+        <RowActions
+          onEdit={onEdit}
+          onDelete={onDelete}
+          busy={busy}
+          editLabel={`${editLabel} ${plan.title}`}
+          deleteLabel={`${deleteLabel} ${plan.title}`}
+        />
       </div>
       {plan.description ? (
         <p className="pr-3 pb-1.5 pl-11 text-xs whitespace-pre-wrap wrap-anywhere text-zinc-600 dark:text-zinc-400">

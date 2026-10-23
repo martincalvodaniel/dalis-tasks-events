@@ -1,5 +1,13 @@
 # Registro de iteraciones
 
+## 23k — Categorías sin desplegable e iconos directos
+
+TagCard elimina details/summary y muestra lápiz SVG y cruz roja SVG a la derecha. RowActions extrae las acciones existentes de PlanCard para compartir iconos, estilos y áreas táctiles de44px; ambos mantienen nombres accesibles españoles y disabled mientras guardan. Nombre flexible, color y orderControl se conservan. TagManager mantiene sus callbacks y confirmación de borrado sin cambios.
+
+Dos tests SSR cubren ausencia de desplegable, SVG/labels/color/orden, nombre largo y busy; regresión PlanCard intacta. Siete focalizadas/132aserciones; DoD1386pass/225opt-in skip/0fail/15104aserciones, lint1116sinavisos/tipos/Webpack16.4.2/worker46/diff aprobados. Se corrigió un cierre JSX durante extracción antes de validar fuentes finales. Fixture local sin DB preparada con TagCard, TagForm y DeleteTagDialog reales; QA visual móvil NO ejecutada: inventario CUA sin navegadores y createBrowserTab iab no disponible. No se atribuye recorrido visual ni prueba de gestos nueva. Servidor propio retirado, sin pestañas creadas ni datos persistidos.
+
+Entrada67%5h/76%7d, control54%/74%, reservas10%/1%, secuencial. Sin datos/índices/protocolo/dependencias/DBusuario/producción. Mismo commit/pushint/SHA/cuotas.
+
 ## 23j — Sin espacios verticales sobrantes ni Ver más en agenda
 
 Mi espacio elimina margen superior de Atrasadas mediante flushTop; separación de Hoy/Próximas se mantiene. Calendario usa padding horizontal y0vertical también en escritorio. usePlanAppearances elimina estado/botones de paginación y lee todas las páginas con modo all y tamaño500, conservando cursor/guardia de avance del lector puro. PlanList retira Ver más y aviso de página parcial de este consumidor. Modo numérico y tope mensual de otros callers se conservan.
